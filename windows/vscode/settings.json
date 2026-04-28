@@ -1,0 +1,33 @@
+{
+    "workbench.browser.showInTitleBar": false,
+    "workbench.layoutControl.enabled": false,
+    "window.commandCenter": false,
+    "window.menuBarVisibility": "toggle",
+    "workbench.startupEditor": "none",
+    "workbench.activityBar.location": "bottom",
+    "editor.fontSize": 16,
+    "editor.fontFamily": "IBM Plex Mono",
+    "editor.lineHeight": 1.48125,
+    "editor.minimap.enabled": false,
+    "editor.scrollbar.horizontal": "hidden",
+    "editor.scrollbar.vertical": "hidden",
+    "terminal.integrated.fontFamily": "IBM Plex Mono",
+    "terminal.integrated.fontSize": 16,
+    "window.title": " ",
+    "explorer.excludeGitIgnore": true,
+    "vim.showmodename": false,
+    "vim.handleKeys": {
+        "<C-b>": false,
+        "<C-p>": false,
+        "<C-s>": false
+    },
+    "github.copilot.nextEditSuggestions.enabled": false,
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false,
+        "cpp": false
+    },
+    "workbench.colorTheme": "Vague",
+}
