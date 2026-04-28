@@ -1,0 +1,7 @@
+width=600
+height=300
+location=center
+allow_images=true
+allow_markup=true
+no_actions=true
+prompt=Search...

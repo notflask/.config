@@ -80,6 +80,46 @@ sync_vscode() {
     "vscode snippets"
 }
 
+sync_hypr() {
+  echo "── Hyprland ────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/hypr" \
+    "$DOTFILES/linux/.config/hypr" \
+    "hypr config"
+}
+
+sync_matugen() {
+  echo "── Matugen ─────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/matugen" \
+    "$DOTFILES/linux/.config/matugen" \
+    "matugen config"
+}
+
+sync_waybar() {
+  echo "── Waybar ──────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/waybar" \
+    "$DOTFILES/linux/.config/waybar" \
+    "waybar config"
+}
+
+sync_waypaper() {
+  echo "── Waypaper ────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/waypaper" \
+    "$DOTFILES/linux/.config/waypaper" \
+    "waypaper config"
+}
+
+sync_wofi() {
+  echo "── Wofi ────────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/wofi" \
+    "$DOTFILES/linux/.config/wofi" \
+    "wofi config"
+}
+
 sync_sioyek() {
   echo "── Sioyek ──────────────────────────────────────"
   sync_file \
@@ -125,8 +165,18 @@ nvim) sync_nvim ;;
 glazewm) sync_glazewm ;;
 vscode) sync_vscode ;;
 sioyek) sync_sioyek ;;
+hypr) sync_hypr ;;
+matugen) sync_matugen ;;
+waybar) sync_waybar ;;
+waypaper) sync_waypaper ;;
+wofi) sync_wofi ;;
 all)
   sync_nvim
+  sync_hypr
+  sync_matugen
+  sync_waybar
+  sync_waypaper
+  sync_wofi
   sync_glazewm
   sync_vscode
   sync_sioyek
@@ -134,7 +184,7 @@ all)
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | glazewm | vscode | sioyek"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek"
   exit 1
   ;;
 esac

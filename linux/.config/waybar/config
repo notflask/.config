@@ -1,0 +1,87 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "height": 32,
+
+    "modules-left": ["hyprland/workspaces", "hyprland/window"],
+    "modules-center": [],
+    "modules-right": ["tray", "network", "hyprland/language", "power-profiles-daemon" , "battery", "pulseaudio", "clock", "custom/power"],
+
+    "hyprland/workspaces": {
+        "format": "{id}",
+        "on-click": "activate",
+    },
+
+    "hyprland/language": {
+	    "format": "<b>{}</b>",
+	    "format-en": "us",
+	    "format-de": "de",
+	    "format-ru": "ru",
+	    "format-uk": "ua"
+    },
+
+    "hyprland/window": {
+        "max-length": 60
+    },
+
+    "network": {
+        "format-wifi": "  {essid}",
+        "format-ethernet": " 󰈀 ",
+        "format-disconnected": "󰖪  disconnected",
+        "tooltip-format": "{ipaddr}"
+    },
+
+    "battery": {
+        "format": "{icon}  {capacity}%",
+        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "format-charging": "󰂄  {capacity}%",
+        "states": {
+            "warning": 30,
+            "critical": 15
+        }
+    },
+
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "󰝟  muted",
+        "format-icons": {
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pavucontrol"
+    },
+
+    "clock": {
+        "format": "  {:%H:%M}",
+        "format-alt": "  {:%d.%m.%Y}",
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
+        "on-click": "toggle-format"
+    },
+
+    "custom/power": {
+       "format": "󰐥 ",
+       "on-click": "wlogout",
+       "tooltip": false
+    },
+
+    "tray": {
+    "icon-size": 18,               // Größe der Icons in Pixeln
+    "spacing": 10,                 // Abstand zwischen den Icons
+    "show-passive-items": true,    // Zeigt auch inaktive Icons an
+    "reverse-direction": false,    // Kehrt die Reihenfolge der Icons um
+    "smooth-scrolling-threshold": 1.0,
+    "on-update": "",               // Führt ein Skript bei Änderungen aus
+    "tooltip": true                // Zeigt App-Namen beim Drüberfahren an
+    },
+
+    "power-profiles-daemon": {
+  "format": "{icon}",
+  "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+  "tooltip": true,
+  "format-icons": {
+    "default": "",
+    "performance": "",
+    "balanced": "",
+    "power-saver": ""
+  }
+}
+}

@@ -1,0 +1,44 @@
+window {
+    font-family: Inter;
+    margin: 0px;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+input {
+    margin: 8px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: none;
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 14px;
+}
+
+#inner-box {
+    margin: 4px;
+}
+
+#outer-box {
+    margin: 4px;
+}
+
+#entry {
+    padding: 4px 10px;
+    border-radius: 8px;
+    color: white;
+}
+
+#entry:selected {
+    background-color: rgba(255,255,255,0.15);
+}
+
+#text {
+    margin-left: 4px;
+    font-size: 14px;
+}
+
+#img {
+    margin-left: 4px;
+}
