@@ -132,6 +132,14 @@ sync_sioyek() {
     "sioyek keys.config"
 }
 
+sync_tmux() {
+  echo "── Tmux ──────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/tmux" \
+    "$DOTFILES/linux/.config/tmux" \
+    "tmux config"
+}
+
 # ── Git commit & push ────────────────────────────────────────
 
 git_push() {
@@ -170,6 +178,7 @@ matugen) sync_matugen ;;
 waybar) sync_waybar ;;
 waypaper) sync_waypaper ;;
 wofi) sync_wofi ;;
+tmux) sync_tmux ;;
 all)
   sync_nvim
   sync_hypr
@@ -180,11 +189,12 @@ all)
   sync_glazewm
   sync_vscode
   sync_sioyek
+  sync_tmux
   git_push
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux"
   exit 1
   ;;
 esac

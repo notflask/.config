@@ -22,6 +22,7 @@ return {
     },
   },
 
-  { "akinsho/bufferline.nvim",   version = "*",  dependencies = "nvim-tree/nvim-web-devicons", enabled = false },
-  { "nvim-lualine/lualine.nvim", enabled = false }
+  { "akinsho/bufferline.nvim", version = "*", dependencies = "nvim-tree/nvim-web-devicons", enabled = false },
+  { "nvim-lualine/lualine.nvim", enabled = false },
+  { "folke/noice.nvim", enabled = false },
 }
