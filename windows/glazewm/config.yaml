@@ -1,9 +1,9 @@
 general:
-  startup_commands: ['shell-exec zebar']
+  # startup_commands: ['shell-exec zebar']
 
-  shutdown_commands: ['shell-exec taskkill /IM zebar.exe /F']
+  # shutdown_commands: ['shell-exec taskkill /IM zebar.exe /F']
 
-  config_reload_commands: []
+  # config_reload_commands: []
 
   focus_follows_cursor: false
 
@@ -29,9 +29,9 @@ gaps:
   inner_gap: '20px'
 
   outer_gap:
-    top: '0px'
+    top: '5px'
     right: '5px'
-    bottom: '30px'
+    bottom: '5px'
     left: '5px'
 
 window_effects:
