@@ -62,6 +62,10 @@ sync_glazewm() {
     "$WIN_HOME/.glzr/glazewm" \
     "$DOTFILES/windows/glazewm" \
     "glazewm config"
+  sync_file \
+    "$WIN_HOME/.glzr/zebar" \
+    "$DOTFILES/windows/zebar" \
+    "zebar config"
 }
 
 sync_vscode() {

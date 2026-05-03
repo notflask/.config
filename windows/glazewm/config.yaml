@@ -1,4 +1,8 @@
 general:
+  startup_commands: ['shell-exec zebar']
+
+  shutdown_commands: ['shell-exec taskkill /IM zebar.exe /F']
+
   config_reload_commands: []
 
   focus_follows_cursor: false
@@ -26,9 +30,9 @@ gaps:
 
   outer_gap:
     top: '0px'
-    right: '0px'
-    bottom: '0px'
-    left: '0px'
+    right: '5px'
+    bottom: '30px'
+    left: '5px'
 
 window_effects:
   focused_window:
@@ -101,7 +105,10 @@ workspaces:
 window_rules:
   - commands: ['ignore']
     match:
+      - window_class: { equals: 'VALORANTUnrealWindow'}
       - window_process: { equals: 'zebar' }
+      - window_process: { equals: 'dota2' }
+      - window_process: { equals: 'eurotrucks2' }
 
       - window_title: { regex: '[Pp]icture.in.[Pp]icture' }
         window_class: { regex: 'Chrome_WidgetWin_1|MozillaDialogClass' }
@@ -120,6 +127,11 @@ window_rules:
         window_class: { not_regex: 'OpusApp' }
       - window_process: { equals: 'POWERPNT' }
         window_class: { not_regex: 'PPTFrameClass' }
+
+  - commands: ['set-floating']
+    match: 
+      - window_process: { equals: "Telegram" }
+      - window_title: { equals: 'Bitwarden' }
 
 binding_modes:
   - name: 'resize'
@@ -185,10 +197,6 @@ keybindings:
   # Change the focused window to be floating.
   - commands: ['toggle-floating --centered']
     bindings: ['alt+shift+space']
-
-  # Change the focused window to be tiling.
-  - commands: ['toggle-tiling']
-    bindings: ['alt+t']
 
   # Change the focused window to be fullscreen.
   - commands: ['toggle-fullscreen']

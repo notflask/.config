@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+    <script
+      src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"
+      integrity="sha256-aS0B0wnsaDByLfE16h4MDCP1fQFccysd1YWOcV+gbBo="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel" data-type="module">
+      import React, { useState, useEffect } from 'https://esm.sh/react@18?dev';
+      import { createRoot } from 'https://esm.sh/react-dom@18/client?dev';
+      import * as zebar from 'https://esm.sh/zebar@3';
+
+      const providers = zebar.createProviderGroup({
+        glazewm: { type: 'glazewm' },
+        cpu:     { type: 'cpu',     refreshInterval: 3000 },
+        memory:  { type: 'memory',  refreshInterval: 5000 },
+        battery: { type: 'battery', refreshInterval: 10000 },
+        date:    { type: 'date',    formatting: 'HH:mm' },
+      });
+
+      createRoot(document.getElementById('root')).render(<App />);
+
+      function App() {
+        const [output, setOutput] = useState(providers.outputMap);
+        useEffect(() => {
+          providers.onOutput(() => setOutput(providers.outputMap));
+        }, []);
+
+        return (
+          <div className="bar">
+            <Left output={output} />
+            <Center output={output} />
+            <Right output={output} />
+          </div>
+        );
+      }
+
+      function Left({ output }) {
+        const wm = output.glazewm;
+        if (!wm) return <div className="left" />;
+        return (
+          <div className="left">
+            {wm.allWorkspaces.map(ws => (
+              <button
+                key={ws.name}
+                className={[
+                  'workspace',
+                  ws.hasFocus      ? 'active'      : '',
+                  ws.children?.length ? 'has-windows' : '',
+                ].join(' ').trim()}
+                onClick={() => wm.runCommand(`focus --workspace ${ws.name}`)}
+              >
+                {ws.displayName ?? ws.name}
+              </button>
+            ))}
+            {wm.activeBindingModes?.map(mode => (
+              <span key={mode.name} className="binding-mode">{mode.name}</span>
+            ))}
+          </div>
+        );
+      }
+
+      function Center({ output }) {
+        return <div className="center"></div>;
+      }
+
+      function Right({ output }) {
+        const cpu = output.cpu;
+        const mem = output.memory;
+        const bat = output.battery;
+        const time = output.date?.formatted ?? '——:——';
+
+        const cpuVal = cpu  ? Math.round(cpu.usage)                              : null;
+        const memVal = mem  ? Math.round(mem.usedMemory / mem.totalMemory * 100) : null;
+        const batVal = bat  ? Math.round(bat.chargePercent)                      : null;
+
+        return (
+          <div className="right">
+            {cpuVal !== null && (
+              <span className={`stat ${cpuVal > 85 ? 'danger' : cpuVal > 60 ? 'warn' : ''}`}>
+                CPU <em>{cpuVal}%</em>
+              </span>
+            )}
+            {memVal !== null && (
+              <span className={`stat ${memVal > 90 ? 'danger' : memVal > 75 ? 'warn' : ''}`}>
+                MEM <em>{memVal}%</em>
+              </span>
+            )}
+            {batVal !== null && (
+              <span className={`stat ${batVal < 15 && !bat.isCharging ? 'danger' : batVal < 30 && !bat.isCharging ? 'warn' : ''}`}>
+                BAT <em>{bat.isCharging ? '⚡' : ''}{batVal}%</em>
+              </span>
+            )}
+            <span className="clock">{time}</span>
+          </div>
+        );
+      }
+    </script>
+  </body>
+</html>

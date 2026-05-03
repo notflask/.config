@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  background: #000000;
+  font-family: 'Fira Code', monospace;
+  font-size: 16px;
+  overflow: hidden;
+  user-select: none;
+}
+
+.bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  position: relative;
+}
+
+/* ── LEFT ── */
+.left { display: flex; align-items: center; gap: 4px; }
+
+.workspace {
+  background: transparent;
+  color: #cccccc;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.1s;
+}
+.workspace:hover       { color: #555555; }
+.workspace.has-windows { color: #555555; }
+.workspace.active      { color: #f5bde6; }
+
+.binding-mode {
+  background: #e55050;
+  color: #0d0d0d;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ── CENTER ── */
+.center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #3d3d3d;
+  font-size: 16px;
+  max-width: 40%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── RIGHT ── */
+.right { display: flex; align-items: center; gap: 14px; }
+
+.stat    { color: #3d3d3d; font-size: 16px; }
+.stat em { font-style: normal; color: #777777; }
+.stat.warn   em { color: #e5a550; }
+.stat.danger em { color: #e55050; }
+
+.clock {
+  color: #cccccc;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
