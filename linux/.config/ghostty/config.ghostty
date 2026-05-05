@@ -1,0 +1,5 @@
+theme = Vague
+font-size = 16.5
+gtk-titlebar = false
+window-padding-x = 8
+window-padding-y = 8
