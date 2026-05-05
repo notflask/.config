@@ -210,11 +210,13 @@ all)
   sync_vscode
   sync_sioyek
   sync_tmux
+  sync_niri
+  sync_fuzzel
   git_push
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel"
   exit 1
   ;;
 esac
