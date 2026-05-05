@@ -174,7 +174,7 @@ layout {
     border {
         on
 
-        width 3
+        width 2
     }
 
     // You can enable drop shadows for windows.
@@ -241,7 +241,7 @@ spawn-at-startup "waypaper" "--restore"
 
 hotkey-overlay {
     // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
-    // skip-at-startup
+    skip-at-startup
 }
 
 // Uncomment this line to ask the clients to omit their client-side decorations if possible.
