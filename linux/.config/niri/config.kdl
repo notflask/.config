@@ -220,9 +220,9 @@ layout {
     // Top and bottom struts will simply add outer gaps in addition to the area occupied by
     // layer-shell panels and regular gaps.
     struts {
-        // left 64
-        // right 64
-        // top 64
+        left -8
+        right -8
+        top -8
         // bottom 64
     }
 }
@@ -305,20 +305,9 @@ window-rule {
     // block-out-from "screencast"
 }
 
-// Example: enable rounded corners for all windows.
-// (This example rule is commented out with a "/-" in front.)
 window-rule {
-    geometry-corner-radius 16
-    clip-to-geometry true 
-}
-
-// Enable blur behind the Alacritty terminal.
-window-rule {
-    match app-id="^Alacritty$"
-
-    background-effect {
-        blur true
-    }
+    geometry-corner-radius 12
+    clip-to-geometry true
 }
 
 layer-rule {
