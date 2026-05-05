@@ -1,8 +1,8 @@
-@define-color primary #ffc87f;
-@define-color secondary #e7bdb1;
-@define-color tertiary #d8c68d;
-@define-color surface #1a110f;
+@define-color primary #94cdf7;
+@define-color secondary #b7c9d9;
+@define-color tertiary #cec0e8;
+@define-color surface #101417;
 @define-color error #ffb4ab;
 
-@define-color accent_color #ffb59f;
-@define-color inactive_color #53433f;
+@define-color accent_color #94cdf7;
+@define-color inactive_color #41474d;

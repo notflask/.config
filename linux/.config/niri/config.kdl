@@ -1,3 +1,5 @@
+include "~/.config/niri/colors.kdl"
+
 input {
     keyboard {
         xkb {
@@ -170,23 +172,9 @@ layout {
 
     // You can also add a border. It's similar to the focus ring, but always visible.
     border {
-        // The settings are the same as for the focus ring.
-        // If you enable the border, you probably want to disable the focus ring.
         on
 
         width 3
-        active-color "#ffc87f"
-        inactive-color "#505050"
-
-        // Color of the border around windows that request your attention.
-        urgent-color "#9b0000"
-
-        // Gradients can use a few different interpolation color spaces.
-        // For example, this is a pastel rainbow gradient via in="oklch longer hue".
-        //
-        // active-gradient from="#e5989b" to="#ffb4a2" angle=45 relative-to="workspace-view" in="oklch longer hue"
-
-        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
     }
 
     // You can enable drop shadows for windows.
@@ -322,6 +310,23 @@ window-rule {
 window-rule {
     geometry-corner-radius 16
     clip-to-geometry true 
+}
+
+// Enable blur behind the Alacritty terminal.
+window-rule {
+    match app-id="^Alacritty$"
+
+    background-effect {
+        blur true
+    }
+}
+
+layer-rule {
+    match namespace="waybar"
+
+    background-effect {
+        blur true
+    }
 }
 
 binds {
