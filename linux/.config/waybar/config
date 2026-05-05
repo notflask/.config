@@ -3,24 +3,24 @@
     "position": "bottom",
     "height": 32,
 
-    "modules-left": ["hyprland/workspaces", "hyprland/window"],
+    "modules-left": ["niri/workspaces", "niri/window"],
     "modules-center": [],
-    "modules-right": ["tray", "network", "hyprland/language", "power-profiles-daemon" , "battery", "pulseaudio", "clock", "custom/power"],
+    "modules-right": ["tray", "network", "niri/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/power"],
 
-    "hyprland/workspaces": {
-        "format": "{id}",
-        "on-click": "activate",
+    "niri/workspaces": {
+        "format": "{value}"
     },
 
-    "hyprland/language": {
-	    "format": "<b>{}</b>",
-	    "format-en": "us",
-	    "format-de": "de",
-	    "format-ru": "ru",
-	    "format-uk": "ua"
+    "niri/language": {
+        "format": "<b>{}</b>",
+        "format-en": "us",
+        "format-de": "de",
+        "format-ru": "ru",
+        "format-uk": "ua"
     },
 
-    "hyprland/window": {
+    "niri/window": {
+        "format": "{title}",
         "max-length": 60
     },
 
@@ -64,24 +64,19 @@
     },
 
     "tray": {
-    "icon-size": 18,               // Größe der Icons in Pixeln
-    "spacing": 10,                 // Abstand zwischen den Icons
-    "show-passive-items": true,    // Zeigt auch inaktive Icons an
-    "reverse-direction": false,    // Kehrt die Reihenfolge der Icons um
-    "smooth-scrolling-threshold": 1.0,
-    "on-update": "",               // Führt ein Skript bei Änderungen aus
-    "tooltip": true                // Zeigt App-Namen beim Drüberfahren an
+        "icon-size": 18,
+        "spacing": 10,
+        "show-passive-items": true,
+        "reverse-direction": false,
+        "smooth-scrolling-threshold": 1.0,
+        "tooltip": true
     },
 
-    "power-profiles-daemon": {
-  "format": "{icon}",
-  "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
-  "tooltip": true,
-  "format-icons": {
-    "default": "",
-    "performance": "",
-    "balanced": "",
-    "power-saver": ""
-  }
-}
+    "custom/tuned": {
+        "format": " {} ",
+        "exec": "profile=$(tuned-adm active); case \"$profile\" in *performance*) echo '' ;; *power*) echo '' ;; *balanced*) echo '' ;; *) echo '' ;; esac",
+        "interval": 2,
+        "tooltip": false,
+        "on-click": "tuned-gui"
+    }
 }

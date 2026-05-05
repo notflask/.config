@@ -92,6 +92,22 @@ sync_hypr() {
     "hypr config"
 }
 
+sync_niri() {
+  echo "── Niri ────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/niri" \
+    "$DOTFILES/linux/.config/niri" \
+    "niri config"
+}
+
+sync_fuzzel() {
+  echo "── Fuzzel ────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/fuzzel" \
+    "$DOTFILES/linux/.config/fuzzel" \
+    "fuzzel config"
+}
+
 sync_matugen() {
   echo "── Matugen ─────────────────────────────────────"
   sync_file \
