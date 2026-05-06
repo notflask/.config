@@ -159,10 +159,11 @@ layer-rule {
     match namespace="launcher"
     background-effect {
         blur true
+        xray false
     }
     opacity 0.8
+    geometry-corner-radius 16
 }
-
 binds {
 
     Mod+Shift+Slash { show-hotkey-overlay; }
