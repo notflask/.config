@@ -11,3 +11,7 @@ output_path = "~/.config/niri/colors.kdl"
 [templates.waybar]
 input_path = "~/.config/matugen/templates/waybar-colors.css"
 output_path = "~/.config/waybar/colors.css"
+
+[templates.fuzzel]
+input_path  = "~/.config/matugen/templates/fuzzel.ini"
+output_path = "~/.config/fuzzel/fuzzel.ini"
