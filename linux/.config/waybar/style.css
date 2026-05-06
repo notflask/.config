@@ -11,23 +11,24 @@
 
 window#waybar {
     background: rgba(10, 10, 10, 0.5);
-    color: #cdd6f4;
+    color: @on_surface;
 }
 
 #workspaces button {
     padding: 0 8px;
-    color: #585b70;
+    color: @on_surface_variant;
     background: transparent;
     border-bottom: 2px solid transparent;
     transition: all 0.3s ease;
 }
 
 #workspaces button.active {
-    color: #cdd6f4;
-    border-bottom: 2px solid @primary; 
+    color: @on_surface;
+    border-bottom: 2px solid @primary;
 }
+
 #workspaces button.urgent {
-    color: #f38ba8;
+    color: @error;
 }
 
 #window,
@@ -38,15 +39,15 @@ window#waybar {
 #clock,
 #power-profiles-daemon {
     padding: 0 8px;
-    color: #cdd6f4;
+    color: @on_surface;
 }
 
 #custom-power {
     padding: 0 8px;
-    color: #f38ba8;
+    color: @error;
     font-size: 18px;
     font-weight: bold;
 }
 
-#battery.warning { color: #fab387; }
-#battery.critical { color: #f38ba8; }
+#battery.warning { color: @tertiary; }
+#battery.critical { color: @error; }
