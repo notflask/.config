@@ -1,0 +1,24 @@
+{
+    "include": ["~/.config/waybar/config-base"],
+    
+    "modules-left": ["niri/workspaces", "niri/window"],
+    "modules-center": [],
+    "modules-right": ["tray", "network", "niri/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/power"],
+
+    "niri/workspaces": {
+        "format": "{value}"
+    },
+
+    "niri/language": {
+        "format": "<b>{}</b>",
+        "format-en": "us",
+        "format-de": "de",
+        "format-ru": "ru",
+        "format-uk": "ua"
+    },
+
+    "niri/window": {
+        "format": "{title}",
+        "max-length": 60
+    }
+}

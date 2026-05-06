@@ -1,0 +1,61 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "height": 32,
+
+    "network": {
+        "format-wifi": "  {essid}",
+        "format-ethernet": " 󰈀 ",
+        "format-disconnected": "󰖪  disconnected",
+        "tooltip-format": "{ipaddr}"
+    },
+
+    "battery": {
+        "format": "{icon}  {capacity}%",
+        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "format-charging": "󰂄  {capacity}%",
+        "states": {
+            "warning": 30,
+            "critical": 15
+        }
+    },
+
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "󰝟  muted",
+        "format-icons": {
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pavucontrol"
+    },
+
+    "clock": {
+        "format": "  {:%H:%M}",
+        "format-alt": "  {:%d.%m.%Y}",
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
+        "on-click": "toggle-format"
+    },
+
+    "custom/power": {
+       "format": "󰐥 ",
+       "on-click": "wlogout",
+       "tooltip": false
+    },
+
+    "tray": {
+        "icon-size": 18,
+        "spacing": 10,
+        "show-passive-items": true,
+        "reverse-direction": false,
+        "smooth-scrolling-threshold": 1.0,
+        "tooltip": true
+    },
+
+    "custom/tuned": {
+        "format": " {} ",
+        "exec": "profile=$(tuned-adm active); case \"$profile\" in *performance*) echo '' ;; *power*) echo '' ;; *balanced*) echo '' ;; *) echo '' ;; esac",
+        "interval": 2,
+        "tooltip": false,
+        "on-click": "tuned-gui"
+    }
+}
