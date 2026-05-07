@@ -1,5 +1,14 @@
 include "~/.config/niri/colors.kdl"
 
+environment {
+    LIBVA_DRIVER_NAME "nvidia"
+    XDG_SESSION_TYPE "wayland"
+    GBM_BACKEND "nvidia-drm"
+    __GLX_VENDOR_LIBRARY_NAME "nvidia"
+    NVD_BACKEND "direct"
+    __GL_GSYNC_ALLOWED "1"
+}
+
 input {
     keyboard {
         xkb {
@@ -31,6 +40,8 @@ output "eDP-1" {
     transform "normal"
 
     position x=0 y=0
+
+    variable-refresh-rate
 }
 
 output "DP-2" {
