@@ -1,0 +1,54 @@
+/* Убираем фон самого окна браузера */
+html, body {
+    background-color: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100%;
+}
+
+/* Настраиваем контейнер с текстом */
+.markdown-body {
+    background-color: transparent !important; /* Тот же цвет, что и у фона */
+    color: #dcddde !important;
+    font-family: 'Inter', sans-serif !important;
+    padding: 45px !important;
+    max-width: 900px !important; /* Ширина текста */
+    margin: 0 auto !important;   /* Центрируем текст */
+    border: none !important;     /* Убираем блядские рамки */
+    box-shadow: none !important; /* Убираем тени */
+    line-height: 1.8 !important; 
+    letter-spacing: 0.01em !important;
+}
+
+.markdown-body p {
+    margin-bottom: 1.2em !important;
+}
+
+/* Фикс для заголовков, чтобы не было линий под ними */
+.markdown-body h1, .markdown-body h2 {
+    border-bottom: 1px solid #3e4147 !important;
+    color: #ffffff !important;
+}
+
+/* Чтобы код тоже не выделялся серыми пятнами невпопад */
+.markdown-body code {
+    background-color: #2f3136 !important;
+}
+
+/* Скрываем верхнюю панель с названием файла */
+header, 
+.page-header,
+.markdown-preview-header {
+    display: none !important;
+}
+
+/* Убираем лишние отступы, которые могли остаться сверху */
+#mkdp-container {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* На всякий случай скрываем любые фиксированные заголовки */
+div[style*="position: fixed"] {
+    display: none !important;
+}

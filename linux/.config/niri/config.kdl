@@ -2,17 +2,20 @@ include "~/.config/niri/colors.kdl"
 
 environment {
     LIBVA_DRIVER_NAME "nvidia"
-    XDG_SESSION_TYPE "wayland"
-    GBM_BACKEND "nvidia-drm"
     __GLX_VENDOR_LIBRARY_NAME "nvidia"
-    NVD_BACKEND "direct"
-    __GL_GSYNC_ALLOWED "1"
-}
+    __EGL_VENDOR_LIBRARY_DIRS "/usr/share/glvnd/egl_vendor.d"
 
+    NVD_BACKEND "direct"
+
+    VK_DRIVER_FILES "/usr/share/vulkan/icd.d/nvidia_icd.json"
+
+    XDG_SESSION_TYPE "wayland"
+    XDG_DATA_DIRS "/var/lib/snapd/desktop:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/"
+}
 input {
     keyboard {
         xkb {
-          layout "us,ru,ua"
+          layout "us,ru,ua,de"
           options "grp:alt_shift_toggle"
         }
 
@@ -40,8 +43,6 @@ output "eDP-1" {
     transform "normal"
 
     position x=0 y=0
-
-    variable-refresh-rate
 }
 
 output "DP-2" {
@@ -104,6 +105,8 @@ layout {
     }
 }
 
+prefer-no-csd
+
 
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/config-niri"
 spawn-at-startup "waypaper" "--restore"
@@ -134,12 +137,39 @@ window-rule {
     open-floating true
 }
 
-/-window-rule {
-    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+window-rule {
+    match app-id=r#"^org\.telegram\.desktop$"#
 
+    open-floating true
     block-out-from "screen-capture"
 
+}
+
+window-rule {
+    match app-id="gamescope"
+    open-fullscreen true
+}
+
+window-rule {
+    match app-id="vesktop"
+
+    open-floating true
+    block-out-from "screen-capture"
+
+}
+
+window-rule {
+    match app-id="io.ente.auth"
+
+    open-floating true
+    block-out-from "screen-capture"
+}
+
+window-rule {
+    match app-id="Bitwarden"
+
+    open-floating true
+    block-out-from "screen-capture"
 }
 
 window-rule {
@@ -175,16 +205,16 @@ layer-rule {
     opacity 0.8
     geometry-corner-radius 16
 }
-binds {
 
+binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
     Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
 
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"; }
     XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
 
@@ -335,6 +365,6 @@ binds {
 }
 
 debug {
-  render-drm-device "/dev/dri/renderD128"
+  render-drm-device "/dev/dri/renderD129"
   wait-for-frame-completion-before-queueing true
 }
