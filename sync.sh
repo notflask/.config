@@ -100,6 +100,14 @@ sync_niri() {
     "niri config"
 }
 
+sync_environment() {
+  echo "── Environment ────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/environment.d/" \
+    "$DOTFILES/linux/.config/environment.d" \
+    "system env variables"
+}
+
 sync_ghostty() {
   echo "── Ghostty ────────────────────────────────────"
   sync_file \
@@ -207,6 +215,10 @@ waybar) sync_waybar ;;
 waypaper) sync_waypaper ;;
 wofi) sync_wofi ;;
 tmux) sync_tmux ;;
+niri) sync_niri ;;
+fuzzel) sync_fuzzel ;;
+ghostty) sync_ghostty ;;
+env) sync_environment ;;
 all)
   sync_nvim
   sync_hypr
@@ -221,11 +233,12 @@ all)
   sync_niri
   sync_fuzzel
   sync_ghostty
+  sync_environment
   git_push
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel | ghostty"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel | ghostty | env"
   exit 1
   ;;
 esac

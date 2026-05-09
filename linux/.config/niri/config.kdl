@@ -1,17 +1,5 @@
 include "~/.config/niri/colors.kdl"
 
-environment {
-    LIBVA_DRIVER_NAME "nvidia"
-    __GLX_VENDOR_LIBRARY_NAME "nvidia"
-    __EGL_VENDOR_LIBRARY_DIRS "/usr/share/glvnd/egl_vendor.d"
-
-    NVD_BACKEND "direct"
-
-    VK_DRIVER_FILES "/usr/share/vulkan/icd.d/nvidia_icd.json"
-
-    XDG_SESSION_TYPE "wayland"
-    XDG_DATA_DIRS "/var/lib/snapd/desktop:/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/"
-}
 input {
     keyboard {
         xkb {
@@ -142,7 +130,6 @@ window-rule {
 
     open-floating true
     block-out-from "screen-capture"
-
 }
 
 window-rule {
@@ -155,7 +142,6 @@ window-rule {
 
     open-floating true
     block-out-from "screen-capture"
-
 }
 
 window-rule {
@@ -170,17 +156,6 @@ window-rule {
 
     open-floating true
     block-out-from "screen-capture"
-}
-
-window-rule {
-    match app-id="com.mitchellh.ghostty"
-    opacity 0.85
-
-    background-effect {
-        blur true
-    }
-
-    draw-border-with-background false
 }
 
 window-rule {

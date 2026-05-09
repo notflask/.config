@@ -1,10 +1,10 @@
 layout {
     border {
-        active-color   "#a3c9fe"
-        inactive-color "#8d9199"
+        active-color   "#fdb876"
+        inactive-color "#9e8e81"
     }
     focus-ring {
-        active-color   "#a3c9fe"
-        inactive-color "#8d9199"
+        active-color   "#fdb876"
+        inactive-color "#9e8e81"
     }
 }
