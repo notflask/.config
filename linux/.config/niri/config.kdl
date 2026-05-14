@@ -39,7 +39,7 @@ output "DP-2" {
 }
 
 layout {
-    gaps 16
+    gaps 8
 
     center-focused-column "never"
 
@@ -50,46 +50,28 @@ layout {
 
     }
 
-
     default-column-width { proportion 0.5; }
-
 
     focus-ring {
         off
-
         width 4
-
-
         active-color "#7fc8ff"
-
         inactive-color "#505050"
-
-
     }
 
     border {
         on
-
-        width 2
+        width 1
     }
 
     shadow {
-
-
-
-        softness 30
-
+        on
+        softness 50
         spread 5
+        offset x=0 y=0
+        draw-behind-window true
 
-        offset x=0 y=5
-
-        color "#0007"
-    }
-
-    struts {
-        left -8
-        right -8
-        top -8
+        color "#00000064"
     }
 }
 
@@ -159,7 +141,7 @@ window-rule {
 }
 
 window-rule {
-    geometry-corner-radius 12
+    geometry-corner-radius 16
     clip-to-geometry true
 }
 
