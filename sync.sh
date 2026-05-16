@@ -176,6 +176,14 @@ sync_tmux() {
     "tmux config"
 }
 
+sync_aerospace() {
+  echo "── AeroSpace ───────────────────────────────────"
+  sync_file \
+    "$HOME/.config/aerospace" \
+    "$DOTFILES/macos/.config/aerospace" \
+    "aerospace config"
+}
+
 # ── Git commit & push ────────────────────────────────────────
 
 git_push() {
@@ -219,6 +227,7 @@ niri) sync_niri ;;
 fuzzel) sync_fuzzel ;;
 ghostty) sync_ghostty ;;
 env) sync_environment ;;
+aerospace) sync_aerospace ;;
 all)
   sync_nvim
   sync_hypr
@@ -234,11 +243,12 @@ all)
   sync_fuzzel
   sync_ghostty
   sync_environment
+  sync_aerospace
   git_push
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel | ghostty | env"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel | ghostty | env | aerospace"
   exit 1
   ;;
 esac
