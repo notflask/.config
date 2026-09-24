@@ -14,11 +14,12 @@ linux/nix/
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
 │   ├── desktop.nix                # Plasma 6, greetd, Fonts, Tastatur
 │   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify
-│   └── gaming.nix                 # Steam, GameMode, MangoHud, Energieprofil
+│   └── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
+    ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
     └── monitors.sh                # eDP-1 + DP-2 (180 Hz, VRR) einrichten
 ```
 
@@ -85,19 +86,88 @@ Setzt DP-2 auf 2560x1440 @ 180 Hz, VRR automatisch, primär, rechts neben eDP-1
 (1920x1080 @ 144 Hz). Andere Anschlussnamen: `EXTERNAL=HDMI-A-1 monitors.sh`.
 KDE merkt sich das pro Monitor-Kombination.
 
+## Spiele starten: `gaming-mode`
+
+`gaming-mode` ist ein Befehl (Quelle: `scripts/gaming-mode.sh`), der ein Spiel mit
+allem startet, was es schnell macht:
+
+| Was | Wozu |
+|---|---|
+| GameMode | CPU auf Leistung, höhere Priorität, Bildschirmsperre aus |
+| NVIDIA-Variablen | Spiel läuft garantiert auf der RTX 4060 (Vulkan + OpenGL) |
+| MangoHud | FPS, Frametimes, GPU/CPU-Last + Temperatur, RAM/VRAM – **Shift rechts + F12** blendet ein/aus |
+| Shader-Cache 10 GB | weniger Ruckler durch Shader-Kompilierung, auch nach Updates |
+| `PROTON_ENABLE_NVAPI=1` | DLSS / Reflex in Windows-Spielen über Proton |
+
+```
+gaming-mode %command%                    # Steam-Startoption, für jedes Spiel
+gaming-mode --no-hud %command%           # ohne Overlay
+gaming-mode --stretch 1920x1440 %command%  # gestreckt über gamescope
+gaming-mode ./spiel                      # außerhalb von Steam
+```
+
+Eigenes MangoHud-Layout: `~/.config/MangoHud/MangoHud.conf` anlegen – dann wird
+das eingebaute Layout nicht benutzt.
+
+Allgemein für alle Spiele: **Netzteil dran**, Vollbild, V-Sync im Spiel aus.
+VRR ist über `monitors.sh` aktiv.
+
 ## CS2
 
-Steam → CS2 → Eigenschaften → Startoptionen:
+Steam → CS2 → Eigenschaften → Startoptionen.
+
+**Native Auflösung (2560x1440):**
 
 ```
-gamemoderun nvidia-offload %command%
+gaming-mode %command% -fullscreen +fps_max 0
 ```
 
-- Netzteil dran.
-- Im Spiel: Vollbild, V-Sync aus, `fps_max` nach Geschmack.
-- VRR (FreeSync/G-Sync Compatible) ist in `monitors.sh` auf „automatisch“.
-- Für minimale Latenz: *Systemeinstellungen → Anzeige → Tearing erlauben* (optional).
-- FPS/Frametimes messen: `mangohud gamemoderun nvidia-offload %command%`.
+**Stretched 1920x1440 (4:3 auf 16:9 gestreckt):**
+
+```
+gaming-mode --stretch 1920x1440 %command% -fullscreen +fps_max 0
+```
+
+Im Spiel dann *Video → Seitenverhältnis 4:3, Auflösung 1920x1440*. gamescope
+rendert das Spiel in 1920x1440 und streckt es auf den ganzen LG-Monitor – ohne
+schwarze Ränder. Ohne gamescope geht das unter Wayland nicht, KDE würde Balken
+anzeigen. Die Maus ist dabei fest im Spiel eingefangen (`--force-grab-cursor`).
+
+**Tweaks:**
+
+- `+fps_max 0` = ungebremst, niedrigste Latenz. Zusammen mit *Systemeinstellungen →
+  Anzeige → Tearing erlauben* am schnellsten, dafür mit Tearing.
+- Alternativ `+fps_max 175`: bleibt knapp unter 180 Hz im VRR-Bereich → kein
+  Tearing, sehr gleichmäßig, minimal mehr Latenz.
+- `-vulkan` brauchst du nicht (unter Linux Standard), `-high` und `-novid` wirken
+  unter Linux bzw. in CS2 nicht – GameMode übernimmt die Priorität.
+- gamescope kostet etwas Leistung. Wenn du die FPS vergleichen willst: MangoHud
+  zeigt sie in beiden Varianten an.
+- Die ersten Runden nach einem Update können kurz ruckeln (Shader werden gebaut),
+  danach greift der Cache.
+
+## Diablo IV
+
+Normale Auflösung, kein Stretched.
+
+**Steam-Version:**
+
+1. Steam → Diablo IV → Eigenschaften → *Kompatibilität* → Proton erzwingen,
+   **Proton Experimental** oder **GE-Proton** (ist installiert).
+2. Startoptionen:
+   ```
+   gaming-mode %command%
+   ```
+3. Im Spiel: Vollbild, 2560x1440, **DLSS** auf *Qualität* (funktioniert dank NVAPI).
+   Die RTX 4060 hat 8 GB VRAM → Texturqualität *Hoch* statt *Ultra*, sonst
+   gibt es Nachladeruckler.
+
+**Battle.net-Version:** In Lutris den Battle.net-Installer hinzufügen und Diablo IV
+darüber installieren. Danach in Lutris beim Battle.net-Eintrag unter
+*Konfigurieren → Systemoptionen → Befehlspräfix* `gaming-mode` eintragen.
+
+Der erste Start dauert länger (Shader-Kompilierung, DirectX 12 → Vulkan), danach
+läuft es aus dem Cache.
 
 ## Apps
 
@@ -107,7 +177,8 @@ gamemoderun nvidia-offload %command%
 | Vesktop | Discord-Client; Bildschirmfreigabe unter Wayland über das KDE-Portal |
 | Telegram | `telegram-desktop` |
 | Spotify | Port 57621/TCP + mDNS offen für Spotify Connect im LAN |
-| Steam | CS2 läuft nativ |
+| Steam | CS2 nativ, Diablo IV über Proton / GE-Proton |
+| Lutris | Battle.net und andere Launcher |
 
 > ⚠️ `linux/.config/environment.d/environment.conf` **nicht** nach
 > `~/.config/environment.d/` kopieren: Die Datei setzt Pfade einer normalen Distro
