@@ -173,8 +173,7 @@ layer-rule {
         blur true
         xray false
     }
-    opacity 0.8
-    geometry-corner-radius 16
+    geometry-corner-radius 20
 }
 
 binds {
@@ -182,6 +181,7 @@ binds {
 
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
     Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    Mod+Space hotkey-overlay-title=null { spawn "fuzzel"; }
     Mod+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"; }
