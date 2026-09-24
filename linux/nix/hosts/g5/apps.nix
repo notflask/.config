@@ -15,6 +15,7 @@
     preferences = {
       # Hardware-Videodekodierung über VA-API (Intel iHD)
       "media.ffmpeg.vaapi.enabled" = true;
+      "widget.dmabuf.force-enabled" = true; # nötig für VA-API auf NVIDIA (gaming)
       # KDE-Dateidialog statt GTK
       "widget.use-xdg-desktop-portal.file-picker" = 1;
       "widget.use-xdg-desktop-portal.mime-handler" = 1;

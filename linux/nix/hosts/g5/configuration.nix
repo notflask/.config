@@ -6,6 +6,7 @@
     ./nvidia.nix
     ./desktop.nix
     ./apps.nix
+    ./gaming.nix
   ];
 
   # ── Boot ───────────────────────────────────────────────────
