@@ -3,7 +3,7 @@
     
     "modules-left": ["niri/workspaces", "niri/window"],
     "modules-center": [],
-    "modules-right": ["tray", "custom/vpn", "network", "niri/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/power"],
+    "modules-right": ["tray", "network", "niri/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/vpn", "custom/power"],
 
     "niri/workspaces": {
         "format": "{value}"
