@@ -3,8 +3,8 @@
 #  NixOS-Installation für den Gigabyte G5 KF – vom Live-ISO
 #
 #  Repo auf dem Live-System holen und Skript starten:
-#    git clone https://github.com/notflask/.config
-#    sudo ./.config/linux/nix/scripts/install.sh /dev/nvme0n1
+#    git clone https://github.com/notflask/.config dotfiles
+#    sudo ./dotfiles/linux/nix/scripts/install.sh /dev/nvme0n1
 #
 #  Modi:
 #    install.sh <disk>     Platte KOMPLETT löschen, partitionieren,
@@ -20,7 +20,7 @@ USER_NAME="flask"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_SRC="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-TARGET_REPO="/mnt/home/$USER_NAME/.config"
+TARGET_REPO="/mnt/home/$USER_NAME/dotfiles"
 FLAKE_DIR="$TARGET_REPO/linux/nix"
 HOST_DIR="$FLAKE_DIR/hosts/$HOST"
 
@@ -158,7 +158,7 @@ step "Fertig!"
 cat <<'MSG'
   • Neustarten:  reboot
   • Nach dem ersten Login:
-      ~/.config/linux/nix/scripts/gpu-info.sh    # welcher Anschluss an welcher GPU hängt
-      ~/.config/linux/nix/scripts/monitors.sh    # eDP-1 + DP-2 einrichten
+      monitors    # eDP-1 + DP-2 einrichten
+      gpu-info    # welcher Anschluss an welcher GPU hängt
   • hardware-configuration.nix, nvidia.nix und flake.lock ins Repo committen.
 MSG

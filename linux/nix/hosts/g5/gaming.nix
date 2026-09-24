@@ -1,5 +1,5 @@
 # Gaming: Steam (CS2 nativ, Diablo IV über Proton), GameMode, MangoHud,
-# gamescope, Lutris (Battle.net), GPU Screen Recorder
+# gamescope, Lutris (Battle.net), GPU Screen Recorder, Sober (Roblox)
 #
 # Spiele starten – Steam-Startoption:
 #   gaming-mode %command%
@@ -51,6 +51,9 @@ in
     Exec=gsr-ui launch-daemon
     NoDisplay=true
   '';
+
+  # ── Flatpak (für Sober/Roblox, siehe README) ───────────────
+  services.flatpak.enable = true;
 
   environment.systemPackages = with pkgs; [
     gaming-mode # gaming-mode %command%

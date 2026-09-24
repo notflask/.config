@@ -1,8 +1,6 @@
 { pkgs, ... }:
 
 {
-  nixpkgs.config.allowUnfree = true; # Spotify, NVIDIA-Treiber
-
   # ── Firefox ────────────────────────────────────────────────
   # KDE-Integration (plasma-browser-integration) bringt das Plasma-Modul mit.
   programs.firefox = {
@@ -22,11 +20,16 @@
     };
   };
 
-  # ── Messenger & Musik ──────────────────────────────────────
+  # ── Messenger, Musik, KI-Tools ──────────────────────────────────────
   environment.systemPackages = with pkgs; [
     vesktop # Discord-Client mit funktionierendem Wayland-Screensharing
     telegram-desktop
     spotify
+
+    # KI-Coding-Tools im Terminal: `claude` (Claude Code), `agy` (Antigravity CLI).
+    # Updates kommen über `rebuild update`, nicht über die eingebauten Updater.
+    claude-code
+    antigravity-cli
   ];
 
   # Spotify Connect / Geräte im lokalen Netz finden

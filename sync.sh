@@ -35,6 +35,12 @@ sync_file() {
     return
   fi
 
+  # Unter NixOS ist die Config ein Symlink ins Repo – nichts zu kopieren
+  if [ -d "$dst_dir" ] && [ "$(realpath "$src")" = "$(realpath "$dst_dir")" ]; then
+    ok "$label (verlinkt)"
+    return
+  fi
+
   mkdir -p "$dst_dir"
 
   if [ -d "$src" ]; then
