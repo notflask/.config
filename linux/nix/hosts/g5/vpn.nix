@@ -88,6 +88,9 @@ in
     autostart = true; # beim Booten verbinden
   };
 
+  # Ohne importierte Config den Dienst still überspringen statt fehlschlagen
+  systemd.services."wg-quick-${iface}".unitConfig.ConditionPathExists = conf;
+
   # Sonst verwirft der Reverse-Path-Filter die Antworten aus dem Tunnel
   networking.firewall.checkReversePath = "loose";
 
