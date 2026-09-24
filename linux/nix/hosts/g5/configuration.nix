@@ -1,0 +1,84 @@
+{ pkgs, ... }:
+
+{
+  imports = [
+    ./hardware-configuration.nix
+    ./nvidia.nix
+    ./desktop.nix
+    ./apps.nix
+  ];
+
+  # ── Boot ───────────────────────────────────────────────────
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  # ── Netzwerk ───────────────────────────────────────────────
+  networking.hostName = "g5";
+  networking.networkmanager.enable = true;
+
+  # ── Zeit & Sprache ─────────────────────────────────────────
+  time.timeZone = "Europe/Berlin";
+  i18n.defaultLocale = "de_DE.UTF-8";
+  console.keyMap = "us"; # Tastatur bleibt US als erstes Layout
+
+  # ── Benutzer ───────────────────────────────────────────────
+  # Passwort nach der Installation setzen: nixos-enter --root /mnt -c 'passwd flask'
+  users.users.flask = {
+    isNormalUser = true;
+    description = "flask";
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "video"
+      "audio"
+    ];
+  };
+
+  # ── Audio ──────────────────────────────────────────────────
+  security.rtkit.enable = true;
+  services.pulseaudio.enable = false;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  # ── Laptop ─────────────────────────────────────────────────
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  hardware.enableRedistributableFirmware = true;
+  services.thermald.enable = true;
+  services.power-profiles-daemon.enable = true;
+  services.fwupd.enable = true;
+  zramSwap.enable = true;
+
+  # ── Nix ────────────────────────────────────────────────────
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    auto-optimise-store = true;
+  };
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 14d";
+  };
+
+  environment.systemPackages = with pkgs; [
+    git
+    curl
+    wget
+    pciutils
+    usbutils
+    htop
+    fastfetch
+  ];
+
+  # Wert aus der von nixos-generate-config erzeugten configuration.nix übernehmen
+  # und danach NIE mehr ändern (ist kein Update-Schalter).
+  system.stateVersion = "26.05";
+}
