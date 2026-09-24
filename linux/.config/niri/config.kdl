@@ -36,6 +36,8 @@ output "eDP-1" {
 output "DP-2" {
   mode "2560x1440@179.959"
   position x=1920 y=0
+  // VRR (FreeSync/G-Sync) nur für Fenster mit passender window-rule (Spiele)
+  variable-refresh-rate on-demand=true
 }
 
 layout {
@@ -77,6 +79,11 @@ layout {
 
 prefer-no-csd
 
+cursor {
+    xcursor-theme "catppuccin-mocha-mauve-cursors"
+    xcursor-size 24
+}
+
 
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/config-niri"
 spawn-at-startup "waypaper" "--restore"
@@ -117,6 +124,14 @@ window-rule {
 window-rule {
     match app-id="gamescope"
     open-fullscreen true
+}
+
+// Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope)
+window-rule {
+    match app-id=r#"^steam_app_"#
+    match app-id="cs2"
+    match app-id="gamescope"
+    variable-refresh-rate true
 }
 
 window-rule {
@@ -322,6 +337,7 @@ binds {
 }
 
 debug {
-  render-drm-device "/dev/dri/renderD129"
+  // RTX 4060 – fester Name aus nvidia.nix (renderD-Nummern können wechseln)
+  render-drm-device "/dev/dri/nvidia-render"
   wait-for-frame-completion-before-queueing true
 }

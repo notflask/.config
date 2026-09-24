@@ -18,7 +18,8 @@ linux/nix/
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 │   ├── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
 │   ├── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
-│   └── fonts.nix                  # Schriften: Dotfiles, Windows, alle Schriftsysteme
+│   ├── fonts.nix                  # Schriften: Dotfiles, Windows, alle Schriftsysteme
+│   └── niri.nix                   # Niri als zweite Sitzung neben KDE
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -79,6 +80,7 @@ verlinkt (`dotfiles.nix`):
 | `nvim` | `linux/.config/nvim` |
 | `tmux` | `linux/.config/tmux` |
 | `ghostty` | `linux/.config/ghostty` |
+| `niri`, `waybar`, `fuzzel`, `matugen`, `waypaper`, `hypr` | für die Niri-Sitzung |
 
 Du bearbeitest die Dateien also direkt im Repo – Änderungen wirken sofort, `sync.sh`
 erkennt die Links und überspringt sie. Weitere Configs verlinken: Namen in
@@ -91,8 +93,7 @@ sind installiert, `nix-ld` sorgt dafür, dass die von Mason geladenen Programme
 (clangd usw.) laufen. Für vimtex fehlt nur noch eine TeX-Distribution – bei Bedarf
 `texliveMedium` in `dotfiles.nix` ergänzen (einige GB groß).
 
-Die Hyprland-/Niri-/Waybar-Configs im Repo werden unter KDE nicht gebraucht und
-nicht verlinkt; `environment.d` bewusst nicht (siehe Warnung unten).
+Nicht verlinkt: `wofi` (nicht genutzt) und bewusst `environment.d` (siehe Warnung unten).
 
 ## Schriften (`fonts.nix`)
 
@@ -107,6 +108,35 @@ springen automatisch Noto CJK, Noto Arabic, Nerd-Font-Symbole und Emoji ein.
 
 Nicht dabei sind Schriften, die Microsoft nicht frei herausgibt (z. B. Segoe UI,
 Microsoft YaHei, SimSun) – Noto deckt dieselben Sprachen ab.
+
+## Niri (zweite Sitzung)
+
+Neben KDE ist **Niri** installiert, mit deiner Config aus dem Repo
+(`linux/.config/niri/config.kdl`, dazu Waybar, Fuzzel, Waypaper, Matugen, Hyprlock).
+
+**Wechseln:** im Login (tuigreet) **F3** drücken → *Niri* wählen. tuigreet merkt sich
+die letzte Sitzung; zurück zu KDE genauso. Ohne gemerkte Auswahl startet KDE.
+
+| Taste | Aktion |
+|---|---|
+| Super+T | Ghostty |
+| Super+D | Fuzzel (Apps starten) |
+| Super+O | Übersicht |
+| Super+Shift+S | Screenshot (Niri: Bereich wählen → Clipboard + `~/Pictures/Screenshots`) |
+| Super+Alt+L | Sperren (Hyprlock) |
+| Super+Shift+/ | alle Tastenkürzel |
+
+**In beiden Sitzungen gleich:** alle Apps, Catppuccin für Qt- und GTK-Apps, KDE-Dateidialog,
+KWallet (gespeicherte Logins), Tastaturlayouts.
+
+**Nur unter Niri:**
+- Hintergrundbild über **Waypaper** aus `~/Wallpapers` (Ordner anlegen). Matugen
+  färbt Niri-Rahmen, Waybar und Fuzzel passend zum Bild.
+- Monitore stehen in der Niri-Config (eDP-1 144 Hz, DP-2 180 Hz), nicht in `monitors`.
+  VRR auf dem LG ist nur für Spiele aktiv (window-rule).
+- Benachrichtigungen über mako, Passwortabfragen über den KDE-Polkit-Agenten.
+- X11-Programme (Steam, viele Spiele) laufen über xwayland-satellite – startet automatisch.
+- Der GPU Screen Recorder startet hier nicht automatisch: *GPU Screen Recorder* über Fuzzel öffnen.
 
 ## Grafik
 

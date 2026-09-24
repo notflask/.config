@@ -33,6 +33,8 @@
         "--asterisks"
         "--theme 'border=magenta;title=magenta;text=white;prompt=blue;input=white;time=blue;action=blue;button=magenta;container=black'"
         "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+        # Ohne gemerkte Auswahl startet KDE (F3 im Login wechselt zu Niri)
+        "--cmd '${pkgs.kdePackages.plasma-workspace}/libexec/plasma-dbus-run-session-if-needed ${pkgs.kdePackages.plasma-workspace}/bin/startplasma-wayland'"
       ];
     };
   };
