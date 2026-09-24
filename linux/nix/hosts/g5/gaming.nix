@@ -1,5 +1,5 @@
 # Gaming: Steam (CS2 nativ, Diablo IV über Proton), GameMode, MangoHud,
-# gamescope, Lutris (Battle.net)
+# gamescope, Lutris (Battle.net), GPU Screen Recorder
 #
 # Spiele starten – Steam-Startoption:
 #   gaming-mode %command%
@@ -35,17 +35,22 @@ in
   # Micro-Compositor für Stretched-Auflösungen (gaming-mode --stretch)
   programs.gamescope.enable = true;
 
-  # Energieprofil „Leistung“ beim Start setzen
-  systemd.services.performance-power-profile = {
-    description = "Energieprofil auf Leistung setzen";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "power-profiles-daemon.service" ];
-    requires = [ "power-profiles-daemon.service" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance";
-    };
+  # ── GPU Screen Recorder (ShadowPlay-Stil) ──────────────────
+  # Overlay mit Alt+Z: Aufnahme, Replay („Instant Replay“), Streaming.
+  # Nimmt über die GPU auf (NVENC) → praktisch kein FPS-Verlust.
+  programs.gpu-screen-recorder = {
+    enable = true;
+    ui.enable = true;
   };
+
+  # Overlay beim Login im Hintergrund starten (Alt+Z öffnet es)
+  environment.etc."xdg/autostart/gpu-screen-recorder-ui.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=GPU Screen Recorder
+    Exec=gsr-ui launch-daemon
+    NoDisplay=true
+  '';
 
   environment.systemPackages = with pkgs; [
     gaming-mode # gaming-mode %command%

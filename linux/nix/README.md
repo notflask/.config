@@ -14,7 +14,8 @@ linux/nix/
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
 │   ├── desktop.nix                # Plasma 6, greetd, Fonts, Tastatur
 │   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify
-│   └── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris
+│   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder
+│   └── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -169,6 +170,40 @@ darüber installieren. Danach in Lutris beim Battle.net-Eintrag unter
 Der erste Start dauert länger (Shader-Kompilierung, DirectX 12 → Vulkan), danach
 läuft es aus dem Cache.
 
+## Aufnahme & Replay: GPU Screen Recorder
+
+Wie ShadowPlay: startet beim Login im Hintergrund, **Alt+Z** öffnet das Overlay.
+Aufgenommen wird über den Video-Encoder der RTX 4060 (NVENC) – das kostet praktisch
+keine FPS.
+
+- **Replay** (die letzten X Sekunden rückwirkend speichern): im Overlay *Replay*
+  einschalten, Länge und Qualität einstellen. Ab dann läuft es im Hintergrund mit,
+  per Hotkey speicherst du den Clip.
+- **Aufnahme** und **Streaming** ebenfalls über das Overlay.
+- Alle Hotkeys stehen im Overlay unter *Einstellungen* (Symbol rechts) und lassen
+  sich dort ändern.
+- Beim ersten Mal fragt KDE eventuell, welcher Bildschirm aufgenommen werden darf.
+
+Clips landen standardmäßig in `~/Videos`.
+
+## Leistungs-Tweaks (`performance.nix`)
+
+| Tweak | Wirkung |
+|---|---|
+| **scx_lavd** (CPU-Scheduler, `--performance`) | für Gaming gebaut (Steam Deck), soll Ruckler reduzieren, wenn nebenbei Discord/Firefox laufen |
+| **NTSYNC** | schnellere Synchronisation für Windows-Spiele unter Proton (Diablo IV), bessere Frametimes |
+| **Split-Lock-Bremse aus** | wie SteamOS – verhindert starke Ruckler in einzelnen Windows-Spielen |
+| **Energieprofil „Leistung“** | ab dem Start aktiv |
+
+`scx_lavd` ist auf Intel-CPUs mit P- und E-Kernen nicht immer besser. Vergleiche
+mit MangoHud (FPS und 1%-Lows): in `performance.nix` `services.scx.enable = false`
+setzen, `rebuild.sh`, nochmal testen. Status prüfen: `systemctl status scx`.
+
+**Außerhalb der Config, aber wichtig:**
+- **RAM im Dual-Channel?** `sudo dmidecode -t memory` – bei nur einem Riegel verliert
+  CS2 sehr viele FPS. Ein zweiter gleicher Riegel ist dann das beste Upgrade.
+- **Kühlung:** Laptop hinten erhöht aufstellen, Lüfter ab und zu reinigen.
+
 ## Apps
 
 | App | Hinweise |
@@ -179,6 +214,7 @@ läuft es aus dem Cache.
 | Spotify | Port 57621/TCP + mDNS offen für Spotify Connect im LAN |
 | Steam | CS2 nativ, Diablo IV über Proton / GE-Proton |
 | Lutris | Battle.net und andere Launcher |
+| GPU Screen Recorder | Aufnahme, Replay, Streaming – Alt+Z |
 
 > ⚠️ `linux/.config/environment.d/environment.conf` **nicht** nach
 > `~/.config/environment.d/` kopieren: Die Datei setzt Pfade einer normalen Distro
