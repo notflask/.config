@@ -12,12 +12,13 @@ linux/nix/
 │   ├── configuration.nix          # Boot, Netzwerk, Locale, User, Audio, Laptop
 │   ├── hardware-configuration.nix # PLATZHALTER – install.sh ersetzt ihn
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
-│   ├── desktop.nix                # Plasma 6, greetd, Fonts, Tastatur
-│   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify
-│   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder
+│   ├── desktop.nix                # Plasma 6, greetd, Tastatur, Spectacle
+│   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify, Claude Code, agy
+│   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder, Flatpak
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 │   ├── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
-│   └── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
+│   ├── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
+│   └── fonts.nix                  # Schriften: Dotfiles, Windows, alle Schriftsysteme
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -92,6 +93,20 @@ sind installiert, `nix-ld` sorgt dafür, dass die von Mason geladenen Programme
 
 Die Hyprland-/Niri-/Waybar-Configs im Repo werden unter KDE nicht gebraucht und
 nicht verlinkt; `environment.d` bewusst nicht (siehe Warnung unten).
+
+## Schriften (`fonts.nix`)
+
+| Gruppe | Schriften |
+|---|---|
+| Aus deinen Dotfiles | Inter, JetBrains Mono (+ Nerd Font), IBM Plex Sans/Mono, Fira Code, Nerd-Font-Symbole |
+| Windows | Arial, Times New Roman, Courier New, Verdana, Georgia, Tahoma, Trebuchet, Comic Sans, Impact, Webdings, Calibri, Cambria, Consolas, Candara, Constantia, Corbel |
+| Alle Schriftsysteme | Noto (Latein, Kyrillisch, Griechisch, Arabisch, Hebräisch, Indisch, Thai …), Noto CJK (Chinesisch, Japanisch, Koreanisch), Amiri (Arabisch), Vazirmatn (Persisch), Noto Color Emoji |
+
+Standard: Noto Sans / Noto Serif, Monospace JetBrains Mono – für fehlende Zeichen
+springen automatisch Noto CJK, Noto Arabic, Nerd-Font-Symbole und Emoji ein.
+
+Nicht dabei sind Schriften, die Microsoft nicht frei herausgibt (z. B. Segoe UI,
+Microsoft YaHei, SimSun) – Noto deckt dieselben Sprachen ab.
 
 ## Grafik
 

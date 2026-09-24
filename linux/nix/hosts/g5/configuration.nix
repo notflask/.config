@@ -10,6 +10,7 @@
     ./performance.nix
     ./theme.nix
     ./dotfiles.nix
+    ./fonts.nix
   ];
 
   # ── Boot ───────────────────────────────────────────────────
