@@ -219,6 +219,30 @@ Clipboard, Spectacle schließt sich, **es wird nichts gespeichert**.
 Wer doch speichern will: im Overlay *Speichern* (Strg+S). Weitere Kürzel wie Vollbild
 oder aktives Fenster: *Systemeinstellungen → Tastenkürzel → Spectacle*.
 
+## Roblox: Sober
+
+[Sober](https://sober.vinegarhq.org) ist ein inoffizieller Roblox-Client für Linux und
+gibt es nur als Flatpak. NixOS richtet Flathub ein und installiert Sober automatisch
+**ca. 2 Minuten nach dem ersten Start** (danach hält es alle Flatpaks täglich aktuell,
+inkl. der passenden NVIDIA-Erweiterung). Sofort installieren:
+
+```sh
+sudo systemctl start flatpak-sober
+```
+
+Danach im Startmenü *Sober* öffnen, mit dem Roblox-Konto anmelden. Sober läuft
+immer auf der RTX 4060. Da Sober inoffiziell ist, kann ein Roblox-Update es
+zeitweise kaputt machen – dann auf ein Sober-Update warten.
+
+## KI-Coding-Tools
+
+| Befehl | Programm | Erster Start |
+|---|---|---|
+| `claude` | Claude Code | `claude` → im Browser mit dem Claude-Konto anmelden |
+| `agy` | Antigravity CLI (Google) | `agy` → mit dem Google-Konto anmelden |
+
+Beide werden über `rebuild update` aktualisiert, nicht über ihre eigenen Updater.
+
 ## Aufnahme & Replay: GPU Screen Recorder
 
 Wie ShadowPlay: startet beim Login im Hintergrund, **Alt+Z** öffnet das Overlay.
@@ -292,6 +316,8 @@ Catppuccin: `apply-theme`.
 | Steam | CS2 nativ, Diablo IV über Proton / GE-Proton |
 | Lutris | Battle.net und andere Launcher |
 | GPU Screen Recorder | Aufnahme, Replay, Streaming – Alt+Z |
+| Sober | Roblox (Flatpak) |
+| Claude Code, Antigravity CLI | `claude`, `agy` im Terminal |
 
 > ⚠️ `linux/.config/environment.d/environment.conf` **nicht** nach
 > `~/.config/environment.d/` kopieren: Die Datei setzt Pfade einer normalen Distro
