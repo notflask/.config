@@ -3,7 +3,7 @@
 #   cp /mnt/etc/nixos/hardware-configuration.nix linux/nix/hosts/g5/
 #
 # Die Werte unten gehen von der Standard-Partitionierung aus dem NixOS-Handbuch
-# aus (ext4 mit Label "nixos", EFI mit Label "boot").
+# aus (ext4 mit Label "nixos", EFI mit Label "BOOT").
 {
   config,
   lib,
@@ -32,7 +32,7 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-label/boot";
+    device = "/dev/disk/by-label/BOOT";
     fsType = "vfat";
     options = [
       "fmask=0077"
