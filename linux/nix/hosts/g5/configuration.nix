@@ -9,6 +9,7 @@
     ./gaming.nix
     ./performance.nix
     ./theme.nix
+    ./dotfiles.nix
   ];
 
   # ── Boot ───────────────────────────────────────────────────
@@ -26,15 +27,13 @@
   console.keyMap = "us"; # Tastatur bleibt US als erstes Layout
 
   # ── Benutzer ───────────────────────────────────────────────
-  # Passwort nach der Installation setzen: nixos-enter --root /mnt -c 'passwd flask'
+  # Passwort setzt scripts/install.sh
   users.users.flask = {
     isNormalUser = true;
     description = "flask";
     extraGroups = [
       "wheel"
       "networkmanager"
-      "video"
-      "audio"
     ];
   };
 
@@ -59,6 +58,7 @@
   zramSwap.enable = true;
 
   # ── Nix ────────────────────────────────────────────────────
+  nixpkgs.config.allowUnfree = true; # NVIDIA-Treiber, Steam, Spotify
   nix.settings = {
     experimental-features = [
       "nix-command"

@@ -16,7 +16,8 @@ linux/nix/
 │   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify
 │   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
-│   └── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
+│   ├── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
+│   └── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -28,12 +29,13 @@ linux/nix/
 
 ## Installation
 
-NixOS-ISO (Minimal oder Graphical) per USB booten – im **UEFI-Modus**, Secure Boot aus.
-Netzwerk verbinden (WLAN: `nmtui`), dann:
+**Minimal-ISO** (nixos.org/download, x86_64) auf den Ventoy-Stick kopieren. Im BIOS
+(meist F2) **Secure Boot aus**, über F12 den Stick im **UEFI-Modus** starten.
+Mit LAN-Kabel ist das Netz sofort da (WLAN sonst: `nmtui`). Dann:
 
 ```sh
-git clone https://github.com/notflask/.config
-sudo ./.config/linux/nix/scripts/install.sh /dev/nvme0n1
+git clone https://github.com/notflask/.config dotfiles
+sudo ./dotfiles/linux/nix/scripts/install.sh /dev/nvme0n1
 ```
 
 Plattenname vorher mit `lsblk` prüfen. Das Skript
@@ -42,7 +44,7 @@ Plattenname vorher mit `lsblk` prüfen. Das Skript
    1 GiB EFI + Rest ext4 an,
 2. erzeugt `hardware-configuration.nix` und übernimmt `system.stateVersion`,
 3. liest die PCI-Adressen der GPUs aus und trägt sie in `nvidia.nix` ein,
-4. kopiert das Repo nach `/home/flask/.config`, installiert und fragt nach dem
+4. kopiert das Repo nach `/home/flask/dotfiles`, installiert und fragt nach dem
    Passwort für `flask`.
 
 **Dual-Boot / eigene Partitionen:** selbst partitionieren, Root nach `/mnt` und die
@@ -50,15 +52,46 @@ EFI-Partition nach `/mnt/boot` einhängen, dann `install.sh --mounted`.
 Die Windows-EFI-Partition ist meist nur 100 MB – zu klein für mehrere NixOS-Generationen.
 Besser eine eigene EFI-Partition mit ≥ 1 GiB anlegen.
 
-Nach dem ersten Login `hardware-configuration.nix`, `nvidia.nix` und `flake.lock`
-committen.
+Nach dem ersten Login die erzeugten Dateien ins Repo übernehmen:
+
+```sh
+cd ~/dotfiles
+git add linux/nix
+git commit -m "G5: hardware-configuration und flake.lock"
+git push
+```
 
 ## Alltag
 
 ```sh
-~/.config/linux/nix/scripts/rebuild.sh          # Config-Änderungen anwenden
-~/.config/linux/nix/scripts/rebuild.sh update   # System aktualisieren
+rebuild          # Config-Änderungen anwenden
+rebuild update   # System aktualisieren
 ```
+
+## Dotfiles
+
+Das Repo liegt in `~/dotfiles`. Beim Booten werden diese Configs nach `~/.config`
+verlinkt (`dotfiles.nix`):
+
+| `~/.config/…` | → Repo |
+|---|---|
+| `nvim` | `linux/.config/nvim` |
+| `tmux` | `linux/.config/tmux` |
+| `ghostty` | `linux/.config/ghostty` |
+
+Du bearbeitest die Dateien also direkt im Repo – Änderungen wirken sofort, `sync.sh`
+erkennt die Links und überspringt sie. Weitere Configs verlinken: Namen in
+`dotfiles.nix` unter `linked` ergänzen, `rebuild`, neu starten.
+Existiert in `~/.config` schon ein echter Ordner mit dem Namen, wird er nicht
+überschrieben – erst löschen.
+
+**Neovim (LazyVim):** Compiler, tree-sitter, ripgrep, fd, lazygit, Node.js und cmake
+sind installiert, `nix-ld` sorgt dafür, dass die von Mason geladenen Programme
+(clangd usw.) laufen. Für vimtex fehlt nur noch eine TeX-Distribution – bei Bedarf
+`texliveMedium` in `dotfiles.nix` ergänzen (einige GB groß).
+
+Die Hyprland-/Niri-/Waybar-Configs im Repo werden unter KDE nicht gebraucht und
+nicht verlinkt; `environment.d` bewusst nicht (siehe Warnung unten).
 
 ## Grafik
 
@@ -73,20 +106,21 @@ Das System ist auf maximale Leistung ausgelegt (Betrieb am Netzteil):
 
 Für Akku ist das nicht gedacht: die RTX 4060 frisst auch im Leerlauf Strom.
 
-**Anschlüsse prüfen:** `scripts/gpu-info.sh` zeigt, welcher Anschluss an welcher GPU
+**Anschlüsse prüfen:** `gpu-info` zeigt, welcher Anschluss an welcher GPU
 hängt. Den LG-Monitor an einen **NVIDIA-Anschluss** stecken (beim G5 KF
-typischerweise HDMI / Mini-DP; mit `gpu-info.sh` verifizieren).
+typischerweise HDMI / Mini-DP; mit `gpu-info` verifizieren).
 
 ## Bildschirme
 
 Nach dem ersten Login in Plasma:
 
 ```sh
-~/.config/linux/nix/scripts/monitors.sh
+monitors
 ```
 
 Setzt DP-2 auf 2560x1440 @ 180 Hz, VRR automatisch, primär, rechts neben eDP-1
-(1920x1080 @ 144 Hz). Andere Anschlussnamen: `EXTERNAL=HDMI-A-1 monitors.sh`.
+(1920x1080 @ 144 Hz). Andere Anschlussnamen:
+`EXTERNAL=HDMI-A-1 ~/dotfiles/linux/nix/scripts/monitors.sh`.
 KDE merkt sich das pro Monitor-Kombination.
 
 ## Spiele starten: `gaming-mode`
@@ -113,7 +147,7 @@ Eigenes MangoHud-Layout: `~/.config/MangoHud/MangoHud.conf` anlegen – dann wir
 das eingebaute Layout nicht benutzt.
 
 Allgemein für alle Spiele: **Netzteil dran**, Vollbild, V-Sync im Spiel aus.
-VRR ist über `monitors.sh` aktiv.
+VRR ist über `monitors` aktiv.
 
 ## CS2
 
@@ -199,7 +233,7 @@ Clips landen standardmäßig in `~/Videos`.
 
 `scx_lavd` ist auf Intel-CPUs mit P- und E-Kernen nicht immer besser. Vergleiche
 mit MangoHud (FPS und 1%-Lows): in `performance.nix` `services.scx.enable = false`
-setzen, `rebuild.sh`, nochmal testen. Status prüfen: `systemctl status scx`.
+setzen, `rebuild`, nochmal testen. Status prüfen: `systemctl status scx`.
 
 **Außerhalb der Config, aber wichtig:**
 - **RAM im Dual-Channel?** `sudo dmidecode -t memory` – bei nur einem Riegel verliert
@@ -224,7 +258,7 @@ Systemeinstellungen frei ändern – es wird nicht erneut überschrieben. Zurüc
 Catppuccin: `apply-theme`.
 
 **Akzentfarbe ändern:** in `theme.nix` `accent = "blue";` (o. ä.) setzen,
-`rebuild.sh`, dann `apply-theme`.
+`rebuild`, dann `apply-theme`.
 
 **Apps mit eigenem Theme-System** (nicht über KDE/GTK steuerbar):
 - **Telegram:** *Einstellungen → Chat-Einstellungen → Theme*, Catppuccin-Themes gibt es

@@ -10,5 +10,8 @@
       system = "x86_64-linux";
       modules = [ ./hosts/g5/configuration.nix ];
     };
+
+    # `nix fmt` formatiert alle .nix-Dateien
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
   };
 }

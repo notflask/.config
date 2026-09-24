@@ -68,7 +68,8 @@ in
   environment.sessionVariables = {
     # KWin rendert auf der NVIDIA, der interne Bildschirm wird von dort kopiert
     KWIN_DRM_DEVICES = "/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu";
-    # Videodekodierung (Firefox) auf derselben GPU wie der Desktop
+    # Videodekodierung (Firefox) auf derselben GPU wie der Desktop.
+    # nvidia-vaapi-driver braucht Firefox ohne RDD-Sandbox für den Decoder.
     LIBVA_DRIVER_NAME = "nvidia";
     NVD_BACKEND = "direct";
     MOZ_DISABLE_RDD_SANDBOX = "1";

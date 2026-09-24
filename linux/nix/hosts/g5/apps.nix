@@ -1,8 +1,6 @@
 { pkgs, ... }:
 
 {
-  nixpkgs.config.allowUnfree = true; # Spotify, NVIDIA-Treiber
-
   # ── Firefox ────────────────────────────────────────────────
   # KDE-Integration (plasma-browser-integration) bringt das Plasma-Modul mit.
   programs.firefox = {

@@ -4,6 +4,21 @@
   # ── KDE Plasma 6 (Wayland) ─────────────────────────────────
   services.desktopManager.plasma6.enable = true;
 
+  # Nicht benötigte Standard-Apps weglassen
+  environment.plasma6.excludePackages = with pkgs.kdePackages; [
+    elisa # Musik → Spotify
+    khelpcenter
+    krdp # Remote-Desktop-Server
+    kwin-x11 # nur Wayland-Sitzung
+    plasma-keyboard # Bildschirmtastatur (kein Touchscreen)
+    qtvirtualkeyboard
+    qrca # QR-Scanner
+    discover # kann unter NixOS keine Pakete verwalten
+  ];
+
+  # Electron-Apps (Vesktop usw.) nativ unter Wayland
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
   # ── Login: greetd + tuigreet ───────────────────────────────
   services.greetd = {
     enable = true;
@@ -27,12 +42,19 @@
     package = pkgs.kdePackages.kwallet-pam;
   };
 
-  # ── Tastatur ───────────────────────────────────────────────
-  # Standard für neue Plasma-Profile; später in den Systemeinstellungen änderbar.
+  # ── Tastatur: us/ru/ua/de, Umschalten mit Alt+Shift ─────────
   services.xserver.xkb = {
     layout = "us,ru,ua,de";
     options = "grp:alt_shift_toggle";
   };
+  # Plasma-Vorgabe (in den Systemeinstellungen änderbar)
+  environment.etc."xdg/kxkbrc".text = ''
+    [Layout]
+    LayoutList=us,ru,ua,de
+    Options=grp:alt_shift_toggle
+    ResetOldOptions=true
+    Use=true
+  '';
 
   # ── Schriften ──────────────────────────────────────────────
   fonts.packages = with pkgs; [
@@ -42,18 +64,7 @@
     nerd-fonts.jetbrains-mono
   ];
 
-  # ── Werkzeuge ──────────────────────────────────────────────
-  programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-  };
-
-  environment.systemPackages = with pkgs; [
-    ghostty
-    tmux
-    wl-clipboard
-    kdePackages.kate
-    kdePackages.ark
-    kdePackages.filelight
+  environment.systemPackages = [
+    pkgs.kdePackages.filelight # Speicherplatz-Übersicht
   ];
 }
