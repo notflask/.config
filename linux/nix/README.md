@@ -15,12 +15,14 @@ linux/nix/
 │   ├── desktop.nix                # Plasma 6, greetd, Fonts, Tastatur
 │   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify
 │   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder
-│   └── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
+│   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
+│   └── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
     ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
+    ├── apply-theme.sh             # Catppuccin anwenden (als Befehl `apply-theme` installiert)
     └── monitors.sh                # eDP-1 + DP-2 (180 Hz, VRR) einrichten
 ```
 
@@ -203,6 +205,34 @@ setzen, `rebuild.sh`, nochmal testen. Status prüfen: `systemctl status scx`.
 - **RAM im Dual-Channel?** `sudo dmidecode -t memory` – bei nur einem Riegel verliert
   CS2 sehr viele FPS. Ein zweiter gleicher Riegel ist dann das beste Upgrade.
 - **Kühlung:** Laptop hinten erhöht aufstellen, Lüfter ab und zu reinigen.
+
+## Theme: Catppuccin Mocha
+
+Alles in **Catppuccin Mocha** mit Akzentfarbe **Mauve** (`theme.nix`):
+
+| Bereich | Wie |
+|---|---|
+| Plasma, KDE- und alle Qt-Apps | Globales Design + Farbschema *Catppuccin Mocha Mauve*, Fensterdekoration |
+| GTK-Apps (Firefox u. a.) | Breeze-GTK – KDE überträgt das Farbschema automatisch, dadurch sehen Qt und GTK gleich aus |
+| Cursor | *catppuccin-mocha-mauve-cursors* |
+| Icons | Papirus-Dark mit Catppuccin-Ordnerfarben |
+| TTY + Login (tuigreet) | Catppuccin-Farbpalette |
+| Vesktop | Theme liegt bereit → *Einstellungen → Themes* → `catppuccin-mocha-mauve.theme.css` anhaken |
+
+Angewendet wird das Theme **automatisch beim ersten Login**. Danach kannst du in den
+Systemeinstellungen frei ändern – es wird nicht erneut überschrieben. Zurück auf
+Catppuccin: `apply-theme`.
+
+**Akzentfarbe ändern:** in `theme.nix` `accent = "blue";` (o. ä.) setzen,
+`rebuild.sh`, dann `apply-theme`.
+
+**Apps mit eigenem Theme-System** (nicht über KDE/GTK steuerbar):
+- **Telegram:** *Einstellungen → Chat-Einstellungen → Theme*, Catppuccin-Themes gibt es
+  unter github.com/catppuccin/telegram.
+- **Spotify:** nur über Spicetify (inoffizieller Client-Mod), daher nicht eingebaut.
+- **Steam:** eigener Skin, bleibt dunkel wie gewohnt.
+- **Ghostty:** deine Config nutzt `theme = Vague`. Für Catppuccin:
+  `theme = Catppuccin Mocha` (und die `background`-Zeile entfernen).
 
 ## Apps
 
