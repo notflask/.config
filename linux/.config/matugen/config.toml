@@ -1,8 +1,5 @@
+# Farben neu erzeugen + alles neu laden: ~/.config/matugen/theme.sh
 [config]
-reload_apps = true
-
-[config.reload_apps_list]
-waybar = true
 
 [templates.hyprland]
 input_path = "~/.config/matugen/templates/hyprland.conf"
@@ -19,3 +16,7 @@ output_path = "~/.config/waybar/colors.css"
 [templates.fuzzel]
 input_path  = "~/.config/matugen/templates/fuzzel.ini"
 output_path = "~/.config/fuzzel/fuzzel.ini"
+
+[templates.mako]
+input_path  = "~/.config/matugen/templates/mako.ini"
+output_path = "~/.config/mako/config"

@@ -16,7 +16,7 @@
 
   # ── Boot ───────────────────────────────────────────────────
   boot.loader.systemd-boot.enable = true;
-  boot.loader.systemd-boot.configurationLimit = 10;
+  boot.loader.systemd-boot.configurationLimit = 5;
   boot.loader.efi.canTouchEfiVariables = true;
 
   # ── Netzwerk ───────────────────────────────────────────────
@@ -28,11 +28,15 @@
   i18n.defaultLocale = "de_DE.UTF-8";
   console.keyMap = "us"; # Tastatur bleibt US als erstes Layout
 
+  # Default user shell
+  programs.fish.enable = true;
+
   # ── Benutzer ───────────────────────────────────────────────
   # Passwort setzt scripts/install.sh
   users.users.flask = {
     isNormalUser = true;
     description = "flask";
+    shell = pkgs.fish;
     extraGroups = [
       "wheel"
       "networkmanager"
