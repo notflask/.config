@@ -49,5 +49,12 @@ window#waybar {
     font-weight: bold;
 }
 
+#custom-vpn {
+    padding: 0 8px;
+    color: @on_surface_variant;
+}
+#custom-vpn.connected { color: @primary; }
+#custom-vpn.failed { color: @error; }
+
 #battery.warning { color: @tertiary; }
 #battery.critical { color: @error; }

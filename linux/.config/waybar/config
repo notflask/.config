@@ -5,7 +5,7 @@
 
     "modules-left": ["niri/workspaces", "niri/window"],
     "modules-center": [],
-    "modules-right": ["tray", "network", "niri/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/power"],
+    "modules-right": ["tray", "custom/vpn", "network", "niri/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/power"],
 
     "niri/workspaces": {
         "format": "{value}"
@@ -70,6 +70,14 @@
         "reverse-direction": false,
         "smooth-scrolling-threshold": 1.0,
         "tooltip": true
+    },
+
+    "custom/vpn": {
+        "exec": "~/.config/waybar/scripts/vpn.sh",
+        "return-type": "json",
+        "interval": 5,
+        "signal": 8,
+        "on-click": "~/.config/waybar/scripts/vpn.sh toggle"
     },
 
     "custom/tuned": {
