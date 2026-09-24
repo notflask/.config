@@ -7,6 +7,7 @@
     ./desktop.nix
     ./apps.nix
     ./gaming.nix
+    ./performance.nix
   ];
 
   # ── Boot ───────────────────────────────────────────────────
