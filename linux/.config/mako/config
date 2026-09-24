@@ -1,0 +1,35 @@
+# Erzeugt von matugen (templates/mako.ini) – hier nichts ändern
+font=Inter 11
+width=380
+height=160
+margin=12
+padding=14,16
+outer-margin=8
+border-size=2
+border-radius=16
+icons=1
+max-icon-size=56
+icon-location=left
+default-timeout=5000
+# Manche Apps (z. B. niri-Screenshots) wollen "nie ausblenden" – ignorieren
+ignore-timeout=1
+max-visible=5
+layer=overlay
+anchor=top-right
+
+background-color=#111318e6
+text-color=#e1e2e9
+border-color=#a5c8ff
+progress-color=over #214876
+
+format=<b>%s</b>\n<span color="#c3c6cf">%b</span>
+
+[urgency=low]
+border-color=#8d9199
+
+[urgency=critical]
+border-color=#ffb4ab
+default-timeout=0
+
+[mode=do-not-disturb]
+invisible=1

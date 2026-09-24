@@ -14,6 +14,8 @@
     nerd-fonts.symbols-only # Icons als Fallback für jede Schrift (LazyVim usw.)
     ibm-plex # vscode, obsidian-style.css
     fira-code # zebar
+    minecraftia # Spotify (Spicetify)
+    monocraft # Fallback für Minecraftia (mehr Zeichen)
 
     # ── Windows ──────────────────────────────────────────────
     corefonts # Arial, Times New Roman, Courier New, Verdana, Georgia, Tahoma, Impact …
@@ -52,4 +54,21 @@
     ];
     emoji = [ "Noto Color Emoji" ];
   };
+
+  # Minecraftia kennt kein Kyrillisch. Für Apps, die nur einen einzelnen
+  # Font-Namen entgegennehmen (z. B. Telegram Desktop → Settings → Chat
+  # Settings → "Font family" = Minecraftia), sonst würde für Russisch die
+  # normale fontconfig-Standardschrift statt Monocraft (hat Kyrillisch)
+  # einspringen. Spicetify (Spotify) bekommt die Fallback-Kette bereits
+  # direkt per CSS in apps.nix und ist davon unabhängig.
+  fonts.fontconfig.localConf = ''
+    <?xml version="1.0"?>
+    <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+    <fontconfig>
+      <match target="pattern">
+        <test name="family"><string>Minecraftia</string></test>
+        <edit name="family" mode="append" binding="strong"><string>Monocraft</string></edit>
+      </match>
+    </fontconfig>
+  '';
 }

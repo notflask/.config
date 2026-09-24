@@ -30,7 +30,7 @@
     xwayland-satellite # X11-Apps (Steam, Spiele) – startet Niri automatisch
     waybar
     fuzzel
-    swaybg
+    awww # Hintergrund mit Übergängen (Backend für Waypaper)
     waypaper
     matugen
     cliphist
@@ -38,6 +38,8 @@
     brightnessctl
     pavucontrol
     wlogout
+    mako # makoctl (Theme neu laden)
+    libnotify # notify-send
   ];
 
   # Nur in der Niri-Sitzung: Polkit-Agent (Passwortabfragen) und

@@ -1,6 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
+  imports = [ inputs.spicetify-nix.nixosModules.default ];
+
   # ── Firefox ────────────────────────────────────────────────
   # KDE-Integration (plasma-browser-integration) bringt das Plasma-Modul mit.
   programs.firefox = {
@@ -24,7 +26,8 @@
   environment.systemPackages = with pkgs; [
     vesktop # Discord-Client mit funktionierendem Wayland-Screensharing
     telegram-desktop
-    spotify
+    tradingview
+    vlc # Videoplayer
 
     # KI-Coding-Tools im Terminal: `claude` (Claude Code), `agy` (Antigravity CLI).
     # Updates kommen über `rebuild update`, nicht über die eingebauten Updater.
@@ -38,6 +41,31 @@
   # Cowork in Claude Desktop startet Aufgaben in einer VM (QEMU/KVM)
   users.users.flask.extraGroups = [ "kvm" ];
   boot.kernelModules = [ "vhost_vsock" ];
+
+  # ── Spotify + Spicetify ────────────────────────────────────
+  # Ersetzt das normale Spotify-Paket; Theme passend zu theme.nix
+  programs.spicetify =
+    let
+      spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+    in
+    {
+      enable = true;
+      theme = spicePkgs.themes.catppuccin;
+      colorScheme = "mocha";
+      # Minecraft-Schrift überall (Schriften kommen aus fonts.nix)
+      enabledSnippets = [
+        ''
+          :root {
+            --encore-body-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+            --encore-title-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+            --encore-variable-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+          }
+          *:not([class*="spoticon"]) {
+            font-family: "Minecraftia", "Monocraft", sans-serif !important;
+          }
+        ''
+      ];
+    };
 
   # Spotify Connect / Geräte im lokalen Netz finden
   networking.firewall = {

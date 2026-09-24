@@ -16,9 +16,11 @@ let
     "tmux"
     "ghostty"
     # Niri-Sitzung
+    "fastfetch"
     "niri"
     "waybar"
     "fuzzel"
+    "mako"
     "matugen"
     "waypaper"
     "hypr" # hyprlock.conf (Sperrbildschirm)
@@ -36,7 +38,8 @@ in
     defaultEditor = true;
   };
 
-  # Von Mason heruntergeladene Programme (clangd usw.) laufen sonst nicht
+  # Von Mason heruntergeladene Programme (clangd usw.) und von uv
+  # installierte Python-Versionen laufen sonst nicht
   programs.nix-ld.enable = true;
 
   environment.systemPackages = with pkgs; [
@@ -53,6 +56,9 @@ in
     cmake
     sioyek
 
+    # Python-Versionen verwalten: `uv python install` (läuft dank nix-ld)
+    uv
+
     # Terminal
     ghostty
     tmux
@@ -60,10 +66,14 @@ in
     wl-clipboard
   ];
 
+  # ~/.local/bin in den PATH (dort legt `uv python install` python/python3 ab)
+  environment.localBinInPath = true;
+
   # Kurzbefehle für die Skripte im Repo
   environment.shellAliases = {
     rebuild = "${repo}/linux/nix/scripts/rebuild.sh";
     monitors = "${repo}/linux/nix/scripts/monitors.sh";
     gpu-info = "${repo}/linux/nix/scripts/gpu-info.sh";
+    theme = "${repo}/linux/.config/matugen/theme.sh";
   };
 }
