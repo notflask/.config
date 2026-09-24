@@ -30,7 +30,14 @@
     # Updates kommen über `rebuild update`, nicht über die eingebauten Updater.
     claude-code
     antigravity-cli
+
+    # Claude Desktop (Linux-Beta, aus dem offiziellen .deb verpackt)
+    (callPackage ../../pkgs/claude-desktop/package.nix { })
   ];
+
+  # Cowork in Claude Desktop startet Aufgaben in einer VM (QEMU/KVM)
+  users.users.flask.extraGroups = [ "kvm" ];
+  boot.kernelModules = [ "vhost_vsock" ];
 
   # Spotify Connect / Geräte im lokalen Netz finden
   networking.firewall = {
