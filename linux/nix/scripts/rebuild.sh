@@ -6,8 +6,6 @@
 #    rebuild.sh update     Pakete aktualisieren (flake.lock) + switch
 #    rebuild.sh boot       erst beim nächsten Neustart aktiv
 #    rebuild.sh test       aktivieren ohne Boot-Eintrag
-#
-#  Im Boot-Eintrag „gaming“ bleibt das System im Gaming-Modus.
 # ============================================================
 
 set -euo pipefail
@@ -23,16 +21,9 @@ case "$action" in
     ;;
   switch | boot | test | build | dry-build) ;;
   *)
-    sed -n '2,12p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    sed -n '2,9p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
     exit 1
     ;;
 esac
 
-args=("$action" --flake "$FLAKE_DIR#$HOST" --sudo)
-
-# Sonst würde `switch` aus dem Gaming-Modus in den Normalmodus wechseln
-if [ -f /etc/specialisation ] && [[ "$action" == switch || "$action" == test ]]; then
-  args+=(--specialisation "$(cat /etc/specialisation)")
-fi
-
-nixos-rebuild "${args[@]}"
+nixos-rebuild "$action" --flake "$FLAKE_DIR#$HOST" --sudo

@@ -50,7 +50,8 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   hardware.enableRedistributableFirmware = true;
-  services.thermald.enable = true;
+  # Kein thermald: drosselt die CPU auf Gaming-Laptops oft zu früh.
+  # Die Firmware (EC) schützt weiterhin vor Überhitzung.
   services.power-profiles-daemon.enable = true;
   services.fwupd.enable = true;
   zramSwap.enable = true;

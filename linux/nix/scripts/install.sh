@@ -157,7 +157,6 @@ nixos-enter --root /mnt -c "chown -R $USER_NAME:users /home/$USER_NAME"
 step "Fertig!"
 cat <<'MSG'
   • Neustarten:  reboot
-  • Im Bootmenü gibt es zwei Einträge: normal (Akku) und „gaming“.
   • Nach dem ersten Login:
       ~/.config/linux/nix/scripts/gpu-info.sh    # welcher Anschluss an welcher GPU hängt
       ~/.config/linux/nix/scripts/monitors.sh    # eDP-1 + DP-2 einrichten

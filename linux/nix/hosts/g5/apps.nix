@@ -13,9 +13,9 @@
     ];
     preferencesStatus = "default"; # nur Voreinstellungen, in about:config änderbar
     preferences = {
-      # Hardware-Videodekodierung über VA-API (Intel iHD)
+      # Hardware-Videodekodierung über VA-API (NVIDIA)
       "media.ffmpeg.vaapi.enabled" = true;
-      "widget.dmabuf.force-enabled" = true; # nötig für VA-API auf NVIDIA (gaming)
+      "widget.dmabuf.force-enabled" = true; # nötig für VA-API auf NVIDIA
       # KDE-Dateidialog statt GTK
       "widget.use-xdg-desktop-portal.file-picker" = 1;
       "widget.use-xdg-desktop-portal.mime-handler" = 1;

@@ -1,23 +1,16 @@
-# Hybrid-Grafik: Intel Iris Xe (i5-12500H) + NVIDIA RTX 4060 Laptop
+# Grafik: Intel Iris Xe (i5-12500H) + NVIDIA RTX 4060 Laptop
 #
-# Zwei Boot-Einträge:
-#
-#   NixOS (Standard)  PRIME Offload. KWin läuft auf der Intel-iGPU, die RTX 4060
-#                     schläft im Leerlauf (Akku, leise). Bei Bedarf:
-#                       nvidia-offload <programm>
-#                     oder Rechtsklick im KDE-Startmenü → dedizierte Grafikkarte.
-#
-#   NixOS (gaming)    KWin läuft auf der RTX 4060. Spiele auf dem externen
-#                     Monitor (am NVIDIA-Anschluss) gehen ohne Umweg über die
-#                     iGPU direkt raus → mehr FPS, weniger Latenz. Die dGPU ist
-#                     dauerhaft an (am Netzteil benutzen).
+# KWin (der Desktop) läuft komplett auf der RTX 4060. Spiele auf dem externen
+# Monitor (am NVIDIA-Anschluss) gehen ohne Umweg über die iGPU direkt raus →
+# mehr FPS, weniger Latenz. Die Intel-iGPU treibt nur noch den internen
+# Bildschirm (eDP-1), das Bild dafür wird von der NVIDIA kopiert.
+# Die dGPU ist dauerhaft an – gedacht für den Betrieb am Netzteil.
 #
 # Die PCI-Adressen setzt scripts/install.sh automatisch. Manuell prüfen:
 #   lspci -D | grep -Ei 'vga|3d'
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -43,10 +36,6 @@ in
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
-    extraPackages = with pkgs; [
-      intel-media-driver # VA-API für Intel (iHD) – Videodekodierung in Firefox
-      vpl-gpu-rt # Intel QuickSync (oneVPL)
-    ];
   };
 
   hardware.nvidia = {
@@ -58,9 +47,9 @@ in
     # Verschiebt Leistung dynamisch zwischen CPU und GPU (nvidia-powerd)
     dynamicBoost.enable = true;
 
-    # dGPU im Leerlauf komplett abschalten (RTD3)
+    # VRAM über Suspend retten; dGPU bleibt aber immer an (kein RTD3)
     powerManagement.enable = true;
-    powerManagement.finegrained = true;
+    powerManagement.finegrained = false;
 
     prime = {
       offload.enable = true;
@@ -76,43 +65,12 @@ in
     KERNEL=="card*", SUBSYSTEM=="drm", KERNELS=="${nvidiaPci}", SYMLINK+="dri/nvidia-dgpu"
   '';
 
-  # GPU-Auswahl im KDE-Kontextmenü („dedizierte Grafikkarte“)
-  services.switcherooControl.enable = true;
-
-  # Videobeschleunigung über die Intel-iGPU (nicht global auf nvidia setzen!)
-  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
-
-  # ── Boot-Eintrag „gaming“ ──────────────────────────────────
-  specialisation.gaming.configuration = {
-    system.nixos.tags = [ "gaming" ];
-    environment.etc."specialisation".text = "gaming"; # für scripts/rebuild.sh
-
-    # dGPU treibt den Desktop → muss wach bleiben
-    hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
-
-    environment.sessionVariables = {
-      # KWin rendert auf der NVIDIA, der interne Bildschirm wird von dort kopiert
-      KWIN_DRM_DEVICES = "/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu";
-      # Firefox-Videodekodierung auf derselben GPU wie der Desktop
-      LIBVA_DRIVER_NAME = lib.mkForce "nvidia";
-      NVD_BACKEND = "direct";
-      MOZ_DISABLE_RDD_SANDBOX = "1";
-    };
-
-    # thermald drosselt die CPU auf manchen Gaming-Laptops zu früh;
-    # die Firmware (EC) schützt weiterhin vor Überhitzung.
-    services.thermald.enable = lib.mkForce false;
-
-    # Energieprofil „Leistung“ beim Start setzen
-    systemd.services.gaming-power-profile = {
-      description = "Energieprofil auf Leistung setzen";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "power-profiles-daemon.service" ];
-      requires = [ "power-profiles-daemon.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance";
-      };
-    };
+  environment.sessionVariables = {
+    # KWin rendert auf der NVIDIA, der interne Bildschirm wird von dort kopiert
+    KWIN_DRM_DEVICES = "/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu";
+    # Videodekodierung (Firefox) auf derselben GPU wie der Desktop
+    LIBVA_DRIVER_NAME = "nvidia";
+    NVD_BACKEND = "direct";
+    MOZ_DISABLE_RDD_SANDBOX = "1";
   };
 }

@@ -17,6 +17,18 @@
     settings.general.renice = 10;
   };
 
+  # Energieprofil „Leistung“ beim Start setzen
+  systemd.services.performance-power-profile = {
+    description = "Energieprofil auf Leistung setzen";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "power-profiles-daemon.service" ];
+    requires = [ "power-profiles-daemon.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     mangohud # FPS-/Frametime-Overlay: mangohud %command%
   ];

@@ -11,10 +11,10 @@ linux/nix/
 ├── hosts/g5/
 │   ├── configuration.nix          # Boot, Netzwerk, Locale, User, Audio, Laptop
 │   ├── hardware-configuration.nix # PLATZHALTER – install.sh ersetzt ihn
-│   ├── nvidia.nix                 # Hybrid-Grafik + Boot-Eintrag „gaming“
+│   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
 │   ├── desktop.nix                # Plasma 6, greetd, Fonts, Tastatur
 │   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify
-│   └── gaming.nix                 # Steam, GameMode, MangoHud
+│   └── gaming.nix                 # Steam, GameMode, MangoHud, Energieprofil
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -56,35 +56,22 @@ committen.
 ~/.config/linux/nix/scripts/rebuild.sh update   # System aktualisieren
 ```
 
-`rebuild.sh` bleibt im Boot-Eintrag „gaming“ automatisch im Gaming-Modus.
+## Grafik
 
-## Grafik: zwei Boot-Einträge
+Das System ist auf maximale Leistung ausgelegt (Betrieb am Netzteil):
 
-| Boot-Eintrag | KWin rendert auf | dGPU | Wofür |
-|---|---|---|---|
-| **NixOS** (Standard) | Intel iGPU | schläft im Leerlauf | Akku, Surfen, leise |
-| **NixOS (gaming)** | RTX 4060 | immer an | am Netzteil, externer Monitor, CS2 |
+- **KWin (der Desktop) läuft auf der RTX 4060.** Das Spielbild geht direkt an den
+  LG-Monitor, nur der interne Bildschirm (eDP-1, fest an der Intel-iGPU) wird kopiert.
+  Läuft der Desktop dagegen auf der Intel-GPU, muss jedes Bild einmal hin und zurück
+  kopiert werden. Das kostet FPS und bringt Latenz.
+- Die dGPU ist immer an, Dynamic Boost verteilt die Leistung zwischen CPU und GPU.
+- Energieprofil „Leistung“ ab dem Start, kein `thermald` (drosselt sonst zu früh).
 
-**Warum zwei Modi?** Im Standardmodus zeichnet die Intel-GPU den Desktop. Ein Spiel
-auf der NVIDIA muss jedes Bild erst zur Intel-GPU kopieren und bei einem Monitor am
-NVIDIA-Anschluss wieder zurück. Das kostet FPS und bringt Latenz. Im Gaming-Modus
-läuft KWin selbst auf der NVIDIA: das Spielbild geht direkt an den LG-Monitor, nur
-der interne Bildschirm wird kopiert. Zusätzlich ist dort `thermald` aus und das
-Energieprofil auf „Leistung“.
-
-Standard-Eintrag ändern: im Bootmenü den Eintrag markieren und `d` drücken.
-
-Einzelne Programme im Standardmodus auf der NVIDIA starten:
-
-```sh
-nvidia-offload <programm>
-```
-
-oder Rechtsklick im KDE-Startmenü → mit dedizierter Grafikkarte starten.
+Für Akku ist das nicht gedacht: die RTX 4060 frisst auch im Leerlauf Strom.
 
 **Anschlüsse prüfen:** `scripts/gpu-info.sh` zeigt, welcher Anschluss an welcher GPU
-hängt und ob die NVIDIA gerade schläft. Den LG-Monitor an einen **NVIDIA-Anschluss**
-stecken (beim G5 KF typischerweise HDMI / Mini-DP; mit `gpu-info.sh` verifizieren).
+hängt. Den LG-Monitor an einen **NVIDIA-Anschluss** stecken (beim G5 KF
+typischerweise HDMI / Mini-DP; mit `gpu-info.sh` verifizieren).
 
 ## Bildschirme
 
@@ -106,7 +93,7 @@ Steam → CS2 → Eigenschaften → Startoptionen:
 gamemoderun nvidia-offload %command%
 ```
 
-- Im Boot-Eintrag **gaming** starten, Netzteil dran.
+- Netzteil dran.
 - Im Spiel: Vollbild, V-Sync aus, `fps_max` nach Geschmack.
 - VRR (FreeSync/G-Sync Compatible) ist in `monitors.sh` auf „automatisch“.
 - Für minimale Latenz: *Systemeinstellungen → Anzeige → Tearing erlauben* (optional).
@@ -116,15 +103,16 @@ gamemoderun nvidia-offload %command%
 
 | App | Hinweise |
 |---|---|
-| Firefox | VA-API-Videodekodierung (Intel im Standard, NVIDIA im Gaming-Modus), KDE-Dateidialog, KDE-Browserintegration. Prüfen: `about:support` → *Media* |
+| Firefox | VA-API-Videodekodierung über NVIDIA, KDE-Dateidialog, KDE-Browserintegration. Prüfen: `about:support` → *Media* |
 | Vesktop | Discord-Client; Bildschirmfreigabe unter Wayland über das KDE-Portal |
 | Telegram | `telegram-desktop` |
 | Spotify | Port 57621/TCP + mDNS offen für Spotify Connect im LAN |
 | Steam | CS2 läuft nativ |
 
-> ⚠️ `linux/.config/environment.d/environment.conf` setzt `LIBVA_DRIVER_NAME=nvidia`,
-> `GBM_BACKEND=nvidia-drm` usw. global. Das bricht den Standardmodus (Firefox,
-> Electron-Apps). **Nicht nach `~/.config/environment.d/` kopieren.**
+> ⚠️ `linux/.config/environment.d/environment.conf` **nicht** nach
+> `~/.config/environment.d/` kopieren: Die Datei setzt Pfade einer normalen Distro
+> (`/usr/share/...`, `XDG_DATA_DIRS`), die es unter NixOS nicht gibt, und überschreibt
+> damit die NixOS-Pfade. Alles Nötige für NVIDIA setzt `nvidia.nix`.
 
 ## Tastatur
 

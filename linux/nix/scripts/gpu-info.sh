@@ -36,16 +36,18 @@ for conn in /sys/class/drm/card*-*; do
 done
 
 echo
-echo "── Modus ────────────────────────────────────────"
-if [ -f /etc/specialisation ]; then
-  echo "  Boot-Eintrag: $(cat /etc/specialisation)"
-else
-  echo "  Boot-Eintrag: normal (PRIME Offload)"
-fi
-echo "  KWIN_DRM_DEVICES=${KWIN_DRM_DEVICES:-<nicht gesetzt → KWin auf Intel>}"
+echo "── Desktop ──────────────────────────────────────"
+echo "  KWIN_DRM_DEVICES=${KWIN_DRM_DEVICES:-<nicht gesetzt>}"
+for link in /dev/dri/nvidia-dgpu /dev/dri/intel-igpu; do
+  if [ -e "$link" ]; then
+    echo "  $link → $(readlink -f "$link")"
+  else
+    echo "  $link fehlt – PCI-Adressen in nvidia.nix prüfen!"
+  fi
+done
 
 cat <<'MSG'
 
-Für CS2 auf dem externen Monitor: Kabel an einen Anschluss stecken, der
-an der NVIDIA hängt, und im Boot-Eintrag „gaming“ starten.
+Den LG-Monitor an einen Anschluss stecken, der an der NVIDIA hängt –
+dann geht das Spielbild ohne Umweg direkt raus.
 MSG
