@@ -11,6 +11,7 @@
     ./theme.nix
     ./dotfiles.nix
     ./fonts.nix
+    ./niri.nix
   ];
 
   # ── Boot ───────────────────────────────────────────────────

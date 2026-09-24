@@ -53,9 +53,9 @@
 
     "custom/tuned": {
         "format": " {} ",
-        "exec": "profile=$(tuned-adm active); case \"$profile\" in *performance*) echo '' ;; *power*) echo '' ;; *balanced*) echo '' ;; *) echo '' ;; esac",
+        "exec": "profile=$(powerprofilesctl get); case \"$profile\" in *performance*) echo '' ;; *power*) echo '' ;; *balanced*) echo '' ;; *) echo '' ;; esac",
         "interval": 2,
         "tooltip": false,
-        "on-click": "tuned-gui"
+        "on-click": "case $(powerprofilesctl get) in performance) powerprofilesctl set balanced ;; balanced) powerprofilesctl set power-saver ;; *) powerprofilesctl set performance ;; esac"
     }
 }

@@ -10,11 +10,18 @@ let
   home = "/home/${user}";
   repo = "${home}/dotfiles";
 
-  # Unter KDE genutzte Configs aus linux/.config/
+  # Genutzte Configs aus linux/.config/
   linked = [
     "nvim"
     "tmux"
     "ghostty"
+    # Niri-Sitzung
+    "niri"
+    "waybar"
+    "fuzzel"
+    "matugen"
+    "waypaper"
+    "hypr" # hyprlock.conf (Sperrbildschirm)
   ];
 in
 {
