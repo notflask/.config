@@ -8,6 +8,7 @@
     ./apps.nix
     ./gaming.nix
     ./performance.nix
+    ./theme.nix
   ];
 
   # ── Boot ───────────────────────────────────────────────────

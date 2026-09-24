@@ -16,6 +16,7 @@
         "--remember"
         "--remember-session"
         "--asterisks"
+        "--theme 'border=magenta;title=magenta;text=white;prompt=blue;input=white;time=blue;action=blue;button=magenta;container=black'"
         "--sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
       ];
     };
