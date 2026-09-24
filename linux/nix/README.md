@@ -12,9 +12,9 @@ linux/nix/
 │   ├── configuration.nix          # Boot, Netzwerk, Locale, User, Audio, Laptop
 │   ├── hardware-configuration.nix # PLATZHALTER – install.sh ersetzt ihn
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
-│   ├── desktop.nix                # Plasma 6, greetd, Fonts, Tastatur
-│   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify
-│   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder
+│   ├── desktop.nix                # Plasma 6, greetd, Tastatur, Spectacle
+│   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify, Claude Code, agy
+│   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder, Flatpak
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 │   ├── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
 │   ├── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
