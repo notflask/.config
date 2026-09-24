@@ -13,18 +13,20 @@ linux/nix/
 │   ├── hardware-configuration.nix # PLATZHALTER – install.sh ersetzt ihn
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
 │   ├── desktop.nix                # Plasma 6, greetd, Tastatur, Spectacle
-│   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify, Claude Code, agy
+│   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify, Claude (Code/Desktop), agy
 │   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder, Flatpak
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 │   ├── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
 │   ├── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
 │   ├── fonts.nix                  # Schriften: Dotfiles, Windows, alle Schriftsysteme
 │   └── niri.nix                   # Niri als zweite Sitzung neben KDE
+├── pkgs/claude-desktop/           # Claude Desktop (.deb → NixOS)
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
     ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
+    ├── update-claude-desktop.sh   # neueste Claude-Desktop-Version eintragen
     ├── apply-theme.sh             # Catppuccin anwenden (als Befehl `apply-theme` installiert)
     └── monitors.sh                # eDP-1 + DP-2 (180 Hz, VRR) einrichten
 ```
@@ -67,7 +69,7 @@ git push
 
 ```sh
 rebuild          # Config-Änderungen anwenden
-rebuild update   # System + Flatpaks aktualisieren
+rebuild update   # System, Claude Desktop + Flatpaks aktualisieren
 ```
 
 ## Dotfiles
@@ -289,6 +291,21 @@ ein Sober-Update warten.
 
 Beide werden über `rebuild update` aktualisiert, nicht über ihre eigenen Updater.
 
+## Claude Desktop
+
+Die offizielle Linux-Beta von Anthropic gibt es nur als `.deb` für Ubuntu/Debian.
+`pkgs/claude-desktop/` verpackt genau dieses `.deb` für NixOS: Es läuft in einer
+FHS-Umgebung, die für die App wie Ubuntu aussieht – dadurch funktionieren auch die
+mitgelieferten Teile (Claude Code, Cowork) unverändert.
+
+- Starten: *Claude* im Startmenü oder `claude-desktop`, dann mit dem Claude-Konto anmelden.
+- **Updates:** `rebuild update` holt automatisch die neueste Version aus Anthropics
+  Paketquelle (`scripts/update-claude-desktop.sh` schreibt `pkgs/claude-desktop/source.json`).
+- **Cowork** (Aufgaben in einer VM): QEMU, virtiofsd und UEFI-Firmware sind dabei, du bist
+  in der Gruppe `kvm`, `vhost_vsock` wird geladen. Im BIOS muss **Intel VT-x**
+  (Virtualisierung) aktiv sein.
+- Nicht in der Linux-Beta (von Anthropic): Computer Use, Diktieren.
+
 ## Aufnahme & Replay: GPU Screen Recorder
 
 Wie ShadowPlay: startet beim Login im Hintergrund, **Alt+Z** öffnet das Overlay.
@@ -364,6 +381,7 @@ Catppuccin: `apply-theme`.
 | GPU Screen Recorder | Aufnahme, Replay, Streaming – Alt+Z |
 | Sober | Roblox (Flatpak) |
 | Claude Code, Antigravity CLI | `claude`, `agy` im Terminal |
+| Claude Desktop | Linux-Beta, aus dem offiziellen `.deb` |
 
 > ⚠️ `linux/.config/environment.d/environment.conf` **nicht** nach
 > `~/.config/environment.d/` kopieren: Die Datei setzt Pfade einer normalen Distro
