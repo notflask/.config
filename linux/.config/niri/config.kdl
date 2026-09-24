@@ -173,7 +173,7 @@ layer-rule {
         blur true
         xray false
     }
-    geometry-corner-radius 26
+    geometry-corner-radius 30
     shadow {
         on
         softness 40
