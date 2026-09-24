@@ -76,16 +76,29 @@ partition_disk() {
     mkpart ESP fat32 1MiB 1GiB \
     set 1 esp on \
     mkpart root ext4 1GiB 100%
+  partprobe "$disk" || true
   udevadm settle
 
   step "Formatiere"
-  mkfs.fat -F 32 -n boot "$boot_part"
+  # Reste des alten Layouts (Windows, BitLocker, FAT) auf den neuen
+  # Partitionen entfernen – sonst erkennt mount evtl. das falsche Dateisystem
+  wipefs -a "$boot_part" "$root_part"
+  mkfs.fat -F 32 -n BOOT "$boot_part"
   mkfs.ext4 -F -L nixos "$root_part"
+  sync
+  udevadm settle
+
+  local root_type boot_type
+  root_type="$(blkid -p -o value -s TYPE "$root_part" || true)"
+  boot_type="$(blkid -p -o value -s TYPE "$boot_part" || true)"
+  echo "  $root_part: ${root_type:-?}   $boot_part: ${boot_type:-?}"
+  [ "$root_type" = "ext4" ] || die "$root_part wird nicht als ext4 erkannt."
+  [ "$boot_type" = "vfat" ] || die "$boot_part wird nicht als FAT erkannt."
 
   step "Hänge unter /mnt ein"
-  mount "$root_part" /mnt
+  mount -t ext4 "$root_part" /mnt
   mkdir -p /mnt/boot
-  mount -o umask=077 "$boot_part" /mnt/boot
+  mount -t vfat -o umask=077 "$boot_part" /mnt/boot
 }
 
 case "$1" in
