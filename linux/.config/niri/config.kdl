@@ -85,6 +85,7 @@ cursor {
 
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/config-niri"
 spawn-at-startup "awww-daemon"
+spawn-at-startup "easyeffects" "--service-mode" "--hide-window"
 spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"

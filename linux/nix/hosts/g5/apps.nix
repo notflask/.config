@@ -28,6 +28,7 @@
     telegram-desktop
     tradingview
     vlc # Videoplayer
+    easyeffects # Equalizer (AutoEQ-Profil für die KZ-IEMs)
 
     # KI-Coding-Tools im Terminal: `claude` (Claude Code), `agy` (Antigravity CLI).
     # Updates kommen über `rebuild update`, nicht über die eingebauten Updater.
