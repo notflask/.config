@@ -49,5 +49,15 @@ window#waybar {
     font-weight: bold;
 }
 
+#custom-vpn {
+    margin: 4px 4px;
+    padding: 0 10px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+#custom-vpn.on      { color: #a6e3a1; background: alpha(#a6e3a1, 0.15); } /* grün */
+#custom-vpn.pending { color: #fab387; background: alpha(#fab387, 0.15); } /* orange */
+#custom-vpn.off     { color: #f38ba8; background: alpha(#f38ba8, 0.15); } /* rot */
+
 #battery.warning { color: @tertiary; }
 #battery.critical { color: @error; }
