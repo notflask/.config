@@ -52,40 +52,8 @@ in
     NoDisplay=true
   '';
 
-  # ── Roblox: Sober (gibt es nur als Flatpak) ────────────────
+  # ── Flatpak (für Sober/Roblox, siehe README) ───────────────
   services.flatpak.enable = true;
-
-  # Flathub einrichten, Sober installieren, Flatpaks aktuell halten –
-  # inkl. der passenden NVIDIA-Erweiterung nach Treiber-Updates.
-  # Läuft 2 Minuten nach dem Booten und dann täglich (bremst den Start nicht).
-  # Sofort ausführen: sudo systemctl start flatpak-sober
-  systemd.services.flatpak-sober = {
-    description = "Flathub + Sober einrichten, Flatpaks aktualisieren";
-    wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
-    path = [ pkgs.flatpak ];
-    serviceConfig.Type = "oneshot";
-    script = ''
-      flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-      if ! flatpak info org.vinegarhq.Sober >/dev/null 2>&1; then
-        flatpak install -y --noninteractive flathub org.vinegarhq.Sober
-      fi
-      flatpak update -y --noninteractive
-      # Sober immer auf der RTX 4060
-      flatpak override --system \
-        --env=__NV_PRIME_RENDER_OFFLOAD=1 \
-        --env=__GLX_VENDOR_LIBRARY_NAME=nvidia \
-        --env=__VK_LAYER_NV_optimus=NVIDIA_only \
-        org.vinegarhq.Sober
-    '';
-  };
-  systemd.timers.flatpak-sober = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnBootSec = "2min";
-      OnUnitActiveSec = "1d";
-    };
-  };
 
   environment.systemPackages = with pkgs; [
     gaming-mode # gaming-mode %command%

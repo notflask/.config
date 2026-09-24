@@ -65,7 +65,7 @@ git push
 
 ```sh
 rebuild          # Config-Änderungen anwenden
-rebuild update   # System aktualisieren
+rebuild update   # System + Flatpaks aktualisieren
 ```
 
 ## Dotfiles
@@ -222,17 +222,18 @@ oder aktives Fenster: *Systemeinstellungen → Tastenkürzel → Spectacle*.
 ## Roblox: Sober
 
 [Sober](https://sober.vinegarhq.org) ist ein inoffizieller Roblox-Client für Linux und
-gibt es nur als Flatpak. NixOS richtet Flathub ein und installiert Sober automatisch
-**ca. 2 Minuten nach dem ersten Start** (danach hält es alle Flatpaks täglich aktuell,
-inkl. der passenden NVIDIA-Erweiterung). Sofort installieren:
+gibt es nur als Flatpak. Flatpak ist aktiviert, Sober einmalig installieren:
 
 ```sh
-sudo systemctl start flatpak-sober
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install --user -y flathub org.vinegarhq.Sober
 ```
 
-Danach im Startmenü *Sober* öffnen, mit dem Roblox-Konto anmelden. Sober läuft
-immer auf der RTX 4060. Da Sober inoffiziell ist, kann ein Roblox-Update es
-zeitweise kaputt machen – dann auf ein Sober-Update warten.
+Danach im Startmenü *Sober* öffnen und mit dem Roblox-Konto anmelden.
+Aktualisiert wird Sober mit `rebuild update` (bzw. `flatpak update`).
+
+Da Sober inoffiziell ist, kann ein Roblox-Update es zeitweise kaputt machen – dann auf
+ein Sober-Update warten.
 
 ## KI-Coding-Tools
 
