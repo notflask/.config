@@ -56,6 +56,20 @@
     Use=true
   '';
 
+  # ── Screenshots: Spectacle ─────────────────────────────────
+  # Super+Shift+S (oder Druck) → Bereich auswählen, im Overlay zeichnen,
+  # Strg+C / „Kopieren“ → Bild im Clipboard, Spectacle schließt sich.
+  # Es wird keine Datei gespeichert.
+  environment.etc."xdg/spectaclerc".text = ''
+    [General]
+    launchAction=TakeRectangularScreenshot
+    clipboardGroup=PostScreenshotCopyImage
+    autoSaveImage=false
+
+    [GuiConfig]
+    quitAfterSaveCopyExport=true
+  '';
+
   # ── Schriften ──────────────────────────────────────────────
   fonts.packages = with pkgs; [
     noto-fonts

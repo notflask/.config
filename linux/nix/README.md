@@ -206,6 +206,19 @@ darüber installieren. Danach in Lutris beim Battle.net-Eintrag unter
 Der erste Start dauert länger (Shader-Kompilierung, DirectX 12 → Vulkan), danach
 läuft es aus dem Cache.
 
+## Screenshots: Spectacle
+
+**Super+Shift+S** (oder **Druck**) → Bereich mit der Maus aufziehen → im Overlay
+zeichnen (Freihand, Textmarker, Linie, Pfeil, Rechteck, Ellipse, Text, Nummern,
+Verpixeln, Weichzeichnen) → **Strg+C** bzw. *Kopieren*. Das Bild liegt dann im
+Clipboard, Spectacle schließt sich, **es wird nichts gespeichert**.
+
+**Enter** statt Strg+C kopiert ebenfalls, öffnet aber zusätzlich das Spectacle-Fenster
+(für mehr Bearbeitung). **Esc** bricht ab.
+
+Wer doch speichern will: im Overlay *Speichern* (Strg+S). Weitere Kürzel wie Vollbild
+oder aktives Fenster: *Systemeinstellungen → Tastenkürzel → Spectacle*.
+
 ## Aufnahme & Replay: GPU Screen Recorder
 
 Wie ShadowPlay: startet beim Login im Hintergrund, **Alt+Z** öffnet das Overlay.
