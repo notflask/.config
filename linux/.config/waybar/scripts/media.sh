@@ -87,7 +87,10 @@ fetch_cover() {
 
 case ${1:-} in
   cover)
-    [ -e "$cover" ] && readlink -f "$cover"
+    # Ohne Ausgabe behält Waybar den alten Pfad und zeigt das letzte Cover
+    # weiter (die Datei liegt ja noch im Cache) – daher bewusst ein Pfad,
+    # den es nicht gibt, dann blendet Waybar das Modul aus.
+    if [ -e "$cover" ]; then readlink -f "$cover"; else echo "$dir/kein-cover"; fi
     exit ;;
 
   button)
