@@ -86,6 +86,7 @@
     pciutils
     usbutils
     htop
+    btop-cuda # btop mit GPU-Anzeige für die RTX 4060 (NVML)
     fastfetch
   ];
 
