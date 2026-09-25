@@ -19,6 +19,8 @@
       # KDE-Dateidialog statt GTK
       "widget.use-xdg-desktop-portal.file-picker" = 1;
       "widget.use-xdg-desktop-portal.mime-handler" = 1;
+      # Apple-Emoji statt des mitgelieferten Twemoji (siehe fonts.nix)
+      "font.name-list.emoji" = "Apple Color Emoji";
     };
   };
 

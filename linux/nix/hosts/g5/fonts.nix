@@ -1,8 +1,21 @@
 # Schriften: alles aus den Dotfiles + Windows-Schriften + (fast) alle
 # Schriftsysteme der Welt (Chinesisch, Japanisch, Koreanisch, Arabisch,
-# Persisch, Hebräisch, Kyrillisch, Indisch, Thai …) + Emoji.
-{ pkgs, ... }:
+# Persisch, Hebräisch, Kyrillisch, Indisch, Thai …) + Apple-Emoji.
+{ pkgs, lib, ... }:
 
+let
+  # Emoji-Schriften, die Apps ausdrücklich anfordern – alle auf Apple umbiegen
+  otherEmojiFonts = [
+    "Noto Color Emoji"
+    "Noto Emoji"
+    "Twemoji"
+    "Twemoji Mozilla"
+    "Segoe UI Emoji"
+    "EmojiOne Color"
+    "JoyPixels"
+    "Blobmoji"
+  ];
+in
 {
   fonts.enableDefaultPackages = true;
 
@@ -29,10 +42,13 @@
     noto-fonts # Latein, Kyrillisch, Griechisch, Arabisch, Hebräisch, Indisch, Thai …
     noto-fonts-cjk-sans # Chinesisch, Japanisch, Koreanisch
     noto-fonts-cjk-serif
-    noto-fonts-color-emoji
+    noto-fonts-color-emoji # nur noch Reserve, siehe Apple-Emoji unten
     amiri # klassisches Arabisch
     vazirmatn # Persisch
     dejavu_fonts
+
+    # ── Emoji ────────────────────────────────────────────────
+    (callPackage ../../pkgs/apple-emoji/package.nix { }) # "Apple Color Emoji"
   ];
 
   # Standard-Schriften (Fallback-Reihenfolge)
@@ -52,9 +68,16 @@
       "Noto Sans Mono CJK SC"
       "Symbols Nerd Font Mono"
     ];
-    emoji = [ "Noto Color Emoji" ];
+    emoji = [
+      "Apple Color Emoji"
+      "Noto Color Emoji"
+    ];
   };
 
+  # Apple-Emoji überall: Apps, die ausdrücklich eine andere Emoji-Schrift
+  # verlangen (Noto, Twemoji, Segoe …), bekommen stattdessen Apple Color Emoji.
+  # Firefox fragt fontconfig dafür nicht, siehe font.name-list.emoji in apps.nix.
+  #
   # Minecraftia kennt kein Kyrillisch. Für Apps, die nur einen einzelnen
   # Font-Namen entgegennehmen (z. B. Telegram Desktop → Settings → Chat
   # Settings → "Font family" = Minecraftia), sonst würde für Russisch die
@@ -65,6 +88,12 @@
     <?xml version="1.0"?>
     <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
     <fontconfig>
+    ${lib.concatMapStrings (font: ''
+      <alias binding="strong">
+        <family>${font}</family>
+        <prefer><family>Apple Color Emoji</family></prefer>
+      </alias>
+    '') otherEmojiFonts}
       <match target="pattern">
         <test name="family"><string>Minecraftia</string></test>
         <edit name="family" mode="append" binding="strong"><string>Monocraft</string></edit>

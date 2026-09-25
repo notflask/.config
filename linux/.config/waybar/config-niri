@@ -2,7 +2,7 @@
     "include": ["~/.config/waybar/config-base"],
     
     "modules-left": ["niri/workspaces", "niri/window"],
-    "modules-center": [],
+    "modules-center": ["group/media"],
     "modules-right": ["group/systray", "network", "niri/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/vpn", "custom/power"],
 
     "niri/workspaces": {

@@ -45,13 +45,21 @@ let
         "$ipt" "$op" OUTPUT ! -o "$dev" -m mark ! --mark "$mark" \
           -m addrtype ! --dst-type LOCAL -j REJECT || [ "$action" = off ]
       done
-      # Hat der Tunnel keine IPv6-Adresse, verschluckt der Server IPv6 und jede
-      # Verbindung hängt, bis das Programm auf IPv4 ausweicht. Sofort ablehnen,
-      # dann nehmen Programme gleich IPv4.
+      # Hat der Tunnel kein IPv6, versuchen Programme trotzdem IPv6 (der Router
+      # verteilt ja Adressen). Das REJECT oben hilft kaum: Der Kernel drosselt
+      # die ICMPv6-Antworten, jeder Versuch hängt ~1 s, bis auf IPv4
+      # ausgewichen wird (z. B. Bilder von Pinterest). Deshalb IPv6 außer LAN
+      # auf eine unreachable-Route legen – connect() scheitert sofort.
       if [ "$action" = off ]; then
-        ip6tables -D OUTPUT -o "$dev" -j REJECT 2>/dev/null || true
+        ip -6 rule del not fwmark "$mark" table "$mark" 2>/dev/null || true
+        ip -6 rule del table main suppress_prefixlength 0 2>/dev/null || true
+        ip -6 route flush table "$mark" 2>/dev/null || true
       elif [ -z "$(ip -6 -o addr show dev "$dev" scope global)" ]; then
-        ip6tables -I OUTPUT -o "$dev" -j REJECT
+        ip -6 route replace unreachable default table "$mark"
+        if [ -z "$(ip -6 rule show table "$mark")" ]; then
+          ip -6 rule add not fwmark "$mark" table "$mark"
+          ip -6 rule add table main suppress_prefixlength 0
+        fi
       fi
     '';
   };

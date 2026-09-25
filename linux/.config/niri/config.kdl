@@ -83,12 +83,17 @@ cursor {
 }
 
 
+// playerctld merkt sich den zuletzt aktiven Player (Medientasten, Waybar)
+spawn-at-startup "playerctld" "daemon"
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/config-niri"
 spawn-at-startup "awww-daemon"
 spawn-at-startup "easyeffects" "--service-mode" "--hide-window"
 spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
+// Zwischenablage behalten, wenn die App schließt, aus der kopiert wurde
+// (unter Wayland gehört der Inhalt sonst der App; unter KDE macht das Klipper)
+spawn-at-startup "wl-clip-persist" "--clipboard" "regular"
 
 
 hotkey-overlay {
@@ -126,12 +131,23 @@ window-rule {
     open-fullscreen true
 }
 
-// Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope)
+// Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope, Roblox über Sober)
 window-rule {
     match app-id=r#"^steam_app_"#
     match app-id="cs2"
     match app-id="gamescope"
+    match app-id=r#"^org\.vinegarhq\.Sober$"#
     variable-refresh-rate true
+}
+
+// Fenster, das gerade geteilt wird (Discord, OBS …): roter Rahmen
+window-rule {
+    match is-window-cast-target=true
+    border {
+        width 2
+        active-color "#f38ba8"
+        inactive-color "#f38ba8aa"
+    }
 }
 
 window-rule {
@@ -155,9 +171,19 @@ window-rule {
     block-out-from "screen-capture"
 }
 
+// abgerundete Fenster wie in macOS (Tahoe)
 window-rule {
-    geometry-corner-radius 16
+    geometry-corner-radius 24
     clip-to-geometry true
+}
+
+// Ghostty: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund)
+window-rule {
+    match app-id=r#"^com\.mitchellh\.ghostty$"#
+    background-effect {
+        blur true
+        xray false
+    }
 }
 
 layer-rule {
@@ -180,6 +206,8 @@ layer-rule {
 // Mako: Glas-Benachrichtigungen
 layer-rule {
     match namespace="notifications"
+    // beim Bildschirmteilen nicht mitsenden (Screenshots zeigen sie weiter)
+    block-out-from "screencast"
     background-effect {
         blur true
         xray false
@@ -368,6 +396,12 @@ binds {
 
 
     Mod+Shift+S { screenshot; }
+
+    // Bildschirmteilen: in Discord/OBS „niri Dynamic Cast Target“ wählen,
+    // dann hier umschalten, was gesendet wird – ohne den Stream neu zu starten
+    Mod+Ctrl+Shift+F { set-dynamic-cast-window; }
+    Mod+Ctrl+Shift+M { set-dynamic-cast-monitor; }
+    Mod+Ctrl+Shift+C { clear-dynamic-cast-target; }
 }
 
 debug {

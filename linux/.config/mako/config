@@ -20,12 +20,12 @@ max-visible=5
 layer=overlay
 anchor=top-right
 
-background-color=#11131873
-text-color=#e1e2e9
+background-color=#13131873
+text-color=#e4e1e9
 border-color=#ffffff30
-progress-color=over #214876
+progress-color=over #3a4379
 
-format=<b>%s</b>\n<span color="#c3c6cf">%b</span>
+format=<b>%s</b>\n<span color="#c7c5d0">%b</span>
 
 [urgency=low]
 border-color=#ffffff18
