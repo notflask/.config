@@ -35,6 +35,7 @@
     matugen
     cliphist
     playerctl
+    imagemagick # abgerundete Cover im Waybar-Medienwidget
     brightnessctl
     pavucontrol
     wlogout

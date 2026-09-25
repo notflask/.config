@@ -81,6 +81,51 @@
         "tooltip": true
     },
 
+    // Medien: Cover, Titel, Steuerung (scripts/media.sh, playerctl)
+    // Wird komplett ausgeblendet, wenn kein Player läuft.
+    "group/media": {
+        "orientation": "inherit",
+        "modules": ["image#cover", "custom/media", "custom/media-prev", "custom/media-play", "custom/media-next"]
+    },
+
+    "image#cover": {
+        "exec": "~/.config/waybar/scripts/media.sh cover",
+        "size": 22,
+        "interval": 3600, // ohne interval hängt Waybar 0.15 in einer Update-Schleife
+        "signal": 9,
+        "on-click": "playerctl play-pause",
+        "tooltip": false
+    },
+
+    "custom/media": {
+        "exec": "~/.config/waybar/scripts/media.sh",
+        "return-type": "json",
+        "escape": false,
+        "max-length": 40,
+        "on-click": "playerctl play-pause",
+        "on-scroll-up": "playerctl previous",
+        "on-scroll-down": "playerctl next",
+        "smooth-scrolling-threshold": 5
+    },
+
+    "custom/media-prev": {
+        "exec": "~/.config/waybar/scripts/media.sh button prev",
+        "return-type": "json",
+        "on-click": "playerctl previous"
+    },
+
+    "custom/media-play": {
+        "exec": "~/.config/waybar/scripts/media.sh button play",
+        "return-type": "json",
+        "on-click": "playerctl play-pause"
+    },
+
+    "custom/media-next": {
+        "exec": "~/.config/waybar/scripts/media.sh button next",
+        "return-type": "json",
+        "on-click": "playerctl next"
+    },
+
     "custom/vpn": {
         "exec": "~/.config/waybar/scripts/vpn.sh",
         "return-type": "json",
