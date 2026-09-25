@@ -1,7 +1,8 @@
 layout {
+    // 1px Glaskante (#rrggbbaa)
     border {
-        active-color   "{{colors.primary.default.hex}}"
-        inactive-color "{{colors.outline.default.hex}}"
+        active-color   "{{colors.primary.default.hex}}99"
+        inactive-color "#ffffff26"
     }
     focus-ring {
         active-color   "{{colors.primary.default.hex}}"

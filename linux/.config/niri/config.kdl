@@ -155,9 +155,19 @@ window-rule {
     block-out-from "screen-capture"
 }
 
+// abgerundete Fenster wie in macOS (Tahoe)
 window-rule {
-    geometry-corner-radius 16
+    geometry-corner-radius 24
     clip-to-geometry true
+}
+
+// Ghostty: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund)
+window-rule {
+    match app-id=r#"^com\.mitchellh\.ghostty$"#
+    background-effect {
+        blur true
+        xray false
+    }
 }
 
 layer-rule {
