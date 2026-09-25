@@ -1,19 +1,31 @@
 {
     "layer": "top",
-    "position": "bottom",
-    "height": 32,
+    "position": "top",
+    "height": 34,
+    // schwebend (Liquid Glass): Abstand zum Bildschirmrand
+    "margin-top": 8,
+    "margin-left": 10,
+    "margin-right": 10,
 
+    // Icons: alle aus einem Satz (Material Design, Symbols Nerd Font), etwas
+    // größer als der Text, damit sie gleich groß wirken
     "network": {
-        "format-wifi": "  {essid}",
-        "format-ethernet": " 󰈀 ",
-        "format-disconnected": "󰖪  disconnected",
-        "tooltip-format": "{ipaddr}"
+        "format-wifi": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>{icon}</span>",
+        "format-ethernet": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰈀</span>",
+        "format-disconnected": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰤮</span>",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "tooltip-format-wifi": "<b>{essid}</b>  {signalStrength}%\n{ipaddr}/{cidr}\n↓ {bandwidthDownBytes}   ↑ {bandwidthUpBytes}",
+        "tooltip-format-ethernet": "<b>Kabel</b>  {ifname}\n{ipaddr}/{cidr}\n↓ {bandwidthDownBytes}   ↑ {bandwidthUpBytes}",
+        "tooltip-format-disconnected": "Keine Verbindung",
+        "interval": 5
     },
 
     "battery": {
-        "format": "{icon}  {capacity}%",
+        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>{icon}</span>  {capacity}%",
         "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
-        "format-charging": "󰂄  {capacity}%",
+        "format-charging": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰂄</span>  {capacity}%",
+        "format-plugged": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰚥</span>  {capacity}%",
+        "tooltip-format": "{timeTo}\n{power:.1f} W",
         "states": {
             "warning": 30,
             "critical": 15
@@ -21,8 +33,8 @@
     },
 
     "pulseaudio": {
-        "format": "{icon}  {volume}%",
-        "format-muted": "󰝟  muted",
+        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>{icon}</span>  {volume}%",
+        "format-muted": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰝟</span> stumm",
         "format-icons": {
             "default": ["󰕿", "󰖀", "󰕾"]
         },
@@ -30,21 +42,39 @@
     },
 
     "clock": {
-        "format": "  {:%H:%M}",
-        "format-alt": "  {:%d.%m.%Y}",
+        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰥔</span>  {:%H:%M}",
+        "format-alt": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰃭</span>  {:%d.%m.%Y}",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt>{calendar}</tt>",
         "on-click": "toggle-format"
     },
 
     "custom/power": {
-       "format": "󰐥 ",
-       "on-click": "wlogout",
+       "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰐥</span>",
+       "on-click": "~/.config/wlogout/launch.sh",
        "tooltip": false
     },
 
+    // Tray wie unter Windows: nur ein Pfeil, Klick klappt die Icons aus
+    "group/systray": {
+        "orientation": "inherit",
+        "drawer": {
+            "transition-duration": 250,
+            "transition-left-to-right": false,
+            "click-to-reveal": true,
+            "children-class": "tray-child"
+        },
+        "modules": ["custom/tray-toggle", "tray"]
+    },
+
+    "custom/tray-toggle": {
+        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰅃</span>",
+        "tooltip-format": "Weitere Symbole",
+        "tooltip": true
+    },
+
     "tray": {
-        "icon-size": 18,
-        "spacing": 10,
+        "icon-size": 22,
+        "spacing": 12,
         "show-passive-items": true,
         "reverse-direction": false,
         "smooth-scrolling-threshold": 1.0,
@@ -60,8 +90,8 @@
     },
 
     "custom/tuned": {
-        "format": " {} ",
-        "exec": "profile=$(powerprofilesctl get); case \"$profile\" in *performance*) echo '' ;; *power*) echo '' ;; *balanced*) echo '' ;; *) echo '' ;; esac",
+        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>{}</span>",
+        "exec": "case $(powerprofilesctl get) in performance) echo 󰓅 ;; power-saver) echo 󰾆 ;; *) echo 󰾅 ;; esac",
         "interval": 2,
         "tooltip": false,
         "on-click": "case $(powerprofilesctl get) in performance) powerprofilesctl set balanced ;; balanced) powerprofilesctl set power-saver ;; *) powerprofilesctl set performance ;; esac"

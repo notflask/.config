@@ -166,6 +166,34 @@ layer-rule {
     background-effect {
         blur true
     }
+    // gleiche Rundung wie window#waybar in waybar/style.css
+    geometry-corner-radius 18
+    shadow {
+        on
+        softness 30
+        spread 0
+        offset x=0 y=6
+        color "#00000066"
+    }
+}
+
+// Mako: Glas-Benachrichtigungen
+layer-rule {
+    match namespace="notifications"
+    background-effect {
+        blur true
+        xray false
+    }
+    geometry-corner-radius 20
+}
+
+// wlogout: Glas-Hintergrund
+layer-rule {
+    match namespace="logout_dialog"
+    background-effect {
+        blur true
+        xray false
+    }
 }
 
 layer-rule {

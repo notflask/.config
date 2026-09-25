@@ -3,7 +3,7 @@
     
     "modules-left": ["hyprland/workspaces", "hyprland/window"],
     "modules-center": [],
-    "modules-right": ["tray", "network", "hyprland/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/vpn", "custom/power"],
+    "modules-right": ["group/systray", "network", "hyprland/language", "custom/tuned", "battery", "pulseaudio", "clock", "custom/vpn", "custom/power"],
 
     "hyprland/workspaces": {
         "format": "{name}"

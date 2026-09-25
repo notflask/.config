@@ -1,0 +1,74 @@
+/* wlogout – Liquid Glass: runde, halbdurchsichtige Buttons über
+   weichgezeichnetem Hintergrund (Blur macht niri, siehe layer-rule
+   "logout_dialog" in niri/config.kdl). Farben kommen von matugen. */
+@import url("file:///home/flask/.config/waybar/colors.css");
+
+* {
+    background-image: none;
+    box-shadow: none;
+    font-family: Inter;
+}
+
+window {
+    background-color: rgba(6, 6, 10, 0.35);
+}
+
+button {
+    margin: 0;
+    padding: 0 0 22px 0;
+    /* Mindestgröße für alle gleich, sonst richtet sich die Breite nach der
+       Beschriftung; die echte Größe (150px) ergibt sich aus launch.sh */
+    min-width: 120px;
+    min-height: 120px;
+    border-radius: 56px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background-color: rgba(255, 255, 255, 0.07);
+    background-repeat: no-repeat;
+    background-position: center 38%;
+    background-size: 30%;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 15px;
+    font-weight: 600;
+    /* Lichtkante oben + weicher Schatten nach unten */
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+        0 16px 40px rgba(0, 0, 0, 0.35);
+    transition: all 180ms ease-out;
+}
+
+button:focus {
+    border-color: rgba(255, 255, 255, 0.30);
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+button:hover {
+    border-color: alpha(@primary, 0.70);
+    background-color: alpha(@primary, 0.26);
+    color: #ffffff;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 0 0 4px alpha(@primary, 0.12),
+        0 20px 48px rgba(0, 0, 0, 0.40);
+}
+
+button:active {
+    background-color: alpha(@primary, 0.42);
+}
+
+/* Ausschalten rot statt Akzentfarbe */
+#shutdown:hover {
+    border-color: alpha(@error, 0.75);
+    background-color: alpha(@error, 0.28);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 0 0 4px alpha(@error, 0.14),
+        0 20px 48px rgba(0, 0, 0, 0.40);
+}
+
+#lock     { background-image: image(url("/run/current-system/sw/share/wlogout/icons/lock.png")); }
+#logout   { background-image: image(url("/run/current-system/sw/share/wlogout/icons/logout.png")); }
+#suspend  { background-image: image(url("/run/current-system/sw/share/wlogout/icons/suspend.png")); }
+#reboot   { background-image: image(url("/run/current-system/sw/share/wlogout/icons/reboot.png")); }
+#shutdown { background-image: image(url("/run/current-system/sw/share/wlogout/icons/shutdown.png")); }
