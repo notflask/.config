@@ -128,11 +128,12 @@ window-rule {
     open-fullscreen true
 }
 
-// Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope)
+// Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope, Roblox über Sober)
 window-rule {
     match app-id=r#"^steam_app_"#
     match app-id="cs2"
     match app-id="gamescope"
+    match app-id=r#"^org\.vinegarhq\.Sober$"#
     variable-refresh-rate true
 }
 
