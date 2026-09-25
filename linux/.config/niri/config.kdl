@@ -91,6 +91,9 @@ spawn-at-startup "easyeffects" "--service-mode" "--hide-window"
 spawn-at-startup "waypaper" "--restore"
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
+// Zwischenablage behalten, wenn die App schließt, aus der kopiert wurde
+// (unter Wayland gehört der Inhalt sonst der App; unter KDE macht das Klipper)
+spawn-at-startup "wl-clip-persist" "--clipboard" "regular"
 
 
 hotkey-overlay {
@@ -134,6 +137,16 @@ window-rule {
     match app-id="cs2"
     match app-id="gamescope"
     variable-refresh-rate true
+}
+
+// Fenster, das gerade geteilt wird (Discord, OBS …): roter Rahmen
+window-rule {
+    match is-window-cast-target=true
+    border {
+        width 2
+        active-color "#f38ba8"
+        inactive-color "#f38ba8aa"
+    }
 }
 
 window-rule {
@@ -192,6 +205,8 @@ layer-rule {
 // Mako: Glas-Benachrichtigungen
 layer-rule {
     match namespace="notifications"
+    // beim Bildschirmteilen nicht mitsenden (Screenshots zeigen sie weiter)
+    block-out-from "screencast"
     background-effect {
         blur true
         xray false
@@ -380,6 +395,12 @@ binds {
 
 
     Mod+Shift+S { screenshot; }
+
+    // Bildschirmteilen: in Discord/OBS „niri Dynamic Cast Target“ wählen,
+    // dann hier umschalten, was gesendet wird – ohne den Stream neu zu starten
+    Mod+Ctrl+Shift+F { set-dynamic-cast-window; }
+    Mod+Ctrl+Shift+M { set-dynamic-cast-monitor; }
+    Mod+Ctrl+Shift+C { clear-dynamic-cast-target; }
 }
 
 debug {
