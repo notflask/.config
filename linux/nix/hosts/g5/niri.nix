@@ -34,6 +34,7 @@
     waypaper
     matugen
     cliphist
+    wl-clip-persist # Zwischenablage überlebt das Schließen der Quell-App
     playerctl
     imagemagick # abgerundete Cover im Waybar-Medienwidget
     brightnessctl
