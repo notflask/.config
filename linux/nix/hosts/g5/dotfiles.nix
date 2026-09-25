@@ -21,6 +21,7 @@ let
     "waybar"
     "fuzzel"
     "mako"
+    "wlogout"
     "matugen"
     "waypaper"
     "hypr" # hyprlock.conf (Sperrbildschirm)
@@ -52,6 +53,7 @@ in
     unzip
     nodejs
     lazygit
+    gh # GitHub-CLI (PRs), einmalig: gh auth login
     # cmake-tools.nvim / vimtex
     cmake
     sioyek
