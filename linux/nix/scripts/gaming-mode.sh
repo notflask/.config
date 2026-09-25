@@ -19,7 +19,7 @@ Optionen (vor dem Befehl):
   --stretch WxH     in WxH rendern und per gamescope auf den ganzen
                     Monitor strecken, z. B. --stretch 1920x1440
   --output WxH      Monitorauflösung für --stretch (Standard: 2560x1440)
-  --refresh HZ      Bildwiederholrate für --stretch (Standard: 180)
+  --refresh HZ      Bildwiederholrate für --stretch (Standard: 177)
   -h, --help        diese Hilfe
 
 MangoHud ein-/ausblenden: Shift rechts + F12
@@ -41,7 +41,9 @@ parse_res() {
 hud=1
 stretch=""
 output="2560x1440"
-refresh=180
+# knapp unter den 179,959 Hz des LG: mit VRR folgt der Monitor dann jedem
+# Bild exakt; bei 180 entsteht alle ~24 s ein doppeltes/verschlucktes Bild
+refresh=177
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -55,7 +57,7 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     --refresh)
-      [ $# -ge 2 ] || die "--refresh braucht eine Zahl, z. B. 180"
+      [ $# -ge 2 ] || die "--refresh braucht eine Zahl, z. B. 177"
       [[ "$2" =~ ^[0-9]+$ ]] || die "Ungültige Bildwiederholrate '$2'"
       refresh="$2"
       shift 2

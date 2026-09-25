@@ -420,6 +420,9 @@ debug {
   render-drm-device "/dev/dri/nvidia-render"
   // KEIN wait-for-frame-completion-before-queueing: blockiert Niris Hauptschleife,
   // bis die GPU fertig ist → bei voll ausgelasteter GPU (CS2) Ruckler + Maus-Lag
+  // Mit VRR nicht nur für Mausbewegungen neu zeichnen – sonst schieben sich
+  // Extra-Bilder zwischen die des Spiels und die Bildabstände schwanken
+  skip-cursor-only-updates-during-vrr
 }
 
 // Farben aus dem Hintergrundbild (matugen, ~/.config/matugen/theme.sh).
