@@ -83,6 +83,8 @@ cursor {
 }
 
 
+// playerctld merkt sich den zuletzt aktiven Player (Medientasten, Waybar)
+spawn-at-startup "playerctld" "daemon"
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/config-niri"
 spawn-at-startup "awww-daemon"
 spawn-at-startup "easyeffects" "--service-mode" "--hide-window"
