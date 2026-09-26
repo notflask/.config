@@ -276,6 +276,9 @@ gibt es nur als Flatpak. Flatpak ist aktiviert, Sober einmalig installieren:
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install --user -y flathub org.vinegarhq.Sober
 ```
+# über X11 (xwayland-satellite) statt Wayland – sonst kann man unter Niri mit
+# NVIDIA nirgends tippen (Chat, Suche), siehe niri-wm/niri#2682
+flatpak override --user --socket=x11 --nosocket=wayland org.vinegarhq.Sober
 
 Danach im Startmenü *Sober* öffnen und mit dem Roblox-Konto anmelden.
 Aktualisiert wird Sober mit `rebuild update` (bzw. `flatpak update`).
