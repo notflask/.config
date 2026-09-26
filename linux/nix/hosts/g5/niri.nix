@@ -31,7 +31,6 @@
     waybar
     fuzzel # Starter unter Hyprland
     rofi # Spotlight-Starter (Super+Space)
-    whitesur-icon-theme # macOS-Icons für rofi
     awww # Hintergrund mit Übergängen (Backend für Waypaper)
     waypaper
     matugen
