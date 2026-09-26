@@ -21,6 +21,35 @@
       "widget.use-xdg-desktop-portal.mime-handler" = 1;
       # Apple-Emoji statt des mitgelieferten Twemoji (siehe fonts.nix)
       "font.name-list.emoji" = "Apple Color Emoji";
+
+      # ── Tempo (Werte wie Betterfox „Fastfox“) ──
+      # Seiten früher zeichnen statt auf mehr Inhalt zu warten
+      "content.notify.interval" = 100000;
+      # Mehr parallele Verbindungen, keine künstliche Drosselung
+      "network.http.max-connections" = 1800;
+      "network.http.max-persistent-connections-per-server" = 10;
+      "network.http.max-urgent-start-excessive-connections-per-host" = 5;
+      "network.http.pacing.requests.enabled" = false;
+      # DNS-Antworten und TLS-Sitzungen länger merken (jede DNS-Anfrage
+      # geht sonst durch den VPN-Tunnel, ~40 ms)
+      "network.dnsCacheExpiration" = 3600;
+      "network.ssl_tokens_cache_capacity" = 10240;
+      # Größere Caches im RAM (16 GB sind genug da)
+      "browser.cache.memory.capacity" = 131072; # 128 MB
+      "browser.cache.memory.max_entry_size" = 20480;
+      "media.memory_cache_max_size" = 65536;
+      "media.cache_readahead_limit" = 7200; # Videos weiter vorpuffern
+      "media.cache_resume_threshold" = 3600;
+      "image.mem.decode_bytes_at_a_time" = 32768;
+      "gfx.canvas.accelerated.cache-size" = 512;
+      "gfx.content.skia-font-cache-size" = 20;
+      # Sitzung seltener auf die SSD schreiben (15 s → 60 s)
+      "browser.sessionstore.interval" = 60000;
+    };
+    # Weniger Hintergrundverkehr und Arbeit im Browser
+    policies = {
+      DisableTelemetry = true;
+      DisableFirefoxStudies = true;
     };
   };
 
