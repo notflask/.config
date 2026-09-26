@@ -2,6 +2,7 @@ language = de
 theme = Vague
 background = #000000
 font-family = "JetBrains Mono"
+font-family = "Apple Color Emoji"
 font-size = 16
 gtk-titlebar = false
 window-padding-x = 8
