@@ -43,6 +43,22 @@ in
     ui.enable = true;
   };
 
+  # GSR rät die nötige NVENC-API-Version aus der FFmpeg-Hauptversion
+  # (FFmpeg 9 → 13.1). nixpkgs baut FFmpeg aber mit nv-codec-headers-12
+  # (API 12.1), die der 595er-Treiber (13.0) kann. Ohne Patch: „your nvidia
+  # driver only supports nvenc api version 13.0“ → Aufnahme per CPU (libx264)
+  # → Ruckler in CS2. Overlay, damit auch gsr-ui den gepatchten Recorder nutzt.
+  nixpkgs.overlays = [
+    (final: prev: {
+      gpu-screen-recorder = prev.gpu-screen-recorder.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace src/codec_query/nvenc.c \
+            --replace-fail "NVENCAPI_PACKED_VERSION(13, 1)" "NVENCAPI_PACKED_VERSION(12, 1)"
+        '';
+      });
+    })
+  ];
+
   # Overlay beim Login im Hintergrund starten (Alt+Z öffnet es)
   environment.etc."xdg/autostart/gpu-screen-recorder-ui.desktop".text = ''
     [Desktop Entry]
