@@ -276,12 +276,17 @@ gibt es nur als Flatpak. Flatpak ist aktiviert, Sober einmalig installieren:
 flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak install --user -y flathub org.vinegarhq.Sober
 ```
-# über X11 (xwayland-satellite) statt Wayland – sonst kann man unter Niri mit
-# NVIDIA nirgends tippen (Chat, Suche), siehe niri-wm/niri#2682
-flatpak override --user --socket=x11 --nosocket=wayland org.vinegarhq.Sober
 
 Danach im Startmenü *Sober* öffnen und mit dem Roblox-Konto anmelden.
 Aktualisiert wird Sober mit `rebuild update` (bzw. `flatpak update`).
+
+**OpenGL statt Vulkan einschalten** (Rechtsklick auf Sober im Startmenü →
+*Settings*, oder `"use_opengl": true` in
+`~/.var/app/org.vinegarhq.Sober/config/sober/config.json`): Mit Vulkan kann man
+unter Niri mit NVIDIA nirgends tippen (Chat, Suche), siehe niri-wm/niri#2682.
+Über X11 (`--socket=x11`) ginge das Tippen auch, bringt aber beim Laden
+Ruckler bis hin zum Mauszeiger. Der erste Start nach dem Umstellen ruckelt
+kurz, bis der Shader-Cache gebaut ist.
 
 Da Sober inoffiziell ist, kann ein Roblox-Update es zeitweise kaputt machen – dann auf
 ein Sober-Update warten.

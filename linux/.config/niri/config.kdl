@@ -131,13 +131,12 @@ window-rule {
     open-fullscreen true
 }
 
-// Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope, Roblox über Sober –
-// Sober läuft über X11, daher App-ID egal ob "org.vinegarhq.Sober" oder "sober")
+// Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope, Roblox über Sober)
 window-rule {
     match app-id=r#"^steam_app_"#
     match app-id="cs2"
     match app-id="gamescope"
-    match app-id=r#"(?i)^(org\.vinegarhq\.)?sober$"#
+    match app-id=r#"^org\.vinegarhq\.Sober$"#
     variable-refresh-rate true
 }
 
@@ -184,7 +183,7 @@ window-rule {
     match app-id=r#"^steam_app_"#
     match app-id="cs2"
     match app-id="gamescope"
-    match app-id=r#"(?i)^(org\.vinegarhq\.)?sober$"#
+    match app-id=r#"^org\.vinegarhq\.Sober$"#
     geometry-corner-radius 0
     clip-to-geometry false
 }
