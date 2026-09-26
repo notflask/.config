@@ -59,6 +59,31 @@ in
     };
   };
 
+  # Hält den Treiberzustand (inkl. Taktsperre unten) auch ohne aktive Clients
+  hardware.nvidia.nvidiaPersistenced = true;
+
+  # ── Mindesttakt für die GPU ────────────────────────────────
+  # Im Leerlauf fällt die 4060 auf ~480 MHz. Startet dann eine Animation
+  # (Workspace-/Fensterwechsel in Niri), braucht der Treiber ein paar
+  # hundert ms zum Hochtakten → die ersten Bilder ruckeln. Mit festem
+  # Mindesttakt ist jede Animation sofort flüssig. Kostet ~10–15 W im
+  # Leerlauf. Zurücksetzen: `sudo nvidia-smi -rgc`
+  systemd.services.nvidia-min-clock = {
+    description = "Mindesttakt für die NVIDIA-GPU setzen";
+    wantedBy = [
+      "multi-user.target"
+      "post-resume.target" # nach Suspend neu setzen
+    ];
+    after = [
+      "nvidia-persistenced.service"
+      "post-resume.target"
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${config.hardware.nvidia.package.bin}/bin/nvidia-smi --lock-gpu-clocks=1500,3105";
+    };
+  };
+
   # Feste Namen für die GPUs (cardN kann sich zwischen Boots ändern)
   services.udev.extraRules = ''
     KERNEL=="card*", SUBSYSTEM=="drm", KERNELS=="${intelPci}", SYMLINK+="dri/intel-igpu"
