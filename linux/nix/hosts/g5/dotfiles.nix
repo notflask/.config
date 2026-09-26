@@ -20,6 +20,7 @@ let
     "niri"
     "waybar"
     "fuzzel"
+    "rofi"
     "mako"
     "wlogout"
     "matugen"

@@ -1,0 +1,21 @@
+// Starter für die Niri-Sitzung (Super+Space / Super+D)
+// Aussehen: spotlight.rasi, Farben: colors.rasi (matugen)
+configuration {
+    modes: "drun";
+    show-icons: true;
+    // macOS-artige App-Icons (Verläufe, Tiefe); fehlt eins, nimmt rofi das der App
+    icon-theme: "WhiteSur-dark";
+    terminal: "ghostty";
+    // wie vorher bei fuzzel: auch nach Kategorie/Stichwort finden
+    drun-match-fields: "name,generic,keywords,categories";
+    matching: "fuzzy";
+    sort: true;
+    sorting-method: "fzf";
+    // Zweite Zeile = Beschreibung (Comment) wie in Spotlight; fehlt sie, nur der Name
+    // (Zeilenumbruch als &#10; im Markup – "[…]" darf keinen echten enthalten)
+    drun-display-format: "{name}[<span size='small' alpha='55%'>&#10;{comment}</span>]";
+    drun-show-actions: false;
+    scroll-method: 1;
+}
+
+@theme "~/.config/rofi/spotlight.rasi"

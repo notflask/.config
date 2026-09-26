@@ -1,0 +1,94 @@
+// macOS Spotlight (Tahoe): Glasfläche, große Suchzeile mit Trennlinie,
+// zweizeilige Einträge, neutrale Auswahl. Blur + Schatten macht niri
+// (layer-rule "rofi" in niri/config.kdl, gleicher Radius wie window).
+// Auswahl-Radius = window-Radius − padding → gleichmäßiger Abstand zum Rand
+@import "~/.config/rofi/colors.rasi"
+
+* {
+    font: "Inter 12";
+    background-color: transparent;
+    text-color: @fg;
+    spacing: 0;
+}
+
+window {
+    location: north;
+    anchor: north;
+    y-offset: 220px;
+    width: 560px;
+    padding: 10px;
+    border: 1px solid;
+    border-color: @rim;
+    border-radius: 34px;
+    background-color: @glass;
+}
+
+mainbox {
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    children: [ icon-search, entry ];
+    spacing: 12px;
+    padding: 8px 14px 12px 14px;
+    margin: 0 8px 6px 8px;
+    border: 0 0 1px 0;
+    border-color: @divider;
+}
+
+icon-search {
+    expand: false;
+    // eigene Lupe: Symbol-Icons aus dem Theme kämen fast schwarz
+    filename: "~/.config/rofi/search.svg";
+    size: 22px;
+    vertical-align: 0.5;
+}
+
+entry {
+    font: "Inter 17";
+    placeholder: "Spotlight-Suche";
+    placeholder-color: @fg-faint;
+    cursor-color: @fg;
+    vertical-align: 0.5;
+}
+
+listview {
+    lines: 6;
+    columns: 1;
+    fixed-height: false;
+    dynamic: true;
+    scrollbar: false;
+    spacing: 2px;
+}
+
+element {
+    children: [ element-icon, element-text ];
+    spacing: 12px;
+    padding: 5px 12px;
+    border-radius: 24px;
+    cursor: pointer;
+}
+
+element normal.normal, element alternate.normal, element normal.active, element alternate.active {
+    background-color: transparent;
+}
+
+element selected.normal, element selected.active {
+    background-color: @selection;
+}
+
+element-icon {
+    size: 32px;
+    cursor: inherit;
+}
+
+element-text {
+    vertical-align: 0.5;
+    highlight: none;
+    cursor: inherit;
+}
+
+// "Keine Treffer" usw.
+message, error-message {
+    padding: 8px 14px;
+}
