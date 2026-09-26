@@ -19,6 +19,7 @@ Optionen (vor dem Befehl):
   --stretch WxH     in WxH rendern und per gamescope auf den ganzen
                     Monitor strecken, z. B. --stretch 1920x1440
   --output WxH      Monitorauflösung für --stretch (Standard: 2560x1440)
+  --refresh HZ      Bildwiederholrate für --stretch (Standard: 177)
   -h, --help        diese Hilfe
 
 MangoHud ein-/ausblenden: Shift rechts + F12
@@ -40,6 +41,9 @@ parse_res() {
 hud=1
 stretch=""
 output="2560x1440"
+# knapp unter den 179,959 Hz des LG: mit VRR folgt der Monitor dann jedem
+# Bild exakt; bei 180 entsteht alle ~24 s ein doppeltes/verschlucktes Bild
+refresh=177
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -50,6 +54,12 @@ while [ $# -gt 0 ]; do
     --stretch | --output)
       [ $# -ge 2 ] || die "$1 braucht eine Auflösung, z. B. 1920x1440"
       if [ "$1" = "--stretch" ]; then stretch="$2"; else output="$2"; fi
+      shift 2
+      ;;
+    --refresh)
+      [ $# -ge 2 ] || die "--refresh braucht eine Zahl, z. B. 177"
+      [[ "$2" =~ ^[0-9]+$ ]] || die "Ungültige Bildwiederholrate '$2'"
+      refresh="$2"
       shift 2
       ;;
     -h | --help)
@@ -95,7 +105,8 @@ if [ -n "$stretch" ]; then
   parse_res "$stretch"
   cmd+=(gamescope -w "$res_w" -h "$res_h")
   parse_res "$output"
-  cmd+=(-W "$res_w" -H "$res_h" -S stretch -f --force-grab-cursor)
+  # -r: ohne feste Rate meldet gamescope dem Spiel unter Niri nur 60 Hz
+  cmd+=(-W "$res_w" -H "$res_h" -r "$refresh" -S stretch -f --force-grab-cursor)
   if [ "$hud" -eq 1 ]; then
     cmd+=(--mangoapp)
   fi

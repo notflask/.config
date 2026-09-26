@@ -177,6 +177,17 @@ window-rule {
     clip-to-geometry true
 }
 
+// Spiele ohne Rundung/Clipping – sonst muss Niri jedes Bild neu zeichnen
+// statt es direkt an den Monitor zu geben (Direct Scanout)
+window-rule {
+    match app-id=r#"^steam_app_"#
+    match app-id="cs2"
+    match app-id="gamescope"
+    match app-id=r#"^org\.vinegarhq\.Sober$"#
+    geometry-corner-radius 0
+    clip-to-geometry false
+}
+
 // Ghostty: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund)
 window-rule {
     match app-id=r#"^com\.mitchellh\.ghostty$"#
@@ -424,7 +435,11 @@ binds {
 debug {
   // RTX 4060 – fester Name aus nvidia.nix (renderD-Nummern können wechseln)
   render-drm-device "/dev/dri/nvidia-render"
-  wait-for-frame-completion-before-queueing true
+  // KEIN wait-for-frame-completion-before-queueing: blockiert Niris Hauptschleife,
+  // bis die GPU fertig ist → bei voll ausgelasteter GPU (CS2) Ruckler + Maus-Lag
+  // Mit VRR nicht nur für Mausbewegungen neu zeichnen – sonst schieben sich
+  // Extra-Bilder zwischen die des Spiels und die Bildabstände schwanken
+  skip-cursor-only-updates-during-vrr
 }
 
 // Farben aus dem Hintergrundbild (matugen, ~/.config/matugen/theme.sh).
