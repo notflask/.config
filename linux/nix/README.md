@@ -16,6 +16,7 @@ linux/nix/
 │   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify, Claude (Code/Desktop), agy
 │   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder, Flatpak
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
+│   ├── network.nix                # TCP BBR, LAN ohne EEE, WLAN ohne Power-Save
 │   ├── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
 │   ├── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
 │   ├── fonts.nix                  # Schriften: Dotfiles, Windows, alle Schriftsysteme

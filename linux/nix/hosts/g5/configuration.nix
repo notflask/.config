@@ -13,6 +13,7 @@
     ./fonts.nix
     ./niri.nix
     ./vpn.nix
+    ./network.nix
   ];
 
   # ── Boot ───────────────────────────────────────────────────
@@ -22,7 +23,7 @@
 
   # ── Netzwerk ───────────────────────────────────────────────
   networking.hostName = "g5";
-  networking.networkmanager.enable = true;
+  networking.networkmanager.enable = true; # Tuning in network.nix
 
   # ── Zeit & Sprache ─────────────────────────────────────────
   time.timeZone = "Europe/Berlin";
