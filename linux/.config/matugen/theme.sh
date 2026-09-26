@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
-#  und Niri, Waybar, Fuzzel, Mako sofort daran anpassen.
+#  und Niri, Waybar, Fuzzel, Rofi, Mako sofort daran anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD
@@ -69,7 +69,7 @@ matugen image "$image" \
   fail "matugen ist fehlgeschlagen ($image)."
 
 # Neu laden, was die Farben nicht selbst neu einliest
-# (Fuzzel und Hyprlock lesen sie beim nächsten Start)
+# (Fuzzel, Rofi und Hyprlock lesen sie beim nächsten Start)
 if [ -n "${NIRI_SOCKET:-}" ]; then
   niri msg action load-config-file >/dev/null 2>&1 || true
 fi

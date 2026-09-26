@@ -224,13 +224,30 @@ layer-rule {
     }
 }
 
+// Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
+layer-rule {
+    match namespace="rofi"
+    background-effect {
+        blur true
+        xray false
+    }
+    geometry-corner-radius 34
+    shadow {
+        on
+        softness 40
+        spread 2
+        offset x=0 y=12
+        color "#00000080"
+    }
+}
+
 layer-rule {
     match namespace="launcher"
     background-effect {
         blur true
         xray false
     }
-    geometry-corner-radius 40
+    geometry-corner-radius 26
     shadow {
         on
         softness 40
@@ -244,8 +261,8 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Mod+Space hotkey-overlay-title=null { spawn "fuzzel"; }
+    Mod+D hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
+    Mod+Space hotkey-overlay-title=null { spawn "rofi" "-show" "drun"; }
     Mod+Shift+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"; }

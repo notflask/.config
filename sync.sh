@@ -130,6 +130,14 @@ sync_fuzzel() {
     "fuzzel config"
 }
 
+sync_rofi() {
+  echo "── Rofi ──────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/rofi" \
+    "$DOTFILES/linux/.config/rofi" \
+    "rofi config"
+}
+
 sync_matugen() {
   echo "── Matugen ─────────────────────────────────────"
   sync_file \
@@ -231,6 +239,7 @@ wofi) sync_wofi ;;
 tmux) sync_tmux ;;
 niri) sync_niri ;;
 fuzzel) sync_fuzzel ;;
+rofi) sync_rofi ;;
 ghostty) sync_ghostty ;;
 env) sync_environment ;;
 aerospace) sync_aerospace ;;
@@ -247,6 +256,7 @@ all)
   sync_tmux
   sync_niri
   sync_fuzzel
+  sync_rofi
   sync_ghostty
   sync_environment
   sync_aerospace
@@ -254,7 +264,7 @@ all)
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel | ghostty | env | aerospace"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel | rofi | ghostty | env | aerospace"
   exit 1
   ;;
 esac

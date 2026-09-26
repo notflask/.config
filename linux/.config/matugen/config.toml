@@ -20,3 +20,7 @@ output_path = "~/.config/fuzzel/fuzzel.ini"
 [templates.mako]
 input_path  = "~/.config/matugen/templates/mako.ini"
 output_path = "~/.config/mako/config"
+
+[templates.rofi]
+input_path  = "~/.config/matugen/templates/rofi-colors.rasi"
+output_path = "~/.config/rofi/colors.rasi"

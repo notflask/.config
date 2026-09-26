@@ -82,7 +82,7 @@ verlinkt (`dotfiles.nix`):
 | `nvim` | `linux/.config/nvim` |
 | `tmux` | `linux/.config/tmux` |
 | `ghostty` | `linux/.config/ghostty` |
-| `niri`, `waybar`, `fuzzel`, `matugen`, `waypaper`, `hypr` | für die Niri-Sitzung |
+| `niri`, `waybar`, `fuzzel`, `rofi`, `matugen`, `waypaper`, `hypr` | für die Niri-Sitzung |
 
 Du bearbeitest die Dateien also direkt im Repo – Änderungen wirken sofort, `sync.sh`
 erkennt die Links und überspringt sie. Weitere Configs verlinken: Namen in

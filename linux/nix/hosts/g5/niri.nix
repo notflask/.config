@@ -29,7 +29,9 @@
   environment.systemPackages = with pkgs; [
     xwayland-satellite # X11-Apps (Steam, Spiele) – startet Niri automatisch
     waybar
-    fuzzel
+    fuzzel # Starter unter Hyprland
+    rofi # Spotlight-Starter (Super+Space)
+    whitesur-icon-theme # macOS-Icons für rofi
     awww # Hintergrund mit Übergängen (Backend für Waypaper)
     waypaper
     matugen
