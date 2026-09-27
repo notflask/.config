@@ -27,7 +27,7 @@ in
 
   # CPU-Governor, Prozess-Priorität usw. während des Spielens.
   # renice 5 statt 10: Bei 10 (nice −10) verdrängt das Spiel den Encoder
-  # von Vesktop (nice 0) → Discord-Stream ruckelt, egal welche Qualität.
+  # von Discord (nice 0) → Discord-Stream ruckelt, egal welche Qualität.
   programs.gamemode = {
     enable = true;
     enableRenice = true;

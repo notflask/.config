@@ -32,10 +32,10 @@ run plasma-apply-colorscheme "$THEME_COLORSCHEME"
 run plasma-apply-cursortheme "$THEME_CURSOR"
 run plasma-changeicons "$THEME_ICONS"
 
-# Vesktop: Theme bereitlegen (aktivieren unter Einstellungen → Themes)
-vesktop_themes="${XDG_CONFIG_HOME:-$HOME/.config}/vesktop/themes"
-mkdir -p "$vesktop_themes"
-ln -sf "$THEME_DISCORD_CSS" "$vesktop_themes/"
+# Discord (Vencord): Theme bereitlegen (aktivieren unter Einstellungen → Themes)
+vencord_themes="${XDG_CONFIG_HOME:-$HOME/.config}/Vencord/themes"
+mkdir -p "$vencord_themes"
+ln -sf "$THEME_DISCORD_CSS" "$vencord_themes/"
 
 mkdir -p "$(dirname "$marker")"
 touch "$marker"

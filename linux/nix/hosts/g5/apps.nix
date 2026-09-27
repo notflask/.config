@@ -1,32 +1,12 @@
-{ lib, pkgs, inputs, ... }:
+{ pkgs, inputs, ... }:
 
 let
-  # Vesktop auf der Intel-iGPU: Chromium kodiert Video nur über VA-API,
-  # und nvidia-vaapi-driver kann nur dekodieren (NVENC nutzt Chromium
-  # nicht) → auf der NVIDIA laufen Kamera, Stream und das Dekodieren
-  # komplett über die CPU (Ruckler im Spiel, Stream pixelig/ruckelig).
-  # Die Iris Xe kodiert H.264/VP9 in Hardware (intel-media-driver, siehe
-  # nvidia.nix): 1080p-Bildschirm ~14 ms, 720p-Kamera ~8 ms pro Bild.
-  # Ersetzt bin/vesktop, damit Startmenü, Autostart und Tray immer diese
-  # Variante starten – sonst übernimmt eine laufende Instanz ohne Flags.
-  # --enable-features ersetzt das des Electron-Wrappers, daher
-  # WaylandWindowDecorations hier wiederholen.
-  # Electron aus nixpkgs findet libva.so.2 nicht selbst („dlopen(libva.so.2)
-  # failed“) → ohne LD_LIBRARY_PATH bleibt es trotz Flags beim CPU-Encoder.
-  # Iris Xe kodiert H.264 und VP9, VP8 bleibt auf der CPU.
-  vesktop = pkgs.symlinkJoin {
-    name = "vesktop-igpu";
-    paths = [ pkgs.vesktop ];
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      rm $out/bin/vesktop
-      makeWrapper ${pkgs.vesktop}/bin/vesktop $out/bin/vesktop \
-        --set LIBVA_DRIVER_NAME iHD \
-        --prefix LD_LIBRARY_PATH : ${lib.getLib pkgs.libva}/lib \
-        --add-flags "--render-node-override=/dev/dri/intel-render" \
-        --add-flags "--enable-features=WaylandWindowDecorations,AcceleratedVideoEncoder,AcceleratedVideoDecoder,AcceleratedVideoDecodeLinuxGL"
-    '';
-  };
+  # Offizielles Discord mit Vencord statt Vesktop: Anrufe, Kamera und
+  # Bildschirmfreigabe laufen über Discords eigene Audio/Video-Engine
+  # (discord_voice) wie unter Windows, nicht über Chromiums WebRTC. In
+  # Vesktop froren eingehende Kameras alle paar Sekunden für 2–3 s ein.
+  # Wayland-Flags setzt das Paket selbst (NIXOS_OZONE_WL, desktop.nix).
+  discord = pkgs.discord.override { withVencord = true; };
 in
 {
   imports = [ inputs.spicetify-nix.nixosModules.default ];
@@ -83,7 +63,7 @@ in
 
   # ── Messenger, Musik, KI-Tools ──────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    vesktop # Discord-Client (auf der iGPU, siehe oben)
+    discord # mit Vencord, siehe oben
     telegram-desktop
     tradingview
     vlc # Videoplayer
@@ -96,6 +76,9 @@ in
 
     # Claude Desktop (Linux-Beta, aus dem offiziellen .deb verpackt)
     (callPackage ../../pkgs/claude-desktop/package.nix { })
+
+    # Notability (offizielle Web-App als eigenes Fenster)
+    (callPackage ../../pkgs/notability/package.nix { })
   ];
 
   # Cowork in Claude Desktop startet Aufgaben in einer VM (QEMU/KVM)
