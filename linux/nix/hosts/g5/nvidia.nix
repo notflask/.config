@@ -11,6 +11,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 
@@ -36,6 +37,9 @@ in
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    # VA-API für die Intel-iGPU – kann (anders als nvidia-vaapi-driver)
+    # auch kodieren. Nutzt Vesktop für Bildschirmfreigaben (apps.nix).
+    extraPackages = [ pkgs.intel-media-driver ];
   };
 
   hardware.nvidia = {
@@ -89,6 +93,7 @@ in
     KERNEL=="card*", SUBSYSTEM=="drm", KERNELS=="${intelPci}", SYMLINK+="dri/intel-igpu"
     KERNEL=="card*", SUBSYSTEM=="drm", KERNELS=="${nvidiaPci}", SYMLINK+="dri/nvidia-dgpu"
     KERNEL=="renderD*", SUBSYSTEM=="drm", KERNELS=="${nvidiaPci}", SYMLINK+="dri/nvidia-render"
+    KERNEL=="renderD*", SUBSYSTEM=="drm", KERNELS=="${intelPci}", SYMLINK+="dri/intel-render"
   '';
 
   environment.sessionVariables = {
