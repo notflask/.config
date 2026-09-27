@@ -25,11 +25,13 @@ in
     extraCompatPackages = [ pkgs.proton-ge-bin ];
   };
 
-  # CPU-Governor, Prozess-Priorität usw. während des Spielens
+  # CPU-Governor, Prozess-Priorität usw. während des Spielens.
+  # renice 5 statt 10: Bei 10 (nice −10) verdrängt das Spiel den Encoder
+  # von Vesktop (nice 0) → Discord-Stream ruckelt, egal welche Qualität.
   programs.gamemode = {
     enable = true;
     enableRenice = true;
-    settings.general.renice = 10;
+    settings.general.renice = 5;
   };
 
   # Micro-Compositor für Stretched-Auflösungen (gaming-mode --stretch)

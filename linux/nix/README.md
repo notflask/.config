@@ -187,7 +187,7 @@ allem startet, was es schnell macht:
 ```
 gaming-mode %command%                    # Steam-Startoption, für jedes Spiel
 gaming-mode --no-hud %command%           # ohne Overlay
-gaming-mode --stretch 1920x1440 %command%  # gestreckt über gamescope
+gaming-mode --stretch 1920x1440 %command%  # gestreckt über gamescope (CS2: siehe unten)
 gaming-mode ./spiel                      # außerhalb von Steam
 ```
 
@@ -210,13 +210,16 @@ gaming-mode %command% -fullscreen +fps_max 0
 **Stretched 1920x1440 (4:3 auf 16:9 gestreckt):**
 
 ```
-gaming-mode --stretch 1920x1440 %command% -fullscreen +fps_max 0
+SDL_VIDEO_DRIVER=wayland SDL_VIDEO_WAYLAND_MODE_SCALING=stretch gaming-mode %command% -fullscreen +fps_max 0
 ```
 
-Im Spiel dann *Video → Seitenverhältnis 4:3, Auflösung 1920x1440*. gamescope
-rendert das Spiel in 1920x1440 und streckt es auf den ganzen LG-Monitor – ohne
-schwarze Ränder. Ohne gamescope geht das unter Wayland nicht, KDE würde Balken
-anzeigen. Die Maus ist dabei fest im Spiel eingefangen (`--force-grab-cursor`).
+Im Spiel dann *Video → Seitenverhältnis 4:3, Auflösung 1920x1440*. CS2 läuft
+damit direkt als Wayland-App, und seine SDL-Bibliothek (SDL 3) streckt die
+1920x1440 selbst auf den ganzen LG-Monitor – ohne schwarze Ränder und ohne
+gamescope. Einziger Nachteil: kein Steam-Overlay.
+
+`gaming-mode --stretch 1920x1440` (über gamescope) geht auch, aber unter Niri
+flackert das Bild dort ab und zu – ohne gamescope nicht.
 
 **Tweaks:**
 
@@ -226,8 +229,6 @@ anzeigen. Die Maus ist dabei fest im Spiel eingefangen (`--force-grab-cursor`).
   Tearing, sehr gleichmäßig, minimal mehr Latenz.
 - `-vulkan` brauchst du nicht (unter Linux Standard), `-high` und `-novid` wirken
   unter Linux bzw. in CS2 nicht – GameMode übernimmt die Priorität.
-- gamescope kostet etwas Leistung. Wenn du die FPS vergleichen willst: MangoHud
-  zeigt sie in beiden Varianten an.
 - Die ersten Runden nach einem Update können kurz ruckeln (Shader werden gebaut),
   danach greift der Cache.
 
@@ -278,6 +279,14 @@ flatpak install --user -y flathub org.vinegarhq.Sober
 ```
 
 Danach im Startmenü *Sober* öffnen und mit dem Roblox-Konto anmelden.
+
+**OpenGL statt Vulkan einschalten** (Rechtsklick auf Sober im Startmenü →
+*Settings*, oder `"use_opengl": true` in
+`~/.var/app/org.vinegarhq.Sober/config/sober/config.json`): Mit Vulkan kann man
+unter Niri mit NVIDIA nirgends tippen (Chat, Suche), siehe niri-wm/niri#2682.
+Über X11 (`--socket=x11`) ginge das Tippen auch, bringt aber beim Laden
+Ruckler bis hin zum Mauszeiger. Der erste Start nach dem Umstellen ruckelt
+kurz, bis der Shader-Cache gebaut ist.
 Aktualisiert wird Sober mit `rebuild update` (bzw. `flatpak update`).
 
 Da Sober inoffiziell ist, kann ein Roblox-Update es zeitweise kaputt machen – dann auf

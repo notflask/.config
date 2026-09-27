@@ -3,8 +3,8 @@
 configuration {
     modes: "drun";
     show-icons: true;
-    // macOS-artige App-Icons (Verläufe, Tiefe); fehlt eins, nimmt rofi das der App
-    icon-theme: "WhiteSur-dark";
+    // kein Icon-Theme: jede App mit ihrem eigenen Icon (hicolor)
+    icon-theme: "hicolor";
     terminal: "ghostty";
     // wie vorher bei fuzzel: auch nach Kategorie/Stichwort finden
     drun-match-fields: "name,generic,keywords,categories";

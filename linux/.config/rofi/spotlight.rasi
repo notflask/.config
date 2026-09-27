@@ -78,7 +78,7 @@ element selected.normal, element selected.active {
 }
 
 element-icon {
-    size: 32px;
+    size: 40px;
     cursor: inherit;
 }
 
