@@ -106,12 +106,12 @@ if [ -n "$stretch" ]; then
   cmd+=(gamescope -w "$res_w" -h "$res_h")
   parse_res "$output"
   # -r: ohne feste Rate meldet gamescope dem Spiel unter Niri nur 60 Hz
-  cmd+=(-W "$res_w" -H "$res_h" -r "$refresh" -S stretch -f --force-grab-cursor)
-  if [ "$hud" -eq 1 ]; then
-    cmd+=(--mangoapp)
-  fi
-  cmd+=(--)
-elif [ "$hud" -eq 1 ]; then
+  cmd+=(-W "$res_w" -H "$res_h" -r "$refresh" -S stretch -f --force-grab-cursor --)
+fi
+
+# MangoHud als Layer im Spiel – auch unter gamescope: --mangoapp bekommt
+# im Wayland-Backend (gamescope in Niri) keine Bildzeiten und bleibt unsichtbar
+if [ "$hud" -eq 1 ]; then
   cmd+=(mangohud)
 fi
 
