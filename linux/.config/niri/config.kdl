@@ -411,6 +411,9 @@ binds {
 
     Mod+Ctrl+F { expand-column-to-available-width; }
 
+    // Alle Fenster auf dem Bildschirm gleichmäßig aufteilen
+    Mod+E hotkey-overlay-title="Split Windows Evenly" { spawn "niri-even-split"; }
+
     Mod+C { center-column; }
 
     Mod+Ctrl+C { center-visible-columns; }
