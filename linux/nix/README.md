@@ -13,7 +13,7 @@ linux/nix/
 │   ├── hardware-configuration.nix # PLATZHALTER – install.sh ersetzt ihn
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
 │   ├── desktop.nix                # Plasma 6, greetd, Tastatur, Spectacle
-│   ├── apps.nix                   # Firefox, Vesktop, Telegram, Spotify, Claude (Code/Desktop), agy
+│   ├── apps.nix                   # Firefox, Discord, Telegram, Spotify, Claude (Code/Desktop), agy
 │   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder, Flatpak
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 │   ├── network.nix                # TCP BBR, LAN ohne EEE, WLAN ohne Power-Save
@@ -22,6 +22,7 @@ linux/nix/
 │   ├── fonts.nix                  # Schriften: Dotfiles, Windows, alle Schriftsysteme
 │   └── niri.nix                   # Niri als zweite Sitzung neben KDE
 ├── pkgs/claude-desktop/           # Claude Desktop (.deb → NixOS)
+├── pkgs/notability/               # Notability Web als Desktop-App
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -125,7 +126,8 @@ die letzte Sitzung; zurück zu KDE genauso. Ohne gemerkte Auswahl startet KDE.
 | Super+T | Ghostty |
 | Super+D | Fuzzel (Apps starten) |
 | Super+O | Übersicht |
-| Super+Shift+S | Screenshot (Niri: Bereich wählen → Clipboard + `~/Pictures/Screenshots`) |
+| Super+Shift+S | Screenshot mit Zeichnen (Niri: Satty, siehe *Screenshots*) |
+| Druck | Niri: Screenshot ohne Zeichnen → Clipboard + `~/Screenshots` |
 | Super+Alt+L | Sperren (Hyprlock) |
 | Super+Shift+/ | alle Tastenkürzel |
 
@@ -260,13 +262,18 @@ läuft es aus dem Cache.
 **Super+Shift+S** (oder **Druck**) → Bereich mit der Maus aufziehen → im Overlay
 zeichnen (Freihand, Textmarker, Linie, Pfeil, Rechteck, Ellipse, Text, Nummern,
 Verpixeln, Weichzeichnen) → **Strg+C** bzw. *Kopieren*. Das Bild liegt dann im
-Clipboard, Spectacle schließt sich, **es wird nichts gespeichert**.
+Clipboard **und** als Datei in `~/Screenshots`, Spectacle schließt sich.
 
 **Enter** statt Strg+C kopiert ebenfalls, öffnet aber zusätzlich das Spectacle-Fenster
 (für mehr Bearbeitung). **Esc** bricht ab.
 
-Wer doch speichern will: im Overlay *Speichern* (Strg+S). Weitere Kürzel wie Vollbild
-oder aktives Fenster: *Systemeinstellungen → Tastenkürzel → Spectacle*.
+Weitere Kürzel wie Vollbild oder aktives Fenster: *Systemeinstellungen → Tastenkürzel → Spectacle*.
+
+**Unter Niri** übernimmt das **Satty**: Super+Shift+S → Bereich aufziehen → zeichnen
+(Pfeil, Linie, Rechteck, Ellipse, Text, Marker, Freihand, Nummern, Verpixeln,
+Zuschneiden) → **Enter** (oder *Kopieren*) kopiert ins Clipboard **und** speichert nach
+`~/Screenshots`, dann schließt Satty. **Esc** bricht ab. **Druck** macht Niris eigenen Screenshot
+ohne Zeichnen.
 
 ## Roblox: Sober
 
@@ -361,7 +368,7 @@ Alles in **Catppuccin Mocha** mit Akzentfarbe **Mauve** (`theme.nix`):
 | Cursor | *catppuccin-mocha-mauve-cursors* |
 | Icons | Papirus-Dark mit Catppuccin-Ordnerfarben |
 | TTY + Login (tuigreet) | Catppuccin-Farbpalette |
-| Vesktop | Theme liegt bereit → *Einstellungen → Themes* → `catppuccin-mocha-mauve.theme.css` anhaken |
+| Discord (Vencord) | Theme liegt bereit → *Einstellungen → Vencord → Themes* → `catppuccin-mocha-mauve.theme.css` anhaken |
 
 Angewendet wird das Theme **automatisch beim ersten Login**. Danach kannst du in den
 Systemeinstellungen frei ändern – es wird nicht erneut überschrieben. Zurück auf
@@ -383,8 +390,9 @@ Catppuccin: `apply-theme`.
 | App | Hinweise |
 |---|---|
 | Firefox | VA-API-Videodekodierung über NVIDIA, KDE-Dateidialog, KDE-Browserintegration. Prüfen: `about:support` → *Media* |
-| Vesktop | Discord-Client; Bildschirmfreigabe unter Wayland über das KDE-Portal |
+| Discord | Offizieller Client mit Vencord; Anrufe über Discords eigene Engine wie unter Windows |
 | Telegram | `telegram-desktop` |
+| Notability | offizielle Web-App als eigenes Fenster (Chromium-App-Modus), Login bleibt gespeichert |
 | Spotify | Port 57621/TCP + mDNS offen für Spotify Connect im LAN |
 | Steam | CS2 nativ, Diablo IV über Proton / GE-Proton |
 | Lutris | Battle.net und andere Launcher |

@@ -1,5 +1,5 @@
 # Catppuccin Mocha für alles: Plasma, Qt- und GTK-Apps, Cursor, Icons,
-# Konsole/Login, Vesktop.
+# Konsole/Login, Discord (Vencord).
 #
 # GTK-Apps (Firefox usw.) nutzen Breeze-GTK – KDE überträgt das
 # Farbschema automatisch darauf, dadurch sehen Qt und GTK gleich aus.
@@ -50,7 +50,7 @@ in
     apply-theme
   ];
 
-  # Stabiler Pfad für Vesktop (wird bei jedem Rebuild aktualisiert)
+  # Stabiler Pfad für Discord/Vencord (wird bei jedem Rebuild aktualisiert)
   environment.etc."catppuccin/${discordCss}".source = "${discordTheme}/share/${discordCss}";
 
   # Beim ersten Login automatisch anwenden

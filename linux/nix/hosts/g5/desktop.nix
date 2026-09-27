@@ -16,7 +16,7 @@
     discover # kann unter NixOS keine Pakete verwalten
   ];
 
-  # Electron-Apps (Vesktop usw.) nativ unter Wayland
+  # Electron-Apps (Discord usw.) nativ unter Wayland
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
   # ── Login: greetd + tuigreet ───────────────────────────────
@@ -60,13 +60,16 @@
 
   # ── Screenshots: Spectacle ─────────────────────────────────
   # Super+Shift+S (oder Druck) → Bereich auswählen, im Overlay zeichnen,
-  # Strg+C / „Kopieren“ → Bild im Clipboard, Spectacle schließt sich.
-  # Es wird keine Datei gespeichert.
+  # Strg+C / „Kopieren“ → Bild im Clipboard und als Datei in ~/Screenshots,
+  # Spectacle schließt sich.
   environment.etc."xdg/spectaclerc".text = ''
     [General]
     launchAction=TakeRectangularScreenshot
     clipboardGroup=PostScreenshotCopyImage
-    autoSaveImage=false
+    autoSaveImage=true
+
+    [ImageSave]
+    imageSaveLocation=file://${config.users.users.flask.home}/Screenshots/
 
     [GuiConfig]
     quitAfterSaveCopyExport=true

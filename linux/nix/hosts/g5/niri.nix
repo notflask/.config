@@ -2,6 +2,33 @@
 # Die Niri-Config selbst liegt im Repo: linux/.config/niri/config.kdl
 { lib, pkgs, ... }:
 
+let
+  # Screenshot mit Zeichnen (wie Shottr/Spectacle): Bereich aufziehen →
+  # Satty (Pfeil, Rechteck, Text, Marker, Verpixeln …) → Enter (oder der
+  # Kopieren-Knopf) kopiert ins Clipboard, speichert nach ~/Screenshots
+  # und schließt.
+  screenshot-edit = pkgs.writeShellApplication {
+    name = "screenshot-edit";
+    runtimeInputs = with pkgs; [
+      grim
+      slurp
+      satty
+      wl-clipboard
+    ];
+    text = ''
+      mkdir -p "$HOME/Screenshots"
+      geom=$(slurp -d -b '#1e1e2e66' -c '#cba6f7' -w 2) || exit 0
+      grim -g "$geom" -t ppm - | satty --filename - \
+        --output-filename "$HOME/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png" \
+        --copy-command wl-copy \
+        --early-exit copy save \
+        --actions-on-enter save-to-clipboard,save-to-file \
+        --save-after-copy \
+        --actions-on-escape exit \
+        --initial-tool arrow
+    '';
+  };
+in
 {
   programs.niri = {
     enable = true;
@@ -43,6 +70,7 @@
     wlogout
     mako # makoctl (Theme neu laden)
     libnotify # notify-send
+    screenshot-edit # Super+Shift+S
   ];
 
   # Nur in der Niri-Sitzung: Polkit-Agent (Passwortabfragen) und

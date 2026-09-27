@@ -101,7 +101,7 @@ hotkey-overlay {
 }
 
 
-screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+screenshot-path "~/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 
 animations {
@@ -123,7 +123,6 @@ window-rule {
     match app-id=r#"^org\.telegram\.desktop$"#
 
     open-floating true
-    // block-out-from "screen-capture"
 }
 
 window-rule {
@@ -151,10 +150,15 @@ window-rule {
 }
 
 window-rule {
-    match app-id="vesktop"
+    match app-id=r#"^discord$"#
 
     open-floating true
-    block-out-from "screen-capture"
+}
+
+window-rule {
+    match app-id=r#"^com\.gabm\.satty$"#
+
+    open-floating true
 }
 
 window-rule {
@@ -423,7 +427,10 @@ binds {
     Mod+W { toggle-column-tabbed-display; }
 
 
-    Mod+Shift+S { screenshot; }
+    // Wie Spectacle unter KDE: Bereich wählen → zeichnen → Enter kopiert
+    Mod+Shift+S { spawn "screenshot-edit"; }
+    // Ohne Zeichnen: Niris eigener Screenshot (Clipboard + Datei)
+    Print { screenshot; }
 
     // Bildschirmteilen: in Discord/OBS „niri Dynamic Cast Target“ wählen,
     // dann hier umschalten, was gesendet wird – ohne den Stream neu zu starten

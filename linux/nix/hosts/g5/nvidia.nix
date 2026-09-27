@@ -38,7 +38,7 @@ in
     enable = true;
     enable32Bit = true;
     # VA-API für die Intel-iGPU – kann (anders als nvidia-vaapi-driver)
-    # auch kodieren. Nutzt Vesktop für Bildschirmfreigaben (apps.nix).
+    # auch kodieren.
     extraPackages = [ pkgs.intel-media-driver ];
   };
 
