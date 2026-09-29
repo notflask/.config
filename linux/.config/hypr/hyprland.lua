@@ -23,7 +23,10 @@ local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#11
 hl.config({
     input = {
         kb_layout = "us,ru,ua,de",
-        kb_options = "grp:alt_shift_toggle",
+        -- Niri: grp:alt_shift_toggle. Hyprland führt die Sprache aber pro
+        -- Gerät (die Semitek-Tastatur sind zwei), dann zeigt Waybar Falsches –
+        -- deshalb schaltet Alt+Shift hier alle Geräte gemeinsam um (binds)
+        kb_options = "",
 
         numlock_by_default = true,
 
@@ -279,8 +282,19 @@ hl.window_rule({
 -- In Hyprland ist Blur global, deshalb: alle anderen Fenster ohne Blur
 hl.window_rule({
     name = "blur-only-ghostty",
-    match = { class = "negative:com\\.mitchellh\\.ghostty" },
+    match = { class = "negative:com\\.mitchellh\\.ghostty|com\\.flask\\.scratchpad" },
     no_blur = true,
+})
+
+-- Wegwerf-Terminal (Super+`, scratch-term in desktop.nix): schwebt oben
+-- mittig, 60 % × 50 % des Monitors (wie in Niri)
+hl.window_rule({
+    name = "scratchpad",
+    match = { class = "com\\.flask\\.scratchpad" },
+    float = true,
+    size = { "monitor_w*0.6", "monitor_h*0.5" },
+    -- mittig: (100 % − 60 %) / 2 = 20 % (window_w ist hier noch die alte Größe)
+    move = { "monitor_w*0.2", "48" },
 })
 
 -- Nur Hyprland: CS2 darf tearen (niedrigste Latenz bei fps_max 0)
@@ -580,6 +594,8 @@ end
 bind(key("SHIFT + slash"), hl.dsp.exec_cmd("hypr-keybinds"), title("Show Important Hotkeys"))
 
 bind(key("T"), hl.dsp.exec_cmd("ghostty"), title("Open a Terminal: ghostty"))
+-- Wegwerf-Terminal: auf/zu, beim Schließen wird alles darin beendet
+bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal", { repeating = false }))
 bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
@@ -596,6 +612,17 @@ bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
 
 bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl --class=backlight set +10%"), { locked = true })
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl --class=backlight set 10%-"), { locked = true })
+
+-- Sprache (us → ru → ua → de): Alt+Shift in beliebiger Reihenfolge, auf
+-- allen Tastaturen gleichzeitig (siehe kb_options oben). Die nächste Sprache
+-- kommt von der Haupttastatur und gilt dann für alle – „all next“ würde
+-- Geräte, die auseinanderliegen, getrennt weiterschalten. non_consuming:
+-- Apps sehen Alt und Shift trotzdem (Alt+Shift+Tab usw.)
+local next_layout = [[sh -c 'n=$(hyprctl devices -j | jq "first(.keyboards[] | select(.main))
+    | (.active_layout_index + 1) % (.layout | split(\",\") | length)") && hyprctl switchxkblayout all "$n"']]
+for _, keys in ipairs({ "ALT + Shift_L", "ALT + Shift_R", "SHIFT + Alt_L", "SHIFT + Alt_R" }) do
+    bind(keys, hl.dsp.exec_cmd(next_layout), { non_consuming = true, repeating = false })
+end
 
 bind(key("O"), toggle_overview, title("Open the Overview", { repeating = false }))
 -- Esc schließt die Übersicht (wie in Niri)

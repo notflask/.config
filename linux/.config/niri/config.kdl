@@ -192,6 +192,20 @@ window-rule {
     clip-to-geometry false
 }
 
+// Wegwerf-Terminal (Super+`, scratch-term in desktop.nix): schwebt oben mittig
+window-rule {
+    match app-id=r#"^com\.flask\.scratchpad$"#
+    open-floating true
+    open-focused true
+    default-column-width { proportion 0.6; }
+    default-window-height { proportion 0.5; }
+    default-floating-position x=0 y=48 relative-to="top"
+    background-effect {
+        blur true
+        xray false
+    }
+}
+
 // Ghostty: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund)
 window-rule {
     match app-id=r#"^com\.mitchellh\.ghostty$"#
@@ -260,6 +274,8 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     Mod+T hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
+    // Wegwerf-Terminal: auf/zu, beim Schließen wird alles darin beendet
+    Mod+Grave repeat=false hotkey-overlay-title="Scratchpad Terminal" { spawn "scratch-term"; }
     Mod+D hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
     Mod+Space hotkey-overlay-title=null { spawn "rofi" "-show" "drun"; }
     Mod+Shift+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
