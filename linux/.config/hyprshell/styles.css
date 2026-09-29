@@ -1,0 +1,84 @@
+/* hyprshell (Alt+Tab) – Liquid Glass wie Waybar, Rofi und wlogout.
+   Blur macht Hyprland (layer-rule "hyprshell_switch" in hypr/hyprland.lua),
+   Farben kommen von matugen. */
+@import url("file:///home/flask/.config/waybar/colors.css");
+
+/* hyprshell setzt keine Standardwerte mehr – alle Variablen belegen
+   (Klassen unten überschreiben die Farben mit den matugen-Farben) */
+:root {
+    --border-color: rgba(255, 255, 255, 0.14);
+    --border-color-active: rgba(255, 255, 255, 0.60);
+
+    --box-shadow-color: rgba(255, 255, 255, 0.10);
+    --box-shadow-multiplier: 1;
+    --box-shadow-launcher-color: rgba(255, 255, 255, 0.10);
+    --box-shadow-launcher-multiplier: 1;
+
+    --bg-color: rgba(20, 20, 24, 0.35);
+    --bg-color-hover: rgba(255, 255, 255, 0.10);
+
+    --border-radius: 18px;
+    --border-size: 1px;
+    --border-style: solid;
+
+    --text-color: rgba(245, 245, 245, 1);
+
+    --window-padding: 10px;
+    --bg-window-color: rgba(18, 18, 24, 0.40);
+}
+
+/* äußere Glasfläche */
+.monitor {
+    background: alpha(@surface, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 28px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Fenster-Kacheln */
+.client {
+    font-size: 1rem;
+    border-radius: 16px;
+    border: 1px solid alpha(@outline, 0.30);
+    background: alpha(@surface_variant, 0.30);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    text-shadow: none;
+    transition: all 150ms ease-out;
+}
+
+.client:hover,
+.client.no-hover:hover {
+    background: alpha(@surface_variant, 0.45);
+}
+
+/* ausgewähltes Fenster in der Akzentfarbe */
+.client.active {
+    border: 1px solid alpha(@primary, 0.75);
+    background: alpha(@primary, 0.22);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        0 0 0 3px alpha(@primary, 0.14);
+}
+
+/* Vorschau: etwas Luft zum Rand, Ecken wie die Kachel */
+.client-picture {
+    margin: 4px 6px 6px 6px;
+    border-radius: 10px;
+}
+
+/* Arbeitsflächen (nur bei switch_workspaces sichtbar) */
+.workspace {
+    border-radius: 18px;
+    border: 1px solid alpha(@outline, 0.30);
+    box-shadow: none;
+}
+
+.workspace.active {
+    border: 1px solid alpha(@primary, 0.75);
+}
+
+label {
+    color: @on_surface;
+}

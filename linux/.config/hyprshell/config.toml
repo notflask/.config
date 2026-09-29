@@ -1,0 +1,19 @@
+# hyprshell – nur Alt+Tab (Fensterwechsler wie Niris „recent windows“).
+# Übersicht bleibt hyprtasking (Super+O), Starter bleibt Rofi.
+# Aussehen: styles.css; Blur: layer-rule "hyprshell_switch" in hypr/hyprland.lua
+# Alle Optionen: hyprshell config explain
+
+version = 4
+
+[windows]
+# Fenster-Kacheln = Monitorgröße / scale (6.5: groß genug für die Vorschau,
+# 5 Kacheln passen auch auf den Laptop-Bildschirm)
+scale = 6.5
+items_per_row = 5
+
+# Alt+Tab / Alt+Shift+Tab, zuletzt benutzte Fenster zuerst,
+# nur auf dem aktuellen Monitor (wie Niri); Alt loslassen = wechseln
+[windows.switch]
+modifier = "alt"
+key = "Tab"
+filter_by = ["current_monitor"]
