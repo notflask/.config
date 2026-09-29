@@ -244,8 +244,12 @@ gaming-mode --stretch 1920x1440 %command%  # gestreckt über gamescope (CS2: sie
 gaming-mode ./spiel                      # außerhalb von Steam
 ```
 
-Eigenes MangoHud-Layout: `~/.config/MangoHud/MangoHud.conf` anlegen – dann wird
-das eingebaute Layout nicht benutzt.
+MangoHud-Layout: `linux/.config/matugen/templates/MangoHud.conf` (Farben vom
+Hintergrundbild, erzeugt nach `~/.config/MangoHud/MangoHud.conf`). Oben links als
+Glas-Tabelle: FPS mit Ampelfarbe, Durchschnitt und 1%-Low, Frametime-Graph,
+GPU/CPU mit Last, Temperatur, Takt, Verbrauch, VRAM/RAM, dazu Drosselung,
+GameMode, NTSYNC und VSync/Tearing. **Shift rechts + F9** setzt Durchschnitt
+und 1%-Low zurück.
 
 Allgemein für alle Spiele: **Netzteil dran**, Vollbild, V-Sync im Spiel aus.
 VRR schalten Niri und Hyprland für Spiele automatisch ein.
