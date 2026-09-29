@@ -23,7 +23,6 @@ linux/nix/
 │   ├── niri.nix                   # Niri-Sitzung (Standard)
 │   └── hyprland.nix               # Hyprland-Sitzung (UWSM, Übersicht-Plugin)
 ├── pkgs/claude-desktop/           # Claude Desktop (.deb → NixOS)
-├── pkgs/notability/               # Notability Web als Desktop-App
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -453,7 +452,6 @@ selbst.
 | Dolphin, Gwenview, Okular, Ark, Filelight | KDE-Apps ohne Plasma (Dateien, Bilder, PDF, Archive, Speicherplatz) |
 | Discord | Offizieller Client mit Vencord; Anrufe über Discords eigene Engine wie unter Windows |
 | Telegram | `telegram-desktop` |
-| Notability | offizielle Web-App als eigenes Fenster (Chromium-App-Modus), Login bleibt gespeichert |
 | Spotify | Port 57621/TCP + mDNS offen für Spotify Connect im LAN |
 | Steam | CS2 nativ, Diablo IV über Proton / GE-Proton |
 | Lutris | Battle.net und andere Launcher |
