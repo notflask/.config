@@ -397,6 +397,11 @@ Clips landen standardmäßig in `~/Videos`.
 | **NTSYNC** | schnellere Synchronisation für Windows-Spiele unter Proton (Diablo IV), bessere Frametimes |
 | **Split-Lock-Bremse aus** | wie SteamOS – verhindert starke Ruckler in einzelnen Windows-Spielen |
 | **Energieprofil „Leistung“** | ab dem Start aktiv |
+| **Speicher** (zram-Tuning, Schreib-Puffer 256 MB, keine Hintergrund-Kompaktierung) | keine Hänger, wenn RAM knapp wird oder Steam/Shader-Caches viel schreiben |
+| **NVIDIA PAT** (`NVreg_UsePageAttributeTable=1`) | schnellerer Zugriff der CPU auf den Grafikspeicher |
+| **i915 in der initrd** | Intel-Treiber vor NVIDIA → keine minutenlangen Hänger von Electron-Apps nach dem Start |
+| **`noatime`** | keine Schreibzugriffe beim bloßen Lesen |
+| **Waybar ohne Polling** | Energieprofil per D-Bus statt alle 2 s `powerprofilesctl`, VPN-Status ohne `sudo` alle 5 s |
 
 `scx_lavd` ist auf Intel-CPUs mit P- und E-Kernen nicht immer besser. Vergleiche
 mit MangoHud (FPS und 1%-Lows): in `performance.nix` `services.scx.enable = false`

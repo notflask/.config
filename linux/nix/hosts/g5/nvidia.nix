@@ -42,6 +42,17 @@ in
     extraPackages = [ pkgs.intel-media-driver ];
   };
 
+  # Intel-Treiber schon in der initrd laden: Bildschirm sofort in voller
+  # Auflösung, und i915 ist vor der NVIDIA da – sonst hängen Electron-Apps
+  # (Discord, Claude) auf Hybrid-Laptops nach dem Start bis zu eine Minute
+  boot.initrd.kernelModules = [ "i915" ];
+
+  # CPU schreibt über PAT (Write-Combining) in den Grafikspeicher statt über
+  # den alten MTRR-Weg – schneller, Standard bei CachyOS
+  boot.extraModprobeConfig = ''
+    options nvidia NVreg_UsePageAttributeTable=1
+  '';
+
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.stable;
     open = true; # offene Kernel-Module, empfohlen ab Turing/RTX 20

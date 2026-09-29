@@ -78,14 +78,14 @@ elif [ -d /sys/class/net/$iface ]; then
   fi
   echo "$now $rx $tx" > "$rates"
 
-  # Endpoint und Handshake (braucht root, per sudoers freigegeben)
+  # Endpoint und Handshake – schreibt der Dienst vpn-peer-info (vpn.nix)
   endpoint="" handshake=0
   while IFS='=' read -r k v; do
     case $k in
       endpoint) endpoint=$v ;;
       handshake) handshake=$v ;;
     esac
-  done < <(sudo -n /run/current-system/sw/bin/vpn-peer-info 2>/dev/null)
+  done < <(cat /run/$iface-peer-info 2>/dev/null)
 
   since=$(systemctl show -P ActiveEnterTimestamp "$service")
   since_s=$(date -d "$since" +%s 2>/dev/null || echo "$now")
@@ -101,7 +101,7 @@ elif [ -d /sys/class/net/$iface ]; then
     hs="noch keiner"
   fi
   # WireGuard erneuert den Handshake alle 2 min; nach 3 min ohne gilt die
-  # Verbindung als tot. Ohne sudo-Info auf empfangene Bytes zurückfallen.
+  # Verbindung als tot. Ohne Status-Datei auf empfangene Bytes zurückfallen.
   if [ -n "$endpoint" ]; then alive=$([ "$hs_age" -le 180 ] && echo 1)
   else alive=$([ "$rx" -gt 0 ] && echo 1); fi
 

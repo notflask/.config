@@ -99,13 +99,24 @@ let
   };
 
   # Für das Waybar-Popup: Endpoint und letzter Handshake, ohne Schlüssel.
-  # Per sudoers ohne Passwort erlaubt (unten).
+  # `wg show` braucht root – deshalb schreibt ein Dienst (unten) die Werte
+  # alle 5 s in eine lesbare Datei, statt dass Waybar alle 5 s sudo aufruft.
+  peerInfoFile = "/run/${iface}-peer-info";
   peerInfo = pkgs.writeShellApplication {
     name = "vpn-peer-info";
-    runtimeInputs = [ pkgs.wireguard-tools ];
+    runtimeInputs = with pkgs; [
+      wireguard-tools
+      gawk
+      coreutils
+    ];
     text = ''
-      wg show ${iface} endpoints | awk 'NR==1 {print "endpoint=" $2}'
-      wg show ${iface} latest-handshakes | awk 'NR==1 {print "handshake=" $2}'
+      while true; do
+        {
+          wg show ${iface} endpoints | awk 'NR==1 {print "endpoint=" $2}'
+          wg show ${iface} latest-handshakes | awk 'NR==1 {print "handshake=" $2}'
+        } >${peerInfoFile}.tmp && mv ${peerInfoFile}.tmp ${peerInfoFile}
+        sleep 5
+      done
     '';
   };
 
@@ -187,17 +198,18 @@ in
     };
   };
 
-  security.sudo.extraRules = [
-    {
-      groups = [ "wheel" ];
-      commands = [
-        {
-          command = "/run/current-system/sw/bin/vpn-peer-info";
-          options = [ "NOPASSWD" ];
-        }
-      ];
-    }
-  ];
+  # Läuft nur, solange der Tunnel steht
+  systemd.services.vpn-peer-info = {
+    description = "WireGuard-Status für das Waybar-Popup";
+    wantedBy = [ "wg-quick-${iface}.service" ];
+    bindsTo = [ "wg-quick-${iface}.service" ];
+    after = [ "wg-quick-${iface}.service" ];
+    serviceConfig = {
+      ExecStart = "${peerInfo}/bin/vpn-peer-info";
+      ExecStopPost = "${pkgs.coreutils}/bin/rm -f ${peerInfoFile}";
+      Restart = "on-failure";
+    };
+  };
 
   # Sonst verwirft der Reverse-Path-Filter die Antworten aus dem Tunnel
   networking.firewall.checkReversePath = "loose";
@@ -205,7 +217,6 @@ in
   environment.systemPackages = [
     vpn
     killswitch
-    peerInfo
     pkgs.wireguard-tools
   ];
 }

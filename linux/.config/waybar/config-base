@@ -134,11 +134,16 @@
         "on-click": "~/.config/waybar/scripts/vpn.sh toggle"
     },
 
-    "custom/tuned": {
-        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>{}</span>",
-        "exec": "case $(powerprofilesctl get) in performance) echo 󰓅 ;; power-saver) echo 󰾆 ;; *) echo 󰾅 ;; esac",
-        "interval": 2,
+    // Energieprofil: meldet sich selbst bei Änderungen (D-Bus), statt alle
+    // 2 s powerprofilesctl (Python) zu starten. Klick schaltet weiter.
+    "power-profiles-daemon": {
+        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>{icon}</span>",
         "tooltip": false,
-        "on-click": "case $(powerprofilesctl get) in performance) powerprofilesctl set balanced ;; balanced) powerprofilesctl set power-saver ;; *) powerprofilesctl set performance ;; esac"
+        "format-icons": {
+            "performance": "󰓅",
+            "balanced": "󰾅",
+            "power-saver": "󰾆",
+            "default": "󰾅"
+        }
     }
 }
