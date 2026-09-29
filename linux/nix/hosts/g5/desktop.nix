@@ -103,6 +103,10 @@ in
     settings = {
       lang = "de";
       animation = "dur_file";
+      # Pflicht: fehlt der Schlüssel, hält ly die Config für veraltet, schaltet
+      # auf 8 Farben – und verweigert das 256-Farben-Schwarze-Loch
+      # („error: InvalidColorFormat“)
+      full_color = true;
       dur_file_path = "${blackhole}";
       dur_offset_alignment = "center";
       waylandsessions = "${greeterSessions}";
