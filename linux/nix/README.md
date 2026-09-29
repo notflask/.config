@@ -2,7 +2,7 @@
 
 - Laptop: Intel i5-12500H (Iris Xe) + NVIDIA RTX 4060 Laptop, eDP-1 1080p@144 Hz
 - Externer Monitor: LG UltraGear 2K, 1440p@180 Hz (DP-2)
-- Desktop: KDE Plasma 6 (Wayland), Login über greetd + tuigreet
+- Desktop: **Niri** (Standard) und **Hyprland**, beide Wayland, ohne KDE Plasma. Login über greetd + tuigreet
 - Kanal: `nixos-unstable` (Flake), Systemsprache Deutsch, Zeitzone Europe/Berlin
 
 ```
@@ -12,15 +12,16 @@ linux/nix/
 │   ├── configuration.nix          # Boot, Netzwerk, Locale, User, Audio, Laptop
 │   ├── hardware-configuration.nix # PLATZHALTER – install.sh ersetzt ihn
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
-│   ├── desktop.nix                # Plasma 6, greetd, Tastatur, Spectacle
+│   ├── desktop.nix                # Basis beider Sitzungen: Login, Portale, KWallet, KDE-Apps, mako, hypridle
 │   ├── apps.nix                   # Firefox, Discord, Telegram, Spotify, Claude (Code/Desktop), agy
 │   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder, Flatpak
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 │   ├── network.nix                # TCP BBR, LAN ohne EEE, WLAN ohne Power-Save
-│   ├── theme.nix                  # Catppuccin Mocha für Plasma, Qt, GTK, TTY
+│   ├── theme.nix                  # GTK/Qt-Grundlage (Farben: matugen), Cursor, Icons, TTY
 │   ├── dotfiles.nix               # nvim/tmux/ghostty verlinken + Werkzeuge
 │   ├── fonts.nix                  # Schriften: Dotfiles, Windows, alle Schriftsysteme
-│   └── niri.nix                   # Niri als zweite Sitzung neben KDE
+│   ├── niri.nix                   # Niri-Sitzung (Standard)
+│   └── hyprland.nix               # Hyprland-Sitzung (UWSM, Übersicht-Plugin)
 ├── pkgs/claude-desktop/           # Claude Desktop (.deb → NixOS)
 ├── pkgs/notability/               # Notability Web als Desktop-App
 └── scripts/
@@ -29,8 +30,7 @@ linux/nix/
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
     ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
     ├── update-claude-desktop.sh   # neueste Claude-Desktop-Version eintragen
-    ├── apply-theme.sh             # Catppuccin anwenden (als Befehl `apply-theme` installiert)
-    └── monitors.sh                # eDP-1 + DP-2 (180 Hz, VRR) einrichten
+    └── (Monitore stehen direkt in niri/config.kdl bzw. hypr/hyprland.lua)
 ```
 
 ## Installation
@@ -84,7 +84,7 @@ verlinkt (`dotfiles.nix`):
 | `nvim` | `linux/.config/nvim` |
 | `tmux` | `linux/.config/tmux` |
 | `ghostty` | `linux/.config/ghostty` |
-| `niri`, `waybar`, `fuzzel`, `rofi`, `matugen`, `waypaper`, `hypr` | für die Niri-Sitzung |
+| `niri`, `hypr`, `waybar`, `rofi`, `fuzzel`, `mako`, `wlogout`, `matugen`, `waypaper` | für Niri und Hyprland |
 
 Du bearbeitest die Dateien also direkt im Repo – Änderungen wirken sofort, `sync.sh`
 erkennt die Links und überspringt sie. Weitere Configs verlinken: Namen in
@@ -113,41 +113,86 @@ springen automatisch Noto CJK, Noto Arabic, Nerd-Font-Symbole und Emoji ein.
 Nicht dabei sind Schriften, die Microsoft nicht frei herausgibt (z. B. Segoe UI,
 Microsoft YaHei, SimSun) – Noto deckt dieselben Sprachen ab.
 
-## Niri (zweite Sitzung)
+## Niri und Hyprland
 
-Neben KDE ist **Niri** installiert, mit deiner Config aus dem Repo
-(`linux/.config/niri/config.kdl`, dazu Waybar, Fuzzel, Waypaper, Matugen, Hyprlock).
+KDE Plasma ist entfernt. Es gibt zwei Sitzungen mit denselben Programmen,
+Farben und Tastenkürzeln:
 
-**Wechseln:** im Login (tuigreet) **F3** drücken → *Niri* wählen. tuigreet merkt sich
-die letzte Sitzung; zurück zu KDE genauso. Ohne gemerkte Auswahl startet KDE.
+- **Niri** (Standard): Fenster als Spalten auf einem endlos scrollbaren Band.
+  Config: `linux/.config/niri/config.kdl`
+- **Hyprland**: klassisches Tiling (dwindle), jedes neue Fenster teilt das
+  aktive, alles bleibt sichtbar. Config: `linux/.config/hypr/hyprland.lua`
+  (seit Hyprland 0.55 in Lua, nicht mehr `hyprland.conf`)
+
+**Wechseln:** im Login (tuigreet) **F3** drücken → *Niri* oder *Hyprland (uwsm-managed)*.
+tuigreet merkt sich die letzte Sitzung. Ohne gemerkte Auswahl startet Niri.
+
+### Tastenkürzel (in beiden gleich)
 
 | Taste | Aktion |
 |---|---|
 | Super+T | Ghostty |
-| Super+D | Fuzzel (Apps starten) |
-| Super+O | Übersicht |
-| Super+Shift+S | Screenshot mit Zeichnen (Niri: Satty, siehe *Screenshots*) |
-| Druck | Niri: Screenshot ohne Zeichnen → Clipboard + `~/Screenshots` |
-| Super+Alt+L | Sperren (Hyprlock) |
+| Super+D / Super+Leertaste | Rofi (Apps starten) |
+| Super+O | Übersicht (Hyprland: Plugin *hyprtasking*, Rechtsklick wählt die Arbeitsfläche) |
+| Super+Q | Fenster schließen |
+| Super+Pfeile / H J K L | Fokus |
+| Super+Strg+Pfeile / H J K L | Fenster verschieben |
+| Super+Shift+Pfeile / H J K | Fokus auf anderen Monitor (Super+Shift+Strg: Fenster mitnehmen) |
+| Super+1…9, Super+Strg+1…9 | Arbeitsfläche wechseln / Fenster dorthin |
+| Super+U / I, Bild↓ / Bild↑, Super+Mausrad | nächste / vorige Arbeitsfläche |
+| Super+E | alle Fenster gleichmäßig aufteilen |
+| Super+F / Super+Shift+F | maximieren / Vollbild |
+| Super+V | schwebend ↔ gekachelt |
+| Super+W | Tabs (Niri: Tab-Spalte, Hyprland: Fenstergruppe) |
+| Super+Minus / Gleich | schmaler / breiter |
+| Super+Shift+S | Screenshot mit Zeichnen (Satty, siehe *Screenshots*) |
+| Druck | Screenshot eines Bereichs → Clipboard + `~/Screenshots` |
+| Super+Shift+L | Sperren (Hyprlock) |
 | Super+Shift+/ | alle Tastenkürzel |
 
-**In beiden Sitzungen gleich:** alle Apps, Catppuccin für Qt- und GTK-Apps, KDE-Dateidialog,
-KWallet (gespeicherte Logins), Tastaturlayouts.
+**Nur unter Hyprland (Layout):** Super+R / Super+Shift+R stellt die Teilung auf
+⅓ → ½ → ⅔, Super+Strg+R zurück auf ½, Super+S dreht die Teilung
+(nebeneinander ↔ übereinander), Super+Strg+S tauscht die Seiten.
+In Tabs: Super+[ / ] blättern, Super+, reiht das Fenster ein, Super+. löst es.
+Super+Shift+1…9 schiebt ein Fenster weg, ohne mitzugehen.
 
-**Nur unter Niri:**
-- Hintergrundbild über **Waypaper** aus `~/Wallpapers` (Ordner anlegen). Matugen
-  färbt Niri-Rahmen, Waybar und Fuzzel passend zum Bild.
-- Monitore stehen in der Niri-Config (eDP-1 144 Hz, DP-2 180 Hz), nicht in `monitors`.
-  VRR auf dem LG ist nur für Spiele aktiv (window-rule).
-- Benachrichtigungen über mako, Passwortabfragen über den KDE-Polkit-Agenten.
-- X11-Programme (Steam, viele Spiele) laufen über xwayland-satellite – startet automatisch.
-- Der GPU Screen Recorder startet hier nicht automatisch: *GPU Screen Recorder* über Fuzzel öffnen.
+### Gemeinsam in beiden
+
+- Waybar, Rofi, mako (Benachrichtigungen), wlogout (Power-Knopf), Satty,
+  Zwischenablage mit Verlauf (cliphist), EasyEffects.
+- Hintergrundbild über **Waypaper** aus `~/Wallpapers`. Matugen färbt daraus
+  alles passend ein, siehe *Theme*.
+- Passwortabfragen über den KDE-Polkit-Agenten, gespeicherte Logins in
+  **KWallet** (wird beim Login mit dem Passwort entsperrt), KDE-Dateidialog.
+- Programme mit „Beim Login starten“ (Autostart) laufen in beiden Sitzungen,
+  ebenso der GPU Screen Recorder.
+- X11-Programme (Steam, viele Spiele): Niri startet dafür xwayland-satellite,
+  Hyprland hat XWayland eingebaut.
+- Monitore stehen in der jeweiligen Config (eDP-1 144 Hz, DP-2 180 Hz). VRR auf
+  dem LG ist nur für Spiele aktiv.
+
+### Auto-Sperre (hypridle)
+
+Nach 5 Minuten ohne Eingabe wird der interne Bildschirm dunkler, nach
+10 Minuten wird gesperrt, nach 11 Minuten gehen die Bildschirme aus. Das
+passiert nicht, solange ein Video läuft, gespielt wird oder (unter Hyprland)
+ein Fenster im Vollbild ist. Vor dem Standby wird immer gesperrt.
+Zeiten ändern: `linux/.config/hypr/hypridle.conf`, danach
+`systemctl --user restart hypridle`.
+
+### KDE-Apps ohne Plasma
+
+Dolphin (Dateien), Gwenview (Bilder), Okular (PDF), Ark (Archive), Filelight
+und die KWallet-Verwaltung sind einzeln installiert. Sie sind Standard für
+Ordner, Bilder, PDFs und Archive. USB-Sticks und Handys (MTP) lassen sich in
+Dolphin einhängen. *Terminal hier öffnen* startet Ghostty.
+Bluetooth: Symbol im Tray (Blueman) bzw. *Bluetooth-Manager* über Rofi.
 
 ## Grafik
 
 Das System ist auf maximale Leistung ausgelegt (Betrieb am Netzteil):
 
-- **KWin (der Desktop) läuft auf der RTX 4060.** Das Spielbild geht direkt an den
+- **Der Desktop (Niri bzw. Hyprland) läuft auf der RTX 4060.** Das Spielbild geht direkt an den
   LG-Monitor, nur der interne Bildschirm (eDP-1, fest an der Intel-iGPU) wird kopiert.
   Läuft der Desktop dagegen auf der Intel-GPU, muss jedes Bild einmal hin und zurück
   kopiert werden. Das kostet FPS und bringt Latenz.
@@ -162,16 +207,15 @@ typischerweise HDMI / Mini-DP; mit `gpu-info` verifizieren).
 
 ## Bildschirme
 
-Nach dem ersten Login in Plasma:
+Die Monitore stehen direkt in den Configs, ein eigenes Skript braucht es
+nicht mehr:
 
-```sh
-monitors
-```
+- Niri: `output`-Blöcke in `linux/.config/niri/config.kdl`
+- Hyprland: `hl.monitor(...)` in `linux/.config/hypr/hyprland.lua`
 
-Setzt DP-2 auf 2560x1440 @ 180 Hz, VRR automatisch, primär, rechts neben eDP-1
-(1920x1080 @ 144 Hz). Andere Anschlussnamen:
-`EXTERNAL=HDMI-A-1 ~/dotfiles/linux/nix/scripts/monitors.sh`.
-KDE merkt sich das pro Monitor-Kombination.
+Beide: DP-2 mit 2560x1440 @ 180 Hz rechts neben eDP-1 (1920x1080 @ 144 Hz),
+VRR auf DP-2 nur für Spiele. Anschlussnamen anzeigen: `niri msg outputs`
+bzw. `hyprctl monitors`.
 
 ## Spiele starten: `gaming-mode`
 
@@ -197,7 +241,7 @@ Eigenes MangoHud-Layout: `~/.config/MangoHud/MangoHud.conf` anlegen – dann wir
 das eingebaute Layout nicht benutzt.
 
 Allgemein für alle Spiele: **Netzteil dran**, Vollbild, V-Sync im Spiel aus.
-VRR ist über `monitors` aktiv.
+VRR schalten Niri und Hyprland für Spiele automatisch ein.
 
 ## CS2
 
@@ -223,10 +267,15 @@ gamescope. Einziger Nachteil: kein Steam-Overlay.
 `gaming-mode --stretch 1920x1440` (über gamescope) geht auch, aber unter Niri
 flackert das Bild dort ab und zu – ohne gamescope nicht.
 
+Die Spiele-Regeln greifen über den Fensternamen (`cs2`, `steam_app_…`,
+`gamescope`, Sober). Unter Hyprland zeigt `hyprctl clients` die Namen,
+unter Niri `niri msg windows`.
+
 **Tweaks:**
 
-- `+fps_max 0` = ungebremst, niedrigste Latenz. Zusammen mit *Systemeinstellungen →
-  Anzeige → Tearing erlauben* am schnellsten, dafür mit Tearing.
+- `+fps_max 0` = ungebremst, niedrigste Latenz. **Unter Hyprland** darf CS2
+  dabei tearen (Fensterregel `cs2-tearing`) – am schnellsten, dafür mit
+  Bildrissen über 180 FPS. Niri kennt kein Tearing.
 - Alternativ `+fps_max 175`: bleibt knapp unter 180 Hz im VRR-Bereich → kein
   Tearing, sehr gleichmäßig, minimal mehr Latenz.
 - `-vulkan` brauchst du nicht (unter Linux Standard), `-high` und `-novid` wirken
@@ -257,23 +306,15 @@ darüber installieren. Danach in Lutris beim Battle.net-Eintrag unter
 Der erste Start dauert länger (Shader-Kompilierung, DirectX 12 → Vulkan), danach
 läuft es aus dem Cache.
 
-## Screenshots: Spectacle
+## Screenshots
 
-**Super+Shift+S** (oder **Druck**) → Bereich mit der Maus aufziehen → im Overlay
-zeichnen (Freihand, Textmarker, Linie, Pfeil, Rechteck, Ellipse, Text, Nummern,
-Verpixeln, Weichzeichnen) → **Strg+C** bzw. *Kopieren*. Das Bild liegt dann im
-Clipboard **und** als Datei in `~/Screenshots`, Spectacle schließt sich.
-
-**Enter** statt Strg+C kopiert ebenfalls, öffnet aber zusätzlich das Spectacle-Fenster
-(für mehr Bearbeitung). **Esc** bricht ab.
-
-Weitere Kürzel wie Vollbild oder aktives Fenster: *Systemeinstellungen → Tastenkürzel → Spectacle*.
-
-**Unter Niri** übernimmt das **Satty**: Super+Shift+S → Bereich aufziehen → zeichnen
+**Super+Shift+S** → Bereich mit der Maus aufziehen → in **Satty** zeichnen
 (Pfeil, Linie, Rechteck, Ellipse, Text, Marker, Freihand, Nummern, Verpixeln,
-Zuschneiden) → **Enter** (oder *Kopieren*) kopiert ins Clipboard **und** speichert nach
-`~/Screenshots`, dann schließt Satty. **Esc** bricht ab. **Druck** macht Niris eigenen Screenshot
-ohne Zeichnen.
+Zuschneiden) → **Enter** (oder *Kopieren*) kopiert ins Clipboard **und**
+speichert nach `~/Screenshots`, dann schließt Satty. **Esc** bricht ab.
+
+**Druck** ohne Zeichnen: Niri öffnet seine eingebaute Auswahl, unter Hyprland
+wird ein Bereich aufgezogen – beides landet im Clipboard und in `~/Screenshots`.
 
 ## Roblox: Sober
 
@@ -335,7 +376,7 @@ keine FPS.
 - **Aufnahme** und **Streaming** ebenfalls über das Overlay.
 - Alle Hotkeys stehen im Overlay unter *Einstellungen* (Symbol rechts) und lassen
   sich dort ändern.
-- Beim ersten Mal fragt KDE eventuell, welcher Bildschirm aufgenommen werden darf.
+- Beim ersten Mal fragt das System eventuell, welcher Bildschirm aufgenommen werden darf.
 
 Clips landen standardmäßig in `~/Videos`.
 
@@ -357,39 +398,46 @@ setzen, `rebuild`, nochmal testen. Status prüfen: `systemctl status scx`.
   CS2 sehr viele FPS. Ein zweiter gleicher Riegel ist dann das beste Upgrade.
 - **Kühlung:** Laptop hinten erhöht aufstellen, Lüfter ab und zu reinigen.
 
-## Theme: Catppuccin Mocha
+## Theme: Farben aus dem Hintergrundbild
 
-Alles in **Catppuccin Mocha** mit Akzentfarbe **Mauve** (`theme.nix`):
+**Matugen** erzeugt aus dem Wallpaper ein Farbschema und färbt damit alles:
+Fensterrahmen (Niri und Hyprland), Waybar, Rofi, Fuzzel, mako **und die Apps**:
 
 | Bereich | Wie |
 |---|---|
-| Plasma, KDE- und alle Qt-Apps | Globales Design + Farbschema *Catppuccin Mocha Mauve*, Fensterdekoration |
-| GTK-Apps (Firefox u. a.) | Breeze-GTK – KDE überträgt das Farbschema automatisch, dadurch sehen Qt und GTK gleich aus |
-| Cursor | *catppuccin-mocha-mauve-cursors* |
-| Icons | Papirus-Dark mit Catppuccin-Ordnerfarben |
-| TTY + Login (tuigreet) | Catppuccin-Farbpalette |
-| Discord (Vencord) | Theme liegt bereit → *Einstellungen → Vencord → Themes* → `catppuccin-mocha-mauve.theme.css` anhaken |
+| GTK-Apps (Firefox u. a.) | Thema *adw-gtk3-dark* bzw. libadwaita, Farben in `~/.config/gtk-3.0/gtk.css` und `gtk-4.0/gtk.css` |
+| Qt- und KDE-Apps (Dolphin, Okular …) | Breeze-Stil, Farben in `~/.config/kdeglobals` |
+| Cursor | *catppuccin-mocha-mauve-cursors* (fest) |
+| Icons | Papirus-Dark mit Catppuccin-Ordnerfarben (fest) |
+| TTY + Login (tuigreet) | Catppuccin-Farbpalette (fest) |
+| Discord (Vencord) | Catppuccin-Theme liegt bereit → *Einstellungen → Vencord → Themes* → `catppuccin-mocha-mauve.theme.css` anhaken |
 
-Angewendet wird das Theme **automatisch beim ersten Login**. Danach kannst du in den
-Systemeinstellungen frei ändern – es wird nicht erneut überschrieben. Zurück auf
-Catppuccin: `apply-theme`.
+**Wallpaper wechseln:** in Waypaper ein Bild wählen – danach läuft automatisch
+`theme` (`linux/.config/matugen/theme.sh`). Qt-Apps, Waybar, mako und die
+Rahmen passen sich sofort an. Laufende GTK-Apps übernehmen die neuen Farben
+nach einem Neustart.
 
-**Akzentfarbe ändern:** in `theme.nix` `accent = "blue";` (o. ä.) setzen,
-`rebuild`, dann `apply-theme`.
+```sh
+theme                 # Farben aus dem aktuellen Wallpaper neu erzeugen
+theme -t vibrant      # kräftigere Variante (auch: expressive, fidelity, …)
+theme -s BILD         # mögliche Quellfarben eines Bildes anzeigen
+```
 
-**Apps mit eigenem Theme-System** (nicht über KDE/GTK steuerbar):
-- **Telegram:** *Einstellungen → Chat-Einstellungen → Theme*, Catppuccin-Themes gibt es
-  unter github.com/catppuccin/telegram.
-- **Spotify:** nur über Spicetify (inoffizieller Client-Mod), daher nicht eingebaut.
+Beim ersten Login nach der Umstellung erzeugt `theme` die App-Farben einmal
+selbst.
+
+**Apps mit eigenem Theme-System:**
+- **Telegram:** *Einstellungen → Chat-Einstellungen → Theme*.
+- **Spotify:** Spicetify mit Catppuccin (`apps.nix`).
 - **Steam:** eigener Skin, bleibt dunkel wie gewohnt.
-- **Ghostty:** deine Config nutzt `theme = Vague`. Für Catppuccin:
-  `theme = Catppuccin Mocha` (und die `background`-Zeile entfernen).
+- **Ghostty:** `theme = Vague` in `linux/.config/ghostty/config.ghostty`.
 
 ## Apps
 
 | App | Hinweise |
 |---|---|
-| Firefox | VA-API-Videodekodierung über NVIDIA, KDE-Dateidialog, KDE-Browserintegration. Prüfen: `about:support` → *Media* |
+| Firefox | VA-API-Videodekodierung über NVIDIA, KDE-Dateidialog. Prüfen: `about:support` → *Media* |
+| Dolphin, Gwenview, Okular, Ark, Filelight | KDE-Apps ohne Plasma (Dateien, Bilder, PDF, Archive, Speicherplatz) |
 | Discord | Offizieller Client mit Vencord; Anrufe über Discords eigene Engine wie unter Windows |
 | Telegram | `telegram-desktop` |
 | Notability | offizielle Web-App als eigenes Fenster (Chromium-App-Modus), Login bleibt gespeichert |
@@ -408,5 +456,15 @@ Catppuccin: `apply-theme`.
 
 ## Tastatur
 
-`us,ru,ua,de`, Umschalten mit Alt+Shift. Das ist der Standard für neue
-Plasma-Profile. Falls Plasma ihn nicht übernimmt: *Systemeinstellungen → Tastatur → Belegungen*.
+`us,ru,ua,de`, Umschalten mit Alt+Shift. Steht in beiden Configs
+(`niri/config.kdl`, `hypr/hyprland.lua`), Waybar zeigt das aktive Layout.
+
+## Umstieg von KDE
+
+Nach dem ersten `rebuild` mit dieser Config:
+
+1. **Einmal neu starten** – UWSM (für Hyprland) stellt D-Bus auf dbus-broker um.
+2. Im Login mit **F3** eine Sitzung wählen, falls tuigreet noch *Plasma* gemerkt hat.
+3. Alte KDE-Einstellungen in `~/.config` (z. B. `plasma*`, `kwinrc`,
+   `kglobalshortcutsrc`) stören nicht und können gelöscht werden.
+   `~/.config/kdeglobals` überschreibt matugen.

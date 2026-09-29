@@ -1,5 +1,5 @@
 {
-  description = "NixOS – Gigabyte G5 KF (i5-12500H + RTX 4060, KDE Plasma 6)";
+  description = "NixOS – Gigabyte G5 KF (i5-12500H + RTX 4060, Niri + Hyprland)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

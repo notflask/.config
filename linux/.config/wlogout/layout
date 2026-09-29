@@ -6,7 +6,7 @@
 }
 {
     "label" : "logout",
-    "action" : "niri msg action quit --skip-confirmation",
+    "action" : "session-logout",
     "text" : "Abmelden",
     "keybind" : "e"
 }

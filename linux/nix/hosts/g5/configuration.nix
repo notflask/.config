@@ -12,6 +12,7 @@
     ./dotfiles.nix
     ./fonts.nix
     ./niri.nix
+    ./hyprland.nix
     ./vpn.nix
     ./network.nix
   ];

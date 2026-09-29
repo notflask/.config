@@ -37,7 +37,7 @@ done
 
 echo
 echo "── Desktop ──────────────────────────────────────"
-echo "  KWIN_DRM_DEVICES=${KWIN_DRM_DEVICES:-<nicht gesetzt>}"
+echo "  AQ_DRM_DEVICES=${AQ_DRM_DEVICES:-<nicht gesetzt>}  (Hyprland, erste = Render-GPU)"
 for link in /dev/dri/nvidia-dgpu /dev/dri/intel-igpu; do
   if [ -e "$link" ]; then
     echo "  $link → $(readlink -f "$link")"

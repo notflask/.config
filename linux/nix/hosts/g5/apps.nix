@@ -38,7 +38,6 @@ in
   imports = [ inputs.spicetify-nix.nixosModules.default ];
 
   # ── Firefox ────────────────────────────────────────────────
-  # KDE-Integration (plasma-browser-integration) bringt das Plasma-Modul mit.
   programs.firefox = {
     enable = true;
     languagePacks = [

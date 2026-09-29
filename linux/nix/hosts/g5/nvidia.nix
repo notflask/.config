@@ -1,9 +1,9 @@
 # Grafik: Intel Iris Xe (i5-12500H) + NVIDIA RTX 4060 Laptop
 #
-# KWin (der Desktop) läuft komplett auf der RTX 4060. Spiele auf dem externen
-# Monitor (am NVIDIA-Anschluss) gehen ohne Umweg über die iGPU direkt raus →
-# mehr FPS, weniger Latenz. Die Intel-iGPU treibt nur noch den internen
-# Bildschirm (eDP-1), das Bild dafür wird von der NVIDIA kopiert.
+# Der Desktop (Niri bzw. Hyprland) läuft komplett auf der RTX 4060. Spiele auf
+# dem externen Monitor (am NVIDIA-Anschluss) gehen ohne Umweg über die iGPU
+# direkt raus → mehr FPS, weniger Latenz. Die Intel-iGPU treibt nur noch den
+# internen Bildschirm (eDP-1), das Bild dafür wird von der NVIDIA kopiert.
 # Die dGPU ist dauerhaft an – gedacht für den Betrieb am Netzteil.
 #
 # Die PCI-Adressen setzt scripts/install.sh automatisch. Manuell prüfen:
@@ -63,12 +63,45 @@ in
     };
   };
 
+  # Sonst halten Wayland-Compositoren unnötig viel VRAM fest (Empfehlung aus
+  # dem Niri-Wiki, gilt genauso für Hyprland). Unter NixOS heißt der
+  # Hyprland-Prozess wegen des Wrappers ".Hyprland-wrapped".
+  environment.etc."nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json".text =
+    builtins.toJSON {
+      rules =
+        map
+          (procname: {
+            pattern = {
+              feature = "procname";
+              matches = procname;
+            };
+            profile = "Limit Free Buffer Pool On Wayland Compositors";
+          })
+          [
+            "niri"
+            ".niri-wrapped"
+            "Hyprland"
+            ".Hyprland-wrapped"
+          ];
+      profiles = [
+        {
+          name = "Limit Free Buffer Pool On Wayland Compositors";
+          settings = [
+            {
+              key = "GLVidHeapReuseRatio";
+              value = 0;
+            }
+          ];
+        }
+      ];
+    };
+
   # Hält den Treiberzustand (inkl. Taktsperre unten) auch ohne aktive Clients
   hardware.nvidia.nvidiaPersistenced = true;
 
   # ── Mindesttakt für die GPU ────────────────────────────────
   # Im Leerlauf fällt die 4060 auf ~480 MHz. Startet dann eine Animation
-  # (Workspace-/Fensterwechsel in Niri), braucht der Treiber ein paar
+  # (Workspace-/Fensterwechsel in Niri/Hyprland), braucht der Treiber ein paar
   # hundert ms zum Hochtakten → die ersten Bilder ruckeln. Mit festem
   # Mindesttakt ist jede Animation sofort flüssig. Kostet ~10–15 W im
   # Leerlauf. Zurücksetzen: `sudo nvidia-smi -rgc`
@@ -97,8 +130,9 @@ in
   '';
 
   environment.sessionVariables = {
-    # KWin rendert auf der NVIDIA, der interne Bildschirm wird von dort kopiert
-    KWIN_DRM_DEVICES = "/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu";
+    # Hyprland rendert auf der NVIDIA (erste GPU), der interne Bildschirm wird
+    # von dort kopiert. Niri: render-drm-device in niri/config.kdl
+    AQ_DRM_DEVICES = "/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu";
     # Videodekodierung (Firefox) auf derselben GPU wie der Desktop.
     # nvidia-vaapi-driver braucht Firefox ohne RDD-Sandbox für den Decoder.
     LIBVA_DRIVER_NAME = "nvidia";

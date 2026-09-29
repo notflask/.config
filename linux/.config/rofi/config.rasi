@@ -1,4 +1,4 @@
-// Starter für die Niri-Sitzung (Super+Space / Super+D)
+// Starter für Niri und Hyprland (Super+Space / Super+D)
 // Aussehen: spotlight.rasi, Farben: colors.rasi (matugen)
 configuration {
     modes: "drun";
