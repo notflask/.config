@@ -89,9 +89,20 @@ hl.config({
 
         -- Blur nur für Ghostty, Waybar, mako, wlogout, Rofi –
         -- siehe window-rule/layer-rule unten (xray false)
+        -- Wie Niri: 3 Durchgänge statt 1, kein Kontrast-Abschlag (sonst
+        -- Grauschleier), dazu kräftigere Farben dahinter wie Liquid Glass
         blur = {
             enabled = true,
             xray = false,
+            size = 5,
+            passes = 3,
+            noise = 0.02,
+            contrast = 1.0,
+            brightness = 1.0,
+            vibrancy = 0.35,
+            vibrancy_darkness = 0.2,
+            -- Rechtsklick-Menüs usw. auch aus Glas
+            popups = true,
         },
     },
 
@@ -165,20 +176,27 @@ end)
 --   window-close       150 ms ease-out-quad, schrumpft auf 50 % + ausblenden
 -- Rahmenfarbe, Leisten (Waybar, Rofi, mako) und Popups animiert Niri nicht.
 -- Dämpfung = damping-ratio · 2·√(stiffness · mass)
+--
+-- Etwas weicher als Niri: niedrigere Steifigkeit (600/750 statt 800/1000),
+-- Dämpfung bleibt 1.0 (kein Nachschwingen); öffnen/schließen 200 ms und
+-- popin 70 %; Leisten blenden kurz ein statt aufzuspringen
 
-hl.curve("spring800", { type = "spring", mass = 1, stiffness = 800, dampening = 56.5685 })
-hl.curve("spring1000", { type = "spring", mass = 1, stiffness = 1000, dampening = 63.2456 })
+hl.curve("spring600", { type = "spring", mass = 1, stiffness = 600, dampening = 48.9898 })
+hl.curve("spring750", { type = "spring", mass = 1, stiffness = 750, dampening = 54.7723 })
 hl.curve("easeOutExpo", { type = "bezier", points = { { 0.16, 1 }, { 0.3, 1 } } })
 hl.curve("easeOutQuad", { type = "bezier", points = { { 0.5, 1 }, { 0.89, 1 } } })
 
-hl.animation({ leaf = "windows", enabled = true, speed = 2.5, spring = "spring800" })
-hl.animation({ leaf = "windowsIn", enabled = true, speed = 1.5, bezier = "easeOutExpo", style = "popin 50%" })
-hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.5, bezier = "easeOutQuad", style = "popin 50%" })
+hl.animation({ leaf = "windows", enabled = true, speed = 2.5, spring = "spring600" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 2, bezier = "easeOutExpo", style = "popin 70%" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 2, bezier = "easeOutQuad", style = "popin 70%" })
 hl.animation({ leaf = "fade", enabled = false })
-hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.5, bezier = "easeOutExpo" })
-hl.animation({ leaf = "fadeOut", enabled = true, speed = 1.5, bezier = "easeOutQuad" })
-hl.animation({ leaf = "workspaces", enabled = true, speed = 2.5, spring = "spring1000", style = "slidevert" })
-hl.animation({ leaf = "layers", enabled = false })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 2, bezier = "easeOutExpo" })
+hl.animation({ leaf = "fadeOut", enabled = true, speed = 2, bezier = "easeOutQuad" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 2.5, spring = "spring750", style = "slidevert" })
+-- Rofi wächst zusätzlich leicht (layer-rule unten)
+hl.animation({ leaf = "layers", enabled = true, speed = 1.5, bezier = "easeOutExpo", style = "fade" })
+hl.animation({ leaf = "fadeLayersIn", enabled = true, speed = 1.5, bezier = "easeOutExpo" })
+hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.5, bezier = "easeOutQuad" })
 hl.animation({ leaf = "border", enabled = false })
 hl.animation({ leaf = "zoomFactor", enabled = false })
 hl.animation({ leaf = "monitorAdded", enabled = false })
@@ -295,8 +313,19 @@ hl.layer_rule({
 -- wlogout: Glas-Hintergrund
 hl.layer_rule({ name = "logout_dialog", match = { namespace = "logout_dialog" }, blur = true })
 
+-- slurp (Bereich für screenshot/screenshot-edit) sofort weg, sonst fotografiert
+-- grim den ausblendenden Rahmen und Schleier mit
+hl.layer_rule({ name = "slurp", match = { namespace = "selection" }, no_anim = true })
+
 -- Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
-hl.layer_rule({ name = "rofi", match = { namespace = "rofi" }, blur = true, ignore_alpha = 0.1 })
+-- und geht wie Spotlight leicht wachsend auf
+hl.layer_rule({
+    name = "rofi",
+    match = { namespace = "rofi" },
+    blur = true,
+    ignore_alpha = 0.1,
+    animation = "popin 90%",
+})
 
 
 -- ── binds ───────────────────────────────────────────────────
