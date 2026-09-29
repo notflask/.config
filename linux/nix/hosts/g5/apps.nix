@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ lib, pkgs, inputs, ... }:
 
 let
   # Offizielles Discord mit Vencord statt Vesktop: Anrufe, Kamera und
@@ -6,7 +6,33 @@ let
   # (discord_voice) wie unter Windows, nicht über Chromiums WebRTC. In
   # Vesktop froren eingehende Kameras alle paar Sekunden für 2–3 s ein.
   # Wayland-Flags setzt das Paket selbst (NIXOS_OZONE_WL, desktop.nix).
-  discord = pkgs.discord.override { withVencord = true; };
+  #
+  # Läuft auf der Intel-iGPU (wie früher Vesktop): Systemweit zeigt VA-API
+  # auf nvidia-vaapi-driver (nvidia.nix), der nur dekodieren kann. Auf der
+  # NVIDIA stürzte Discords GPU-Prozess ab, sobald Kamera oder Stream an
+  # gingen. Die Iris Xe kodiert/dekodiert H.264, H.265 und VP9 in Hardware
+  # (intel-media-driver), AV1 nur dekodieren.
+  # CUDA_VISIBLE_DEVICES versteckt die NVIDIA zusätzlich vor Discords eigener
+  # Engine: Sonst kodiert sie Kamera und Stream per NVENC (CUDA, H.265) und
+  # stürzte dabei ab. Ohne CUDA nimmt sie H.264 per VA-API auf der Iris Xe.
+  discordVencord = pkgs.discord.override {
+    withVencord = true;
+    commandLineArgs = "--render-node-override=/dev/dri/intel-render";
+  };
+  discord = pkgs.symlinkJoin {
+    name = "discord-igpu";
+    paths = [ discordVencord ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      for bin in discord Discord; do
+        rm $out/bin/$bin
+        makeWrapper ${discordVencord}/bin/$bin $out/bin/$bin \
+          --set LIBVA_DRIVER_NAME iHD \
+          --set CUDA_VISIBLE_DEVICES -1 \
+          --prefix LD_LIBRARY_PATH : ${lib.getLib pkgs.libva}/lib
+      done
+    '';
+  };
 in
 {
   imports = [ inputs.spicetify-nix.nixosModules.default ];
@@ -68,6 +94,7 @@ in
     tradingview
     vlc # Videoplayer
     easyeffects # Equalizer (AutoEQ-Profil für die KZ-IEMs)
+    cameractrls-gtk4 # Webcam-Bild einstellen (Schärfe, Kontrast …) mit Live-Vorschau
 
     # KI-Coding-Tools im Terminal: `claude` (Claude Code), `agy` (Antigravity CLI).
     # Updates kommen über `rebuild update`, nicht über die eingebauten Updater.
@@ -80,6 +107,18 @@ in
     # Notability (offizielle Web-App als eigenes Fenster)
     (callPackage ../../pkgs/notability/package.nix { })
   ];
+
+  # Stellt die in Cameractrls gespeicherten Webcam-Einstellungen wieder her
+  # (nach dem Login und beim Einstecken), sonst setzt die Kamera sie zurück
+  systemd.user.services.cameractrlsd = {
+    description = "Webcam-Einstellungen wiederherstellen (cameractrls)";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.cameractrls-gtk4}/bin/cameractrlsd";
+      Restart = "on-failure";
+    };
+  };
 
   # Cowork in Claude Desktop startet Aufgaben in einer VM (QEMU/KVM)
   users.users.flask.extraGroups = [ "kvm" ];
