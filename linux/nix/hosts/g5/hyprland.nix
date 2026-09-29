@@ -1,4 +1,4 @@
-# Hyprland als zweite Sitzung neben Niri – im Login (tuigreet) mit F3 wählbar.
+# Hyprland als zweite Sitzung neben Niri – im Login (ly) mit ←/→ wählbar.
 # Die Config liegt im Repo: linux/.config/hypr/hyprland.lua (Lua, ab Hyprland 0.55).
 # Gemeinsames mit Niri (Waybar, mako, Polkit, KDE-Apps …): desktop.nix
 { pkgs, ... }:
