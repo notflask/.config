@@ -2,7 +2,7 @@
 
 - Laptop: Intel i5-12500H (Iris Xe) + NVIDIA RTX 4060 Laptop, eDP-1 1080p@144 Hz
 - Externer Monitor: LG UltraGear 2K, 1440p@180 Hz (DP-2)
-- Desktop: **Niri** (Standard) und **Hyprland**, beide Wayland, ohne KDE Plasma. Login über greetd + tuigreet
+- Desktop: **Niri** (Standard) und **Hyprland**, beide Wayland, ohne KDE Plasma. Login über ly (mit Schwarzem-Loch-Animation), Catppuccin-Ladebildschirm beim Start
 - Kanal: `nixos-unstable` (Flake), Systemsprache Deutsch, Zeitzone Europe/Berlin
 
 ```
@@ -122,8 +122,10 @@ Farben und Tastenkürzeln:
   aktive, alles bleibt sichtbar. Config: `linux/.config/hypr/hyprland.lua`
   (seit Hyprland 0.55 in Lua, nicht mehr `hyprland.conf`)
 
-**Wechseln:** im Login (tuigreet) **F3** drücken → *Niri* oder *Hyprland (uwsm-managed)*.
-tuigreet merkt sich die letzte Sitzung. Ohne gemerkte Auswahl startet Niri.
+**Wechseln:** im Login (ly) mit ↑/↓ in die Sitzungszeile, dann mit **←/→**
+*Niri* oder *Hyprland (uwsm-managed)* wählen. ly merkt sich Benutzer und Sitzung.
+F1 schaltet aus, F2 startet neu. Die Animation läuft auf der Textkonsole und hat
+dort nur 16 Farben.
 
 ### Tastenkürzel (in beiden gleich)
 
@@ -425,7 +427,7 @@ Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako **und die Apps**:
 | Qt- und KDE-Apps (Dolphin, Okular …) | Breeze-Stil, Farben in `~/.config/kdeglobals` |
 | Cursor | *catppuccin-mocha-mauve-cursors* (fest) |
 | Icons | Papirus-Dark mit Catppuccin-Ordnerfarben (fest) |
-| TTY + Login (tuigreet) | Catppuccin-Farbpalette (fest) |
+| TTY, Login (ly), Ladebildschirm | Catppuccin-Farbpalette bzw. Catppuccin-Mocha-Plymouth (fest) |
 | Discord (Vencord) | Catppuccin-Theme liegt bereit → *Einstellungen → Vencord → Themes* → `catppuccin-mocha-mauve.theme.css` anhaken |
 
 **Wallpaper wechseln:** in Waypaper ein Bild wählen – danach läuft automatisch
@@ -474,7 +476,7 @@ selbst.
 Nach dem ersten `rebuild` mit dieser Config:
 
 1. **Einmal neu starten** – UWSM (für Hyprland) stellt D-Bus auf dbus-broker um.
-2. Im Login mit **F3** eine Sitzung wählen, falls tuigreet noch *Plasma* gemerkt hat.
+2. Im Login (jetzt ly) einmal die Sitzung mit ←/→ wählen.
 3. Alte KDE-Einstellungen in `~/.config` (z. B. `plasma*`, `kwinrc`,
    `kglobalshortcutsrc`) stören nicht und können gelöscht werden.
    `~/.config/kdeglobals` überschreibt matugen.

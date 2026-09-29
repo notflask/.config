@@ -22,6 +22,21 @@
   boot.loader.systemd-boot.configurationLimit = 5;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Start ohne Textflut: Catppuccin-Ladebildschirm (Plymouth) statt Kernel-
+  # und systemd-Meldungen. Fehler landen weiter im Journal (journalctl -b).
+  boot.plymouth = {
+    enable = true;
+    theme = "catppuccin-mocha";
+    themePackages = [ (pkgs.catppuccin-plymouth.override { variant = "mocha"; }) ];
+  };
+  boot.consoleLogLevel = 3;
+  boot.initrd.verbose = false;
+  boot.kernelParams = [
+    "quiet"
+    "udev.log_level=3"
+    "systemd.show_status=auto"
+  ];
+
   # ── Netzwerk ───────────────────────────────────────────────
   networking.hostName = "g5";
   networking.networkmanager.enable = true; # Tuning in network.nix
@@ -69,8 +84,10 @@
   # Keine Schreibzugriffe beim bloßen Lesen von Dateien
   fileSystems."/".options = [ "noatime" ];
 
-  # Hängende Dienste beim Herunterfahren nach 10 s beenden statt nach 90 s
+  # Hängende Dienste beim Herunterfahren nach 10 s beenden statt nach 90 s –
+  # für System- und Benutzerdienste (Apps der Sitzung, Tray, Autostart)
   systemd.settings.Manager.DefaultTimeoutStopSec = "10s";
+  systemd.user.settings.Manager.DefaultTimeoutStopSec = "10s";
 
   # ── Nix ────────────────────────────────────────────────────
   nixpkgs.config.allowUnfree = true; # NVIDIA-Treiber, Steam, Spotify

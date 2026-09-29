@@ -98,7 +98,7 @@ in
     "L+ ${home}/.config/Vencord/themes/${discordCss} - - - - /etc/catppuccin/${discordCss}"
   ];
 
-  # TTY und Login (tuigreet) in Catppuccin-Mocha-Farben
+  # TTY und Login (ly) in Catppuccin-Mocha-Farben
   console.colors = [
     "1e1e2e" # base
     "f38ba8" # red

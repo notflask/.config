@@ -72,6 +72,13 @@ let
     '';
   };
 
+  # Login-Animation: Planet mit Schwarzem Loch (ly-community, frei nutzbar).
+  # Die Textkonsole zeigt nur 16 Farben – gröber als im ly-README.
+  blackhole = pkgs.fetchurl {
+    url = "https://codeberg.org/fairyglade/ly-community/raw/commit/fd85d8584545433520f34fb25584b17280f4c0b9/animations/dur/blackhole-smooth-240x67.dur";
+    hash = "sha256-wo3FzPtngCsg/bRSDTYHQqKnMp4vY+Btm14vakJERBU=";
+  };
+
   # Nur diese beiden im Login anbieten. Das Hyprland-Paket bringt zusätzlich
   # eine Sitzung ohne UWSM mit – die startet graphical-session.target nicht,
   # dann fehlen mako, Polkit, hypridle usw.
@@ -88,37 +95,28 @@ let
   '';
 in
 {
-  # ── Login: greetd + tuigreet ───────────────────────────────
-  services.greetd = {
+  # ── Login: ly ───────────────────────────────────────────
+  # Sitzung im Login mit ←/→ wählen, ly merkt sich Benutzer und Sitzung.
+  # F1 ausschalten, F2 neu starten.
+  services.displayManager.ly = {
     enable = true;
-    useTextGreeter = true;
-    settings.default_session = {
-      user = "greeter";
-      command = builtins.concatStringsSep " " [
-        "${pkgs.tuigreet}/bin/tuigreet"
-        "--time"
-        "--remember"
-        "--remember-session"
-        "--asterisks"
-        "--theme 'border=magenta;title=magenta;text=white;prompt=blue;input=white;time=blue;action=blue;button=magenta;container=black'"
-        "--sessions ${greeterSessions}"
-        # Ohne gemerkte Auswahl startet Niri (F3 im Login wechselt zu Hyprland)
-        "--cmd ${config.programs.niri.package}/bin/niri-session"
-      ];
+    settings = {
+      lang = "de";
+      animation = "dur_file";
+      dur_file_path = "${blackhole}";
+      dur_offset_alignment = "center";
+      waylandsessions = "${greeterSessions}";
+      bigclock = "en";
+      clock = "%a %d.%m.%Y %H:%M";
     };
   };
 
   # KWallet beim Login entsperren (gespeicherte Passwörter wie unter KDE).
-  # pam_kwallet_init (unten) reicht das Login-Passwort an kwalletd weiter.
-  security.pam.services = {
-    greetd.kwallet = {
-      enable = true;
-      package = kde.kwallet-pam;
-    };
-    login.kwallet = {
-      enable = true;
-      package = kde.kwallet-pam;
-    };
+  # ly nutzt den login-Stack; pam_kwallet_init (unten) reicht das
+  # Login-Passwort an kwalletd weiter.
+  security.pam.services.login.kwallet = {
+    enable = true;
+    package = kde.kwallet-pam;
   };
 
   # Electron-Apps (Discord usw.) nativ unter Wayland
@@ -163,7 +161,7 @@ in
       wantedBy = [ "graphical-session.target" ];
       partOf = [ "graphical-session.target" ];
       after = [ "graphical-session.target" ];
-      # Setzt pam_kwallet beim Login (greetd); fehlt es, gibt es nichts zu tun
+      # Setzt pam_kwallet beim Login (ly); fehlt es, gibt es nichts zu tun
       unitConfig.ConditionEnvironment = "PAM_KWALLET5_LOGIN";
       serviceConfig = {
         Type = "oneshot";
