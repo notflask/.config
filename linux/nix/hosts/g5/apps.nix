@@ -102,9 +102,6 @@ in
 
     # Claude Desktop (Linux-Beta, aus dem offiziellen .deb verpackt)
     (callPackage ../../pkgs/claude-desktop/package.nix { })
-
-    # Notability (offizielle Web-App als eigenes Fenster)
-    (callPackage ../../pkgs/notability/package.nix { })
   ];
 
   # Stellt die in Cameractrls gespeicherten Webcam-Einstellungen wieder her

@@ -23,7 +23,6 @@ linux/nix/
 │   ├── niri.nix                   # Niri-Sitzung (Standard)
 │   └── hyprland.nix               # Hyprland-Sitzung (UWSM, Übersicht-Plugin)
 ├── pkgs/claude-desktop/           # Claude Desktop (.deb → NixOS)
-├── pkgs/notability/               # Notability Web als Desktop-App
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
@@ -245,8 +244,12 @@ gaming-mode --stretch 1920x1440 %command%  # gestreckt über gamescope (CS2: sie
 gaming-mode ./spiel                      # außerhalb von Steam
 ```
 
-Eigenes MangoHud-Layout: `~/.config/MangoHud/MangoHud.conf` anlegen – dann wird
-das eingebaute Layout nicht benutzt.
+MangoHud-Layout: `linux/.config/matugen/templates/MangoHud.conf` (Farben vom
+Hintergrundbild, erzeugt nach `~/.config/MangoHud/MangoHud.conf`). Oben links als
+Glas-Tabelle: FPS mit Ampelfarbe, Durchschnitt und 1%-Low, Frametime-Graph,
+GPU/CPU mit Last, Temperatur, Takt, Verbrauch, VRAM/RAM, dazu Drosselung,
+GameMode, NTSYNC und VSync/Tearing. **Shift rechts + F9** setzt Durchschnitt
+und 1%-Low zurück.
 
 Allgemein für alle Spiele: **Netzteil dran**, Vollbild, V-Sync im Spiel aus.
 VRR schalten Niri und Hyprland für Spiele automatisch ein.
@@ -453,7 +456,6 @@ selbst.
 | Dolphin, Gwenview, Okular, Ark, Filelight | KDE-Apps ohne Plasma (Dateien, Bilder, PDF, Archive, Speicherplatz) |
 | Discord | Offizieller Client mit Vencord; Anrufe über Discords eigene Engine wie unter Windows |
 | Telegram | `telegram-desktop` |
-| Notability | offizielle Web-App als eigenes Fenster (Chromium-App-Modus), Login bleibt gespeichert |
 | Spotify | Port 57621/TCP + mDNS offen für Spotify Connect im LAN |
 | Steam | CS2 nativ, Diablo IV über Proton / GE-Proton |
 | Lutris | Battle.net und andere Launcher |

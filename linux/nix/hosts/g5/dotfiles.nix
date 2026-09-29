@@ -25,6 +25,7 @@ let
     "matugen"
     "waypaper"
     "hypr" # Hyprland, hyprlock, hypridle
+    "MangoHud" # FPS-Overlay (gaming-mode), Farben von matugen
   ];
 in
 {
