@@ -12,7 +12,7 @@
 /* Liquid Glass: halbdurchsichtig, der Compositor zeichnet dahinter weich
    (layer-rule "waybar" in niri/config.kdl bzw. hypr/hyprland.lua) */
 window#waybar {
-    background: rgba(18, 18, 24, 0.38);
+    background: rgba(18, 18, 24, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 18px;
     /* Lichtkante oben, leichter Glanz unten */
@@ -131,6 +131,16 @@ window#waybar {
 }
 #custom-media {
     padding: 0 10px 0 6px;
+}
+/* kein Cover bzw. kein Titel: das erste sichtbare Stück rundet links ab
+   (Klassen aus scripts/media.sh) */
+#custom-media.nocover {
+    padding-left: 10px;
+    border-radius: 12px 0 0 12px;
+}
+#custom-media-prev.solo {
+    padding-left: 10px;
+    border-radius: 12px 0 0 12px;
 }
 #custom-media.paused,
 #custom-media.stopped {

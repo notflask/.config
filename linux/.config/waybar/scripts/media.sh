@@ -27,10 +27,13 @@ json_escape() {
   printf '%s' "$s"
 }
 
-# $1 Text, $2 Klasse, $3 Tooltip. Schreiben fehlgeschlagen = Waybar weg → beenden
+# $1 Text, $2 Klassen (mit Leerzeichen getrennt), $3 Tooltip.
+# Schreiben fehlgeschlagen = Waybar weg → beenden
 out() {
-  printf '{"text":"%s","class":"%s","tooltip":"%s"}\n' \
-    "$(json_escape "$1")" "$2" "$(json_escape "$3")" || exit
+  local c cls=
+  for c in $2; do cls+=${cls:+,}\"$c\"; done
+  printf '{"text":"%s","class":[%s],"tooltip":"%s"}\n' \
+    "$(json_escape "$1")" "$cls" "$(json_escape "$3")" || exit
 }
 
 # `playerctl --follow ARGS` als Eingabe auf $feed öffnen. Die Schleife liest
@@ -62,6 +65,8 @@ fetch_cover() {
       file://*) local path=${url#file://}  # %20 usw. dekodieren
                 cp -- "$(printf '%b' "${path//%/\\x}")" "$tmp" 2>/dev/null ;;
       http*)    curl -sfL --max-time 10 -o "$tmp" -- "$url" ;;
+      # Telegram schickt das Bild direkt mit (data:image/jpeg;base64,…)
+      data:*\;base64,*) printf '%s' "${url#*,}" | base64 -d >"$tmp" 2>/dev/null ;;
     esac
     if [ -s "$tmp" ]; then
       if [[ $file = *-kreis.png ]]; then
@@ -98,13 +103,17 @@ case ${1:-} in
       prev) icon=󰒮 tip='Vorheriger Titel' ;;
       next) icon=󰒭 tip='Nächster Titel' ;;
     esac
-    follow status
-    while read -r -u "$feed" status; do
+    # Titel mitlesen: ohne Titel ist „zurück“ das erste Stück der Pille
+    # (Klasse solo → links rund, siehe style.css)
+    s=$'\x1f'
+    follow metadata --format "{{status}}$s{{title}}{{artist}}"
+    while IFS=$s read -r -u "$feed" status title; do
+      solo=; [ -z "$title" ] && [ "$2" = prev ] && solo=solo
       case $2:$status in
         *:)            out '' '' '' ;;
         play:Playing)  out "$(nf 󰏤)" playing 'Pause' ;;
         play:*)        out "$(nf 󰐊)" paused 'Abspielen' ;;
-        *)             out "$(nf "$icon")" "${status,,}" "$tip" ;;
+        *)             out "$(nf "$icon")" "${status,,} $solo" "$tip" ;;
       esac
     done
     exit ;;
@@ -151,5 +160,7 @@ while IFS=$s read -r -u "$feed" status title artist album player length art; do
   tip+=$'\n\n'"<span foreground='$dim' size='small'>$name · $state${length:+ · $length}</span>"
   tip+=$'\n'"<span foreground='$dim' size='small'>Klick: Play/Pause · Scrollen: Titel wechseln</span>"
 
-  out "$text" "${status,,}" "$tip"
+  # ohne Cover ist der Titel das erste Stück der Pille (links rund)
+  cls=${status,,}; [ -z "$art" ] && cls+=' nocover'
+  out "$text" "$cls" "$tip"
 done
