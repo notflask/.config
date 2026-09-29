@@ -1,4 +1,10 @@
-{ lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 let
   # Offizielles Discord mit Vencord statt Vesktop: Anrufe, Kamera und
@@ -151,17 +157,66 @@ in
   boot.kernelModules = [ "vhost_vsock" ];
 
   # ── Spotify + Spicetify ────────────────────────────────────
-  # Ersetzt das normale Spotify-Paket; Theme passend zu theme.nix
+  # Ersetzt das normale Spotify-Paket. Aufbau vom Catppuccin-Theme, Farben
+  # aber aus dem Hintergrundbild (matugen/templates/spicetify-colors.css).
   programs.spicetify =
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+      matugenColors = "${config.users.users.flask.home}/.cache/matugen/spicetify-colors.css";
     in
     {
       enable = true;
       theme = spicePkgs.themes.catppuccin;
-      colorScheme = "mocha";
-      # Minecraft-Schrift überall (Schriften kommen aus fonts.nix)
+      colorScheme = "mocha"; # nur für den Build, colors.css kommt von matugen
+      # Spicetify schreibt die Farben beim Build fest in colors.css; ein
+      # Symlink auf die Datei von matugen macht sie änderbar. postFixup läuft
+      # nach dem `spicetify apply` in postInstall.
+      spotifyPackage = pkgs.spotify.overrideAttrs (old: {
+        dontCheckForBrokenSymlinks = true; # Ziel liegt außerhalb des Stores
+        postFixup = (old.postFixup or "") + ''
+          ln -sf ${matugenColors} $out/share/spotify/Apps/xpui/colors.css
+        '';
+      });
+      # Neue Farben nach einem Hintergrundwechsel sofort übernehmen, ohne
+      # Spotify neu zu starten (Datei ist klein, wird nur im Vordergrund geprüft)
+      enabledExtensions = [
+        {
+          src = pkgs.writeTextDir "matugen-colors.js" ''
+            (function matugenColors() {
+              const link = document.querySelector("link.userCSS[href='colors.css']");
+              if (!link) return setTimeout(matugenColors, 300);
+              const style = document.createElement("style");
+              link.after(style);
+              let last;
+              setInterval(async () => {
+                if (document.hidden) return;
+                try {
+                  const res = await fetch("colors.css", { cache: "no-store" });
+                  if (!res.ok) return;
+                  const css = await res.text();
+                  if (last !== undefined && css !== last) style.textContent = css;
+                  last = css;
+                } catch {}
+              }, 2000);
+            })();
+          '';
+          name = "matugen-colors.js";
+        }
+      ];
       enabledSnippets = [
+        # Songtexte immer in den matugen-Farben statt einer Farbe pro Lied
+        # (Spotify setzt die Variablen inline, daher !important)
+        ''
+          :root,
+          [style*="--lyrics-color"] {
+            --lyrics-color-background: var(--spice-main) !important;
+            --lyrics-color-active: var(--spice-text) !important;
+            --lyrics-color-passed: var(--spice-subtext) !important;
+            --lyrics-color-inactive: rgba(var(--spice-rgb-subtext), 0.5) !important;
+            --lyrics-color-messaging: var(--spice-subtext) !important;
+          }
+        ''
+        # Minecraft-Schrift überall (Schriften kommen aus fonts.nix)
         ''
           :root {
             --encore-body-font-stack: "Minecraftia", "Monocraft", sans-serif !important;

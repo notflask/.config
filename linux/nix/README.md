@@ -446,7 +446,7 @@ selbst.
 
 **Apps mit eigenem Theme-System:**
 - **Telegram:** *Einstellungen → Chat-Einstellungen → Theme*.
-- **Spotify:** Spicetify mit Catppuccin (`apps.nix`).
+- **Spotify:** Spicetify mit Catppuccin-Theme, Farben von matugen (`apps.nix`, live per Symlink + Extension).
 - **Steam:** eigener Skin, bleibt dunkel wie gewohnt.
 - **Ghostty:** `theme = Vague` in `linux/.config/ghostty/config.ghostty`.
 

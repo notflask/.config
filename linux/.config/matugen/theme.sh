@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
 #  und Niri, Hyprland, Waybar, Rofi, Mako, GTK- und
-#  Qt-Apps sowie Firefox (Pywalfox) daran anpassen.
+#  Qt-Apps, Firefox (Pywalfox) und Spotify daran anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD

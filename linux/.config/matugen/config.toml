@@ -44,3 +44,9 @@ output_path = "~/.config/MangoHud/MangoHud.conf"
 [templates.pywalfox]
 input_path  = "~/.config/matugen/templates/pywalfox-colors.json"
 output_path = "~/.cache/wal/colors.json"
+
+# Spotify (Spicetify): Spotify liest die Datei über einen Symlink im
+# Paket (apps.nix) und lädt sie bei Änderungen selbst neu
+[templates.spicetify]
+input_path  = "~/.config/matugen/templates/spicetify-colors.css"
+output_path = "~/.cache/matugen/spicetify-colors.css"
