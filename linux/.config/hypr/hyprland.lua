@@ -1,59 +1,137 @@
 -- ============================================================
---  Hyprland (0.56, Lua-Config) – Gegenstück zu niri/config.kdl
+--  Hyprland (0.56, Lua) – 1:1 übersetzt aus niri/config.kdl
 --
---  Gleiche Programme, Tastenkürzel, Fensterregeln und Glas-Optik wie
---  unter Niri, aber klassisches Tiling (dwindle) statt Scroll-Spalten:
---  jedes neue Fenster teilt das aktive, alles bleibt sichtbar.
+--  Gleiche Reihenfolge, gleiche Tasten, gleiche Regeln wie Niri.
+--  Nur das Tiling ist anders (dwindle statt Scroll-Spalten): Niri-Aktionen
+--  für Spalten machen hier das Gleiche mit dem Fenster bzw. der Teilung.
+--  Was Hyprland nicht kann, steht als Kommentar an der Stelle.
 --
---  Alle Tastenkürzel: Super+Shift+/
 --  Doku: https://wiki.hypr.land/0.56.0/
---  Autovervollständigung (LuaLS): /run/current-system/sw/share/hypr/stubs
 -- ============================================================
 
 -- Farben aus dem Hintergrundbild (matugen, ~/.config/matugen/theme.sh).
--- Fehlt die Datei, gelten die Werte hier.
+-- Niri: include "~/.config/niri/colors.kdl" (dort am Ende)
 local ok, colors = pcall(require, "colors")
 if not ok or type(colors) ~= "table" then
     colors = {}
 end
-local c = setmetatable(colors, {
-    __index = {
-        primary = "#a5c8ff",
-        on_surface = "#e1e2e9",
-        on_surface_variant = "#c3c6cf",
-        surface = "#111318",
-        outline = "#8d9199",
+local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#111318" } })
+
+
+-- ── input ───────────────────────────────────────────────────
+
+hl.config({
+    input = {
+        kb_layout = "us,ru,ua,de",
+        kb_options = "grp:alt_shift_toggle",
+
+        numlock_by_default = true,
+
+        touchpad = {
+            tap_to_click = true,
+            natural_scroll = true,
+        },
+
+        -- Niri: Fokus per Klick, Scrollen trifft das Fenster unter der Maus
+        follow_mouse = 2,
     },
 })
 
 
-----------------
---  Monitore  --
-----------------
+-- ── output ──────────────────────────────────────────────────
 
-hl.monitor({ output = "eDP-1", mode = "1920x1080@144", position = "0x0", scale = 1 })
--- LG UltraGear: VRR (FreeSync/G-Sync) nur für Spiele im Vollbild –
--- Fenster mit content = "game", siehe Fensterregeln unten
-hl.monitor({ output = "DP-2", mode = "2560x1440@180", position = "1920x0", scale = 1, vrr = 3 })
--- Alles andere (Beamer, fremde Monitore): automatisch daneben
-hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
+hl.monitor({ output = "eDP-1", mode = "1920x1080@144.003", position = "0x0", scale = 1, transform = 0 })
+
+-- VRR (FreeSync/G-Sync) nur für Fenster mit passender window-rule (Spiele):
+-- vrr = 3 heißt „nur im Vollbild für Fenster mit content = game“
+hl.monitor({ output = "DP-2", mode = "2560x1440@179.959", position = "1920x0", scale = 1, vrr = 3 })
 
 
---------------------
---  Umgebung      --
---------------------
+-- ── layout ──────────────────────────────────────────────────
 
--- X11-Programme mit OpenGL (Steam, ältere Spiele) auf der RTX 4060.
--- Die GPU-Reihenfolge (AQ_DRM_DEVICES) setzt nvidia.nix für die ganze Sitzung.
-hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+hl.config({
+    general = {
+        layout = "dwindle",
+
+        -- gaps 8 (gaps_in gilt pro Fensterseite → 8 zwischen zwei Fenstern)
+        gaps_in = 4,
+        gaps_out = 8,
+
+        -- focus-ring off, border on width 1
+        border_size = 1,
+        col = {
+            active_border = c.primary .. "99",
+            inactive_border = "#ffffff26",
+        },
+
+        -- nur für die cs2-Regel unten (Niri kennt kein Tearing)
+        allow_tearing = true,
+
+        -- Fokus springt am Rand nicht ans andere Ende (wie Niri)
+        no_focus_fallback = true,
+    },
+
+    decoration = {
+        -- window-rule geometry-corner-radius 24 (unten): Hyprland erlaubt
+        -- höchstens 20, clip-to-geometry macht Hyprland immer
+        rounding = 20,
+        rounding_power = 2,
+
+        -- shadow: softness 50, offset 0 0, color #00000064
+        -- (spread 5 und draw-behind-window gibt es in Hyprland nicht)
+        shadow = {
+            enabled = true,
+            range = 50,
+            render_power = 3,
+            offset = { 0, 0 },
+            color = "#00000064",
+        },
+
+        -- Blur nur für Ghostty, Waybar, mako, wlogout, Rofi, Fuzzel –
+        -- siehe window-rule/layer-rule unten (xray false)
+        blur = {
+            enabled = true,
+            xray = false,
+        },
+    },
+
+    dwindle = {
+        -- center-focused-column "never", default-column-width 0.5:
+        -- neue Fenster teilen das aktive 50/50 und kommen rechts/unten hin,
+        -- wie neue Spalten in Niri
+        preserve_split = true,
+        force_split = 2,
+    },
+
+    binds = {
+        -- Fokus und Verschieben gehen am Rand nicht auf den anderen Monitor
+        -- (dafür gibt es wie in Niri Mod+Shift bzw. Mod+Shift+Ctrl)
+        window_direction_monitor_fallback = false,
+        -- Mod+WheelScroll… cooldown-ms=150
+        scroll_event_delay = 150,
+    },
+})
 
 
------------------
---  Autostart  --
------------------
+-- ── prefer-no-csd ───────────────────────────────────────────
+-- Hyprland zeichnet keine Titelleisten; Apps, die es unterstützen,
+-- lassen ihre eigenen weg (wie unter Niri).
 
--- mako, Polkit, hypridle, KWallet und XDG-Autostart laufen als
--- systemd-Dienste (desktop.nix) – hier nur, was auch Niri selbst startet.
+
+-- ── cursor ──────────────────────────────────────────────────
+
+hl.env("XCURSOR_THEME", "catppuccin-mocha-mauve-cursors")
+hl.env("XCURSOR_SIZE", "24")
+hl.config({
+    cursor = {
+        -- Niri springt mit dem Mauszeiger nicht zum fokussierten Fenster
+        no_warps = true,
+    },
+})
+
+
+-- ── spawn-at-startup ────────────────────────────────────────
+
 hl.on("hyprland.start", function()
     -- playerctld merkt sich den zuletzt aktiven Player (Medientasten, Waybar)
     hl.exec_cmd("playerctld daemon")
@@ -64,329 +142,366 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
     -- Zwischenablage behalten, wenn die App schließt, aus der kopiert wurde
+    -- (unter Wayland gehört der Inhalt sonst der App)
     hl.exec_cmd("wl-clip-persist --clipboard regular")
 end)
 
 
--------------------
---  Aussehen     --
--------------------
+-- ── hotkey-overlay ──────────────────────────────────────────
+-- skip-at-startup: Hyprland zeigt beim Start nichts an.
+-- Mod+Shift+/ öffnet die Liste (hypr-keybinds, siehe binds).
 
-hl.config({
-    general = {
-        -- 8 px zwischen Fenstern und zum Rand wie in Niri
-        -- (gaps_in gilt pro Fensterseite, zwischen zwei Fenstern also doppelt)
-        gaps_in = 4,
-        gaps_out = 8,
 
-        -- 1px Glaskante wie in Niri
-        border_size = 1,
-        col = {
-            active_border = c.primary .. "99",
-            inactive_border = "#ffffff26",
-        },
+-- ── screenshot-path ─────────────────────────────────────────
+-- "~/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png" – so speichern
+-- auch screenshot (Druck) und screenshot-edit (Mod+Shift+S).
 
-        layout = "dwindle",
 
-        -- Tearing ist nur erlaubt, wo eine Fensterregel es anfordert (CS2)
-        allow_tearing = true,
+-- ── animations ──────────────────────────────────────────────
+-- Niris Standard-Animationen (animations {} ist dort leer):
+--   workspace-switch   spring damping-ratio=1.0 stiffness=1000
+--   window-movement / window-resize  spring damping-ratio=1.0 stiffness=800
+--   window-open        150 ms ease-out-expo, wächst von 50 % + einblenden
+--   window-close       150 ms ease-out-quad, schrumpft auf 50 % + ausblenden
+-- Rahmenfarbe, Leisten (Waybar, Rofi, mako) und Popups animiert Niri nicht.
+-- Dämpfung = damping-ratio · 2·√(stiffness · mass)
 
-        snap = { enabled = true },
-    },
-
-    decoration = {
-        -- abgerundet wie macOS (Tahoe); Hyprland erlaubt höchstens 20 px,
-        -- rounding_power > 2 macht die Ecken etwas weicher (Squircle)
-        rounding = 20,
-        rounding_power = 2.6,
-
-        shadow = {
-            enabled = true,
-            range = 24,
-            render_power = 3,
-            color = "#00000064",
-        },
-
-        -- Glas: Blur hinter transparenten Fenstern (Ghostty) und Leisten.
-        -- 2 Durchgänge kosten auf der RTX 4060 praktisch nichts;
-        -- new_optimizations lässt unveränderten Hintergrund zwischengespeichert.
-        blur = {
-            enabled = true,
-            size = 8,
-            passes = 2,
-            new_optimizations = true,
-            xray = false,
-            noise = 0.01,
-            vibrancy = 0.17,
-            popups = false,
-        },
-    },
-
-    -- Tabs (Super+W) im selben Glas-Stil
-    group = {
-        col = {
-            border_active = c.primary .. "99",
-            border_inactive = "#ffffff26",
-        },
-        groupbar = {
-            font_family = "Inter",
-            font_size = 11,
-            height = 20,
-            gradients = true,
-            gradient_rounding = 10,
-            rounding = 10,
-            gaps_in = 4,
-            gaps_out = 4,
-            blur = true,
-            col = {
-                active = c.primary .. "59",
-                inactive = "#ffffff14",
-            },
-            text_color = c.on_surface,
-            text_color_inactive = c.on_surface_variant,
-        },
-    },
-
-    animations = { enabled = true },
-})
-
--- Kurze, weich auslaufende Animationen (Zeiten in 100 ms): flüssig auf
--- 144/180 Hz, aber nie im Weg
-hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
+hl.curve("spring800", { type = "spring", mass = 1, stiffness = 800, dampening = 56.5685 })
+hl.curve("spring1000", { type = "spring", mass = 1, stiffness = 1000, dampening = 63.2456 })
 hl.curve("easeOutExpo", { type = "bezier", points = { { 0.16, 1 }, { 0.3, 1 } } })
-hl.curve("linear", { type = "bezier", points = { { 0, 0 }, { 1, 1 } } })
-hl.curve("almostLinear", { type = "bezier", points = { { 0.5, 0.5 }, { 0.75, 1 } } })
+hl.curve("easeOutQuad", { type = "bezier", points = { { 0.5, 1 }, { 0.89, 1 } } })
 
-hl.animation({ leaf = "global", enabled = true, speed = 10, bezier = "default" })
-hl.animation({ leaf = "border", enabled = true, speed = 3, bezier = "easeOutQuint" })
-hl.animation({ leaf = "windows", enabled = true, speed = 3.5, bezier = "easeOutQuint" })
-hl.animation({ leaf = "windowsIn", enabled = true, speed = 2.5, bezier = "easeOutExpo", style = "popin 90%" })
-hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.5, bezier = "easeOutQuint", style = "popin 90%" })
-hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.5, bezier = "almostLinear" })
-hl.animation({ leaf = "fadeOut", enabled = true, speed = 1.2, bezier = "almostLinear" })
-hl.animation({ leaf = "fade", enabled = true, speed = 2, bezier = "easeOutQuint" })
-hl.animation({ leaf = "layersIn", enabled = true, speed = 2, bezier = "easeOutQuint", style = "fade" })
-hl.animation({ leaf = "layersOut", enabled = true, speed = 1.2, bezier = "linear", style = "fade" })
--- Arbeitsflächen gleiten senkrecht wie in Niri
-hl.animation({ leaf = "workspaces", enabled = true, speed = 3, bezier = "easeOutQuint", style = "slidevert" })
-hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 3, bezier = "easeOutQuint", style = "slidefadevert 20%" })
+hl.animation({ leaf = "windows", enabled = true, speed = 2.5, spring = "spring800" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 1.5, bezier = "easeOutExpo", style = "popin 50%" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.5, bezier = "easeOutQuad", style = "popin 50%" })
+hl.animation({ leaf = "fade", enabled = false })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.5, bezier = "easeOutExpo" })
+hl.animation({ leaf = "fadeOut", enabled = true, speed = 1.5, bezier = "easeOutQuad" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 2.5, spring = "spring1000", style = "slidevert" })
+hl.animation({ leaf = "layers", enabled = false })
+hl.animation({ leaf = "border", enabled = false })
+hl.animation({ leaf = "zoomFactor", enabled = false })
+hl.animation({ leaf = "monitorAdded", enabled = false })
 
-hl.config({
-    dwindle = {
-        preserve_split = true,
-        -- neue Fenster immer rechts bzw. unten (wie neue Spalten in Niri)
-        force_split = 2,
-        smart_resizing = true,
-    },
 
-    misc = {
-        disable_hyprland_logo = true,
-        disable_splash_rendering = true,
-        force_default_wallpaper = 0,
-        background_color = c.surface,
-        -- Fenster folgen der Maus beim Ziehen/Größe ändern 1:1, ohne Nachlauf
-        animate_manual_resizes = false,
-        animate_mouse_windowdragging = false,
-        -- abgeschalteter Bildschirm (hypridle) wacht bei Maus/Taste auf
-        mouse_move_enables_dpms = true,
-        key_press_enables_dpms = true,
-        -- VRR nur über die Monitorregel (DP-2)
-        vrr = 0,
-    },
+-- ── window-rule ─────────────────────────────────────────────
+-- Hyprland prüft den ganzen Namen: "steam_app_.*" statt "^steam_app_",
+-- ".*firefox" statt "firefox$". Mehrere match-Zeilen → a|b|c.
 
-    render = {
-        -- Spiele im Vollbild gehen ohne Umweg über den Compositor direkt an
-        -- den Monitor (Direct Scanout) – weniger Latenz. "auto" = nur für
-        -- Fenster mit content = "game"
-        direct_scanout = 2,
-    },
+-- org.wezfurlong.wezterm default-column-width {}: in dwindle ohne Bedeutung
 
-    cursor = {
-        -- Mauszeiger springt nicht mit dem Tastatur-Fokus mit (wie Niri)
-        no_warps = true,
-    },
-
-    binds = {
-        -- wie cooldown-ms=150 in Niri: Mausrad wechselt nicht zu schnell
-        scroll_event_delay = 150,
-    },
-
-    xwayland = {
-        force_zero_scaling = true,
-    },
-
-    ecosystem = {
-        no_update_news = true,
-        no_donation_nag = true,
-    },
+hl.window_rule({
+    name = "firefox-pip",
+    match = { class = ".*firefox", title = "Picture-in-Picture" },
+    float = true,
 })
 
-
----------------
---  Eingabe  --
----------------
-
-hl.config({
-    input = {
-        kb_layout = "us,ru,ua,de",
-        kb_options = "grp:alt_shift_toggle",
-        numlock_by_default = true,
-
-        -- Fokus per Klick wie in Niri; Scrollen trifft trotzdem das
-        -- Fenster unter der Maus
-        follow_mouse = 2,
-
-        touchpad = {
-            natural_scroll = true,
-            tap_to_click = true,
-            disable_while_typing = true,
-        },
-    },
-
-    gestures = {
-        -- Wischen hinter die letzte Arbeitsfläche legt eine neue an
-        workspace_swipe_create_new = true,
-    },
+hl.window_rule({
+    name = "telegram",
+    match = { class = "org\\.telegram\\.desktop" },
+    float = true,
 })
 
--- Drei Finger hoch/runter: Arbeitsfläche wechseln (wie in Niri)
-hl.gesture({ fingers = 3, direction = "vertical", action = "workspace" })
+hl.window_rule({
+    name = "gamescope",
+    match = { class = "gamescope" },
+    fullscreen = true,
+})
 
+-- Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope, Roblox über Sober)
+hl.window_rule({
+    name = "games-vrr",
+    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    content = "game",
+})
 
----------------------
---  Übersicht      --
----------------------
+-- is-window-cast-target (roter Rahmen beim Teilen): gibt es in Hyprland nicht
 
--- hyprtasking (Plugin aus hyprland.nix): alle Arbeitsflächen im Raster.
--- Rechtsklick wechselt auf eine Arbeitsfläche, Fenster mit links ziehen.
-hl.plugin.load("/etc/hyprland/plugins/libhyprtasking.so")
+hl.window_rule({
+    name = "discord",
+    match = { class = "discord" },
+    float = true,
+})
 
--- Die Plugin-Optionen gibt es erst, nachdem Hyprland das Plugin geladen
--- und die Config neu eingelesen hat
-if hl.plugin.hyprtasking then
-    hl.config({
-        plugin = {
-            hyprtasking = {
-                layout = "grid",
-                gap_size = 16,
-                border_size = 2,
-                bg_color = 0xff000000 + tonumber(c.surface:sub(2, 7), 16),
-                close_overview_on_reload = true,
-                gestures = { enabled = false },
-                grid = {
-                    rows = 3,
-                    cols = 3,
-                    gaps_use_aspect_ratio = true,
-                },
-            },
-        },
-    })
-end
+hl.window_rule({
+    name = "satty",
+    match = { class = "com\\.gabm\\.satty" },
+    float = true,
+})
 
-local function overview()
-    local ht = hl.plugin.hyprtasking
-    if ht then
-        ht.toggle("all")
-    end
-end
+hl.window_rule({
+    name = "ente-auth",
+    match = { class = "io\\.ente\\.auth" },
+    float = true,
+    no_screen_share = true,
+})
 
+hl.window_rule({
+    name = "bitwarden",
+    match = { class = "Bitwarden" },
+    float = true,
+    no_screen_share = true,
+})
 
----------------------------------
---  Fensterregeln & Leisten    --
----------------------------------
+-- abgerundete Fenster wie in macOS (Tahoe): rounding = 20 oben
 
--- Hinweis: Regeln prüfen den ganzen Namen (FullMatch), "steam_app_.*"
--- statt "^steam_app_" wie in Niri
+-- Spiele ohne Rundung – sonst muss Hyprland jedes Bild neu zeichnen statt
+-- es direkt an den Monitor zu geben (Direct Scanout, render unten)
+hl.window_rule({
+    name = "games-no-rounding",
+    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    rounding = 0,
+})
 
--- Maximieren-Anfragen ignorieren – Fenster bleiben im Tiling
-hl.window_rule({ name = "suppress-maximize", match = { class = ".*" }, suppress_event = "maximize" })
+-- Ghostty: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund).
+-- In Hyprland ist Blur global, deshalb: alle anderen Fenster ohne Blur
+hl.window_rule({
+    name = "blur-only-ghostty",
+    match = { class = "negative:com\\.mitchellh\\.ghostty" },
+    no_blur = true,
+})
 
--- Bildschirm nicht sperren/abschalten, solange ein Fenster im Vollbild
--- ist (Videos, Spiele)
-hl.window_rule({ name = "idle-fullscreen", match = { class = ".*" }, idle_inhibit = "fullscreen" })
+-- Nur Hyprland: CS2 darf tearen (niedrigste Latenz bei fps_max 0)
+hl.window_rule({
+    name = "cs2-tearing",
+    match = { class = "cs2" },
+    immediate = true,
+})
 
--- Drag & Drop aus X11-Apps (Steam) nicht verschlucken
+-- Nur Hyprland: Drag & Drop aus X11-Apps (Steam) nicht verschlucken
 hl.window_rule({
     name = "fix-xwayland-drags",
     match = { class = "^$", title = "^$", xwayland = true, float = true, fullscreen = false, pin = false },
     no_focus = true,
 })
 
-hl.window_rule({
-    name = "firefox-pip",
-    match = { class = ".*firefox", title = "Picture-in-Picture" },
-    float = true,
-    pin = true,
-    keep_aspect_ratio = true,
-})
 
-hl.window_rule({
-    name = "float-apps",
-    match = { class = "org\\.telegram\\.desktop|discord|com\\.gabm\\.satty" },
-    float = true,
-})
+-- ── layer-rule ──────────────────────────────────────────────
+-- Rundung und Schatten der Leisten kann Hyprland nicht setzen; ignore_alpha
+-- lässt den Blur an den durchsichtigen Ecken weg, dadurch folgt er der Rundung
 
--- Passwort-/2FA-Apps: schwebend und beim Bildschirmteilen geschwärzt
-hl.window_rule({
-    name = "secrets",
-    match = { class = "io\\.ente\\.auth|Bitwarden" },
-    float = true,
-    no_screen_share = true,
-})
+-- gleiche Rundung wie window#waybar in waybar/style.css
+hl.layer_rule({ name = "waybar", match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
 
-hl.window_rule({ name = "gamescope-fullscreen", match = { class = "gamescope" }, fullscreen = true })
-
--- Spiele (CS2, Steam, gamescope, Roblox über Sober): als Spiel markieren →
--- VRR auf dem LG und Direct Scanout
-hl.window_rule({
-    name = "games",
-    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
-    content = "game",
-})
-
--- CS2: Tearing statt auf den nächsten Refresh zu warten – niedrigste
--- Eingabelatenz bei fps_max 0. Unter 180 FPS greift weiter VRR.
-hl.window_rule({ name = "cs2-tearing", match = { class = "cs2" }, immediate = true })
-
--- Glas-Leisten: Blur hinter halbdurchsichtigen Flächen, die ganz
--- durchsichtigen Ecken (Rundung) bleiben frei (ignore_alpha)
-hl.layer_rule({ name = "waybar-glass", match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
-hl.layer_rule({ name = "rofi-glass", match = { namespace = "rofi" }, blur = true, ignore_alpha = 0.1 })
-hl.layer_rule({ name = "fuzzel-glass", match = { namespace = "launcher" }, blur = true, ignore_alpha = 0.1 })
-hl.layer_rule({ name = "wlogout-glass", match = { namespace = "logout_dialog" }, blur = true })
--- Benachrichtigungen: Glas, beim Bildschirmteilen nicht mitsenden
+-- Mako: Glas-Benachrichtigungen, beim Bildschirmteilen nicht mitsenden
 hl.layer_rule({
-    name = "mako-glass",
+    name = "notifications",
     match = { namespace = "notifications" },
+    no_screen_share = true,
     blur = true,
     ignore_alpha = 0.1,
-    no_screen_share = true,
 })
--- Bereichsauswahl (slurp) ohne Ein-/Ausblenden – sonst landet sie halb im Screenshot
-hl.layer_rule({ name = "slurp-no-anim", match = { namespace = "selection" }, no_anim = true })
+
+-- wlogout: Glas-Hintergrund
+hl.layer_rule({ name = "logout_dialog", match = { namespace = "logout_dialog" }, blur = true })
+
+-- Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
+hl.layer_rule({ name = "rofi", match = { namespace = "rofi" }, blur = true, ignore_alpha = 0.1 })
+
+hl.layer_rule({ name = "launcher", match = { namespace = "launcher" }, blur = true, ignore_alpha = 0.1 })
 
 
----------------------
---  Tastenkürzel   --
----------------------
+-- ── binds ───────────────────────────────────────────────────
+-- Niri wiederholt gehaltene Tasten (außer repeat=false) – hier ebenso.
+-- Beschreibungen = Titel aus Niris Hotkey-Overlay (Mod+Shift+/).
 
 local function key(k)
     return "SUPER + " .. k
 end
 
-local function bind(keys, action, description, opts)
+local function bind(keys, action, opts)
     opts = opts or {}
-    opts.description = description
+    if opts.repeating == nil then
+        opts.repeating = true
+    end
     return hl.bind(keys, action, opts)
 end
 
--- Alle Fenster der Arbeitsfläche gleichmäßig aufteilen (jede Teilung 50/50)
-local function even_split()
+local function title(t, opts)
+    opts = opts or {}
+    opts.description = t
+    return opts
+end
+
+-- Hilfen: Niri-Aktionen für Spalten/Arbeitsflächen in dwindle
+
+local function active_workspace_windows()
     local ws = hl.get_active_workspace()
     if not ws then
-        return
+        return {}
     end
-    local windows = hl.get_windows({ workspace = ws, floating = false, mapped = true })
+    return hl.get_windows({ workspace = ws, floating = false, mapped = true })
+end
+
+-- Liegt ein gekacheltes Fenster in dieser Richtung neben w?
+local function has_neighbor(w, dir)
+    local a, s = w.at, w.size
+    for _, o in ipairs(active_workspace_windows()) do
+        if o.address ~= w.address then
+            local b, t = o.at, o.size
+            local overlap_x = b.x < a.x + s.x and a.x < b.x + t.x
+            local overlap_y = b.y < a.y + s.y and a.y < b.y + t.y
+            if (dir == "down" and overlap_x and b.y >= a.y + s.y)
+                or (dir == "up" and overlap_x and b.y + t.y <= a.y)
+                or (dir == "right" and overlap_y and b.x >= a.x + s.x)
+                or (dir == "left" and overlap_y and b.x + t.x <= a.x) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- focus-workspace-down/up: auf diesem Monitor, unter der leeren
+-- Arbeitsfläche ist Schluss (wie in Niri)
+local function focus_workspace(step)
+    return function()
+        local ws = hl.get_active_workspace()
+        if not ws or (step > 0 and ws.is_empty) or (step < 0 and ws.id <= 1) then
+            return
+        end
+        hl.dispatch(hl.dsp.focus({ workspace = step > 0 and "r+1" or "r-1" }))
+    end
+end
+
+-- move-column-to-workspace-down/up
+local function move_to_workspace(step)
+    return function()
+        local ws = hl.get_active_workspace()
+        if not ws or (step < 0 and ws.id <= 1) then
+            return
+        end
+        hl.dispatch(hl.dsp.window.move({ workspace = step > 0 and "r+1" or "r-1" }))
+    end
+end
+
+-- focus-window-or-workspace-down/up: Fenster darunter/darüber, in Tabs der
+-- nächste Tab, sonst die nächste Arbeitsfläche
+local function focus_window_or_workspace(dir, step)
+    return function()
+        local w = hl.get_active_window()
+        if w then
+            local g = w.group
+            if g and g.size > 1 then
+                if step > 0 and g.current_index < g.size then
+                    return hl.dispatch(hl.dsp.group.next())
+                elseif step < 0 and g.current_index > 1 then
+                    return hl.dispatch(hl.dsp.group.prev())
+                end
+            end
+            local result = hl.dispatch(hl.dsp.focus({ direction = dir }))
+            if not result or result.ok ~= false then
+                return
+            end
+        end
+        focus_workspace(step)()
+    end
+end
+
+-- move-window-down-or-to-workspace-down/up
+local function move_window_or_to_workspace(dir, step)
+    return function()
+        local w = hl.get_active_window()
+        if not w then
+            return
+        end
+        if not w.floating and has_neighbor(w, dir) then
+            hl.dispatch(hl.dsp.window.move({ direction = dir }))
+        else
+            move_to_workspace(step)()
+        end
+    end
+end
+
+-- move-workspace-down/up: Arbeitsfläche mit der darunter/darüber tauschen
+local function move_workspace(step)
+    return function()
+        local ws = hl.get_active_workspace()
+        if not ws or ws.special or (step > 0 and ws.is_empty) then
+            return
+        end
+        local from, to = ws.id, ws.id + step
+        if to < 1 then
+            return
+        end
+        local tmp = 999999
+        if hl.get_workspace(to) then
+            hl.dispatch(hl.dsp.workspace.change_id({ workspace = to, id = tmp }))
+            hl.dispatch(hl.dsp.workspace.change_id({ workspace = from, id = to }))
+            hl.dispatch(hl.dsp.workspace.change_id({ workspace = tmp, id = from }))
+        else
+            hl.dispatch(hl.dsp.workspace.change_id({ workspace = from, id = to }))
+        end
+    end
+end
+
+-- focus-column-first/last: Fenster ganz links/rechts
+local function edge_window(last)
+    local best
+    for _, w in ipairs(active_workspace_windows()) do
+        local a = w.at
+        local b = best and best.at
+        if not best or (last and (a.x > b.x or (a.x == b.x and a.y > b.y)))
+            or (not last and (a.x < b.x or (a.x == b.x and a.y < b.y))) then
+            best = w
+        end
+    end
+    return best
+end
+
+local function focus_edge(last)
+    return function()
+        local w = edge_window(last)
+        if w then
+            hl.dispatch(hl.dsp.focus({ window = w }))
+        end
+    end
+end
+
+-- move-column-to-first/last: mit dem Fenster ganz links/rechts tauschen
+local function move_to_edge(last)
+    return function()
+        local a, w = hl.get_active_window(), edge_window(last)
+        if a and w and a.address ~= w.address then
+            hl.dispatch(hl.dsp.window.swap({ target = w }))
+        end
+    end
+end
+
+-- consume-or-expel-window-left/right: in Tabs (Gruppe) einreihen bzw. lösen
+local function consume_or_expel(dir)
+    return function()
+        local w = hl.get_active_window()
+        if not w then
+            return
+        end
+        if w.group and w.group.size > 1 then
+            hl.dispatch(hl.dsp.window.move({ out_of_group = dir }))
+        else
+            hl.dispatch(hl.dsp.window.move({ into_or_create_group = dir }))
+        end
+    end
+end
+
+-- switch-preset-column-width / -window-height: Teilung ⅓ → ½ → ⅔
+-- (preset-column-widths 0.33333 0.5 0.66667)
+local presets = { 0.66667, 1.0, 1.33333 } -- splitratio: 1.0 = 50/50
+local preset_index = {}
+local function switch_preset(step)
+    return function()
+        local w = hl.get_active_window()
+        if not w or w.floating then
+            return
+        end
+        local i = ((preset_index[w.address] or 2) - 1 + step) % #presets + 1
+        preset_index[w.address] = i
+        hl.dispatch(hl.dsp.layout("splitratio " .. presets[i] .. " exact"))
+    end
+end
+
+-- Split Windows Evenly: jede Teilung auf 50/50
+local function split_evenly()
+    local windows = active_workspace_windows()
     if #windows < 2 then
         return
     end
@@ -400,22 +515,7 @@ local function even_split()
     end
 end
 
--- Teilung in festen Schritten wie Niris Spaltenbreiten (⅓, ½, ⅔)
-local split_presets = { 0.667, 1.0, 1.333 }
-local split_index = {}
-local function cycle_split(step)
-    return function()
-        local w = hl.get_active_window()
-        if not w or w.floating then
-            return
-        end
-        local i = ((split_index[w.address] or 2) - 1 + step) % #split_presets + 1
-        split_index[w.address] = i
-        hl.dispatch(hl.dsp.layout("splitratio " .. split_presets[i] .. " exact"))
-    end
-end
-
--- Fenster um einen Anteil der Monitorgröße ändern (−10 % / +10 %)
+-- set-column-width / set-window-height "±10%"
 local function resize(dx, dy)
     return function()
         local m = hl.get_active_monitor()
@@ -425,8 +525,7 @@ local function resize(dx, dy)
     end
 end
 
--- Fokus zwischen schwebenden und gekachelten Fenstern wechseln
-local function toggle_float_focus()
+local function switch_focus_floating_tiling()
     local w = hl.get_active_window()
     if w and w.floating then
         hl.dispatch(hl.dsp.window.cycle_next({ tiled = true }))
@@ -435,121 +534,239 @@ local function toggle_float_focus()
     end
 end
 
--- Programme
-bind(key("SHIFT + slash"), hl.dsp.exec_cmd("hypr-keybinds"), "Alle Tastenkürzel anzeigen")
-bind(key("T"), hl.dsp.exec_cmd("ghostty"), "Terminal (Ghostty)")
-bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), "Programme starten (Rofi)")
+-- toggle-overview: Plugin hyprtasking (hyprland.nix)
+local function toggle_overview()
+    local ht = hl.plugin.hyprtasking
+    if ht then
+        ht.toggle("all")
+    end
+end
+
+
+bind(key("SHIFT + slash"), hl.dsp.exec_cmd("hypr-keybinds"), title("Show Important Hotkeys"))
+
+bind(key("T"), hl.dsp.exec_cmd("ghostty"), title("Open a Terminal: ghostty"))
+bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
-bind(key("SHIFT + L"), hl.dsp.exec_cmd("pidof hyprlock || hyprlock"), "Bildschirm sperren")
+bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
 
--- Lautstärke, Medien, Helligkeit (auch auf dem Sperrbildschirm)
-local media = { locked = true }
-local held = { locked = true, repeating = true }
-bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), nil, held)
-bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), nil, held)
-bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), nil, media)
-bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), nil, media)
-bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), nil, media)
-bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), nil, media)
-bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), nil, media)
-bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), nil, media)
-bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), nil, media)
-bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl --class=backlight set +10%"), nil, held)
-bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl --class=backlight set 10%-"), nil, held)
+bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
+bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })
+bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
+bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true })
 
--- Übersicht, Fenster schließen
-bind(key("O"), overview, "Übersicht aller Arbeitsflächen")
+bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+bind("XF86AudioStop", hl.dsp.exec_cmd("playerctl stop"), { locked = true })
+bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
+
+bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl --class=backlight set +10%"), { locked = true })
+bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl --class=backlight set 10%-"), { locked = true })
+
+bind(key("O"), toggle_overview, title("Open the Overview", { repeating = false }))
+-- Esc schließt die Übersicht (wie in Niri)
 bind("Escape", function()
     local ht = hl.plugin.hyprtasking
     if ht and ht.is_active() then
         ht.toggle("all")
     end
-end, nil, { non_consuming = true })
-bind(key("Q"), hl.dsp.window.close(), "Fenster schließen")
+end, { non_consuming = true, repeating = false })
 
--- Fokus und Verschieben: Pfeile oder H/J/K/L
---   Super        Fokus
---   Super+Strg   Fenster verschieben
---   Super+Shift  Fokus auf anderen Monitor
---   Super+Shift+Strg  Fenster auf anderen Monitor
-local directions = {
-    { "left", "H", "left", "l", "links" },
-    { "down", "J", "down", "d", "unten" },
-    { "up", "K", "up", "u", "oben" },
-    { "right", "L", "right", "r", "rechts" },
-}
-for _, d in ipairs(directions) do
-    local arrow, letter, dir, mon, name = d[1], d[2], d[3], d[4], d[5]
-    for _, k in ipairs({ arrow, letter }) do
-        local first = k == arrow
-        bind(key(k), hl.dsp.focus({ direction = dir }), first and ("Fokus nach " .. name) or nil)
-        bind(key("CTRL + " .. k), hl.dsp.window.move({ direction = dir }), first and ("Fenster nach " .. name) or nil)
-        -- Super+Shift+L sperrt den Bildschirm (wie in Niri)
-        if k ~= "L" then
-            bind(key("SHIFT + " .. k), hl.dsp.focus({ monitor = mon }), first and ("Monitor " .. name) or nil)
-        end
-        bind(key("SHIFT + CTRL + " .. k), hl.dsp.window.move({ monitor = mon }),
-            first and ("Fenster auf Monitor " .. name) or nil)
-    end
-end
+bind(key("Q"), hl.dsp.window.close(), title("Close Focused Window", { repeating = false }))
 
--- Arbeitsflächen: nächste/vorige auf diesem Monitor (auch leere, wie in Niri)
-bind(key("Page_Down"), hl.dsp.focus({ workspace = "r+1" }), "Nächste Arbeitsfläche")
-bind(key("Page_Up"), hl.dsp.focus({ workspace = "r-1" }), "Vorige Arbeitsfläche")
-bind(key("U"), hl.dsp.focus({ workspace = "r+1" }))
-bind(key("I"), hl.dsp.focus({ workspace = "r-1" }))
-bind(key("CTRL + Page_Down"), hl.dsp.window.move({ workspace = "r+1" }), "Fenster eine Arbeitsfläche weiter")
-bind(key("CTRL + Page_Up"), hl.dsp.window.move({ workspace = "r-1" }), "Fenster eine Arbeitsfläche zurück")
-bind(key("CTRL + U"), hl.dsp.window.move({ workspace = "r+1" }))
-bind(key("CTRL + I"), hl.dsp.window.move({ workspace = "r-1" }))
-bind(key("mouse_down"), hl.dsp.focus({ workspace = "r+1" }), "Arbeitsfläche wechseln")
-bind(key("mouse_up"), hl.dsp.focus({ workspace = "r-1" }))
-bind(key("CTRL + mouse_down"), hl.dsp.window.move({ workspace = "r+1" }))
-bind(key("CTRL + mouse_up"), hl.dsp.window.move({ workspace = "r-1" }))
+bind(key("left"), hl.dsp.focus({ direction = "left" }), title("Focus Column to the Left"))
+bind(key("down"), focus_window_or_workspace("down", 1))
+bind(key("up"), focus_window_or_workspace("up", -1))
+bind(key("right"), hl.dsp.focus({ direction = "right" }), title("Focus Column to the Right"))
+bind(key("H"), hl.dsp.focus({ direction = "left" }))
+bind(key("J"), focus_window_or_workspace("down", 1))
+bind(key("K"), focus_window_or_workspace("up", -1))
+bind(key("L"), hl.dsp.focus({ direction = "right" }))
+
+bind(key("CTRL + left"), hl.dsp.window.move({ direction = "left" }), title("Move Column Left"))
+bind(key("CTRL + down"), move_window_or_to_workspace("down", 1))
+bind(key("CTRL + up"), move_window_or_to_workspace("up", -1))
+bind(key("CTRL + right"), hl.dsp.window.move({ direction = "right" }), title("Move Column Right"))
+bind(key("CTRL + H"), hl.dsp.window.move({ direction = "left" }))
+bind(key("CTRL + J"), move_window_or_to_workspace("down", 1))
+bind(key("CTRL + K"), move_window_or_to_workspace("up", -1))
+bind(key("CTRL + L"), hl.dsp.window.move({ direction = "right" }))
+
+
+bind(key("Home"), focus_edge(false))
+bind(key("End"), focus_edge(true))
+bind(key("CTRL + Home"), move_to_edge(false))
+bind(key("CTRL + End"), move_to_edge(true))
+
+bind(key("SHIFT + left"), hl.dsp.focus({ monitor = "l" }))
+bind(key("SHIFT + down"), hl.dsp.focus({ monitor = "d" }))
+bind(key("SHIFT + up"), hl.dsp.focus({ monitor = "u" }))
+bind(key("SHIFT + right"), hl.dsp.focus({ monitor = "r" }))
+bind(key("SHIFT + H"), hl.dsp.focus({ monitor = "l" }))
+bind(key("SHIFT + J"), hl.dsp.focus({ monitor = "d" }))
+bind(key("SHIFT + K"), hl.dsp.focus({ monitor = "u" }))
+
+bind(key("SHIFT + CTRL + left"), hl.dsp.window.move({ monitor = "l" }))
+bind(key("SHIFT + CTRL + down"), hl.dsp.window.move({ monitor = "d" }))
+bind(key("SHIFT + CTRL + up"), hl.dsp.window.move({ monitor = "u" }))
+bind(key("SHIFT + CTRL + right"), hl.dsp.window.move({ monitor = "r" }))
+bind(key("SHIFT + CTRL + H"), hl.dsp.window.move({ monitor = "l" }))
+bind(key("SHIFT + CTRL + J"), hl.dsp.window.move({ monitor = "d" }))
+bind(key("SHIFT + CTRL + K"), hl.dsp.window.move({ monitor = "u" }))
+bind(key("SHIFT + CTRL + L"), hl.dsp.window.move({ monitor = "r" }))
+
+
+
+bind(key("Page_Down"), focus_workspace(1), title("Switch Workspace Down"))
+bind(key("Page_Up"), focus_workspace(-1), title("Switch Workspace Up"))
+bind(key("U"), focus_workspace(1))
+bind(key("I"), focus_workspace(-1))
+bind(key("CTRL + Page_Down"), move_to_workspace(1), title("Move Column to Workspace Down"))
+bind(key("CTRL + Page_Up"), move_to_workspace(-1), title("Move Column to Workspace Up"))
+bind(key("CTRL + U"), move_to_workspace(1))
+bind(key("CTRL + I"), move_to_workspace(-1))
+
+
+bind(key("SHIFT + Page_Down"), move_workspace(1))
+bind(key("SHIFT + Page_Up"), move_workspace(-1))
+bind(key("SHIFT + U"), move_workspace(1))
+bind(key("SHIFT + I"), move_workspace(-1))
+
+bind(key("mouse_down"), focus_workspace(1), { repeating = false })
+bind(key("mouse_up"), focus_workspace(-1), { repeating = false })
+bind(key("CTRL + mouse_down"), move_to_workspace(1), { repeating = false })
+bind(key("CTRL + mouse_up"), move_to_workspace(-1), { repeating = false })
+
+bind(key("mouse_right"), hl.dsp.focus({ direction = "right" }), { repeating = false })
+bind(key("mouse_left"), hl.dsp.focus({ direction = "left" }), { repeating = false })
+bind(key("CTRL + mouse_right"), hl.dsp.window.move({ direction = "right" }), { repeating = false })
+bind(key("CTRL + mouse_left"), hl.dsp.window.move({ direction = "left" }), { repeating = false })
+
+bind(key("SHIFT + mouse_down"), hl.dsp.focus({ direction = "right" }), { repeating = false })
+bind(key("SHIFT + mouse_up"), hl.dsp.focus({ direction = "left" }), { repeating = false })
+bind(key("CTRL + SHIFT + mouse_down"), hl.dsp.window.move({ direction = "right" }), { repeating = false })
+bind(key("CTRL + SHIFT + mouse_up"), hl.dsp.window.move({ direction = "left" }), { repeating = false })
+
 
 for i = 1, 9 do
-    local first = i == 1
-    bind(key(tostring(i)), hl.dsp.focus({ workspace = i }), first and "Arbeitsfläche 1–9" or nil)
-    bind(key("CTRL + " .. i), hl.dsp.window.move({ workspace = i }),
-        first and "Fenster auf Arbeitsfläche 1–9 (mitgehen)" or nil)
-    bind(key("SHIFT + " .. i), hl.dsp.window.move({ workspace = i, follow = false }),
-        first and "Fenster auf Arbeitsfläche 1–9 (hierbleiben)" or nil)
+    bind(key(tostring(i)), hl.dsp.focus({ workspace = i }))
+end
+for i = 1, 9 do
+    bind(key("CTRL + " .. i), hl.dsp.window.move({ workspace = i }))
 end
 
--- Layout (dwindle)
-bind(key("R"), cycle_split(1), "Teilung ⅓ → ½ → ⅔")
-bind(key("SHIFT + R"), cycle_split(-1), "Teilung ⅔ → ½ → ⅓")
-bind(key("CTRL + R"), hl.dsp.layout("splitratio 1 exact"), "Teilung zurück auf ½")
-bind(key("S"), hl.dsp.layout("togglesplit"), "Teilung drehen (nebeneinander ↔ übereinander)")
-bind(key("CTRL + S"), hl.dsp.layout("swapsplit"), "Seiten der Teilung tauschen")
-bind(key("E"), even_split, "Alle Fenster gleichmäßig aufteilen")
 
-bind(key("minus"), resize(-0.1, 0), "Fenster schmaler", { repeating = true })
-bind(key("equal"), resize(0.1, 0), "Fenster breiter", { repeating = true })
-bind(key("SHIFT + minus"), resize(0, -0.1), "Fenster niedriger", { repeating = true })
-bind(key("SHIFT + equal"), resize(0, 0.1), "Fenster höher", { repeating = true })
 
-bind(key("F"), hl.dsp.window.fullscreen({ mode = "maximized" }), "Maximieren (Leiste bleibt)")
+bind(key("bracketleft"), consume_or_expel("left"), title("Consume or Expel Window Left"))
+bind(key("bracketright"), consume_or_expel("right"), title("Consume or Expel Window Right"))
+
+bind(key("comma"), hl.dsp.window.move({ into_or_create_group = "right" }))
+bind(key("period"), hl.dsp.window.move({ out_of_group = "right" }))
+
+bind(key("R"), switch_preset(1), title("Switch Preset Column Widths"))
+bind(key("SHIFT + R"), switch_preset(-1))
+
+bind(key("CTRL + SHIFT + R"), switch_preset(1))
+bind(key("CTRL + R"), hl.dsp.layout("splitratio 1 exact"))
+
+bind(key("F"), hl.dsp.window.fullscreen({ mode = "maximized" }), title("Maximize Column"))
+bind(key("SHIFT + F"), hl.dsp.window.fullscreen({ mode = "fullscreen" }))
+
 bind(key("M"), hl.dsp.window.fullscreen({ mode = "maximized" }))
-bind(key("SHIFT + F"), hl.dsp.window.fullscreen({ mode = "fullscreen" }), "Vollbild")
 
-bind(key("V"), hl.dsp.window.float({ action = "toggle" }), "Schwebend ↔ gekachelt")
-bind(key("SHIFT + V"), toggle_float_focus, "Fokus: schwebend ↔ gekachelt")
-bind(key("C"), hl.dsp.window.center(), "Schwebendes Fenster zentrieren")
+-- expand-column-to-available-width: in dwindle füllt jedes Fenster seinen
+-- Platz schon aus – daher wie Maximieren
+bind(key("CTRL + F"), hl.dsp.window.fullscreen({ mode = "maximized" }))
 
--- Tabs (wie Niris Tab-Spalten): Fenster in einer Gruppe übereinander
-bind(key("W"), hl.dsp.group.toggle(), "Tabs an/aus")
-bind(key("bracketleft"), hl.dsp.group.prev(), "Vorheriger Tab")
-bind(key("bracketright"), hl.dsp.group.next(), "Nächster Tab")
-bind(key("comma"), hl.dsp.window.move({ into_or_create_group = "left" }), "Fenster in Tabs links einreihen")
-bind(key("period"), hl.dsp.window.move({ out_of_group = true }), "Fenster aus Tabs lösen")
+-- Alle Fenster auf dem Bildschirm gleichmäßig aufteilen
+bind(key("E"), split_evenly, title("Split Windows Evenly"))
 
--- Maus: Super + ziehen verschiebt, Super + Rechtsklick ändert die Größe
-bind(key("mouse:272"), hl.dsp.window.drag(), "Fenster verschieben", { mouse = true })
-bind(key("mouse:273"), hl.dsp.window.resize(), "Fenstergröße ändern", { mouse = true })
+-- center-column / center-visible-columns: zentriert schwebende Fenster
+bind(key("C"), hl.dsp.window.center())
 
--- Screenshots
--- Wie Spectacle: Bereich wählen → zeichnen → Enter kopiert und speichert
-bind(key("SHIFT + S"), hl.dsp.exec_cmd("screenshot-edit"), "Screenshot mit Zeichnen (Satty)")
--- Ohne Zeichnen: Bereich → Clipboard + ~/Screenshots
-bind("Print", hl.dsp.exec_cmd("screenshot"), "Screenshot eines Bereichs")
+bind(key("CTRL + C"), hl.dsp.window.center())
+
+bind(key("minus"), resize(-0.1, 0))
+bind(key("equal"), resize(0.1, 0))
+
+bind(key("SHIFT + minus"), resize(0, -0.1))
+bind(key("SHIFT + equal"), resize(0, 0.1))
+
+bind(key("V"), hl.dsp.window.float({ action = "toggle" }), title("Move Window Between Floating and Tiling"))
+bind(key("SHIFT + V"), switch_focus_floating_tiling, title("Switch Focus Between Floating and Tiling"))
+
+-- toggle-column-tabbed-display → Fenstergruppe mit Tabs
+bind(key("W"), hl.dsp.group.toggle())
+
+
+-- Wie Spectacle unter KDE: Bereich wählen → zeichnen → Enter kopiert
+bind(key("SHIFT + S"), hl.dsp.exec_cmd("screenshot-edit"))
+-- Ohne Zeichnen: Bereich → Clipboard + Datei (Niri: eingebauter Screenshot)
+bind("Print", hl.dsp.exec_cmd("screenshot"), title("Take a Screenshot"))
+
+-- Bildschirmteilen (set-dynamic-cast-window/-monitor, clear-dynamic-cast-target,
+-- Mod+Ctrl+Shift+F/M/C): gibt es in Hyprland nicht – beim Teilen fragt
+-- Hyprland, welches Fenster bzw. welcher Monitor gesendet wird.
+
+-- Wie in Niri eingebaut: Mod + ziehen verschiebt, Mod + Rechtsklick ändert die Größe
+hl.bind(key("mouse:272"), hl.dsp.window.drag(), { mouse = true })
+hl.bind(key("mouse:273"), hl.dsp.window.resize(), { mouse = true })
+
+-- Touchpad: drei Finger hoch/runter wechseln die Arbeitsfläche (wie in Niri)
+hl.gesture({ fingers = 3, direction = "vertical", action = "workspace" })
+hl.config({ gestures = { workspace_swipe_create_new = true } })
+
+
+-- ── Übersicht (toggle-overview) ─────────────────────────────
+-- Niri hat eine eingebaute Übersicht, Hyprland braucht das Plugin
+-- hyprtasking (hyprland.nix). Rechtsklick wechselt die Arbeitsfläche.
+hl.plugin.load("/etc/hyprland/plugins/libhyprtasking.so")
+
+-- Die Optionen gibt es erst, nachdem Hyprland das Plugin geladen und die
+-- Config neu eingelesen hat
+if hl.plugin.hyprtasking then
+    hl.config({
+        plugin = {
+            hyprtasking = {
+                layout = "grid",
+                gap_size = 16,
+                border_size = 2,
+                bg_color = 0xff000000 + tonumber(c.surface:sub(2, 7), 16),
+                gestures = { enabled = false },
+                grid = { rows = 3, cols = 3, gaps_use_aspect_ratio = true },
+            },
+        },
+    })
+end
+
+
+-- ── debug ───────────────────────────────────────────────────
+
+-- RTX 4060 (render-drm-device): AQ_DRM_DEVICES in nvidia.nix
+
+hl.config({
+    cursor = {
+        -- skip-cursor-only-updates-during-vrr: mit VRR nicht nur für
+        -- Mausbewegungen neu zeichnen – sonst schieben sich Extra-Bilder
+        -- zwischen die des Spiels und die Bildabstände schwanken
+        no_break_fs_vrr = 1,
+    },
+    render = {
+        -- Spiele im Vollbild direkt an den Monitor (Direct Scanout) wie Niri
+        direct_scanout = 2,
+    },
+    misc = {
+        -- keine Hyprland-Logos/Standardbilder, Hintergrund macht awww
+        disable_hyprland_logo = true,
+        disable_splash_rendering = true,
+        force_default_wallpaper = 0,
+        -- abgeschaltete Bildschirme (hypridle) wachen bei Maus/Taste auf,
+        -- wie unter Niri
+        mouse_move_enables_dpms = true,
+        key_press_enables_dpms = true,
+    },
+    ecosystem = {
+        no_update_news = true,
+        no_donation_nag = true,
+    },
+})

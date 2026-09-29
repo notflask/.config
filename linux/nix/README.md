@@ -135,31 +135,40 @@ tuigreet merkt sich die letzte Sitzung. Ohne gemerkte Auswahl startet Niri.
 | Super+D / Super+Leertaste | Rofi (Apps starten) |
 | Super+O | Übersicht (Hyprland: Plugin *hyprtasking*, Rechtsklick wählt die Arbeitsfläche) |
 | Super+Q | Fenster schließen |
-| Super+Pfeile / H J K L | Fokus |
-| Super+Strg+Pfeile / H J K L | Fenster verschieben |
+| Super+Pfeile / H J K L | Fokus (hoch/runter am Rand: nächste Arbeitsfläche) |
+| Super+Strg+Pfeile / H J K L | Fenster verschieben (hoch/runter am Rand: auf die nächste Arbeitsfläche) |
+| Super+Home / End (+Strg) | Fokus auf erste/letzte Spalte (Fenster dorthin) |
 | Super+Shift+Pfeile / H J K | Fokus auf anderen Monitor (Super+Shift+Strg: Fenster mitnehmen) |
 | Super+1…9, Super+Strg+1…9 | Arbeitsfläche wechseln / Fenster dorthin |
-| Super+U / I, Bild↓ / Bild↑, Super+Mausrad | nächste / vorige Arbeitsfläche |
+| Super+U / I, Bild↓ / Bild↑, Super+Mausrad | nächste / vorige Arbeitsfläche (+Strg: Fenster mitnehmen, +Shift: Arbeitsfläche verschieben) |
+| Super+[ / ], Super+, / . | Fenster in Spalte bzw. Tabs aufnehmen / herauslösen |
+| Super+R, Super+Shift+R, Super+Strg+Shift+R | Breiten ⅓ → ½ → ⅔ durchschalten (Super+Strg+R: zurück) |
 | Super+E | alle Fenster gleichmäßig aufteilen |
-| Super+F / Super+Shift+F | maximieren / Vollbild |
-| Super+V | schwebend ↔ gekachelt |
-| Super+W | Tabs (Niri: Tab-Spalte, Hyprland: Fenstergruppe) |
-| Super+Minus / Gleich | schmaler / breiter |
+| Super+F / Super+M / Super+Strg+F / Super+Shift+F | maximieren / Vollbild |
+| Super+C, Super+Strg+C | zentrieren |
+| Super+Minus / Gleich (+Shift) | schmaler / breiter (niedriger / höher) |
+| Super+V / Super+Shift+V | schwebend ↔ gekachelt / Fokus dazwischen wechseln |
+| Super+W | Tabs |
 | Super+Shift+S | Screenshot mit Zeichnen (Satty, siehe *Screenshots*) |
 | Druck | Screenshot eines Bereichs → Clipboard + `~/Screenshots` |
 | Super+Shift+L | Sperren (Hyprlock) |
-| Super+Shift+/ | alle Tastenkürzel |
+| Super+Shift+/ | wichtige Tastenkürzel |
 
-**Nur unter Hyprland (Layout):** Super+R / Super+Shift+R stellt die Teilung auf
-⅓ → ½ → ⅔, Super+Strg+R zurück auf ½, Super+S dreht die Teilung
-(nebeneinander ↔ übereinander), Super+Strg+S tauscht die Seiten.
-In Tabs: Super+[ / ] blättern, Super+, reiht das Fenster ein, Super+. löst es.
-Super+Shift+1…9 schiebt ein Fenster weg, ohne mitzugehen.
+`hypr/hyprland.lua` ist eine 1:1-Übersetzung von `niri/config.kdl`: gleiche
+Reihenfolge, gleiche Tasten, gleiche Regeln. Weil Hyprland keine Spalten hat
+(dwindle), wirken Spalten-Aktionen dort auf das Fenster bzw. die Teilung:
+Breiten-Presets stellen die Teilung auf ⅓/½/⅔, Tab-Spalten sind
+Fenstergruppen mit Tabs, „erste/letzte Spalte“ ist das Fenster ganz links/rechts.
+Nur die Tasten fürs Bildschirmteilen (Super+Strg+Shift+F/M/C) gibt es in
+Hyprland nicht – dort fragt Hyprland beim Teilen, was gesendet wird.
+Rundung: Hyprland erlaubt höchstens 20 statt 24 px.
 
 ### Gemeinsam in beiden
 
 - Waybar, Rofi, mako (Benachrichtigungen), wlogout (Power-Knopf), Satty,
   Zwischenablage mit Verlauf (cliphist), EasyEffects.
+- Animationen: Niris Standard (Federn für Fenster und Arbeitsflächen,
+  Öffnen/Schließen in 150 ms), Leisten und Menüs ohne Animation.
 - Hintergrundbild über **Waypaper** aus `~/Wallpapers`. Matugen färbt daraus
   alles passend ein, siehe *Theme*.
 - Passwortabfragen über den KDE-Polkit-Agenten, gespeicherte Logins in
@@ -175,8 +184,8 @@ Super+Shift+1…9 schiebt ein Fenster weg, ohne mitzugehen.
 
 Nach 5 Minuten ohne Eingabe wird der interne Bildschirm dunkler, nach
 10 Minuten wird gesperrt, nach 11 Minuten gehen die Bildschirme aus. Das
-passiert nicht, solange ein Video läuft, gespielt wird oder (unter Hyprland)
-ein Fenster im Vollbild ist. Vor dem Standby wird immer gesperrt.
+passiert nicht, solange ein Video läuft oder gespielt wird. Vor dem Standby
+wird immer gesperrt.
 Zeiten ändern: `linux/.config/hypr/hypridle.conf`, danach
 `systemctl --user restart hypridle`.
 
