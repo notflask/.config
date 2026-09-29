@@ -38,3 +38,9 @@ output_path = "~/.config/kdeglobals"
 [templates.mangohud]
 input_path  = "~/.config/matugen/templates/MangoHud.conf"
 output_path = "~/.config/MangoHud/MangoHud.conf"
+
+# Firefox (Pywalfox-Erweiterung liest das pywal-Format, theme.sh ruft
+# danach `pywalfox update`)
+[templates.pywalfox]
+input_path  = "~/.config/matugen/templates/pywalfox-colors.json"
+output_path = "~/.cache/wal/colors.json"
