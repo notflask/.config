@@ -25,6 +25,7 @@ let
     "matugen"
     "waypaper"
     "hypr" # Hyprland, hyprlock, hypridle
+    "hyprshell" # Alt+Tab unter Hyprland
     "MangoHud" # FPS-Overlay (gaming-mode), Farben von matugen
   ];
 in

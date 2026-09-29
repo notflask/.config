@@ -155,6 +155,10 @@ hl.on("hyprland.start", function()
     -- Zwischenablage behalten, wenn die App schließt, aus der kopiert wurde
     -- (unter Wayland gehört der Inhalt sonst der App)
     hl.exec_cmd("wl-clip-persist --clipboard regular")
+    -- Nur Hyprland: Alt+Tab mit Fenster-Vorschau (Niri hat das eingebaut).
+    -- hyprshell legt Alt+Tab selbst an, Config: ~/.config/hyprshell;
+    -- HYPRSHELL_EXPERIMENTAL=1 schaltet die Vorschau statt App-Icons ein
+    hl.exec_cmd("env HYPRSHELL_EXPERIMENTAL=1 hyprshell run -c ~/.config/hyprshell/config.toml")
 end)
 
 
@@ -316,6 +320,9 @@ hl.layer_rule({ name = "logout_dialog", match = { namespace = "logout_dialog" },
 -- slurp (Bereich für screenshot/screenshot-edit) sofort weg, sonst fotografiert
 -- grim den ausblendenden Rahmen und Schleier mit
 hl.layer_rule({ name = "slurp", match = { namespace = "selection" }, no_anim = true })
+
+-- hyprshell (Alt+Tab): Glas wie Rofi, Radius = .monitor in hyprshell/styles.css
+hl.layer_rule({ name = "hyprshell_switch", match = { namespace = "hyprshell_switch" }, blur = true, ignore_alpha = 0.1 })
 
 -- Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
 -- und geht wie Spotlight leicht wachsend auf
