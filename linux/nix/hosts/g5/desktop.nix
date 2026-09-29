@@ -228,7 +228,6 @@ in
       # Programme, die die Niri- und Hyprland-Config starten
       waybar
       rofi # Spotlight-Starter (Super+Space)
-      fuzzel
       awww # Hintergrund mit Übergängen (Backend für Waypaper)
       waypaper
       matugen

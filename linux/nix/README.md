@@ -84,7 +84,7 @@ verlinkt (`dotfiles.nix`):
 | `nvim` | `linux/.config/nvim` |
 | `tmux` | `linux/.config/tmux` |
 | `ghostty` | `linux/.config/ghostty` |
-| `niri`, `hypr`, `waybar`, `rofi`, `fuzzel`, `mako`, `wlogout`, `matugen`, `waypaper` | für Niri und Hyprland |
+| `niri`, `hypr`, `waybar`, `rofi`, `mako`, `wlogout`, `matugen`, `waypaper` | für Niri und Hyprland |
 
 Du bearbeitest die Dateien also direkt im Repo – Änderungen wirken sofort, `sync.sh`
 erkennt die Links und überspringt sie. Weitere Configs verlinken: Namen in
@@ -97,7 +97,6 @@ sind installiert, `nix-ld` sorgt dafür, dass die von Mason geladenen Programme
 (clangd usw.) laufen. Für vimtex fehlt nur noch eine TeX-Distribution – bei Bedarf
 `texliveMedium` in `dotfiles.nix` ergänzen (einige GB groß).
 
-Nicht verlinkt: `wofi` (nicht genutzt) und bewusst `environment.d` (siehe Warnung unten).
 
 ## Schriften (`fonts.nix`)
 
@@ -415,7 +414,7 @@ setzen, `rebuild`, nochmal testen. Status prüfen: `systemctl status scx`.
 ## Theme: Farben aus dem Hintergrundbild
 
 **Matugen** erzeugt aus dem Wallpaper ein Farbschema und färbt damit alles:
-Fensterrahmen (Niri und Hyprland), Waybar, Rofi, Fuzzel, mako **und die Apps**:
+Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako **und die Apps**:
 
 | Bereich | Wie |
 |---|---|
@@ -462,11 +461,6 @@ selbst.
 | Sober | Roblox (Flatpak) |
 | Claude Code, Antigravity CLI | `claude`, `agy` im Terminal |
 | Claude Desktop | Linux-Beta, aus dem offiziellen `.deb` |
-
-> ⚠️ `linux/.config/environment.d/environment.conf` **nicht** nach
-> `~/.config/environment.d/` kopieren: Die Datei setzt Pfade einer normalen Distro
-> (`/usr/share/...`, `XDG_DATA_DIRS`), die es unter NixOS nicht gibt, und überschreibt
-> damit die NixOS-Pfade. Alles Nötige für NVIDIA setzt `nvidia.nix`.
 
 ## Tastatur
 

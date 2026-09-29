@@ -106,28 +106,12 @@ sync_niri() {
     "niri config"
 }
 
-sync_environment() {
-  echo "── Environment ────────────────────────────────────"
-  sync_file \
-    "$HOME/.config/environment.d/" \
-    "$DOTFILES/linux/.config/environment.d" \
-    "system env variables"
-}
-
 sync_ghostty() {
   echo "── Ghostty ────────────────────────────────────"
   sync_file \
     "$HOME/.config/ghostty" \
     "$DOTFILES/linux/.config/ghostty" \
     "ghostty config"
-}
-
-sync_fuzzel() {
-  echo "── Fuzzel ────────────────────────────────────"
-  sync_file \
-    "$HOME/.config/fuzzel" \
-    "$DOTFILES/linux/.config/fuzzel" \
-    "fuzzel config"
 }
 
 sync_rofi() {
@@ -160,14 +144,6 @@ sync_waypaper() {
     "$HOME/.config/waypaper" \
     "$DOTFILES/linux/.config/waypaper" \
     "waypaper config"
-}
-
-sync_wofi() {
-  echo "── Wofi ────────────────────────────────────────"
-  sync_file \
-    "$HOME/.config/wofi" \
-    "$DOTFILES/linux/.config/wofi" \
-    "wofi config"
 }
 
 sync_sioyek() {
@@ -235,13 +211,10 @@ hypr) sync_hypr ;;
 matugen) sync_matugen ;;
 waybar) sync_waybar ;;
 waypaper) sync_waypaper ;;
-wofi) sync_wofi ;;
 tmux) sync_tmux ;;
 niri) sync_niri ;;
-fuzzel) sync_fuzzel ;;
 rofi) sync_rofi ;;
 ghostty) sync_ghostty ;;
-env) sync_environment ;;
 aerospace) sync_aerospace ;;
 all)
   sync_nvim
@@ -249,22 +222,19 @@ all)
   sync_matugen
   sync_waybar
   sync_waypaper
-  sync_wofi
   sync_glazewm
   sync_vscode
   sync_sioyek
   sync_tmux
   sync_niri
-  sync_fuzzel
   sync_rofi
   sync_ghostty
-  sync_environment
   sync_aerospace
   git_push
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | wofi | glazewm | vscode | sioyek | tmux | niri | fuzzel | rofi | ghostty | env | aerospace"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | glazewm | vscode | sioyek | tmux | niri | rofi | ghostty | aerospace"
   exit 1
   ;;
 esac

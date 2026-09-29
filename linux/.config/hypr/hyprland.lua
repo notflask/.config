@@ -87,7 +87,7 @@ hl.config({
             color = "#00000064",
         },
 
-        -- Blur nur für Ghostty, Waybar, mako, wlogout, Rofi, Fuzzel –
+        -- Blur nur für Ghostty, Waybar, mako, wlogout, Rofi –
         -- siehe window-rule/layer-rule unten (xray false)
         blur = {
             enabled = true,
@@ -297,8 +297,6 @@ hl.layer_rule({ name = "logout_dialog", match = { namespace = "logout_dialog" },
 
 -- Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
 hl.layer_rule({ name = "rofi", match = { namespace = "rofi" }, blur = true, ignore_alpha = 0.1 })
-
-hl.layer_rule({ name = "launcher", match = { namespace = "launcher" }, blur = true, ignore_alpha = 0.1 })
 
 
 -- ── binds ───────────────────────────────────────────────────

@@ -256,22 +256,6 @@ layer-rule {
     }
 }
 
-layer-rule {
-    match namespace="launcher"
-    background-effect {
-        blur true
-        xray false
-    }
-    geometry-corner-radius 26
-    shadow {
-        on
-        softness 40
-        spread 2
-        offset x=0 y=12
-        color "#00000080"
-    }
-}
-
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 

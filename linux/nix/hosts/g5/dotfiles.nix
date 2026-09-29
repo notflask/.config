@@ -19,7 +19,6 @@ let
     "fastfetch"
     "niri"
     "waybar"
-    "fuzzel"
     "rofi"
     "mako"
     "wlogout"
