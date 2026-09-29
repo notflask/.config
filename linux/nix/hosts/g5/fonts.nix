@@ -21,7 +21,7 @@ in
 
   fonts.packages = with pkgs; [
     # ── Aus deinen Dotfiles ──────────────────────────────────
-    inter # waybar, wofi
+    inter # waybar, mako, rofi
     jetbrains-mono # ghostty ("JetBrains Mono")
     nerd-fonts.jetbrains-mono # mit Icons ("JetBrainsMono Nerd Font")
     nerd-fonts.symbols-only # Icons als Fallback für jede Schrift (LazyVim usw.)

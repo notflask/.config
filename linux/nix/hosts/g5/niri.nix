@@ -1,34 +1,8 @@
-# Niri als zweite Sitzung neben KDE – im Login (tuigreet) mit F3 wählbar.
-# Die Niri-Config selbst liegt im Repo: linux/.config/niri/config.kdl
+# Niri-Sitzung (Standard im Login). Die Config liegt im Repo:
+# linux/.config/niri/config.kdl. Gemeinsames mit Hyprland: desktop.nix
 { lib, pkgs, ... }:
 
 let
-  # Screenshot mit Zeichnen (wie Shottr/Spectacle): Bereich aufziehen →
-  # Satty (Pfeil, Rechteck, Text, Marker, Verpixeln …) → Enter (oder der
-  # Kopieren-Knopf) kopiert ins Clipboard, speichert nach ~/Screenshots
-  # und schließt.
-  screenshot-edit = pkgs.writeShellApplication {
-    name = "screenshot-edit";
-    runtimeInputs = with pkgs; [
-      grim
-      slurp
-      satty
-      wl-clipboard
-    ];
-    text = ''
-      mkdir -p "$HOME/Screenshots"
-      geom=$(slurp -d -b '#1e1e2e66' -c '#cba6f7' -w 2) || exit 0
-      grim -g "$geom" -t ppm - | satty --filename - \
-        --output-filename "$HOME/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png" \
-        --copy-command wl-copy \
-        --early-exit copy save \
-        --actions-on-enter save-to-clipboard,save-to-file \
-        --save-after-copy \
-        --actions-on-escape exit \
-        --initial-tool arrow
-    '';
-  };
-
   # Alle Spalten des aktuellen Workspaces gleich breit (2 → je 50 %,
   # 3 → je 33,3 % …) und übereinander gestapelte Fenster gleich hoch.
   niri-even-split = pkgs.writeShellApplication {
@@ -70,92 +44,15 @@ in
     useNautilus = false; # KDE-Dateidialog statt Nautilus
   };
 
-  # KDE bleibt Standard (das Niri-Modul würde Niri vorgeben)
-  services.displayManager.defaultSession = "plasma";
-
-  # Wie unter KDE: KWallet statt GNOME-Keyring, KDE-Dateidialog
-  # → Passwörter und gespeicherte Logins sind in beiden Sitzungen dieselben.
+  # KWallet statt GNOME-Keyring, KDE-Dateidialog (wie unter Hyprland)
   services.gnome.gnome-keyring.enable = lib.mkForce false;
   xdg.portal.config.niri = {
     "org.freedesktop.impl.portal.FileChooser" = lib.mkForce "kde";
     "org.freedesktop.impl.portal.Secret" = lib.mkForce "kwallet";
   };
 
-  # Qt-Apps nutzen auch unter Niri das KDE-Farbschema (Catppuccin)
-  environment.sessionVariables.QT_QPA_PLATFORMTHEME = "kde";
-
-  # Sperrbildschirm (Super+Alt+L) inkl. PAM
-  programs.hyprlock.enable = true;
-
-  # Programme, die deine Niri-/Waybar-Config startet
-  environment.systemPackages = with pkgs; [
-    xwayland-satellite # X11-Apps (Steam, Spiele) – startet Niri automatisch
-    waybar
-    fuzzel # Starter unter Hyprland
-    rofi # Spotlight-Starter (Super+Space)
-    awww # Hintergrund mit Übergängen (Backend für Waypaper)
-    waypaper
-    matugen
-    cliphist
-    wl-clip-persist # Zwischenablage überlebt das Schließen der Quell-App
-    playerctl
-    imagemagick # abgerundete Cover im Waybar-Medienwidget
-    brightnessctl
-    pavucontrol
-    wlogout
-    mako # makoctl (Theme neu laden)
-    libnotify # notify-send
-    screenshot-edit # Super+Shift+S
+  environment.systemPackages = [
+    pkgs.xwayland-satellite # X11-Apps (Steam, Spiele) – startet Niri automatisch
     niri-even-split # Super+E
   ];
-
-  # Nur in der Niri-Sitzung: Polkit-Agent (Passwortabfragen) und
-  # Benachrichtigungen – unter KDE übernimmt das Plasma selbst.
-  systemd.user.services = {
-    niri-polkit-agent = {
-      description = "KDE-Polkit-Agent für Niri";
-      wantedBy = [ "niri.service" ];
-      partOf = [ "niri.service" ];
-      after = [ "niri.service" ];
-      serviceConfig = {
-        ExecStart = "${pkgs.kdePackages.polkit-kde-agent-1}/libexec/polkit-kde-authentication-agent-1";
-        Restart = "on-failure";
-      };
-    };
-    niri-notifications = {
-      description = "Benachrichtigungen (mako) für Niri";
-      wantedBy = [ "niri.service" ];
-      partOf = [ "niri.service" ];
-      after = [ "niri.service" ];
-      serviceConfig = {
-        ExecStart = "${pkgs.mako}/bin/mako";
-        Restart = "on-failure";
-      };
-    };
-  };
-
-  # NVIDIA: Niri sonst mit unnötig hohem VRAM-Verbrauch (Empfehlung aus dem Niri-Wiki)
-  environment.etc."nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json".text =
-    builtins.toJSON {
-      rules = [
-        {
-          pattern = {
-            feature = "procname";
-            matches = "niri";
-          };
-          profile = "Limit Free Buffer Pool On Wayland Compositors";
-        }
-      ];
-      profiles = [
-        {
-          name = "Limit Free Buffer Pool On Wayland Compositors";
-          settings = [
-            {
-              key = "GLVidHeapReuseRatio";
-              value = 0;
-            }
-          ];
-        }
-      ];
-    };
 }

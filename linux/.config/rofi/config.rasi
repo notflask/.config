@@ -1,4 +1,4 @@
-// Starter für die Niri-Sitzung (Super+Space / Super+D)
+// Starter für Niri und Hyprland (Super+Space / Super+D)
 // Aussehen: spotlight.rasi, Farben: colors.rasi (matugen)
 configuration {
     modes: "drun";
@@ -6,7 +6,7 @@ configuration {
     // kein Icon-Theme: jede App mit ihrem eigenen Icon (hicolor)
     icon-theme: "hicolor";
     terminal: "ghostty";
-    // wie vorher bei fuzzel: auch nach Kategorie/Stichwort finden
+    // auch nach Kategorie/Stichwort finden
     drun-match-fields: "name,generic,keywords,categories";
     matching: "fuzzy";
     sort: true;

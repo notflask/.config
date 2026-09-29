@@ -23,7 +23,26 @@
   # ── Split-Lock-Bremse aus (wie SteamOS) ────────────────────
   # Der Kernel bremst sonst Programme mit Split-Locks absichtlich aus –
   # einige Windows-Spiele ruckeln dadurch stark.
-  boot.kernel.sysctl."kernel.split_lock_mitigate" = 0;
+  boot.kernel.sysctl = {
+    "kernel.split_lock_mitigate" = 0;
+
+    # ── Speicher: keine Hänger unter Last ──
+    # zram (configuration.nix) ist komprimierter RAM, kein langsamer
+    # Datenträger: lieber früh dorthin auslagern als den Cache von Spiel
+    # und Browser zu verwerfen (Werte aus dem ArchWiki für zram)
+    "vm.swappiness" = 180;
+    "vm.page-cluster" = 0;
+    "vm.watermark_boost_factor" = 0;
+    "vm.watermark_scale_factor" = 125;
+    # Nicht im Hintergrund RAM umsortieren – das kostet unregelmäßig
+    # CPU-Zeit mitten im Spiel (wie SteamOS)
+    "vm.compaction_proactiveness" = 0;
+    # Geänderte Daten spätestens ab 256 MB wegschreiben statt ab 20 % des
+    # RAM (≈3 GB): Steam-Downloads und Shader-Caches erzeugen sonst große
+    # Schreibschübe, bei denen alles kurz hängt
+    "vm.dirty_bytes" = 268435456;
+    "vm.dirty_background_bytes" = 67108864;
+  };
 
   # ── Energieprofil „Leistung“ beim Start setzen ─────────────
   systemd.services.performance-power-profile = {

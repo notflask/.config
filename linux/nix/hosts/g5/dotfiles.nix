@@ -15,17 +15,16 @@ let
     "nvim"
     "tmux"
     "ghostty"
-    # Niri-Sitzung
+    # Niri- und Hyprland-Sitzung
     "fastfetch"
     "niri"
     "waybar"
-    "fuzzel"
     "rofi"
     "mako"
     "wlogout"
     "matugen"
     "waypaper"
-    "hypr" # hyprlock.conf (Sperrbildschirm)
+    "hypr" # Hyprland, hyprlock, hypridle
   ];
 in
 {
@@ -75,7 +74,6 @@ in
   # Kurzbefehle für die Skripte im Repo
   environment.shellAliases = {
     rebuild = "${repo}/linux/nix/scripts/rebuild.sh";
-    monitors = "${repo}/linux/nix/scripts/monitors.sh";
     gpu-info = "${repo}/linux/nix/scripts/gpu-info.sh";
     theme = "${repo}/linux/.config/matugen/theme.sh";
   };

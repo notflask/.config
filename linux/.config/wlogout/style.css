@@ -1,6 +1,7 @@
 /* wlogout – Liquid Glass: runde, halbdurchsichtige Buttons über
-   weichgezeichnetem Hintergrund (Blur macht niri, siehe layer-rule
-   "logout_dialog" in niri/config.kdl). Farben kommen von matugen. */
+   weichgezeichnetem Hintergrund (Blur macht der Compositor, Regel
+   "logout_dialog" in niri/config.kdl bzw. hypr/hyprland.lua).
+   Farben kommen von matugen. */
 @import url("file:///home/flask/.config/waybar/colors.css");
 
 * {

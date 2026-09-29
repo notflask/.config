@@ -12,6 +12,7 @@
     ./dotfiles.nix
     ./fonts.nix
     ./niri.nix
+    ./hyprland.nix
     ./vpn.nix
     ./network.nix
   ];
@@ -63,7 +64,13 @@
   # Die Firmware (EC) schützt weiterhin vor Überhitzung.
   services.power-profiles-daemon.enable = true;
   services.fwupd.enable = true;
-  zramSwap.enable = true;
+  zramSwap.enable = true; # Tuning in performance.nix
+
+  # Keine Schreibzugriffe beim bloßen Lesen von Dateien
+  fileSystems."/".options = [ "noatime" ];
+
+  # Hängende Dienste beim Herunterfahren nach 10 s beenden statt nach 90 s
+  systemd.settings.Manager.DefaultTimeoutStopSec = "10s";
 
   # ── Nix ────────────────────────────────────────────────────
   nixpkgs.config.allowUnfree = true; # NVIDIA-Treiber, Steam, Spotify
@@ -72,8 +79,9 @@
       "nix-command"
       "flakes"
     ];
-    auto-optimise-store = true;
   };
+  # Store wöchentlich entdoppeln statt bei jedem Build (rebuild ist schneller)
+  nix.optimise.automatic = true;
   nix.gc = {
     automatic = true;
     dates = "weekly";

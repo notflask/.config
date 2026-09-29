@@ -8,7 +8,7 @@
 #
 # Alle Modi laufen dauerhaft mit `playerctl --follow` und geben nur bei
 # Änderungen etwas aus. Welcher Player gemeint ist, entscheidet playerctld
-# (zuletzt aktiver Player, wird von niri gestartet).
+# (zuletzt aktiver Player, wird von Niri bzw. Hyprland gestartet).
 
 signal=9 # "signal" von image#cover
 dir=${XDG_RUNTIME_DIR:-/tmp}/waybar-media

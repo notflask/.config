@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
-#  und Niri, Waybar, Fuzzel, Rofi, Mako sofort daran anpassen.
+#  und Niri, Hyprland, Waybar, Rofi, Mako sowie GTK- und
+#  Qt-Apps daran anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD
@@ -69,10 +70,28 @@ matugen image "$image" \
   fail "matugen ist fehlgeschlagen ($image)."
 
 # Neu laden, was die Farben nicht selbst neu einliest
-# (Fuzzel, Rofi und Hyprlock lesen sie beim nächsten Start)
+# (Rofi und Hyprlock lesen sie beim nächsten Start)
 if [ -n "${NIRI_SOCKET:-}" ]; then
   niri msg action load-config-file >/dev/null 2>&1 || true
+fi
+if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+  hyprctl reload >/dev/null 2>&1 || true
 fi
 # Unter NixOS heißt der Prozess ".waybar-wrapped", daher beide Namen
 pkill -SIGUSR2 -x 'waybar|\.waybar-wrapped' || true
 makoctl reload >/dev/null 2>&1 || true
+
+# Qt-/KDE-Apps lesen ~/.config/kdeglobals sofort neu (Signal wie beim
+# Farbschema-Wechsel in Plasma: PaletteChanged)
+dbus-send --session --type=signal /KGlobalSettings \
+  org.kde.KGlobalSettings.notifyChange int32:0 int32:0 >/dev/null 2>&1 || true
+
+# GTK: Vorgaben aus theme.nix (adw-gtk3-dark, Papirus, Cursor) statt alter
+# Einträge, die KDE in die Benutzereinstellungen geschrieben hat
+for key in gtk-theme icon-theme cursor-theme cursor-size color-scheme font-name; do
+  dconf reset "/org/gnome/desktop/interface/$key" >/dev/null 2>&1 || true
+done
+
+# Für den einmaligen Lauf beim ersten Login (theme.nix)
+state="${XDG_STATE_HOME:-$HOME/.local/state}"
+mkdir -p "$state" && touch "$state/matugen-theme.done"
