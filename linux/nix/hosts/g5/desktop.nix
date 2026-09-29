@@ -72,6 +72,53 @@ let
     '';
   };
 
+  # Wegwerf-Terminal (Super+`): schwebt oben mittig über allem (Fensterregel
+  # com.flask.scratchpad in niri/config.kdl bzw. hypr/hyprland.lua). Nochmal
+  # drücken (oder Super+Q) schließt es und beendet alles, was darin lief –
+  # auch Hintergrundprozesse, denn es läuft als eigener systemd-Dienst und
+  # systemd räumt beim Beenden die ganze cgroup ab. Ist es offen, aber nicht
+  # fokussiert, holt die Taste es nur nach vorn.
+  scratch-term = pkgs.writeShellApplication {
+    name = "scratch-term";
+    runtimeInputs = with pkgs; [ jq ];
+    text = ''
+      app_id=com.flask.scratchpad
+      unit=scratchpad.service
+
+      if [ -n "''${NIRI_SOCKET:-}" ]; then
+        id=$(niri msg --json windows | jq --arg app "$app_id" \
+          'first(.[] | select(.app_id == $app)) | .id // empty')
+        focused=$(niri msg --json focused-window | jq '.id // empty')
+        focus() { niri msg action focus-window --id "$1"; }
+      elif [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+        id=$(hyprctl clients -j | jq -r --arg app "$app_id" \
+          'first(.[] | select(.class == $app)) | .address // empty')
+        focused=$(hyprctl activewindow -j | jq -r '.address // empty')
+        focus() { hyprctl dispatch "hl.dsp.focus({ window = \"address:$1\" })" >/dev/null; }
+      else
+        id=""
+        focused=""
+      fi
+
+      if [ -n "$id" ]; then
+        if [ "$id" = "$focused" ]; then
+          systemctl --user stop "$unit"
+        else
+          focus "$id"
+        fi
+        exit 0
+      fi
+
+      # Reste eines vorigen Laufs (z. B. hängender Prozess) wegräumen
+      systemctl --user stop "$unit" 2>/dev/null || true
+      systemd-run --user --unit="$unit" --collect --quiet \
+        ghostty --class="$app_id" \
+          --gtk-single-instance=false \
+          --confirm-close-surface=false \
+          --working-directory=home
+    '';
+  };
+
   # Login-Animation: Planet mit Schwarzem Loch (ly-community, frei nutzbar).
   # Die Textkonsole zeigt nur 16 Farben – gröber als im ly-README.
   blackhole = pkgs.fetchurl {
@@ -245,6 +292,7 @@ in
       libnotify # notify-send
       screenshot-edit # Super+Shift+S
       session-logout # wlogout → Abmelden
+      scratch-term # Super+`
       screen-power # hypridle
     ]);
 
