@@ -1,12 +1,12 @@
 language = de
 # Folgt hell/dunkel des Systems (theme.sh, Super+Shift+T);
-# "Vague Black" = Vague mit schwarzem Hintergrund (themes/)
-theme = light:Rose Pine Dawn,dark:Vague Black
+# Eigene Varianten in themes/ (mit Deckkraft je Modus): "Vague Black" =
+# Vague mit schwarzem Hintergrund, "Rose Pine Dawn Glass" = deckender
+theme = light:Rose Pine Dawn Glass,dark:Vague Black
 font-family = "JetBrains Mono"
 font-family = "Apple Color Emoji"
 font-size = 16
 gtk-titlebar = false
 window-padding-x = 8
 window-padding-y = 8
-background-opacity = 0.5
 background-blur = true
