@@ -1,6 +1,6 @@
 /* Erzeugt von matugen (templates/spicetify-colors.css) – hier nichts ändern.
-   Spotify (Spicetify, Theme „Comfy“): ersetzt dessen colors.css, hell oder
-   dunkel je nach Modus. Spotify liest die Datei über einen Symlink
+   Spotify (Spicetify, Default-Theme = Spotifys eigenes Layout): ersetzt
+   dessen colors.css, hell oder dunkel je nach Modus. Spotify liest die Datei über einen Symlink
    (apps.nix), die Extension matugen-colors.js lädt sie live nach.
    Aktive Akzente: primary_fixed ist immer hell – im Hellmodus daher primary. */
 :root {
@@ -65,13 +65,15 @@
 
 <* if {{ is_dark_mode }} *><* else *>
 /* ── Nur im Hellmodus ──
-   Spotify färbt Playlist-/Albumkopf und die Knopfleiste darunter mit der
-   Farbe des Covers und schreibt die Infozeile fest weiß (für dunkle
-   Hintergründe gedacht). Hier stattdessen die ruhige Fläche des Themes und
+   Spotify färbt Playlist-/Albumkopf, die Knopfleiste darunter, den Kopf
+   der Startseite und die obere Leiste beim Scrollen mit der Farbe des
+   Covers bzw. dunklen Verläufen und schreibt die Infozeile fest weiß (für
+   dunkle Hintergründe gedacht). Hier stattdessen die ruhige Fläche des Themes und
    normale Schriftfarben. Köpfe mit Bild (Künstlerseiten) bleiben, wie sie
    sind – dort steht weiße Schrift auf dem Foto. */
 .main-actionBarBackground-background,
 .playlist-playlist-actionBarBackground-background,
+.main-home-homeHeader,
 .main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-backgroundColor,
 .main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-overlay,
 .main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-gradient,
@@ -97,5 +99,9 @@
   .main-entityHeader-divider
 ) {
   color: var(--spice-subtext) !important;
+}
+/* obere Leiste: beim Scrollen die Fläche des Themes statt der Cover-Farbe */
+.main-topBar-background {
+  background-color: var(--spice-main) !important;
 }
 <* endif *>
