@@ -1,46 +1,64 @@
 /* Erzeugt von matugen (templates/spicetify-colors.css) – hier nichts ändern.
-   Spotify (Spicetify, Default-Theme): ersetzt dessen colors.css. Spotify
-   liest die Datei über einen Symlink (apps.nix), die Extension
-   matugen-colors.js lädt sie bei Änderungen live nach. */
+   Spotify (Spicetify, Theme „Comfy“): ersetzt dessen colors.css, hell oder
+   dunkel je nach Modus. Spotify liest die Datei über einen Symlink
+   (apps.nix), die Extension matugen-colors.js lädt sie live nach.
+   Aktive Akzente: primary_fixed ist immer hell – im Hellmodus daher primary. */
 :root {
   --spice-text: {{colors.on_surface.default.hex}};
   --spice-subtext: {{colors.on_surface_variant.default.hex}};
   --spice-main: {{colors.surface.default.hex}};
-  --spice-main-elevated: {{colors.surface_container_high.default.hex}};
+  --spice-main-elevated: {{colors.surface_container.default.hex}};
+  --spice-main-transition: {{colors.surface_container_low.default.hex}};
   --spice-highlight: {{colors.surface_container_high.default.hex}};
   --spice-highlight-elevated: {{colors.surface_container_highest.default.hex}};
-  --spice-sidebar: {{colors.surface_container_lowest.default.hex}};
-  --spice-player: {{colors.surface_container_lowest.default.hex}};
-  --spice-card: {{colors.surface_container.default.hex}};
+  --spice-sidebar: {{colors.surface_container_low.default.hex}};
+  --spice-player: {{colors.surface_container.default.hex}};
+  --spice-card: {{colors.surface_container_high.default.hex}};
   --spice-shadow: {{colors.shadow.default.hex}};
-  --spice-selected-row: {{colors.on_surface_variant.default.hex}};
+  --spice-selected-row: {{colors.on_surface.default.hex}};
   --spice-button: {{colors.primary.default.hex}};
-  /* laufender Titel, aktive Knöpfe: primary_fixed ist immer hell, im Hellmodus daher primary */
   --spice-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.hex}}<* else *>{{colors.primary.default.hex}}<* endif *>;
-  --spice-button-disabled: {{colors.outline.default.hex}};
+  --spice-button-disabled: {{colors.outline_variant.default.hex}};
   --spice-tab-active: {{colors.surface_container_highest.default.hex}};
-  --spice-notification: {{colors.surface_container_highest.default.hex}};
+  --spice-notification: {{colors.primary_container.default.hex}};
   --spice-notification-error: {{colors.error.default.hex}};
-  --spice-misc: {{colors.outline_variant.default.hex}};
+  --spice-misc: {{colors.outline.default.hex}};
+  --spice-play-button: {{colors.primary.default.hex}};
+  --spice-play-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.hex}}<* else *>{{colors.primary_container.default.hex}}<* endif *>;
+  --spice-progress-fg: {{colors.primary.default.hex}};
+  --spice-progress-bg: {{colors.surface_container_highest.default.hex}};
+  --spice-heart: {{colors.tertiary.default.hex}};
+  --spice-pagelink-active: {{colors.primary.default.hex}};
+  --spice-radio-btn-active: {{colors.primary.default.hex}};
   --spice-equalizer: {{colors.primary.default.hex}};
+  --spice-custom-subdued: {{colors.on_surface_variant.default.hex}};
 
   --spice-rgb-text: {{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}};
   --spice-rgb-subtext: {{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}};
   --spice-rgb-main: {{colors.surface.default.red}},{{colors.surface.default.green}},{{colors.surface.default.blue}};
-  --spice-rgb-main-elevated: {{colors.surface_container_high.default.red}},{{colors.surface_container_high.default.green}},{{colors.surface_container_high.default.blue}};
+  --spice-rgb-main-elevated: {{colors.surface_container.default.red}},{{colors.surface_container.default.green}},{{colors.surface_container.default.blue}};
+  --spice-rgb-main-transition: {{colors.surface_container_low.default.red}},{{colors.surface_container_low.default.green}},{{colors.surface_container_low.default.blue}};
   --spice-rgb-highlight: {{colors.surface_container_high.default.red}},{{colors.surface_container_high.default.green}},{{colors.surface_container_high.default.blue}};
   --spice-rgb-highlight-elevated: {{colors.surface_container_highest.default.red}},{{colors.surface_container_highest.default.green}},{{colors.surface_container_highest.default.blue}};
-  --spice-rgb-sidebar: {{colors.surface_container_lowest.default.red}},{{colors.surface_container_lowest.default.green}},{{colors.surface_container_lowest.default.blue}};
-  --spice-rgb-player: {{colors.surface_container_lowest.default.red}},{{colors.surface_container_lowest.default.green}},{{colors.surface_container_lowest.default.blue}};
-  --spice-rgb-card: {{colors.surface_container.default.red}},{{colors.surface_container.default.green}},{{colors.surface_container.default.blue}};
+  --spice-rgb-sidebar: {{colors.surface_container_low.default.red}},{{colors.surface_container_low.default.green}},{{colors.surface_container_low.default.blue}};
+  --spice-rgb-player: {{colors.surface_container.default.red}},{{colors.surface_container.default.green}},{{colors.surface_container.default.blue}};
+  --spice-rgb-card: {{colors.surface_container_high.default.red}},{{colors.surface_container_high.default.green}},{{colors.surface_container_high.default.blue}};
   --spice-rgb-shadow: {{colors.shadow.default.red}},{{colors.shadow.default.green}},{{colors.shadow.default.blue}};
-  --spice-rgb-selected-row: {{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}};
+  --spice-rgb-selected-row: {{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}};
   --spice-rgb-button: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
   --spice-rgb-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.red}},{{colors.primary_fixed.default.green}},{{colors.primary_fixed.default.blue}}<* else *>{{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}<* endif *>;
-  --spice-rgb-button-disabled: {{colors.outline.default.red}},{{colors.outline.default.green}},{{colors.outline.default.blue}};
+  --spice-rgb-button-disabled: {{colors.outline_variant.default.red}},{{colors.outline_variant.default.green}},{{colors.outline_variant.default.blue}};
   --spice-rgb-tab-active: {{colors.surface_container_highest.default.red}},{{colors.surface_container_highest.default.green}},{{colors.surface_container_highest.default.blue}};
-  --spice-rgb-notification: {{colors.surface_container_highest.default.red}},{{colors.surface_container_highest.default.green}},{{colors.surface_container_highest.default.blue}};
+  --spice-rgb-notification: {{colors.primary_container.default.red}},{{colors.primary_container.default.green}},{{colors.primary_container.default.blue}};
   --spice-rgb-notification-error: {{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}};
-  --spice-rgb-misc: {{colors.outline_variant.default.red}},{{colors.outline_variant.default.green}},{{colors.outline_variant.default.blue}};
+  --spice-rgb-misc: {{colors.outline.default.red}},{{colors.outline.default.green}},{{colors.outline.default.blue}};
+  --spice-rgb-play-button: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
+  --spice-rgb-play-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.red}},{{colors.primary_fixed.default.green}},{{colors.primary_fixed.default.blue}}<* else *>{{colors.primary_container.default.red}},{{colors.primary_container.default.green}},{{colors.primary_container.default.blue}}<* endif *>;
+  --spice-rgb-progress-fg: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
+  --spice-rgb-progress-bg: {{colors.surface_container_highest.default.red}},{{colors.surface_container_highest.default.green}},{{colors.surface_container_highest.default.blue}};
+  --spice-rgb-heart: {{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}};
+  --spice-rgb-pagelink-active: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
+  --spice-rgb-radio-btn-active: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
   --spice-rgb-equalizer: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
+  --spice-rgb-custom-subdued: {{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}};
 }

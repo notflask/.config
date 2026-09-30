@@ -179,8 +179,9 @@ in
   boot.kernelModules = [ "vhost_vsock" ];
 
   # ── Spotify + Spicetify ────────────────────────────────────
-  # Ersetzt das normale Spotify-Paket. Spotifys eigener Aufbau (Default-
-  # Theme), Farben aus dem Hintergrundbild (matugen/templates/spicetify-colors.css).
+  # Ersetzt das normale Spotify-Paket. Theme „Comfy“ (für hell und dunkel
+  # gebaut, lädt sein CSS von comfy-themes.github.io), Farben aus dem
+  # Hintergrundbild (matugen/templates/spicetify-colors.css).
   programs.spicetify =
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -188,8 +189,8 @@ in
     in
     {
       enable = true;
-      theme = spicePkgs.themes.default;
-      colorScheme = "Ocean"; # nur für den Build, colors.css kommt von matugen
+      theme = spicePkgs.themes.comfy;
+      colorScheme = "Comfy"; # nur für den Build, colors.css kommt von matugen
       # Spicetify schreibt die Farben beim Build fest in colors.css; ein
       # Symlink auf die Datei von matugen macht sie änderbar. postFixup läuft
       # nach dem `spicetify apply` in postInstall.
