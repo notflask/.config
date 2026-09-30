@@ -227,6 +227,14 @@ in
         }
       ];
       enabledSnippets = [
+        # Comfys Banner (Cover unscharf hinter dem Inhalt) passt nicht zum
+        # aktuellen Spotify: es liegt nicht mehr dahinter, sondern schiebt
+        # die ganze Oberfläche um 40 % der Fensterhöhe nach unten
+        ''
+          .comfy-banner-frame {
+            display: none !important;
+          }
+        ''
         # Songtexte immer in den matugen-Farben statt einer Farbe pro Lied
         # (Spotify setzt die Variablen inline, daher !important)
         ''
