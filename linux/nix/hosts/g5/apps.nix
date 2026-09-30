@@ -179,9 +179,10 @@ in
   boot.kernelModules = [ "vhost_vsock" ];
 
   # ── Spotify + Spicetify ────────────────────────────────────
-  # Ersetzt das normale Spotify-Paket. Theme „Comfy“ (für hell und dunkel
-  # gebaut, lädt sein CSS von comfy-themes.github.io), Farben aus dem
-  # Hintergrundbild (matugen/templates/spicetify-colors.css).
+  # Ersetzt das normale Spotify-Paket. Spotifys eigenes Layout (Default-
+  # Theme – bleibt mit jedem Spotify-Update heil; Comfy war seit 12/2025
+  # nicht mehr aktuell und zerlegte die Oberfläche), Farben und die
+  # Korrekturen für den Hellmodus aus matugen/templates/spicetify-colors.css.
   programs.spicetify =
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -189,8 +190,8 @@ in
     in
     {
       enable = true;
-      theme = spicePkgs.themes.comfy;
-      colorScheme = "Comfy"; # nur für den Build, colors.css kommt von matugen
+      theme = spicePkgs.themes.default;
+      colorScheme = "Ocean"; # nur für den Build, colors.css kommt von matugen
       # Spicetify schreibt die Farben beim Build fest in colors.css; ein
       # Symlink auf die Datei von matugen macht sie änderbar. postFixup läuft
       # nach dem `spicetify apply` in postInstall.
@@ -227,14 +228,6 @@ in
         }
       ];
       enabledSnippets = [
-        # Comfys Banner (Cover unscharf hinter dem Inhalt) passt nicht zum
-        # aktuellen Spotify: es liegt nicht mehr dahinter, sondern schiebt
-        # die ganze Oberfläche um 40 % der Fensterhöhe nach unten
-        ''
-          .comfy-banner-frame {
-            display: none !important;
-          }
-        ''
         # Songtexte immer in den matugen-Farben statt einer Farbe pro Lied
         # (Spotify setzt die Variablen inline, daher !important)
         ''

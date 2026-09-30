@@ -460,7 +460,7 @@ den Cursor **und die Apps** – wahlweise **hell oder dunkel**:
 | Cursor | Bibata, eingefärbt in den Wallpaper-Farben (`theme-cursor` in `theme.nix`, liegt in `~/.local/share/icons/matugen-cursor`) |
 | Icons | Papirus-Light bzw. Papirus-Dark |
 | Discord (Vencord) | `matugen.theme.css` (Aufbau von *midnight*) → einmal unter *Einstellungen → Vencord → Themes* anhaken |
-| Spotify | Spicetify mit Theme *Comfy* (für hell und dunkel gebaut), Farben von matugen – live per Symlink + Extension (`apps.nix`) |
+| Spotify | Spicetify, Spotifys eigenes Layout, Farben von matugen und Korrekturen für den Hellmodus – live per Symlink + Extension (`apps.nix`) |
 | Firefox | Pywalfox (Farben + hell/dunkel), Webseiten folgen hell/dunkel |
 | Ghostty, Neovim | hell *Rose Pine Dawn*, dunkel *Vague* (schwarzer Hintergrund) – schalten mit um |
 | TTY, Login (ly), Ladebildschirm | Farben von Vague bzw. Plymouth *bgrt* (Herstellerlogo) – fest |
