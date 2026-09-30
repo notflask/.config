@@ -103,8 +103,12 @@ stdenv.mkDerivation {
     mkdir -p $out/lib/atas-x
     cp -r . $out/lib/atas-x/
 
+    # TZDIR: NixOS hat kein /usr/share/zoneinfo. Fehlt die Variable (z. B. in
+    # der Hyprland/UWSM-Sitzung, also beim Start über rofi), kennt .NET nur
+    # UTC → ATAS stürzt nach dem Login beim Laden der Börsenzeiten ab.
     makeWrapper "$out/lib/atas-x/ATAS X" $out/bin/atas-x \
       --set DOTNET_ROOT ${dotnet-runtime}/share/dotnet \
+      --set-default TZDIR /etc/zoneinfo \
       --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath runtimeLibs}
 
     python3 ${./extract-icon.py} OFT.Platform.Avalonia.dll $out/share/icons/hicolor

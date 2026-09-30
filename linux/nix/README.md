@@ -387,6 +387,8 @@ aber ein Linux-Build im Alpha-Kanal (`platformx_linux_alpha`, .NET 10 + Avalonia
 
 - Starten: *ATAS X* im Startmenü oder `atas-x`, dann mit dem ATAS-Konto anmelden.
 - Einstellungen, Workspaces, Datenbank und Logs liegen in `~/.config/ATAS/`.
+- Der Starter setzt `TZDIR`, falls die Sitzung es nicht tut (Hyprland/UWSM):
+  Ohne findet .NET unter NixOS keine Zeitzonen, und ATAS stürzt nach dem Login ab.
 - **Updates:** `rebuild update` holt den neuesten Linux-Build
   (`scripts/update-atas-x.sh` schreibt `pkgs/atas-x/source.json`). Der eingebaute
   Updater kann im schreibgeschützten Nix-Store nichts ändern.
