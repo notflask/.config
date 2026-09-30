@@ -2,7 +2,7 @@
 
 - Laptop: Intel i5-12500H (Iris Xe) + NVIDIA RTX 4060 Laptop, eDP-1 1080p@144 Hz
 - Externer Monitor: LG UltraGear 2K, 1440p@180 Hz (DP-2)
-- Desktop: **Niri** (Standard) und **Hyprland**, beide Wayland, ohne KDE Plasma. Login über ly (mit Schwarzem-Loch-Animation), Catppuccin-Ladebildschirm beim Start
+- Desktop: **Niri** (Standard) und **Hyprland**, beide Wayland, ohne KDE Plasma. Login über ly (mit Schwarzem-Loch-Animation), Ladebildschirm mit Herstellerlogo beim Start. Farben aus dem Hintergrundbild, hell oder dunkel
 - Kanal: `nixos-unstable` (Flake), Systemsprache Deutsch, Zeitzone Europe/Berlin
 
 ```
@@ -74,6 +74,11 @@ git push
 rebuild          # Config-Änderungen anwenden
 rebuild update   # System, Claude Desktop, ATAS X + Flatpaks aktualisieren
 ```
+
+`rebuild` holt vorher neue Commits von GitHub (nur Fast-Forward; die von
+`theme` erzeugten Farbdateien verwirft es dafür) und erzeugt danach das Theme
+neu, wenn sich die Templates geändert haben. Ohne Pull:
+`REBUILD_NO_PULL=1 rebuild`.
 
 ## Dotfiles
 
@@ -445,36 +450,43 @@ setzen, `rebuild`, nochmal testen. Status prüfen: `systemctl status scx`.
 ## Theme: Farben aus dem Hintergrundbild
 
 **Matugen** erzeugt aus dem Wallpaper ein Farbschema und färbt damit alles:
-Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako **und die Apps**:
+Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako, Sperrbildschirm,
+den Cursor **und die Apps** – wahlweise **hell oder dunkel**:
 
 | Bereich | Wie |
 |---|---|
-| GTK-Apps (Firefox u. a.) | Thema *adw-gtk3-dark* bzw. libadwaita, Farben in `~/.config/gtk-3.0/gtk.css` und `gtk-4.0/gtk.css` |
+| GTK-Apps (Firefox u. a.) | Thema *adw-gtk3* / *adw-gtk3-dark* bzw. libadwaita, Farben in `~/.config/gtk-3.0/gtk.css` und `gtk-4.0/gtk.css` |
 | Qt- und KDE-Apps (Dolphin, Okular …) | Breeze-Stil, Farben in `~/.config/kdeglobals` |
-| Cursor | *catppuccin-mocha-mauve-cursors* (fest) |
-| Icons | Papirus-Dark mit Catppuccin-Ordnerfarben (fest) |
-| TTY, Login (ly), Ladebildschirm | Catppuccin-Farbpalette bzw. Catppuccin-Mocha-Plymouth (fest) |
-| Discord (Vencord) | Catppuccin-Theme liegt bereit → *Einstellungen → Vencord → Themes* → `catppuccin-mocha-mauve.theme.css` anhaken |
+| Cursor | Bibata, eingefärbt in den Wallpaper-Farben (`theme-cursor` in `theme.nix`, liegt in `~/.local/share/icons/matugen-cursor`) |
+| Icons | Papirus-Light bzw. Papirus-Dark |
+| Discord (Vencord) | `matugen.theme.css` (Aufbau von *midnight*) → einmal unter *Einstellungen → Vencord → Themes* anhaken |
+| Spotify | Spicetify (Spotifys eigener Aufbau), Farben von matugen – live per Symlink + Extension (`apps.nix`) |
+| Firefox | Pywalfox (Farben + hell/dunkel), Webseiten folgen hell/dunkel |
+| Ghostty, Neovim | hell *Rose Pine Dawn*, dunkel *Vague* (schwarzer Hintergrund) – schalten mit um |
+| TTY, Login (ly), Ladebildschirm | Farben von Vague bzw. Plymouth *bgrt* (Herstellerlogo) – fest |
 
 **Wallpaper wechseln:** in Waypaper ein Bild wählen – danach läuft automatisch
-`theme` (`linux/.config/matugen/theme.sh`). Qt-Apps, Waybar, mako und die
-Rahmen passen sich sofort an. Laufende GTK-Apps übernehmen die neuen Farben
-nach einem Neustart.
+`theme` (`linux/.config/matugen/theme.sh`). Qt-Apps, Waybar, mako, die
+Rahmen und Hell/Dunkel passen sich sofort an, der Cursor ein paar Sekunden
+später. Laufende GTK-Apps übernehmen neue Farben nach einem Neustart.
+
+**Hell/dunkel:** **Super+Shift+T** schaltet um (Niri und Hyprland). Der Modus
+bleibt gespeichert (`~/.local/state/theme-mode`) und gilt auch für jedes
+neue Wallpaper.
 
 ```sh
 theme                 # Farben aus dem aktuellen Wallpaper neu erzeugen
+theme -m light        # hell (bleibt so), -m dark dunkel
+theme -T              # hell ↔ dunkel
 theme -t vibrant      # kräftigere Variante (auch: expressive, fidelity, …)
 theme -s BILD         # mögliche Quellfarben eines Bildes anzeigen
 ```
 
-Beim ersten Login nach der Umstellung erzeugt `theme` die App-Farben einmal
-selbst.
+Beim ersten Login nach einer Umstellung läuft `theme` einmal von selbst.
 
 **Apps mit eigenem Theme-System:**
 - **Telegram:** *Einstellungen → Chat-Einstellungen → Theme*.
-- **Spotify:** Spicetify mit Catppuccin-Theme, Farben von matugen (`apps.nix`, live per Symlink + Extension).
 - **Steam:** eigener Skin, bleibt dunkel wie gewohnt.
-- **Ghostty:** `theme = Vague` in `linux/.config/ghostty/config.ghostty`.
 
 ## Apps
 

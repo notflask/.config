@@ -1,6 +1,7 @@
 language = de
-theme = Vague
-background = #000000
+# Folgt hell/dunkel des Systems (theme.sh, Super+Shift+T);
+# "Vague Black" = Vague mit schwarzem Hintergrund (themes/)
+theme = light:Rose Pine Dawn,dark:Vague Black
 font-family = "JetBrains Mono"
 font-family = "Apple Color Emoji"
 font-size = 16

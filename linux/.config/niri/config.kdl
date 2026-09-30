@@ -77,8 +77,11 @@ layout {
 
 prefer-no-csd
 
+// Cursor in den Farben des Hintergrundbilds (theme-cursor aus theme.nix).
+// "matugen-cursor" zeigt immer auf die aktuelle Variante; cursor.kdl unten
+// setzt deren eigenen Namen, damit Niri sie nach einem Wechsel neu lädt.
 cursor {
-    xcursor-theme "catppuccin-mocha-mauve-cursors"
+    xcursor-theme "matugen-cursor"
     xcursor-size 24
 }
 
@@ -144,8 +147,8 @@ window-rule {
     match is-window-cast-target=true
     border {
         width 2
-        active-color "#f38ba8"
-        inactive-color "#f38ba8aa"
+        active-color "#e5484d"
+        inactive-color "#e5484daa"
     }
 }
 
@@ -279,6 +282,8 @@ binds {
     Mod+D hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
     Mod+Space hotkey-overlay-title=null { spawn "rofi" "-show" "drun"; }
     Mod+Shift+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
+    // Hell/dunkel umschalten (Farben weiter aus dem Hintergrundbild)
+    Mod+Shift+T hotkey-overlay-title="Toggle Light/Dark Theme" { spawn-sh "~/.config/matugen/theme.sh -T"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"; }
@@ -455,3 +460,5 @@ debug {
 // Farben aus dem Hintergrundbild (matugen, ~/.config/matugen/theme.sh).
 // Steht am Ende, damit sie die Farben oben überschreiben.
 include "~/.config/niri/colors.kdl"
+// Aktuelle Cursor-Variante (schreibt theme.sh, fehlt vor dem ersten Lauf)
+include optional=true "~/.config/niri/cursor.kdl"

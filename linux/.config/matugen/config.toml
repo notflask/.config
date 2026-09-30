@@ -13,6 +13,11 @@ output_path = "~/.config/niri/colors.kdl"
 input_path = "~/.config/matugen/templates/waybar-colors.css"
 output_path = "~/.config/waybar/colors.css"
 
+# Glasflächen hell/dunkel (Waybar, hyprshell, wlogout)
+[templates.waybar-glass]
+input_path = "~/.config/matugen/templates/waybar-glass.css"
+output_path = "~/.config/waybar/glass.css"
+
 [templates.mako]
 input_path  = "~/.config/matugen/templates/mako.ini"
 output_path = "~/.config/mako/config"
@@ -50,3 +55,18 @@ output_path = "~/.cache/wal/colors.json"
 [templates.spicetify]
 input_path  = "~/.config/matugen/templates/spicetify-colors.css"
 output_path = "~/.cache/matugen/spicetify-colors.css"
+
+# Hyprlock (hyprlock.conf bindet die Datei ein)
+[templates.hyprlock]
+input_path  = "~/.config/matugen/templates/hyprlock-colors.conf"
+output_path = "~/.config/hypr/hyprlock-colors.conf"
+
+# Discord (Vencord): einmal unter Einstellungen → Vencord → Themes anhaken
+[templates.vencord]
+input_path  = "~/.config/matugen/templates/vencord.theme.css"
+output_path = "~/.config/Vencord/themes/matugen.theme.css"
+
+# Cursor: Füllung und Rand für theme-cursor (theme.sh)
+[templates.cursor]
+input_path  = "~/.config/matugen/templates/cursor-colors"
+output_path = "~/.cache/matugen/cursor-colors"

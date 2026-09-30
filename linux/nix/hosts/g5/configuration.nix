@@ -22,12 +22,12 @@
   boot.loader.systemd-boot.configurationLimit = 5;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Start ohne Textflut: Catppuccin-Ladebildschirm (Plymouth) statt Kernel-
-  # und systemd-Meldungen. Fehler landen weiter im Journal (journalctl -b).
+  # Start ohne Textflut: Ladebildschirm (Plymouth, Thema "bgrt": Logo des
+  # Laptop-Herstellers aus der Firmware + Ladekreis) statt Kernel- und
+  # systemd-Meldungen. Fehler landen weiter im Journal (journalctl -b).
   boot.plymouth = {
     enable = true;
-    theme = "catppuccin-mocha";
-    themePackages = [ (pkgs.catppuccin-plymouth.override { variant = "mocha"; }) ];
+    theme = "bgrt";
   };
   boot.consoleLogLevel = 3;
   boot.initrd.verbose = false;

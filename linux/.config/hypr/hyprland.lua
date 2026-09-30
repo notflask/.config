@@ -15,7 +15,7 @@ local ok, colors = pcall(require, "colors")
 if not ok or type(colors) ~= "table" then
     colors = {}
 end
-local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#111318" } })
+local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#111318", rim = "#ffffff26" } })
 
 
 -- ── input ───────────────────────────────────────────────────
@@ -64,7 +64,7 @@ hl.config({
         border_size = 1,
         col = {
             active_border = c.primary .. "99",
-            inactive_border = "#ffffff26",
+            inactive_border = c.rim,
         },
 
         -- nur für die cs2-Regel unten (Niri kennt kein Tearing)
@@ -134,7 +134,7 @@ hl.config({
 
 -- ── cursor ──────────────────────────────────────────────────
 
-hl.env("XCURSOR_THEME", "catppuccin-mocha-mauve-cursors")
+hl.env("XCURSOR_THEME", "matugen-cursor")
 hl.env("XCURSOR_SIZE", "24")
 hl.config({
     cursor = {
@@ -599,6 +599,8 @@ bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal",
 bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
+-- Hell/dunkel umschalten (Farben weiter aus dem Hintergrundbild)
+bind(key("SHIFT + T"), hl.dsp.exec_cmd("~/.config/matugen/theme.sh -T"), title("Toggle Light/Dark Theme"))
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })

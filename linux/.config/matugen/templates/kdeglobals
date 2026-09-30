@@ -31,9 +31,9 @@ ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}}
 ForegroundInactive={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
 ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [Colors:Complementary]
@@ -45,9 +45,9 @@ ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}}
 ForegroundInactive={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
 ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [Colors:Header]
@@ -59,9 +59,9 @@ ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}}
 ForegroundInactive={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
 ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [Colors:Header][Inactive]
@@ -73,9 +73,9 @@ ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}}
 ForegroundInactive={{colors.outline.default.red}},{{colors.outline.default.green}},{{colors.outline.default.blue}}
 ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [Colors:Selection]
@@ -87,9 +87,9 @@ ForegroundActive={{colors.on_primary.default.red}},{{colors.on_primary.default.g
 ForegroundInactive={{colors.on_primary_container.default.red}},{{colors.on_primary_container.default.green}},{{colors.on_primary_container.default.blue}}
 ForegroundLink={{colors.on_primary.default.red}},{{colors.on_primary.default.green}},{{colors.on_primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_primary.default.red}},{{colors.on_primary.default.green}},{{colors.on_primary.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.on_primary_container.default.red}},{{colors.on_primary_container.default.green}},{{colors.on_primary_container.default.blue}}
 
 [Colors:Tooltip]
@@ -101,9 +101,9 @@ ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}}
 ForegroundInactive={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
 ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [Colors:View]
@@ -115,9 +115,9 @@ ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}}
 ForegroundInactive={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
 ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [Colors:Window]
@@ -129,9 +129,9 @@ ForegroundActive={{colors.primary.default.red}},{{colors.primary.default.green}}
 ForegroundInactive={{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}}
 ForegroundLink={{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}
 ForegroundNegative={{colors.error.default.red}},{{colors.error.default.green}},{{colors.error.default.blue}}
-ForegroundNeutral=240,198,116
+ForegroundNeutral=<* if {{ is_dark_mode }} *>240,198,116<* else *>154,103,0<* endif *>
 ForegroundNormal={{colors.on_surface.default.red}},{{colors.on_surface.default.green}},{{colors.on_surface.default.blue}}
-ForegroundPositive=143,209,158
+ForegroundPositive=<* if {{ is_dark_mode }} *>143,209,158<* else *>46,125,50<* endif *>
 ForegroundVisited={{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}}
 
 [General]
@@ -141,7 +141,7 @@ TerminalApplication=ghostty
 TerminalService=com.mitchellh.ghostty.desktop
 
 [Icons]
-Theme=Papirus-Dark
+Theme=<* if {{ is_dark_mode }} *>Papirus-Dark<* else *>Papirus-Light<* endif *>
 
 [KDE]
 widgetStyle=Breeze
