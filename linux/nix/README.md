@@ -392,6 +392,14 @@ aber ein Linux-Build im Alpha-Kanal (`platformx_linux_alpha`, .NET 10 + Avalonia
   Updater kann im schreibgeschützten Nix-Store nichts ändern.
 - Der Linux-Build hinkt der Windows-Beta hinterher und wird von ATAS nicht
   unterstützt. Läuft über XWayland (in Niri über xwayland-satellite).
+- **Grafik:** Oberfläche und Charts zeichnen per OpenGL (GLX). Der Starter
+  (`apps.nix`) legt beides fest auf die RTX 4060 (wie `nvidia-offload`), sonst
+  fällt Avalonia unbemerkt auf CPU-Rendering zurück. Prüfen: Läuft ATAS X, steht
+  „ATAS X“ in `nvidia-smi`.
+- **Bildrate:** Avalonia rendert unter X11 fest mit 60 fps. Das Paket setzt den
+  Wert beim Bauen auf 120 fps (`pkgs/atas-x/raise-frame-rate.py`, mehr lässt die
+  Stelle im Code nicht zu). Die Charts sind davon unabhängig und laufen mit VSync
+  im Takt des Monitors.
 
 ## Aufnahme & Replay: GPU Screen Recorder
 

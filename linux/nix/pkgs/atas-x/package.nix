@@ -87,10 +87,14 @@ stdenv.mkDerivation {
   ];
 
   # Kopie des ganzen Programms (publish/) und Bibliotheken für Windows,
-  # macOS und andere CPUs werden nicht gebraucht
+  # macOS und andere CPUs werden nicht gebraucht.
+  # Avalonia rendert unter X11 fest mit 60 fps (unter Windows im Takt des
+  # Monitors) → 120 fps für DOM, Tape und Panels auf 144/180-Hz-Monitoren.
+  # Die Charts zeichnen eigenständig per GLX und sind davon unabhängig.
   postPatch = ''
     rm -rf publish
     find runtimes -mindepth 1 -maxdepth 1 ! -name linux-x64 -exec rm -rf {} +
+    python3 ${./raise-frame-rate.py} Avalonia.X11.dll 120
   '';
 
   installPhase = ''
