@@ -21,10 +21,11 @@ if [ "${1:-}" = toggle ]; then
   exit
 fi
 
-# Farben wie in style.css – aus colors.css (matugen, hell oder dunkel)
+# Farben wie in style.css – aus colors.css/glass.css (matugen, hell oder dunkel)
 color() {
+  local dir="${XDG_CONFIG_HOME:-$HOME/.config}/waybar"
   sed -n "s/^@define-color $1 \(#[0-9a-fA-F]\{6\}\);/\1/p" \
-    "${XDG_CONFIG_HOME:-$HOME/.config}/waybar/colors.css" 2>/dev/null | head -n 1
+    "$dir/colors.css" "$dir/glass.css" 2>/dev/null | head -n 1
 }
 green=$(color ok) orange=$(color warn) red=$(color error) dim=$(color on_surface_variant)
 green=${green:-#8fd19e} orange=${orange:-#f0c674} red=${red:-#ffb4ab} dim=${dim:-#9399b2}

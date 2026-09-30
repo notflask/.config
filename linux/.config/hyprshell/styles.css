@@ -2,6 +2,7 @@
    Blur macht Hyprland (layer-rule "hyprshell_switch" in hypr/hyprland.lua),
    Farben kommen von matugen. */
 @import url("file:///home/flask/.config/waybar/colors.css");
+@import url("file:///home/flask/.config/waybar/glass.css");
 
 /* hyprshell setzt keine Standardwerte mehr – alle Variablen belegen
    (Klassen unten überschreiben die Farben mit den matugen-Farben) */

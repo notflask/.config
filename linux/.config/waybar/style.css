@@ -1,4 +1,5 @@
 @import url("file:///home/flask/.config/waybar/colors.css");
+@import url("file:///home/flask/.config/waybar/glass.css");
 
 * {
     font-family: Inter;

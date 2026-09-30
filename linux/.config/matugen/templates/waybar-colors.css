@@ -1,5 +1,3 @@
-/* Erzeugt von matugen (templates/waybar-colors.css) – hier nichts ändern.
-   Auch von hyprshell und wlogout eingebunden. */
 @define-color primary {{colors.primary.default.hex}};
 @define-color on_primary {{colors.on_primary.default.hex}};
 @define-color secondary {{colors.secondary.default.hex}};
@@ -9,41 +7,4 @@
 @define-color surface_variant {{colors.surface_variant.default.hex}};
 @define-color on_surface_variant {{colors.on_surface_variant.default.hex}};
 @define-color error {{colors.error.default.hex}};
-@define-color on_error {{colors.on_error.default.hex}};
 @define-color outline {{colors.outline.default.hex}};
-
-/* Liquid Glass: Fläche, Kante und Lichtkanten – dunkles bzw. helles Glas */
-<* if {{ is_dark_mode }} *>
-@define-color glass rgba(18, 18, 24, 0.55);
-@define-color glass_rim rgba(255, 255, 255, 0.14);
-@define-color glass_shine rgba(255, 255, 255, 0.22);
-@define-color glass_shine_low rgba(255, 255, 255, 0.04);
-@define-color glass_hover rgba(255, 255, 255, 0.08);
-@define-color glass_hover_strong rgba(255, 255, 255, 0.13);
-@define-color glass_pill rgba(255, 255, 255, 0.07);
-@define-color glass_pill_shine rgba(255, 255, 255, 0.14);
-@define-color glass_tooltip rgba(20, 20, 24, 0.94);
-@define-color glass_soft rgba(20, 20, 24, 0.35);
-@define-color glass_window rgba(18, 18, 24, 0.40);
-@define-color glass_shadow rgba(0, 0, 0, 0.35);
-@define-color text_strong rgba(245, 245, 245, 1);
-/* VPN-Anzeige: grün, orange */
-@define-color ok #8fd19e;
-@define-color warn #f0c674;
-<* else *>
-@define-color glass rgba(250, 250, 252, 0.60);
-@define-color glass_rim rgba(0, 0, 0, 0.10);
-@define-color glass_shine rgba(255, 255, 255, 0.70);
-@define-color glass_shine_low rgba(0, 0, 0, 0.04);
-@define-color glass_hover rgba(0, 0, 0, 0.06);
-@define-color glass_hover_strong rgba(0, 0, 0, 0.10);
-@define-color glass_pill rgba(0, 0, 0, 0.05);
-@define-color glass_pill_shine rgba(255, 255, 255, 0.55);
-@define-color glass_tooltip rgba(250, 250, 252, 0.96);
-@define-color glass_soft rgba(250, 250, 252, 0.45);
-@define-color glass_window rgba(250, 250, 252, 0.50);
-@define-color glass_shadow rgba(0, 0, 0, 0.15);
-@define-color text_strong rgba(20, 20, 24, 1);
-@define-color ok #2e7d32;
-@define-color warn #9a6700;
-<* endif *>

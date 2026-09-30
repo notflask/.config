@@ -75,6 +75,11 @@ rebuild          # Config-Änderungen anwenden
 rebuild update   # System, Claude Desktop, ATAS X + Flatpaks aktualisieren
 ```
 
+`rebuild` holt vorher neue Commits von GitHub (nur Fast-Forward; die von
+`theme` erzeugten Farbdateien verwirft es dafür) und erzeugt danach das Theme
+neu, wenn sich die Templates geändert haben. Ohne Pull:
+`REBUILD_NO_PULL=1 rebuild`.
+
 ## Dotfiles
 
 Das Repo liegt in `~/dotfiles`. Beim Booten werden diese Configs nach `~/.config`
