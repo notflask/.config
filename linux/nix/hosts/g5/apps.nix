@@ -40,6 +40,27 @@ let
     '';
   };
 
+  # ATAS X auf der RTX 4060: Oberfläche (Avalonia/Skia) und Charts (eigener
+  # Renderer) zeichnen per OpenGL über GLX (XWayland). Klappt GLX nicht,
+  # rendert Avalonia still auf der CPU weiter → DOM/Tape ruckeln.
+  # Die Variablen sind die von `nvidia-offload`: GLX/Vulkan fest auf NVIDIA,
+  # egal auf welcher GPU XWayland gerade läuft. Prüfen: `nvidia-smi` listet
+  # dann den Prozess „ATAS X“.
+  atasXUnwrapped = pkgs.callPackage ../../pkgs/atas-x/package.nix { };
+  atasX = pkgs.symlinkJoin {
+    name = "atas-x-nvidia";
+    paths = [ atasXUnwrapped ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      rm $out/bin/atas-x
+      makeWrapper ${atasXUnwrapped}/bin/atas-x $out/bin/atas-x \
+        --set __NV_PRIME_RENDER_OFFLOAD 1 \
+        --set __NV_PRIME_RENDER_OFFLOAD_PROVIDER NVIDIA-G0 \
+        --set __GLX_VENDOR_LIBRARY_NAME nvidia \
+        --set __VK_LAYER_NV_optimus NVIDIA_only
+    '';
+  };
+
   # Firefox-Farben aus dem Hintergrundbild: Die Erweiterung Pywalfox fragt
   # über Native Messaging dieses Programm, das ~/.cache/wal/colors.json liest
   # (erzeugt von matugen, siehe matugen/config.toml). Das Paket bringt die
@@ -126,6 +147,7 @@ in
     discord # mit Vencord, siehe oben
     telegram-desktop
     tradingview
+    atasX # Orderflow-Analyse (Linux-Alpha), auf der NVIDIA, siehe oben
     vlc # Videoplayer
     easyeffects # Equalizer (AutoEQ-Profil für die KZ-IEMs)
     cameractrls-gtk4 # Webcam-Bild einstellen (Schärfe, Kontrast …) mit Live-Vorschau
