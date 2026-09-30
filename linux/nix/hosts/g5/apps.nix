@@ -101,8 +101,8 @@ in
       "widget.use-xdg-desktop-portal.mime-handler" = 1;
       # Apple-Emoji statt des mitgelieferten Twemoji (siehe fonts.nix)
       "font.name-list.emoji" = "Apple Color Emoji";
-      # Webseiten im dunklen Modus, wenn sie einen haben (0 = dunkel)
-      "layout.css.prefers-color-scheme.content-override" = 0;
+      # Webseiten hell oder dunkel wie das System (theme.sh, 2 = wie Firefox)
+      "layout.css.prefers-color-scheme.content-override" = 2;
 
       # ── Tempo (Werte wie Betterfox „Fastfox“) ──
       # Seiten früher zeichnen statt auf mehr Inhalt zu warten
@@ -179,8 +179,8 @@ in
   boot.kernelModules = [ "vhost_vsock" ];
 
   # ── Spotify + Spicetify ────────────────────────────────────
-  # Ersetzt das normale Spotify-Paket. Aufbau vom Catppuccin-Theme, Farben
-  # aber aus dem Hintergrundbild (matugen/templates/spicetify-colors.css).
+  # Ersetzt das normale Spotify-Paket. Spotifys eigener Aufbau (Default-
+  # Theme), Farben aus dem Hintergrundbild (matugen/templates/spicetify-colors.css).
   programs.spicetify =
     let
       spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -188,8 +188,8 @@ in
     in
     {
       enable = true;
-      theme = spicePkgs.themes.catppuccin;
-      colorScheme = "mocha"; # nur für den Build, colors.css kommt von matugen
+      theme = spicePkgs.themes.default;
+      colorScheme = "Ocean"; # nur für den Build, colors.css kommt von matugen
       # Spicetify schreibt die Farben beim Build fest in colors.css; ein
       # Symlink auf die Datei von matugen macht sie änderbar. postFixup läuft
       # nach dem `spicetify apply` in postInstall.

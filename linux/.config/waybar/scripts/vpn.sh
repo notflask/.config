@@ -21,8 +21,13 @@ if [ "${1:-}" = toggle ]; then
   exit
 fi
 
-# Farben wie in style.css (Catppuccin)
-green='#a6e3a1' orange='#fab387' red='#f38ba8' dim='#9399b2'
+# Farben wie in style.css – aus colors.css (matugen, hell oder dunkel)
+color() {
+  sed -n "s/^@define-color $1 \(#[0-9a-fA-F]\{6\}\);/\1/p" \
+    "${XDG_CONFIG_HOME:-$HOME/.config}/waybar/colors.css" 2>/dev/null | head -n 1
+}
+green=$(color ok) orange=$(color warn) red=$(color error) dim=$(color on_surface_variant)
+green=${green:-#8fd19e} orange=${orange:-#f0c674} red=${red:-#ffb4ab} dim=${dim:-#9399b2}
 
 human() { numfmt --to=iec --suffix=B --format=%.1f "$1" 2>/dev/null || echo "${1}B"; }
 

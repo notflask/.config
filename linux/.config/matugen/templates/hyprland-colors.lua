@@ -12,4 +12,6 @@ return {
     on_surface_variant = "{{colors.on_surface_variant.default.hex}}",
     outline = "{{colors.outline.default.hex}}",
     error = "{{colors.error.default.hex}}",
+    -- Glaskante inaktiver Fenster (hell auf dunkel bzw. dunkel auf hell)
+    rim = "<* if {{ is_dark_mode }} *>#ffffff26<* else *>#0000001f<* endif *>",
 }

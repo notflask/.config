@@ -2,7 +2,7 @@ layout {
     // 1px Glaskante (#rrggbbaa)
     border {
         active-color   "{{colors.primary.default.hex}}99"
-        inactive-color "#ffffff26"
+        inactive-color "<* if {{ is_dark_mode }} *>#ffffff26<* else *>#0000001f<* endif *>"
     }
     focus-ring {
         active-color   "{{colors.primary.default.hex}}"

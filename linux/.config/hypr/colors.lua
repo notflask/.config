@@ -1,8 +1,8 @@
 -- Erzeugt von matugen (templates/hyprland-colors.lua) – hier nichts ändern.
 -- Wird von hyprland.lua geladen (require("colors")).
 return {
-    primary = "#a5c8ff",
-    on_primary = "#00315e",
+    primary = "#a6c8ff",
+    on_primary = "#01315e",
     secondary = "#bcc7dc",
     tertiary = "#dabde2",
     surface = "#111318",
@@ -12,4 +12,6 @@ return {
     on_surface_variant = "#c3c6cf",
     outline = "#8d9199",
     error = "#ffb4ab",
+    -- Glaskante inaktiver Fenster (hell auf dunkel bzw. dunkel auf hell)
+    rim = "#ffffff26",
 }
