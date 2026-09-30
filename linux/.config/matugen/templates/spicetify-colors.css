@@ -26,7 +26,7 @@
   --spice-play-button: {{colors.primary.default.hex}};
   --spice-play-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.hex}}<* else *>{{colors.primary_container.default.hex}}<* endif *>;
   --spice-progress-fg: {{colors.primary.default.hex}};
-  --spice-progress-bg: {{colors.surface_container_highest.default.hex}};
+  --spice-progress-bg: {{colors.outline_variant.default.hex}};
   --spice-heart: {{colors.tertiary.default.hex}};
   --spice-pagelink-active: {{colors.primary.default.hex}};
   --spice-radio-btn-active: {{colors.primary.default.hex}};
@@ -55,10 +55,47 @@
   --spice-rgb-play-button: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
   --spice-rgb-play-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.red}},{{colors.primary_fixed.default.green}},{{colors.primary_fixed.default.blue}}<* else *>{{colors.primary_container.default.red}},{{colors.primary_container.default.green}},{{colors.primary_container.default.blue}}<* endif *>;
   --spice-rgb-progress-fg: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
-  --spice-rgb-progress-bg: {{colors.surface_container_highest.default.red}},{{colors.surface_container_highest.default.green}},{{colors.surface_container_highest.default.blue}};
+  --spice-rgb-progress-bg: {{colors.outline_variant.default.red}},{{colors.outline_variant.default.green}},{{colors.outline_variant.default.blue}};
   --spice-rgb-heart: {{colors.tertiary.default.red}},{{colors.tertiary.default.green}},{{colors.tertiary.default.blue}};
   --spice-rgb-pagelink-active: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
   --spice-rgb-radio-btn-active: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
   --spice-rgb-equalizer: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
   --spice-rgb-custom-subdued: {{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}};
 }
+
+<* if {{ is_dark_mode }} *><* else *>
+/* ── Nur im Hellmodus ──
+   Spotify färbt Playlist-/Albumkopf und die Knopfleiste darunter mit der
+   Farbe des Covers und schreibt die Infozeile fest weiß (für dunkle
+   Hintergründe gedacht). Hier stattdessen die ruhige Fläche des Themes und
+   normale Schriftfarben. Köpfe mit Bild (Künstlerseiten) bleiben, wie sie
+   sind – dort steht weiße Schrift auf dem Foto. */
+.main-actionBarBackground-background,
+.playlist-playlist-actionBarBackground-background,
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-backgroundColor,
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-overlay,
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-gradient,
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-mermaidGradientOverlay {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) :is(
+  .main-entityHeader-pretitle,
+  .main-entityHeader-title,
+  .main-entityHeader-subtitle,
+  .main-entityHeader-metaData,
+  .main-entityHeader-metaData *,
+  .main-entityHeader-metaDataText,
+  .main-entityHeader-detailsText
+) {
+  color: var(--spice-text) !important;
+}
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) :is(
+  .main-entityHeader-metaDataTextSubdued,
+  .main-entityHeader-metadataFullTime,
+  .main-entityHeader-divider
+) {
+  color: var(--spice-subtext) !important;
+}
+<* endif *>
