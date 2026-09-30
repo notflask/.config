@@ -175,8 +175,8 @@ body {
     --accent-1: {{colors.primary.default.hex}};
     --accent-2: {{colors.primary.default.hex}};
     --accent-3: {{colors.primary.default.hex}};
-    --accent-4: {{colors.primary_container.default.hex}};
-    --accent-5: {{colors.inverse_primary.default.hex}};
+    --accent-4: {{colors.primary.default.hex | lighten: 8}}; /* Hover */
+    --accent-5: {{colors.primary.default.hex | lighten: -8}}; /* Klick */
     --accent-new: {{colors.error.default.hex}};
 
     /* Status */
