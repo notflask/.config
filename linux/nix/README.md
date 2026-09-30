@@ -13,7 +13,7 @@ linux/nix/
 │   ├── hardware-configuration.nix # PLATZHALTER – install.sh ersetzt ihn
 │   ├── nvidia.nix                 # Grafik: Desktop auf der RTX 4060
 │   ├── desktop.nix                # Basis beider Sitzungen: Login, Portale, KWallet, KDE-Apps, mako, hypridle
-│   ├── apps.nix                   # Firefox, Discord, Telegram, Spotify, Claude (Code/Desktop), agy
+│   ├── apps.nix                   # Firefox, Discord, Telegram, Spotify, ATAS X, Claude (Code/Desktop), agy
 │   ├── gaming.nix                 # Steam, GameMode, MangoHud, gamescope, Lutris, Recorder, Flatpak
 │   ├── performance.nix            # scx_lavd, NTSYNC, Split-Lock, Energieprofil
 │   ├── network.nix                # TCP BBR, LAN ohne EEE, WLAN ohne Power-Save
@@ -23,12 +23,14 @@ linux/nix/
 │   ├── niri.nix                   # Niri-Sitzung (Standard)
 │   └── hyprland.nix               # Hyprland-Sitzung (UWSM, Übersicht-Plugin)
 ├── pkgs/claude-desktop/           # Claude Desktop (.deb → NixOS)
+├── pkgs/atas-x/                   # ATAS X (Linux-Alpha → NixOS)
 └── scripts/
     ├── install.sh                 # automatische Installation vom Live-ISO
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
     ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
     ├── update-claude-desktop.sh   # neueste Claude-Desktop-Version eintragen
+    ├── update-atas-x.sh           # neueste ATAS-X-Version eintragen
     └── (Monitore stehen direkt in niri/config.kdl bzw. hypr/hyprland.lua)
 ```
 
@@ -70,7 +72,7 @@ git push
 
 ```sh
 rebuild          # Config-Änderungen anwenden
-rebuild update   # System, Claude Desktop + Flatpaks aktualisieren
+rebuild update   # System, Claude Desktop, ATAS X + Flatpaks aktualisieren
 ```
 
 ## Dotfiles
@@ -377,6 +379,20 @@ mitgelieferten Teile (Claude Code, Cowork) unverändert.
   (Virtualisierung) aktiv sein.
 - Nicht in der Linux-Beta (von Anthropic): Computer Use, Diktieren.
 
+## ATAS X
+
+Offiziell gibt es ATAS X nur für Windows und macOS. Auf ATAS' Update-Server liegt
+aber ein Linux-Build im Alpha-Kanal (`platformx_linux_alpha`, .NET 10 + Avalonia).
+`pkgs/atas-x/` verpackt ihn unverändert und startet ihn mit der .NET-Laufzeit aus nixpkgs.
+
+- Starten: *ATAS X* im Startmenü oder `atas-x`, dann mit dem ATAS-Konto anmelden.
+- Einstellungen, Workspaces, Datenbank und Logs liegen in `~/.config/ATAS/`.
+- **Updates:** `rebuild update` holt den neuesten Linux-Build
+  (`scripts/update-atas-x.sh` schreibt `pkgs/atas-x/source.json`). Der eingebaute
+  Updater kann im schreibgeschützten Nix-Store nichts ändern.
+- Der Linux-Build hinkt der Windows-Beta hinterher und wird von ATAS nicht
+  unterstützt. Läuft über XWayland (in Niri über xwayland-satellite).
+
 ## Aufnahme & Replay: GPU Screen Recorder
 
 Wie ShadowPlay: startet beim Login im Hintergrund, **Alt+Z** öffnet das Overlay.
@@ -465,6 +481,7 @@ selbst.
 | Sober | Roblox (Flatpak) |
 | Claude Code, Antigravity CLI | `claude`, `agy` im Terminal |
 | Claude Desktop | Linux-Beta, aus dem offiziellen `.deb` |
+| ATAS X | Orderflow-Analyse, Linux-Alpha von ATAS' Update-Server |
 
 ## Tastatur
 

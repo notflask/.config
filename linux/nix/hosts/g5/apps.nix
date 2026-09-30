@@ -126,6 +126,8 @@ in
     discord # mit Vencord, siehe oben
     telegram-desktop
     tradingview
+    # ATAS X (Orderflow-Analyse, Linux-Alpha von ATAS' Update-Server)
+    (callPackage ../../pkgs/atas-x/package.nix { })
     vlc # Videoplayer
     easyeffects # Equalizer (AutoEQ-Profil für die KZ-IEMs)
     cameractrls-gtk4 # Webcam-Bild einstellen (Schärfe, Kontrast …) mit Live-Vorschau

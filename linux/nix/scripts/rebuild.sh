@@ -3,7 +3,8 @@
 #  Config anwenden / System aktualisieren
 #
 #    rebuild.sh            Config anwenden (switch)
-#    rebuild.sh update     Pakete aktualisieren (flake.lock, Claude Desktop)
+#    rebuild.sh update     Pakete aktualisieren (flake.lock, Claude Desktop,
+#                          ATAS X)
 #                          + switch, danach auch Flatpaks (z. B. Sober)
 #    rebuild.sh boot       erst beim nächsten Neustart aktiv
 #    rebuild.sh test       aktivieren ohne Boot-Eintrag
@@ -20,12 +21,13 @@ case "$action" in
   update)
     (cd "$FLAKE_DIR" && nix flake update)
     "$FLAKE_DIR/scripts/update-claude-desktop.sh"
+    "$FLAKE_DIR/scripts/update-atas-x.sh"
     action="switch"
     update_flatpaks=1
     ;;
   switch | boot | test | build | dry-build) ;;
   *)
-    sed -n '2,10p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+    sed -n '2,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
     exit 1
     ;;
 esac
