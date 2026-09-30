@@ -45,7 +45,9 @@ input_path  = "~/.config/matugen/templates/MangoHud.conf"
 output_path = "~/.config/MangoHud/MangoHud.conf"
 
 # Firefox (Pywalfox-Erweiterung liest das pywal-Format, theme.sh ruft
-# danach `pywalfox update`)
+# danach `pywalfox update` und `pywalfox dark|light`). Im hellen Modus nimmt
+# Pywalfox color0 als Schrift und color7 für die Flächen (wie ein pywal-
+# Schema mit dunklem color0) – das Template ordnet die Farben dafür um.
 [templates.pywalfox]
 input_path  = "~/.config/matugen/templates/pywalfox-colors.json"
 output_path = "~/.cache/wal/colors.json"

@@ -15,7 +15,8 @@
   --spice-shadow: {{colors.shadow.default.hex}};
   --spice-selected-row: {{colors.on_surface_variant.default.hex}};
   --spice-button: {{colors.primary.default.hex}};
-  --spice-button-active: {{colors.primary_fixed.default.hex}};
+  /* laufender Titel, aktive Knöpfe: primary_fixed ist immer hell, im Hellmodus daher primary */
+  --spice-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.hex}}<* else *>{{colors.primary.default.hex}}<* endif *>;
   --spice-button-disabled: {{colors.outline.default.hex}};
   --spice-tab-active: {{colors.surface_container_highest.default.hex}};
   --spice-notification: {{colors.surface_container_highest.default.hex}};
@@ -35,7 +36,7 @@
   --spice-rgb-shadow: {{colors.shadow.default.red}},{{colors.shadow.default.green}},{{colors.shadow.default.blue}};
   --spice-rgb-selected-row: {{colors.on_surface_variant.default.red}},{{colors.on_surface_variant.default.green}},{{colors.on_surface_variant.default.blue}};
   --spice-rgb-button: {{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}};
-  --spice-rgb-button-active: {{colors.primary_fixed.default.red}},{{colors.primary_fixed.default.green}},{{colors.primary_fixed.default.blue}};
+  --spice-rgb-button-active: <* if {{ is_dark_mode }} *>{{colors.primary_fixed.default.red}},{{colors.primary_fixed.default.green}},{{colors.primary_fixed.default.blue}}<* else *>{{colors.primary.default.red}},{{colors.primary.default.green}},{{colors.primary.default.blue}}<* endif *>;
   --spice-rgb-button-disabled: {{colors.outline.default.red}},{{colors.outline.default.green}},{{colors.outline.default.blue}};
   --spice-rgb-tab-active: {{colors.surface_container_highest.default.red}},{{colors.surface_container_highest.default.green}},{{colors.surface_container_highest.default.blue}};
   --spice-rgb-notification: {{colors.surface_container_highest.default.red}},{{colors.surface_container_highest.default.green}},{{colors.surface_container_highest.default.blue}};
