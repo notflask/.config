@@ -103,6 +103,23 @@ dconf write /org/gnome/desktop/interface/icon-theme "'$icon_theme'" >/dev/null 2
 for key in cursor-size font-name; do
   dconf reset "/org/gnome/desktop/interface/$key" >/dev/null 2>&1 || true
 done
+# Dasselbe für Apps, die dconf nicht lesen (Electron-Apps wie Claude oder
+# Discord in „System“, Apps in FHS-Umgebungen): GTK-Einstellungsdateien
+# des Benutzers, sie gehen vor /etc/xdg (theme.nix, dort fest dunkel)
+[ "$mode" = dark ] && prefer_dark=true || prefer_dark=false
+for gtk in gtk-3.0 gtk-4.0; do
+  mkdir -p "$config/$gtk"
+  cat >"$config/$gtk/settings.ini" <<INI
+# Erzeugt von theme.sh ($mode) – hier nichts ändern
+[Settings]
+gtk-theme-name=$gtk_theme
+gtk-icon-theme-name=$icon_theme
+gtk-cursor-theme-name=matugen-cursor
+gtk-cursor-theme-size=24
+gtk-font-name=Noto Sans 10
+gtk-application-prefer-dark-theme=$prefer_dark
+INI
+done
 
 # Neu laden, was die Farben nicht selbst neu einliest
 # (Rofi und Hyprlock lesen sie beim nächsten Start)
