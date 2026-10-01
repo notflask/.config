@@ -470,7 +470,7 @@ den Cursor **und die Apps** – wahlweise **hell oder dunkel**:
 Rahmen und Hell/Dunkel passen sich sofort an, der Cursor ein paar Sekunden
 später. Laufende GTK-Apps übernehmen neue Farben nach einem Neustart.
 
-**Hell/dunkel:** **Super+Shift+T** schaltet um (Niri und Hyprland). Der Modus
+**Hell/dunkel:** Klick auf Sonne/Mond in der Waybar schaltet um. Der Modus
 bleibt gespeichert (`~/.local/state/theme-mode`) und gilt auch für jedes
 neue Wallpaper.
 

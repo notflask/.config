@@ -21,11 +21,11 @@ layer=overlay
 anchor=top-right
 
 background-color=#11131873
-text-color=#e1e2e9
+text-color=#e2e2e9
 border-color=#ffffff30
-progress-color=over #214876
+progress-color=over #2a4677
 
-format=<b>%s</b>\n<span color="#c3c6cf">%b</span>
+format=<b>%s</b>\n<span color="#c4c6d0">%b</span>
 
 [urgency=low]
 border-color=#ffffff18

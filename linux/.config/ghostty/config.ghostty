@@ -10,3 +10,5 @@ gtk-titlebar = false
 window-padding-x = 8
 window-padding-y = 8
 background-blur = true
+# Volles statt "light"-Hinting: bei Skalierung 1 sonst weiche, unscharfe Kanten
+freetype-load-flags = no-light

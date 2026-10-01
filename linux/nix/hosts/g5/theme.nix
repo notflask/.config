@@ -5,7 +5,7 @@
 # Mako, den Cursor, Discord, Spotify, Firefox – und die Apps:
 #   GTK:  adw-gtk3 bzw. libadwaita + ~/.config/gtk-{3,4}.0/gtk.css
 #   Qt:   Breeze-Stil + Farben aus ~/.config/kdeglobals (auch Dolphin & Co.)
-# Hell oder dunkel: `theme.sh -m light|dark` oder Super+Shift+T.
+# Hell oder dunkel: `theme.sh -m light|dark` oder Sonne/Mond in der Waybar.
 # Fest bleiben nur die Icons (Papirus) und TTY/Login (Farben von Vague wie
 # im Terminal).
 {
