@@ -21,4 +21,4 @@ cursor-color = #cdcdcd
 cursor-text = #141415
 selection-background = #252530
 selection-foreground = #cdcdcd
-background-opacity = 0.5
+background-opacity = 0.85

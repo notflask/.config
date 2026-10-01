@@ -1,10 +1,10 @@
 // Erzeugt von matugen (templates/rofi-colors.rasi) – hier nichts ändern
 * {
     glass:     #282a2f80;
-    fg:        #e1e2e9e6;
-    fg-dim:    #c3c6cfcc;
-    fg-faint:  #c3c6cf80;
-    selection: #e1e2e929;
+    fg:        #e2e2e9e6;
+    fg-dim:    #c4c6d0cc;
+    fg-faint:  #c4c6d080;
+    selection: #e2e2e929;
     rim:       #ffffff40;
     divider:   #ffffff1f;
 }
