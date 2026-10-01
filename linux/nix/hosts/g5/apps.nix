@@ -21,9 +21,13 @@ let
   # CUDA_VISIBLE_DEVICES versteckt die NVIDIA zusätzlich vor Discords eigener
   # Engine: Sonst kodiert sie Kamera und Stream per NVENC (CUDA, H.265) und
   # stürzte dabei ab. Ohne CUDA nimmt sie H.264 per VA-API auf der Iris Xe.
+  #
+  # Ausnahme Hyprland: Es rendert auf der NVIDIA und kann die Bildpuffer der
+  # iGPU nicht importieren (eglCreateImageKHR: „buffer attributes are not
+  # supported“) → Discord-Fenster bleibt schwarz. Dort zeichnet Discord daher
+  # auf der NVIDIA; Niri übernimmt die Puffer der iGPU problemlos.
   discordVencord = pkgs.discord.override {
     withVencord = true;
-    commandLineArgs = "--render-node-override=/dev/dri/intel-render";
   };
   discord = pkgs.symlinkJoin {
     name = "discord-igpu";
@@ -35,7 +39,10 @@ let
         makeWrapper ${discordVencord}/bin/$bin $out/bin/$bin \
           --set LIBVA_DRIVER_NAME iHD \
           --set CUDA_VISIBLE_DEVICES -1 \
-          --prefix LD_LIBRARY_PATH : ${lib.getLib pkgs.libva}/lib
+          --prefix LD_LIBRARY_PATH : ${lib.getLib pkgs.libva}/lib \
+          --run 'render_node=/dev/dri/intel-render' \
+          --run 'if [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then render_node=/dev/dri/nvidia-render; fi' \
+          --add-flags '--render-node-override=$render_node'
       done
     '';
   };
