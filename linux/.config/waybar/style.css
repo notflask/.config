@@ -58,7 +58,8 @@ window#waybar {
 #pulseaudio,
 #language,
 #clock,
-#power-profiles-daemon {
+#power-profiles-daemon,
+#custom-theme {
     padding: 0 8px;
     color: @on_surface;
 }
