@@ -240,6 +240,28 @@ hl.window_rule({
     content = "game",
 })
 
+-- Nur Hyprland: Spiele auf eine eigene leere Arbeitsfläche (dieser Monitor).
+-- Sonst holt Alt+Tab ein Fenster derselben Fläche nach vorn, Hyprland nimmt
+-- dem Spiel dafür das Vollbild (misc.on_focus_under_fullscreen) und es wird
+-- gekachelt – CS2 fällt auf Fenstermodus, gamescope (Deadlock) verliert das
+-- Strecken. Mit eigener Fläche wechselt Alt+Tab nur die Arbeitsfläche.
+hl.window_rule({
+    name = "games-own-workspace",
+    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    workspace = "emptym",
+})
+
+-- Nur Hyprland: Mauszeiger bleibt im Spiel, solange es den Fokus hat.
+-- Fängt den Fall ab, dass die Zeigersperre des Spiels (CS2, gamescope)
+-- nach dem Flächenwechsel nicht greift und der Zeiger auf den Laptop-
+-- Bildschirm rutscht. Relative Mausbewegung kommt trotzdem an; Alt+Tab
+-- (Fokus weg) gibt den Zeiger frei.
+hl.window_rule({
+    name = "games-confine-pointer",
+    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    confine_pointer = true,
+})
+
 -- is-window-cast-target (roter Rahmen beim Teilen): gibt es in Hyprland nicht
 
 hl.window_rule({

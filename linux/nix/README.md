@@ -287,6 +287,13 @@ gamescope. Einziger Nachteil: kein Steam-Overlay.
 `gaming-mode --stretch 1920x1440` (über gamescope) geht auch, aber unter Niri
 flackert das Bild dort ab und zu – ohne gamescope nicht.
 
+Unter Hyprland öffnen Spiele auf einer eigenen leeren Arbeitsfläche
+(Regel `games-own-workspace`): Alt+Tab wechselt dann nur die Fläche, statt
+dem Spiel das Vollbild zu nehmen – sonst fällt Stretched auf Fenstermodus
+zurück und das Spiel wird gekachelt. Damit der Zeiger dabei nicht auf den
+Laptop-Bildschirm rutscht, hält `games-confine-pointer` ihn im Spiel, solange
+es den Fokus hat.
+
 Die Spiele-Regeln greifen über den Fensternamen (`cs2`, `steam_app_…`,
 `gamescope`, Sober). Unter Hyprland zeigt `hyprctl clients` die Namen,
 unter Niri `niri msg windows`.
