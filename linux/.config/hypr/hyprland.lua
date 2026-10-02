@@ -146,22 +146,11 @@ hl.config({
 
 -- ── spawn-at-startup ────────────────────────────────────────
 
+-- Gleiche Liste wie unter Niri, steht nur einmal in `wm autostart`
+-- (scripts/wm.sh): Waybar, Hintergrund, Clipboard, EasyEffects, playerctld,
+-- dazu nur hier hyprshell (Alt+Tab, siehe binds)
 hl.on("hyprland.start", function()
-    -- playerctld merkt sich den zuletzt aktiven Player (Medientasten, Waybar)
-    hl.exec_cmd("playerctld daemon")
-    hl.exec_cmd("waybar -c ~/.config/waybar/config-hyprland")
-    hl.exec_cmd("awww-daemon")
-    hl.exec_cmd("easyeffects --service-mode --hide-window")
-    hl.exec_cmd("waypaper --restore")
-    hl.exec_cmd("wl-paste --type text --watch cliphist store")
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
-    -- Zwischenablage behalten, wenn die App schließt, aus der kopiert wurde
-    -- (unter Wayland gehört der Inhalt sonst der App)
-    hl.exec_cmd("wl-clip-persist --clipboard regular")
-    -- Nur Hyprland: Alt+Tab mit Fenster-Vorschau (Niri hat das eingebaut).
-    -- hyprshell legt Alt+Tab selbst an, Config: ~/.config/hyprshell;
-    -- HYPRSHELL_EXPERIMENTAL=1 schaltet die Vorschau statt App-Icons ein
-    hl.exec_cmd("env HYPRSHELL_EXPERIMENTAL=1 hyprshell run -c ~/.config/hyprshell/config.toml")
+    hl.exec_cmd("wm autostart")
 end)
 
 

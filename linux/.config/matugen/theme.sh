@@ -123,12 +123,8 @@ done
 
 # Neu laden, was die Farben nicht selbst neu einliest
 # (Rofi und Hyprlock lesen sie beim nächsten Start)
-if [ -n "${NIRI_SOCKET:-}" ]; then
-  niri msg action load-config-file >/dev/null 2>&1 || true
-fi
-if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-  hyprctl reload >/dev/null 2>&1 || true
-fi
+# (Niri oder Hyprland, `wm` aus desktop.nix)
+wm reload >/dev/null 2>&1 || true
 # Unter NixOS heißt der Prozess ".waybar-wrapped", daher beide Namen
 pkill -SIGUSR2 -x 'waybar|\.waybar-wrapped' || true
 makoctl reload >/dev/null 2>&1 || true
@@ -150,9 +146,7 @@ if command -v theme-cursor >/dev/null &&
   printf '%s\ncursor {\n    xcursor-theme "%s"\n}\n' \
     "// Erzeugt von theme.sh (Cursor in den Farben des Hintergrundbilds)" \
     "$cursor" >"$config/niri/cursor.kdl"
-  if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-    hyprctl setcursor "$cursor" 24 >/dev/null 2>&1 || true
-  fi
+  wm cursor "$cursor" 24 >/dev/null 2>&1 || true
   dconf write /org/gnome/desktop/interface/cursor-theme "'$cursor'" >/dev/null 2>&1 || true
 fi
 

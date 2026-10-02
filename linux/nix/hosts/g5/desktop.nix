@@ -38,38 +38,31 @@ let
     '';
   };
 
-  # Bildschirme aus/an (hypridle) – je nachdem, welcher Compositor läuft
+  # Ein Befehl für Niri und Hyprland: erkennt den laufenden Compositor
+  # (auch mit veralteter Umgebung, z. B. in tmux) – `wm help` listet alles.
+  # Die Skripte unten, wlogout/launch.sh, matugen/theme.sh und der
+  # Autostart beider Configs (`wm autostart`) laufen darüber.
+  wm = pkgs.writeShellApplication {
+    name = "wm";
+    runtimeInputs = with pkgs; [
+      jq
+      coreutils # seq, sleep, id
+    ];
+    text = builtins.readFile ../../scripts/wm.sh;
+  };
+
+  # Bildschirme aus/an (hypridle)
   screen-power = pkgs.writeShellApplication {
     name = "screen-power";
-    text = ''
-      state=''${1:?on oder off}
-      if [ -n "''${NIRI_SOCKET:-}" ]; then
-        niri msg action "power-$state-monitors"
-      elif [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        action=disable
-        if [ "$state" = on ]; then
-          action=enable
-        fi
-        hyprctl dispatch "hl.dsp.dpms({ action = \"$action\" })"
-      fi
-    '';
+    runtimeInputs = [ wm ];
+    text = ''exec wm screens "''${1:?on oder off}"'';
   };
 
   # Abmelden aus der laufenden Sitzung (wlogout, siehe wlogout/layout)
   session-logout = pkgs.writeShellApplication {
     name = "session-logout";
-    text = ''
-      if [ -n "''${NIRI_SOCKET:-}" ]; then
-        exec niri msg action quit --skip-confirmation
-      elif [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        # hyprshutdown schließt erst alle Fenster sauber (ungesicherte Daten)
-        if command -v hyprshutdown >/dev/null; then
-          exec hyprshutdown
-        fi
-        exec hyprctl dispatch 'hl.dsp.exit()'
-      fi
-      exec loginctl terminate-session "''${XDG_SESSION_ID:-}"
-    '';
+    runtimeInputs = [ wm ];
+    text = "exec wm logout";
   };
 
   # Wegwerf-Terminal (Super+`): schwebt oben mittig über allem (Fensterregel
@@ -80,31 +73,17 @@ let
   # fokussiert, holt die Taste es nur nach vorn.
   scratch-term = pkgs.writeShellApplication {
     name = "scratch-term";
-    runtimeInputs = with pkgs; [ jq ];
+    runtimeInputs = [ wm ];
     text = ''
       app_id=com.flask.scratchpad
       unit=scratchpad.service
 
-      if [ -n "''${NIRI_SOCKET:-}" ]; then
-        id=$(niri msg --json windows | jq --arg app "$app_id" \
-          'first(.[] | select(.app_id == $app)) | .id // empty')
-        focused=$(niri msg --json focused-window | jq '.id // empty')
-        focus() { niri msg action focus-window --id "$1"; }
-      elif [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        id=$(hyprctl clients -j | jq -r --arg app "$app_id" \
-          'first(.[] | select(.class == $app)) | .address // empty')
-        focused=$(hyprctl activewindow -j | jq -r '.address // empty')
-        focus() { hyprctl dispatch "hl.dsp.focus({ window = \"address:$1\" })" >/dev/null; }
-      else
-        id=""
-        focused=""
-      fi
-
+      id=$(wm find-window "$app_id" 2>/dev/null || true)
       if [ -n "$id" ]; then
-        if [ "$id" = "$focused" ]; then
+        if [ "$id" = "$(wm focused-window)" ]; then
           systemctl --user stop "$unit"
         else
-          focus "$id"
+          wm focus-window "$id" >/dev/null
         fi
         exit 0
       fi
@@ -294,6 +273,7 @@ in
       session-logout # wlogout → Abmelden
       scratch-term # Super+`
       screen-power # hypridle
+      wm # Niri/Hyprland-Befehle, siehe oben
     ]);
 
   # Wie im Plasma-Modul: KDE-Apps finden Daten anderer Pakete (Dienstmenüs,

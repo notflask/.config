@@ -29,6 +29,7 @@ linux/nix/
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
     ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
+    ├── wm.sh                      # `wm`: ein Befehl für Niri und Hyprland (Autostart, Reload, Bildschirme …)
     ├── update-claude-desktop.sh   # neueste Claude-Desktop-Version eintragen
     ├── update-atas-x.sh           # neueste ATAS-X-Version eintragen
     └── (Monitore stehen direkt in niri/config.kdl bzw. hypr/hyprland.lua)
