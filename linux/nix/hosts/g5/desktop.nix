@@ -98,6 +98,29 @@ let
     '';
   };
 
+  # Zwischenablage-Verlauf (Super+Strg+V, wie Win+V): cliphist speichert
+  # jede Kopie (Autostart in `wm autostart`), Rofi zeigt sie. Enter kopiert
+  # den Eintrag wieder, Shift+Entf löscht ihn aus dem Verlauf.
+  clipboard-history = pkgs.writeShellApplication {
+    name = "clipboard-history";
+    runtimeInputs = with pkgs; [
+      cliphist
+      rofi
+      wl-clipboard
+    ];
+    text = ''
+      rc=0
+      sel=$(cliphist list | rofi -dmenu -i -p Zwischenablage \
+        -display-columns 2 \
+        -kb-delete-entry "" -kb-custom-1 "Shift+Delete" \
+        -mesg "Enter: kopieren · Shift+Entf: löschen") || rc=$?
+      case $rc in
+        0) printf '%s' "$sel" | cliphist decode | wl-copy ;;
+        10) printf '%s' "$sel" | cliphist delete ;;
+      esac
+    '';
+  };
+
   # Login-Animation: Planet mit Schwarzem Loch (ly-community, frei nutzbar).
   # Die Textkonsole zeigt nur 16 Farben – gröber als im ly-README.
   blackhole = pkgs.fetchurl {
@@ -274,6 +297,7 @@ in
       screenshot-edit # Super+Shift+S
       session-logout # wlogout → Abmelden
       scratch-term # Super+`
+      clipboard-history # Super+Strg+V
       screen-power # hypridle
       wm # Niri/Hyprland-Befehle, siehe oben
     ]);

@@ -274,6 +274,9 @@ binds {
     Mod+D hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
     Mod+Space hotkey-overlay-title=null { spawn "rofi" "-show" "drun"; }
     Mod+Shift+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
+    // Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in Waybar)
+    Mod+Ctrl+V repeat=false hotkey-overlay-title="Clipboard History" { spawn "clipboard-history"; }
+    Mod+Shift+E repeat=false hotkey-overlay-title="Power Menu: wlogout" { spawn-sh "~/.config/wlogout/launch.sh"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"; }

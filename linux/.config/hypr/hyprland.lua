@@ -610,6 +610,9 @@ bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal",
 bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
+-- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in Waybar)
+bind(key("CTRL + V"), hl.dsp.exec_cmd("clipboard-history"), title("Clipboard History", { repeating = false }))
+bind(key("SHIFT + E"), hl.dsp.exec_cmd("~/.config/wlogout/launch.sh"), title("Power Menu: wlogout", { repeating = false }))
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })

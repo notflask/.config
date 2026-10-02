@@ -160,6 +160,9 @@ dort nur 16 Farben.
 | Super+Shift+S | Screenshot mit Zeichnen (Satty, siehe *Screenshots*) |
 | Druck | Screenshot eines Bereichs → Clipboard + `~/Screenshots` |
 | Super+Shift+L | Sperren (Hyprlock) |
+| Super+Strg+V | Zwischenablage-Verlauf (Enter: kopieren, Shift+Entf: löschen) |
+| Super+Shift+E | Ausschalt-Menü (wlogout: Sperren, Abmelden, Standby, Neustart, Aus) |
+| Alt+Tab / Alt+Shift+Tab | Fenster wechseln (Hyprland: hyprshell mit Vorschau) |
 | Super+Shift+/ | wichtige Tastenkürzel |
 
 `hypr/hyprland.lua` ist eine 1:1-Übersetzung von `niri/config.kdl`: gleiche
