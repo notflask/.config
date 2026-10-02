@@ -29,6 +29,7 @@ linux/nix/
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
     ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
+    ├── wm.sh                      # `wm`: ein Befehl für Niri und Hyprland (Autostart, Reload, Bildschirme …)
     ├── update-claude-desktop.sh   # neueste Claude-Desktop-Version eintragen
     ├── update-atas-x.sh           # neueste ATAS-X-Version eintragen
     └── (Monitore stehen direkt in niri/config.kdl bzw. hypr/hyprland.lua)
@@ -159,6 +160,9 @@ dort nur 16 Farben.
 | Super+Shift+S | Screenshot mit Zeichnen (Satty, siehe *Screenshots*) |
 | Druck | Screenshot eines Bereichs → Clipboard + `~/Screenshots` |
 | Super+Shift+L | Sperren (Hyprlock) |
+| Super+Strg+V | Zwischenablage-Verlauf (Enter: kopieren, Shift+Entf: löschen) |
+| Super+Shift+E | Ausschalt-Menü (wlogout: Sperren, Abmelden, Standby, Neustart, Aus) |
+| Alt+Tab / Alt+Shift+Tab | Fenster wechseln (Hyprland: hyprshell mit Vorschau) |
 | Super+Shift+/ | wichtige Tastenkürzel |
 
 `hypr/hyprland.lua` ist eine 1:1-Übersetzung von `niri/config.kdl`: gleiche
@@ -286,6 +290,13 @@ gamescope. Einziger Nachteil: kein Steam-Overlay.
 
 `gaming-mode --stretch 1920x1440` (über gamescope) geht auch, aber unter Niri
 flackert das Bild dort ab und zu – ohne gamescope nicht.
+
+Unter Hyprland öffnen Spiele auf einer eigenen leeren Arbeitsfläche
+(Regel `games-own-workspace`): Alt+Tab wechselt dann nur die Fläche, statt
+dem Spiel das Vollbild zu nehmen – sonst fällt Stretched auf Fenstermodus
+zurück und das Spiel wird gekachelt. Damit der Zeiger dabei nicht auf den
+Laptop-Bildschirm rutscht, hält `games-confine-pointer` ihn im Spiel, solange
+es den Fokus hat.
 
 Die Spiele-Regeln greifen über den Fensternamen (`cs2`, `steam_app_…`,
 `gamescope`, Sober). Unter Hyprland zeigt `hyprctl clients` die Namen,

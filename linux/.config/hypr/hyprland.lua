@@ -146,22 +146,11 @@ hl.config({
 
 -- ── spawn-at-startup ────────────────────────────────────────
 
+-- Gleiche Liste wie unter Niri, steht nur einmal in `wm autostart`
+-- (scripts/wm.sh): Waybar, Hintergrund, Clipboard, EasyEffects, playerctld,
+-- dazu nur hier hyprshell (Alt+Tab, siehe binds)
 hl.on("hyprland.start", function()
-    -- playerctld merkt sich den zuletzt aktiven Player (Medientasten, Waybar)
-    hl.exec_cmd("playerctld daemon")
-    hl.exec_cmd("waybar -c ~/.config/waybar/config-hyprland")
-    hl.exec_cmd("awww-daemon")
-    hl.exec_cmd("easyeffects --service-mode --hide-window")
-    hl.exec_cmd("waypaper --restore")
-    hl.exec_cmd("wl-paste --type text --watch cliphist store")
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
-    -- Zwischenablage behalten, wenn die App schließt, aus der kopiert wurde
-    -- (unter Wayland gehört der Inhalt sonst der App)
-    hl.exec_cmd("wl-clip-persist --clipboard regular")
-    -- Nur Hyprland: Alt+Tab mit Fenster-Vorschau (Niri hat das eingebaut).
-    -- hyprshell legt Alt+Tab selbst an, Config: ~/.config/hyprshell;
-    -- HYPRSHELL_EXPERIMENTAL=1 schaltet die Vorschau statt App-Icons ein
-    hl.exec_cmd("env HYPRSHELL_EXPERIMENTAL=1 hyprshell run -c ~/.config/hyprshell/config.toml")
+    hl.exec_cmd("wm autostart")
 end)
 
 
@@ -238,6 +227,28 @@ hl.window_rule({
     name = "games-vrr",
     match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
     content = "game",
+})
+
+-- Nur Hyprland: Spiele auf eine eigene leere Arbeitsfläche (dieser Monitor).
+-- Sonst holt Alt+Tab ein Fenster derselben Fläche nach vorn, Hyprland nimmt
+-- dem Spiel dafür das Vollbild (misc.on_focus_under_fullscreen) und es wird
+-- gekachelt – CS2 fällt auf Fenstermodus, gamescope (Deadlock) verliert das
+-- Strecken. Mit eigener Fläche wechselt Alt+Tab nur die Arbeitsfläche.
+hl.window_rule({
+    name = "games-own-workspace",
+    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    workspace = "emptym",
+})
+
+-- Nur Hyprland: Mauszeiger bleibt im Spiel, solange es den Fokus hat.
+-- Fängt den Fall ab, dass die Zeigersperre des Spiels (CS2, gamescope)
+-- nach dem Flächenwechsel nicht greift und der Zeiger auf den Laptop-
+-- Bildschirm rutscht. Relative Mausbewegung kommt trotzdem an; Alt+Tab
+-- (Fokus weg) gibt den Zeiger frei.
+hl.window_rule({
+    name = "games-confine-pointer",
+    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    confine_pointer = true,
 })
 
 -- is-window-cast-target (roter Rahmen beim Teilen): gibt es in Hyprland nicht
@@ -599,6 +610,9 @@ bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal",
 bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
+-- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in Waybar)
+bind(key("CTRL + V"), hl.dsp.exec_cmd("clipboard-history"), title("Clipboard History", { repeating = false }))
+bind(key("SHIFT + E"), hl.dsp.exec_cmd("~/.config/wlogout/launch.sh"), title("Power Menu: wlogout", { repeating = false }))
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })
@@ -622,6 +636,26 @@ local next_layout = [[sh -c 'n=$(hyprctl devices -j | jq "first(.keyboards[] | s
     | (.active_layout_index + 1) % (.layout | split(\",\") | length)") && hyprctl switchxkblayout all "$n"']]
 for _, keys in ipairs({ "ALT + Shift_L", "ALT + Shift_R", "SHIFT + Alt_L", "SHIFT + Alt_R" }) do
     bind(keys, hl.dsp.exec_cmd(next_layout), { non_consuming = true, repeating = false })
+end
+
+-- Alt+Tab (Niri: eingebaut): hyprshell, ~/.config/hyprshell.
+-- hyprshell legt diese Tasten selbst per IPC an (hl.bind über `eval`), aber
+-- jedes Neuladen der Config löscht sie wieder – theme.sh lädt nach jedem
+-- Hintergrundwechsel neu, beim Login dazu das Plugin unten. Danach ging
+-- Alt+Tab bis zum Neustart von hyprshell nicht mehr. Deshalb stehen sie
+-- auch hier, mit denselben Flags wie bei hyprshell (ersetzt sie nur).
+local function hyprshell(msg)
+    return hl.dsp.exec_cmd("hyprshell socat '" .. msg .. "'")
+end
+local switch_next = hyprshell([[{"OpenSwitch":{"reverse":false}}]])
+local switch_prev = hyprshell([[{"OpenSwitch":{"reverse":true}}]])
+local switch_close = hyprshell([[{"CloseSwitch":{"switch":true}}]])
+hl.bind("ALT + Tab", switch_next, { auto_consuming = true, repeating = true, description = "Switch Windows" })
+hl.bind("ALT + SHIFT + Tab", switch_prev, { auto_consuming = true, repeating = true })
+hl.bind("ALT + grave", switch_prev, { auto_consuming = true, repeating = true })
+-- Loslassen von Alt wechselt zum gewählten Fenster
+for _, keys in ipairs({ "ALT + Alt_L", "ALT + Alt_R", "SHIFT + Shift_L", "SHIFT + Shift_R" }) do
+    hl.bind(keys, switch_close, { release = true, transparent = true, auto_consuming = true })
 end
 
 bind(key("O"), toggle_overview, title("Open the Overview", { repeating = false }))

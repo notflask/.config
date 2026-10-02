@@ -76,13 +76,21 @@ elif [ -d /sys/class/net/$iface ]; then
   tx=$(cat /sys/class/net/$iface/statistics/tx_bytes)
   dns=$(awk '/^nameserver/ {printf "%s%s", sep, $2; sep=", "}' /etc/resolv.conf)
 
-  # Aktuelle Geschwindigkeit aus der Differenz zum letzten Aufruf
-  speed=""
-  if read -r t0 rx0 tx0 < "$rates" 2>/dev/null && [ "$now" -gt "$t0" ] && [ "$rx" -ge "$rx0" ]; then
+  # Aktuelle Geschwindigkeit aus der Differenz zum letzten Aufruf. Pro
+  # Monitor läuft eine Waybar-Leiste, beide rufen das Skript in derselben
+  # Sekunde auf – daher die letzten zwei Messungen merken: Hat die andere
+  # Leiste gerade erst geschrieben, gegen die Messung davor rechnen.
+  speed="" t0=0 tp=0
+  { read -r tp rxp txp && read -r t0 rx0 tx0; } < "$rates" 2>/dev/null
+  if [ "$now" -gt "${t0:-0}" ]; then
+    printf '%s %s %s\n%s %s %s\n' "${t0:-0}" "${rx0:-0}" "${tx0:-0}" "$now" "$rx" "$tx" > "$rates"
+  else
+    t0=$tp rx0=$rxp tx0=$txp
+  fi
+  if [ "${t0:-0}" -gt 0 ] && [ "$now" -gt "$t0" ] && [ "$rx" -ge "$rx0" ]; then
     dt=$((now - t0))
     speed="↓ $(human $(((rx - rx0) / dt)))/s   ↑ $(human $(((tx - tx0) / dt)))/s"
   fi
-  echo "$now $rx $tx" > "$rates"
 
   # Endpoint und Handshake – schreibt der Dienst vpn-peer-info (vpn.nix)
   endpoint="" handshake=0

@@ -25,7 +25,15 @@ let
   # Ausnahme Hyprland: Es rendert auf der NVIDIA und kann die Bildpuffer der
   # iGPU nicht importieren (eglCreateImageKHR: „buffer attributes are not
   # supported“) → Discord-Fenster bleibt schwarz. Dort zeichnet Discord daher
-  # auf der NVIDIA; Niri übernimmt die Puffer der iGPU problemlos.
+  # auf der NVIDIA.
+  #
+  # Ausnahme Niri: Niri rendert ebenfalls auf der NVIDIA und liefert den
+  # Bildschirm-Stream nur als DMA-BUF mit NVIDIA-Modifiern (kein MemFd).
+  # Discord nimmt nur Puffer der GPU an, mit der es auch kodiert – ohne CUDA
+  # wäre das die Iris Xe (Intel-Modifier) → „no more input formats“, Stream
+  # bricht sofort ab. Unter Niri bleibt CUDA daher sichtbar (NVENC kodiert).
+  # Falls Discord dabei wieder in libcuda abstürzt: ScreenCast-Portal unter
+  # Niri auf xdg-desktop-portal-wlr umstellen (bietet MemFd an).
   discordVencord = pkgs.discord.override {
     withVencord = true;
   };
@@ -38,10 +46,10 @@ let
         rm $out/bin/$bin
         makeWrapper ${discordVencord}/bin/$bin $out/bin/$bin \
           --set LIBVA_DRIVER_NAME iHD \
-          --set CUDA_VISIBLE_DEVICES -1 \
           --prefix LD_LIBRARY_PATH : ${lib.getLib pkgs.libva}/lib \
-          --run 'render_node=/dev/dri/intel-render' \
+          --run 'render_node=/dev/dri/intel-render; export CUDA_VISIBLE_DEVICES=-1' \
           --run 'if [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then render_node=/dev/dri/nvidia-render; fi' \
+          --run 'if [ -n "''${NIRI_SOCKET:-}" ]; then render_node=/dev/dri/nvidia-render; unset CUDA_VISIBLE_DEVICES; fi' \
           --add-flags '--render-node-override=$render_node'
       done
     '';

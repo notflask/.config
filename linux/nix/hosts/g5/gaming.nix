@@ -62,7 +62,7 @@ in
   ];
 
   # Overlay beim Login im Hintergrund starten (Alt+Z öffnet es) – in Niri
-  # und Hyprland, beide führen XDG-Autostart aus (desktop.nix)
+  # und Hyprland, beide führen XDG-Autostart aus (niri.service bzw. UWSM)
   environment.etc."xdg/autostart/gpu-screen-recorder-ui.desktop".text = ''
     [Desktop Entry]
     Type=Application

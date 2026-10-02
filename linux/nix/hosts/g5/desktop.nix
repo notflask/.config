@@ -38,38 +38,31 @@ let
     '';
   };
 
-  # Bildschirme aus/an (hypridle) – je nachdem, welcher Compositor läuft
+  # Ein Befehl für Niri und Hyprland: erkennt den laufenden Compositor
+  # (auch mit veralteter Umgebung, z. B. in tmux) – `wm help` listet alles.
+  # Die Skripte unten, wlogout/launch.sh, matugen/theme.sh und der
+  # Autostart beider Configs (`wm autostart`) laufen darüber.
+  wm = pkgs.writeShellApplication {
+    name = "wm";
+    runtimeInputs = with pkgs; [
+      jq
+      coreutils # seq, sleep, id
+    ];
+    text = builtins.readFile ../../scripts/wm.sh;
+  };
+
+  # Bildschirme aus/an (hypridle)
   screen-power = pkgs.writeShellApplication {
     name = "screen-power";
-    text = ''
-      state=''${1:?on oder off}
-      if [ -n "''${NIRI_SOCKET:-}" ]; then
-        niri msg action "power-$state-monitors"
-      elif [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        action=disable
-        if [ "$state" = on ]; then
-          action=enable
-        fi
-        hyprctl dispatch "hl.dsp.dpms({ action = \"$action\" })"
-      fi
-    '';
+    runtimeInputs = [ wm ];
+    text = ''exec wm screens "''${1:?on oder off}"'';
   };
 
   # Abmelden aus der laufenden Sitzung (wlogout, siehe wlogout/layout)
   session-logout = pkgs.writeShellApplication {
     name = "session-logout";
-    text = ''
-      if [ -n "''${NIRI_SOCKET:-}" ]; then
-        exec niri msg action quit --skip-confirmation
-      elif [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        # hyprshutdown schließt erst alle Fenster sauber (ungesicherte Daten)
-        if command -v hyprshutdown >/dev/null; then
-          exec hyprshutdown
-        fi
-        exec hyprctl dispatch 'hl.dsp.exit()'
-      fi
-      exec loginctl terminate-session "''${XDG_SESSION_ID:-}"
-    '';
+    runtimeInputs = [ wm ];
+    text = "exec wm logout";
   };
 
   # Wegwerf-Terminal (Super+`): schwebt oben mittig über allem (Fensterregel
@@ -80,31 +73,17 @@ let
   # fokussiert, holt die Taste es nur nach vorn.
   scratch-term = pkgs.writeShellApplication {
     name = "scratch-term";
-    runtimeInputs = with pkgs; [ jq ];
+    runtimeInputs = [ wm ];
     text = ''
       app_id=com.flask.scratchpad
       unit=scratchpad.service
 
-      if [ -n "''${NIRI_SOCKET:-}" ]; then
-        id=$(niri msg --json windows | jq --arg app "$app_id" \
-          'first(.[] | select(.app_id == $app)) | .id // empty')
-        focused=$(niri msg --json focused-window | jq '.id // empty')
-        focus() { niri msg action focus-window --id "$1"; }
-      elif [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-        id=$(hyprctl clients -j | jq -r --arg app "$app_id" \
-          'first(.[] | select(.class == $app)) | .address // empty')
-        focused=$(hyprctl activewindow -j | jq -r '.address // empty')
-        focus() { hyprctl dispatch "hl.dsp.focus({ window = \"address:$1\" })" >/dev/null; }
-      else
-        id=""
-        focused=""
-      fi
-
+      id=$(wm find-window "$app_id" 2>/dev/null || true)
       if [ -n "$id" ]; then
-        if [ "$id" = "$focused" ]; then
+        if [ "$id" = "$(wm focused-window)" ]; then
           systemctl --user stop "$unit"
         else
-          focus "$id"
+          wm focus-window "$id" >/dev/null
         fi
         exit 0
       fi
@@ -116,6 +95,29 @@ let
           --gtk-single-instance=false \
           --confirm-close-surface=false \
           --working-directory=home
+    '';
+  };
+
+  # Zwischenablage-Verlauf (Super+Strg+V, wie Win+V): cliphist speichert
+  # jede Kopie (Autostart in `wm autostart`), Rofi zeigt sie. Enter kopiert
+  # den Eintrag wieder, Shift+Entf löscht ihn aus dem Verlauf.
+  clipboard-history = pkgs.writeShellApplication {
+    name = "clipboard-history";
+    runtimeInputs = with pkgs; [
+      cliphist
+      rofi
+      wl-clipboard
+    ];
+    text = ''
+      rc=0
+      sel=$(cliphist list | rofi -dmenu -i -p Zwischenablage \
+        -display-columns 2 \
+        -kb-delete-entry "" -kb-custom-1 "Shift+Delete" \
+        -mesg "Enter: kopieren · Shift+Entf: löschen") || rc=$?
+      case $rc in
+        0) printf '%s' "$sel" | cliphist decode | wl-copy ;;
+        10) printf '%s' "$sel" | cliphist delete ;;
+      esac
     '';
   };
 
@@ -235,10 +237,12 @@ in
     rm -f "''${XDG_CACHE_HOME:-$HOME/.cache}/ksycoca"*
   '';
 
-  # Autostart-Einträge (/etc/xdg/autostart, ~/.config/autostart) in beiden
-  # Sitzungen ausführen – z. B. GPU Screen Recorder oder „Beim Login starten“
-  # von Discord/Telegram. Unter Hyprland macht das UWSM ohnehin.
-  systemd.user.targets.xdg-desktop-autostart.wantedBy = [ "graphical-session.target" ];
+  # Autostart-Einträge (/etc/xdg/autostart, ~/.config/autostart: GPU Screen
+  # Recorder, Blueman, „Beim Login starten“ von Discord/Telegram) starten
+  # niri.service (Wants=xdg-desktop-autostart.target) und UWSM von selbst.
+  # Kein zusätzliches wantedBy = graphical-session.target: Das ordnet die
+  # Sitzung *nach* dem Autostart, UWSM den Autostart *nach* der Sitzung –
+  # systemd löste den Kreis unter Hyprland auf, indem es den Autostart strich.
 
   # Sperrbildschirm (hyprlock) inkl. PAM, dazu hypridle (Auto-Sperre,
   # Config: linux/.config/hypr/hypridle.conf) – für beide Sitzungen
@@ -293,7 +297,9 @@ in
       screenshot-edit # Super+Shift+S
       session-logout # wlogout → Abmelden
       scratch-term # Super+`
+      clipboard-history # Super+Strg+V
       screen-power # hypridle
+      wm # Niri/Hyprland-Befehle, siehe oben
     ]);
 
   # Wie im Plasma-Modul: KDE-Apps finden Daten anderer Pakete (Dienstmenüs,
