@@ -646,6 +646,26 @@ for _, keys in ipairs({ "ALT + Shift_L", "ALT + Shift_R", "SHIFT + Alt_L", "SHIF
     bind(keys, hl.dsp.exec_cmd(next_layout), { non_consuming = true, repeating = false })
 end
 
+-- Alt+Tab (Niri: eingebaut): hyprshell, ~/.config/hyprshell.
+-- hyprshell legt diese Tasten selbst per IPC an (hl.bind über `eval`), aber
+-- jedes Neuladen der Config löscht sie wieder – theme.sh lädt nach jedem
+-- Hintergrundwechsel neu, beim Login dazu das Plugin unten. Danach ging
+-- Alt+Tab bis zum Neustart von hyprshell nicht mehr. Deshalb stehen sie
+-- auch hier, mit denselben Flags wie bei hyprshell (ersetzt sie nur).
+local function hyprshell(msg)
+    return hl.dsp.exec_cmd("hyprshell socat '" .. msg .. "'")
+end
+local switch_next = hyprshell([[{"OpenSwitch":{"reverse":false}}]])
+local switch_prev = hyprshell([[{"OpenSwitch":{"reverse":true}}]])
+local switch_close = hyprshell([[{"CloseSwitch":{"switch":true}}]])
+hl.bind("ALT + Tab", switch_next, { auto_consuming = true, repeating = true, description = "Switch Windows" })
+hl.bind("ALT + SHIFT + Tab", switch_prev, { auto_consuming = true, repeating = true })
+hl.bind("ALT + grave", switch_prev, { auto_consuming = true, repeating = true })
+-- Loslassen von Alt wechselt zum gewählten Fenster
+for _, keys in ipairs({ "ALT + Alt_L", "ALT + Alt_R", "SHIFT + Shift_L", "SHIFT + Shift_R" }) do
+    hl.bind(keys, switch_close, { release = true, transparent = true, auto_consuming = true })
+end
+
 bind(key("O"), toggle_overview, title("Open the Overview", { repeating = false }))
 -- Esc schließt die Übersicht (wie in Niri)
 bind("Escape", function()
