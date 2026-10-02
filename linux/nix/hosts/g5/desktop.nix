@@ -214,10 +214,12 @@ in
     rm -f "''${XDG_CACHE_HOME:-$HOME/.cache}/ksycoca"*
   '';
 
-  # Autostart-Einträge (/etc/xdg/autostart, ~/.config/autostart) in beiden
-  # Sitzungen ausführen – z. B. GPU Screen Recorder oder „Beim Login starten“
-  # von Discord/Telegram. Unter Hyprland macht das UWSM ohnehin.
-  systemd.user.targets.xdg-desktop-autostart.wantedBy = [ "graphical-session.target" ];
+  # Autostart-Einträge (/etc/xdg/autostart, ~/.config/autostart: GPU Screen
+  # Recorder, Blueman, „Beim Login starten“ von Discord/Telegram) starten
+  # niri.service (Wants=xdg-desktop-autostart.target) und UWSM von selbst.
+  # Kein zusätzliches wantedBy = graphical-session.target: Das ordnet die
+  # Sitzung *nach* dem Autostart, UWSM den Autostart *nach* der Sitzung –
+  # systemd löste den Kreis unter Hyprland auf, indem es den Autostart strich.
 
   # Sperrbildschirm (hyprlock) inkl. PAM, dazu hypridle (Auto-Sperre,
   # Config: linux/.config/hypr/hypridle.conf) – für beide Sitzungen

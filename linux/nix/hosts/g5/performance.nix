@@ -47,7 +47,11 @@
   # ── Energieprofil „Leistung“ beim Start setzen ─────────────
   systemd.services.performance-power-profile = {
     description = "Energieprofil auf Leistung setzen";
-    wantedBy = [ "multi-user.target" ];
+    # graphical.target, nicht multi-user.target: power-profiles-daemon startet
+    # erst nach multi-user.target (After= in seiner Unit), wantedBy multi-user
+    # hieße aber „vor multi-user.target“ → Kreis, systemd strich den Dienst
+    # bei jedem Start ("Job … deleted to break ordering cycle")
+    wantedBy = [ "graphical.target" ];
     after = [ "power-profiles-daemon.service" ];
     requires = [ "power-profiles-daemon.service" ];
     serviceConfig = {
