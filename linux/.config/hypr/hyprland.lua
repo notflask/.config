@@ -245,9 +245,12 @@ hl.window_rule({
 -- nach dem Flächenwechsel nicht greift und der Zeiger auf den Laptop-
 -- Bildschirm rutscht. Relative Mausbewegung kommt trotzdem an; Alt+Tab
 -- (Fokus weg) gibt den Zeiger frei.
+-- Sober nicht: Roblox sperrt den Zeiger selbst (Rechtsklick, Shift-Lock,
+-- Ego-Sicht) und braucht ihn sonst frei – mit der Regel kam die Maus nie
+-- auf den anderen Monitor.
 hl.window_rule({
     name = "games-confine-pointer",
-    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    match = { class = "steam_app_.*|cs2|gamescope" },
     confine_pointer = true,
 })
 
