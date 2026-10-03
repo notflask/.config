@@ -10,11 +10,11 @@
     },
 
     "hyprland/language": {
-        "format": "<b>{}</b>",
-        "format-en": "us",
-        "format-de": "de",
-        "format-ru": "ru",
-        "format-uk": "ua"
+        "format": "{}",
+        "format-en": "US",
+        "format-de": "DE",
+        "format-ru": "RU",
+        "format-uk": "UA"
     },
 
     "hyprland/window": {
