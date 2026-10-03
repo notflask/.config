@@ -12,6 +12,12 @@
     "network": {
         "format-wifi": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>{icon}</span>",
         "format-ethernet": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰈀</span>",
+        // "linked" = Kabel steckt, Waybar kennt aber keine IP. Passiert mit
+        // wg-quick (eigene Routing-Tabelle 51820): nach der Routenänderung
+        // verliert das Modul die Adresse, obwohl die Verbindung steht. Ohne
+        // diese Formate fällt Waybar auf "{ifname}" zurück (enp3s0 in der Leiste).
+        "format": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰈀</span>",
+        "format-linked": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰈀</span>",
         "format-disconnected": "<span font_family='Symbols Nerd Font' size='13pt' rise='-1pt'>󰤮</span>",
         "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
         "tooltip-format-wifi": "<b>{essid}</b>  {signalStrength}%\n{ipaddr}/{cidr}\n↓ {bandwidthDownBytes}   ↑ {bandwidthUpBytes}",
