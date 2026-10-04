@@ -1,8 +1,8 @@
 language = de
 # Folgt hell/dunkel des Systems (theme.sh, Super+Shift+T);
-# Eigene Themes in themes/: "Vague Black" = Vague mit schwarzem Hintergrund,
-# "Matugen" (hell) wird von matugen aus dem Hintergrundbild erzeugt
-theme = light:Matugen,dark:Vague Black
+# Eigene Themes in themes/: Solarized Osaka Light/Dark = Palette von
+# craftzdog/solarized-osaka.nvim (passt zu Neovim), mit Glas-Deckkraft
+theme = light:Solarized Osaka Light,dark:Solarized Osaka Dark
 font-family = "JetBrains Mono"
 font-family = "Apple Color Emoji"
 font-size = 16

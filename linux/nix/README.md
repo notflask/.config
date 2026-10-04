@@ -506,8 +506,7 @@ Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako, Sperrbildschirm,
 | Discord (Vencord) | `matugen.theme.css` (Aufbau von *midnight*) → `theme.sh` trägt es selbst unter „aktive Themes“ ein (läuft Discord, einmal neu starten) |
 | Spotify | Spicetify, Spotifys eigenes Layout, Farben von matugen und Korrekturen für den Hellmodus (festes Weiß in Spotifys CSS ersetzt) – live per Symlink + Extension (`apps.nix`) |
 | Firefox | Pywalfox (Farben + hell/dunkel), Webseiten folgen hell/dunkel |
-| Ghostty | hell *Matugen* (aus dem Hintergrundbild erzeugt, `theme.sh` lädt neu), dunkel *Vague* (schwarzer Hintergrund) |
-| Neovim | hell *Rose Pine Dawn*, dunkel *Vague* – schaltet mit um |
+| Ghostty, Neovim | hell *Solarized Osaka Light* ([craftzdog/solarized-osaka.nvim](https://github.com/craftzdog/solarized-osaka.nvim)), dunkel *Solarized Osaka Dark* – schalten mit um |
 | TTY, Login (ly), Ladebildschirm | Farben von Vague bzw. Plymouth *bgrt* (Herstellerlogo) – fest |
 
 **Wallpaper wechseln:** in Waypaper ein Bild wählen – danach läuft automatisch
