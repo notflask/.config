@@ -1,4 +1,4 @@
-# Solarized Osaka Dark (craftzdog/solarized-osaka.nvim, extras/ghostty), Hintergrund dunkler und fast deckend
+# Solarized Osaka Dark (craftzdog/solarized-osaka.nvim, extras/ghostty), Hintergrund dunkler, kaum durchsichtig
 palette = 0=#001419
 palette = 1=#db302d
 palette = 2=#849900
@@ -22,4 +22,4 @@ cursor-color = #839395
 selection-background = #1a6397
 selection-foreground = #839395
 cursor-text = #00090c
-background-opacity = 0.96
+background-opacity = 0.86
