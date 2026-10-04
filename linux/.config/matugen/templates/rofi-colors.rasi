@@ -5,6 +5,10 @@
     fg-dim:    #{{colors.on_surface_variant.default.hex_stripped}}cc;
     fg-faint:  #{{colors.on_surface_variant.default.hex_stripped}}80;
     selection: #{{colors.on_surface.default.hex_stripped}}29;
+    // Suchkapsel: leicht abgesetzte Fläche auf dem Glas
+    pill:      <* if {{ is_dark_mode }} *>#ffffff17<* else *>#0000000d<* endif *>;
+    // Akzent aus dem Hintergrundbild (Textcursor)
+    accent:    #{{colors.primary.default.hex_stripped}};
     rim:       <* if {{ is_dark_mode }} *>#ffffff40<* else *>#00000024<* endif *>;
     divider:   <* if {{ is_dark_mode }} *>#ffffff1f<* else *>#00000014<* endif *>;
 }

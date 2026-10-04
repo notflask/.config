@@ -2,11 +2,11 @@
 #
 # Alles richtet sich nach dem Hintergrundbild: matugen
 # (~/.config/matugen/theme.sh) färbt Niri/Hyprland-Rahmen, Waybar, Rofi,
-# Mako, den Cursor, Discord, Spotify, Firefox – und die Apps:
+# Mako, Discord, Spotify, Firefox – und die Apps:
 #   GTK:  adw-gtk3 bzw. libadwaita + ~/.config/gtk-{3,4}.0/gtk.css
 #   Qt:   Breeze-Stil + Farben aus ~/.config/kdeglobals (auch Dolphin & Co.)
 # Hell oder dunkel: `theme.sh -m light|dark` oder Sonne/Mond in der Waybar.
-# Fest bleiben nur die Icons (Papirus) und TTY/Login (Farben von Vague wie
+# Fest bleiben nur Cursor (macOS), Icons (Papirus) und TTY/Login (Farben von Vague wie
 # im Terminal).
 {
   config,
@@ -18,52 +18,9 @@
 let
   home = config.users.users.flask.home;
 
-  # Name, unter dem Apps den Cursor finden (Symlink auf die aktuelle Variante)
-  cursorTheme = "matugen-cursor";
-
-  # Cursor in den Farben des Hintergrundbilds: Bibata Modern Classic ist
-  # zweifarbig (Füllung schwarz, Rand weiß). Die fertigen Bilder werden
-  # umgefärbt (schwarz → FÜLLUNG, weiß → RAND, Transparenz bleibt) und mit
-  # ctgen wie im Bibata-Paket zu XCursors gebaut, nach
-  # ~/.local/share/icons/matugen-cursor-<farben>. Dauert ein paar Sekunden.
-  #   theme-cursor FÜLLUNG RAND   (#rrggbb) → gibt den Theme-Namen aus
-  theme-cursor = pkgs.writeShellApplication {
-    name = "theme-cursor";
-    runtimeInputs = with pkgs; [
-      imagemagick
-      clickgen
-      coreutils
-      findutils
-    ];
-    text = ''
-      fill=''${1:?FÜLLUNG fehlt (#rrggbb)} outline=''${2:?RAND fehlt (#rrggbb)}
-      icons="''${XDG_DATA_HOME:-$HOME/.local/share}/icons"
-      name="${cursorTheme}-''${fill#\#}-''${outline#\#}"
-
-      if [ ! -d "$icons/$name/cursors" ]; then
-        mkdir -p "$icons"
-        tmp=$(mktemp -d "$icons/.${cursorTheme}.XXXXXX")
-        trap 'rm -rf "$tmp"' EXIT
-        mkdir "$tmp/bitmaps"
-        magick mogrify -path "$tmp/bitmaps" \
-          -channel RGB +level-colors "$fill,$outline" +channel \
-          -define png:format=png32 \
-          ${pkgs.bibata-cursors.bitmaps}/Bibata-Modern-Classic/*.png
-        ctgen ${pkgs.bibata-cursors.src}/configs/normal/x.build.toml \
-          -p x11 -d "$tmp/bitmaps" -o "$tmp/out" -n "$name" \
-          -c "Bibata in den Farben des Hintergrundbilds" \
-          -s 24 32 48 >/dev/null
-        rm -rf "''${icons:?}/$name"
-        mv "$tmp/out/$name" "$icons/$name"
-      fi
-
-      # Fester Name für alles, was den Cursor nur beim Start liest
-      ln -sfn "$name" "$icons/${cursorTheme}"
-      # ältere Varianten aufräumen
-      find "$icons" -maxdepth 1 -name '${cursorTheme}-*' ! -name "$name" -exec rm -rf {} +
-      echo "$name"
-    '';
-  };
+  # macOS-Cursor (pkgs.apple-cursor): „macOS“ schwarz mit weißem Rand,
+  # „macOS-White“ weiß. Feste Farbe, folgt dem Hintergrundbild nicht.
+  cursorTheme = "macOS";
 
   gtkSettings = ''
     [Settings]
@@ -77,7 +34,7 @@ let
 in
 {
   environment.systemPackages = [
-    theme-cursor
+    pkgs.apple-cursor # macOS-Cursor, siehe cursorTheme oben
     pkgs.papirus-icon-theme # Papirus-Dark bzw. Papirus-Light (theme.sh)
     pkgs.adw-gtk3 # GTK3 im libadwaita-Look, Farben per gtk.css
     pkgs.kdePackages.breeze # Qt-Stil
@@ -95,7 +52,7 @@ in
   };
 
   # GTK-Vorgaben (über das Einstellungs-Portal auch für Flatpaks).
-  # theme.sh überschreibt Hell/Dunkel, Thema, Icons und Cursor.
+  # theme.sh überschreibt Hell/Dunkel, Thema und Icons.
   programs.dconf.profiles.user.databases = [
     {
       settings."org/gnome/desktop/interface" = {
@@ -112,10 +69,10 @@ in
   environment.etc."xdg/gtk-3.0/settings.ini".text = gtkSettings;
   environment.etc."xdg/gtk-4.0/settings.ini".text = gtkSettings;
 
-  # Farben, Cursor usw. beim ersten Login einmal erzeugen (danach bei jedem
+  # Farben usw. beim ersten Login einmal erzeugen (danach bei jedem
   # Wallpaper-Wechsel über Waypaper → theme.sh). Die Markierung trägt eine
   # Nummer: erhöhen, wenn theme.sh nach einem Update einmal laufen muss
-  # (v2: Cursor, Hell/Dunkel).
+  # (v2: Hell/Dunkel).
   systemd.user.services.matugen-first-run = {
     description = "Farben aus dem Hintergrundbild erzeugen (einmalig)";
     wantedBy = [ "graphical-session.target" ];

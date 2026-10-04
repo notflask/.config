@@ -29,6 +29,7 @@ linux/nix/
     ├── rebuild.sh                 # Config anwenden / System aktualisieren
     ├── gpu-info.sh                # welcher Anschluss hängt an welcher GPU?
     ├── gaming-mode.sh             # Spiele-Starter (als Befehl `gaming-mode` installiert)
+    ├── sober-setup.sh             # Sober: MangoHud, Shader-Cache (Befehl `sober-setup`)
     ├── wm.sh                      # `wm`: ein Befehl für Niri und Hyprland (Autostart, Reload, Bildschirme …)
     ├── update-claude-desktop.sh   # neueste Claude-Desktop-Version eintragen
     ├── update-atas-x.sh           # neueste ATAS-X-Version eintragen
@@ -89,6 +90,7 @@ verlinkt (`dotfiles.nix`):
 | `~/.config/…` | → Repo |
 |---|---|
 | `nvim` | `linux/.config/nvim` |
+| `sioyek` | `linux/.config/sioyek` (PDF-Betrachter für Typst/Mathe-Notizen) |
 | `tmux` | `linux/.config/tmux` |
 | `ghostty` | `linux/.config/ghostty` |
 | `niri`, `hypr`, `waybar`, `rofi`, `mako`, `wlogout`, `matugen`, `waypaper` | für Niri und Hyprland |
@@ -103,6 +105,21 @@ Existiert in `~/.config` schon ein echter Ordner mit dem Namen, wird er nicht
 sind installiert, `nix-ld` sorgt dafür, dass die von Mason geladenen Programme
 (clangd usw.) laufen. Für vimtex fehlt nur noch eine TeX-Distribution – bei Bedarf
 `texliveMedium` in `dotfiles.nix` ergänzen (einige GB groß).
+
+**Typst (Mathe-Notizen):** `typst`, `tinymist` (Sprachserver) und `typstyle`
+(Formatierer) kommen aus nixpkgs – Mason-Binaries laufen unter NixOS unzuverlässig.
+Das LazyVim-Extra `lang.typst` (`lazyvim.json`) liefert Syntax, Diagnose und
+Browser-Vorschau; `nvim/lua/plugins/typst.lua` stellt tinymist ein.
+
+| Taste (in `.typ`) | Wirkung |
+|---|---|
+| Speichern (`:w`) | tinymist schreibt `datei.pdf` neben die Quelle; sioyek lädt sie selbst neu |
+| `<leader>co` | PDF in sioyek öffnen (`should_launch_new_window 0`: ein Fenster, mit gleicher Seite) |
+| `<leader>cp` / `<leader>cP` | Browser-Vorschau / Hauptdatei festlegen (Extra) |
+
+Sioyek: Config in `sioyek/prefs_user.config` (dunkle PDFs, sanftes Scrollen),
+Tasten in `keys_user.config` (Strg+D / Strg+U = halbe Seite).
+Beim ersten `nvim` installiert Lazy die Typst-Plugins und ändert `lazy-lock.json`.
 
 
 ## Schriften (`fonts.nix`)
@@ -368,6 +385,25 @@ Ruckler bis hin zum Mauszeiger. Der erste Start nach dem Umstellen ruckelt
 kurz, bis der Shader-Cache gebaut ist.
 Aktualisiert wird Sober mit `rebuild update` (bzw. `flatpak update`).
 
+**Einmalig danach: `sober-setup`** (Benutzerebene, kein sudo, wiederholbar). Es
+
+- installiert die Flatpak-Erweiterung `org.freedesktop.Platform.VulkanLayer.MangoHud//25.08`
+  und setzt die Overrides für MangoHud (Ein-/Ausblenden: Shift rechts + F12),
+- schaltet den NVIDIA-Shader-Cache auf 4 GB ohne automatisches Aufräumen
+  (Roblox kompiliert sonst nach Cache-Bereinigung Shader neu → Ruckler),
+- gibt Sober den Discord-Socket („Spielt Roblox“),
+- kopiert `MangoHud.conf` in die Sandbox; `theme.sh` hält die Kopie bei
+  Themenwechsel aktuell.
+
+`sober-setup off` setzt die Overrides zurück, `sober-setup status` zeigt sie.
+GameMode ist in Sober schon an (`enable_gamemode`).
+
+**Bekannte Grenze:** MangoHud hängt sich per `LD_PRELOAD` in Sobers OpenGL-Pfad
+ein. Im Test (Sober 1.7.1) tauchte die Bibliothek im Roblox-Prozess nicht auf –
+Sober scheint die Umgebung zu filtern. Bleibt das HUD aus, bleibt nur Vulkan
+(`"use_opengl": false`), dort greift die Vulkan-Ebene; dann fällt aber das
+Tippen unter NVIDIA aus (siehe oben).
+
 Da Sober inoffiziell ist, kann ein Roblox-Update es zeitweise kaputt machen – dann auf
 ein Sober-Update warten.
 
@@ -462,13 +498,13 @@ setzen, `rebuild`, nochmal testen. Status prüfen: `systemctl status scx`.
 
 **Matugen** erzeugt aus dem Wallpaper ein Farbschema und färbt damit alles:
 Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako, Sperrbildschirm,
-den Cursor **und die Apps** – wahlweise **hell oder dunkel**:
+**die Apps** – wahlweise **hell oder dunkel**:
 
 | Bereich | Wie |
 |---|---|
 | GTK-Apps (Firefox u. a.) | Thema *adw-gtk3* / *adw-gtk3-dark* bzw. libadwaita, Farben in `~/.config/gtk-3.0/gtk.css` und `gtk-4.0/gtk.css` |
 | Qt- und KDE-Apps (Dolphin, Okular …) | Breeze-Stil, Farben in `~/.config/kdeglobals` |
-| Cursor | Bibata, eingefärbt in den Wallpaper-Farben (`theme-cursor` in `theme.nix`, liegt in `~/.local/share/icons/matugen-cursor`) |
+| Cursor | macOS (`pkgs.apple-cursor`, fest – folgt dem Wallpaper nicht); Wechsel zu `macOS-White` über `cursorTheme` in `theme.nix`, `hyprland.lua`, `niri/config.kdl` |
 | Icons | Papirus-Light bzw. Papirus-Dark |
 | Discord (Vencord) | `matugen.theme.css` (Aufbau von *midnight*) → einmal unter *Einstellungen → Vencord → Themes* anhaken |
 | Spotify | Spicetify, Spotifys eigenes Layout, Farben von matugen und Korrekturen für den Hellmodus – live per Symlink + Extension (`apps.nix`) |
@@ -478,8 +514,7 @@ den Cursor **und die Apps** – wahlweise **hell oder dunkel**:
 
 **Wallpaper wechseln:** in Waypaper ein Bild wählen – danach läuft automatisch
 `theme` (`linux/.config/matugen/theme.sh`). Qt-Apps, Waybar, mako, die
-Rahmen und Hell/Dunkel passen sich sofort an, der Cursor ein paar Sekunden
-später. Laufende GTK-Apps übernehmen neue Farben nach einem Neustart.
+Rahmen und Hell/Dunkel passen sich sofort an. Laufende GTK-Apps übernehmen neue Farben nach einem Neustart.
 
 **Hell/dunkel:** Klick auf Sonne/Mond in der Waybar schaltet um. Der Modus
 bleibt gespeichert (`~/.local/state/theme-mode`) und gilt auch für jedes

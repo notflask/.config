@@ -134,7 +134,7 @@ hl.config({
 
 -- ── cursor ──────────────────────────────────────────────────
 
-hl.env("XCURSOR_THEME", "matugen-cursor")
+hl.env("XCURSOR_THEME", "macOS")
 hl.env("XCURSOR_SIZE", "24")
 hl.config({
     cursor = {

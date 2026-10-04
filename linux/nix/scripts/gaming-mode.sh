@@ -93,6 +93,9 @@ export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
 
 # ── Proton: NVAPI für DLSS / Reflex in Windows-Spielen ───────
 export PROTON_ENABLE_NVAPI=1
+# NTSync (Kernelmodul aus performance.nix) statt fsync: weniger CPU-Last und
+# gleichmäßigere Bildzeiten; Proton ohne Unterstützung ignoriert es
+export PROTON_USE_NTSYNC=1
 
 # ── MangoHud-Layout, falls keine eigene Config existiert ─────
 if [ -z "${MANGOHUD_CONFIG:-}" ] && [ ! -e "${XDG_CONFIG_HOME:-$HOME/.config}/MangoHud/MangoHud.conf" ]; then

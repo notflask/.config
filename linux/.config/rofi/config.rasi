@@ -16,6 +16,10 @@ configuration {
     drun-display-format: "{name}[<span size='small' alpha='55%'>&#10;{comment}</span>]";
     drun-show-actions: false;
     scroll-method: 1;
+    // Ein Klick startet (wie Spotlight)
+    hover-select: true;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
 }
 
 @theme "~/.config/rofi/spotlight.rasi"
