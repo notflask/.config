@@ -1,4 +1,4 @@
-# Solarized Osaka Dark (craftzdog/solarized-osaka.nvim, extras/ghostty), mit Glas-Deckkraft
+# Solarized Osaka Dark (craftzdog/solarized-osaka.nvim, extras/ghostty), Hintergrund dunkler und fast deckend
 palette = 0=#001419
 palette = 1=#db302d
 palette = 2=#849900
@@ -16,10 +16,10 @@ palette = 13=#f254a0
 palette = 14=#2aeddd
 palette = 15=#ffffff
 
-background = #001419
+background = #00090c
 foreground = #839395
 cursor-color = #839395
 selection-background = #1a6397
 selection-foreground = #839395
-cursor-text = #001419
-background-opacity = 0.85
+cursor-text = #00090c
+background-opacity = 0.96
