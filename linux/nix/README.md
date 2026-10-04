@@ -398,11 +398,8 @@ Aktualisiert wird Sober mit `rebuild update` (bzw. `flatpak update`).
 `sober-setup off` setzt die Overrides zurück, `sober-setup status` zeigt sie.
 GameMode ist in Sober schon an (`enable_gamemode`).
 
-**Bekannte Grenze:** MangoHud hängt sich per `LD_PRELOAD` in Sobers OpenGL-Pfad
-ein. Im Test (Sober 1.7.1) tauchte die Bibliothek im Roblox-Prozess nicht auf –
-Sober scheint die Umgebung zu filtern. Bleibt das HUD aus, bleibt nur Vulkan
-(`"use_opengl": false`), dort greift die Vulkan-Ebene; dann fällt aber das
-Tippen unter NVIDIA aus (siehe oben).
+Das HUD ist immer dunkel mit heller Schrift (auch im Hellmodus), weil es über dem
+Spiel liegt, nicht über dem Desktop.
 
 Da Sober inoffiziell ist, kann ein Roblox-Update es zeitweise kaputt machen – dann auf
 ein Sober-Update warten.
@@ -506,10 +503,11 @@ Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako, Sperrbildschirm,
 | Qt- und KDE-Apps (Dolphin, Okular …) | Breeze-Stil, Farben in `~/.config/kdeglobals` |
 | Cursor | macOS (`pkgs.apple-cursor`, fest – folgt dem Wallpaper nicht); Wechsel zu `macOS-White` über `cursorTheme` in `theme.nix`, `hyprland.lua`, `niri/config.kdl` |
 | Icons | Papirus-Light bzw. Papirus-Dark |
-| Discord (Vencord) | `matugen.theme.css` (Aufbau von *midnight*) → einmal unter *Einstellungen → Vencord → Themes* anhaken |
-| Spotify | Spicetify, Spotifys eigenes Layout, Farben von matugen und Korrekturen für den Hellmodus – live per Symlink + Extension (`apps.nix`) |
+| Discord (Vencord) | `matugen.theme.css` (Aufbau von *midnight*) → `theme.sh` trägt es selbst unter „aktive Themes“ ein (läuft Discord, einmal neu starten) |
+| Spotify | Spicetify, Spotifys eigenes Layout, Farben von matugen und Korrekturen für den Hellmodus (festes Weiß in Spotifys CSS ersetzt) – live per Symlink + Extension (`apps.nix`) |
 | Firefox | Pywalfox (Farben + hell/dunkel), Webseiten folgen hell/dunkel |
-| Ghostty, Neovim | hell *Rose Pine Dawn*, dunkel *Vague* (schwarzer Hintergrund) – schalten mit um |
+| Ghostty | hell *Matugen* (aus dem Hintergrundbild erzeugt, `theme.sh` lädt neu), dunkel *Vague* (schwarzer Hintergrund) |
+| Neovim | hell *Rose Pine Dawn*, dunkel *Vague* – schaltet mit um |
 | TTY, Login (ly), Ladebildschirm | Farben von Vague bzw. Plymouth *bgrt* (Herstellerlogo) – fest |
 
 **Wallpaper wechseln:** in Waypaper ein Bild wählen – danach läuft automatisch

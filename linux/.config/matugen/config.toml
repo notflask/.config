@@ -63,8 +63,13 @@ output_path = "~/.cache/matugen/spicetify-colors.css"
 input_path  = "~/.config/matugen/templates/hyprlock-colors.conf"
 output_path = "~/.config/hypr/hyprlock-colors.conf"
 
-# Discord (Vencord): einmal unter Einstellungen → Vencord → Themes anhaken
+# Discord (Vencord): theme.sh trägt die Datei selbst unter „aktive Themes“ ein
 [templates.vencord]
 input_path  = "~/.config/matugen/templates/vencord.theme.css"
 output_path = "~/.config/Vencord/themes/matugen.theme.css"
 
+
+# Ghostty (heller Modus; dunkel bleibt Vague Black). theme.sh lädt Ghostty neu
+[templates.ghostty]
+input_path  = "~/.config/matugen/templates/ghostty-theme"
+output_path = "~/.config/ghostty/themes/Matugen"

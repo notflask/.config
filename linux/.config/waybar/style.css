@@ -4,6 +4,7 @@
 * {
     font-family: Inter;
     font-size: 14px;
+    font-weight: 500;
     border: none;
     border-radius: 0;
     margin: 0;
@@ -83,11 +84,14 @@ window#waybar {
     font-weight: bold;
 }
 
+/* runder Knopf (34px Leiste − 2×4px Rand − 2px Kante = 24px) */
 #custom-vpn {
-    margin: 4px 4px;
-    padding: 0 10px;
+    margin: 4px 6px;
+    padding: 0;
+    min-width: 24px;
+    min-height: 24px;
     border-radius: 12px;
-    font-weight: bold;
+    font-size: 14px;
 }
 #custom-vpn.on      { color: @ok;       background: alpha(@ok, 0.15); }    /* grün */
 #custom-vpn.pending { color: @warn;     background: alpha(@warn, 0.15); }  /* orange */
