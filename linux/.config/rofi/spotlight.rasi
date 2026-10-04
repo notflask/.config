@@ -1,39 +1,41 @@
-// macOS Spotlight (Tahoe): Glasfläche, große Suchzeile mit Trennlinie,
-// zweizeilige Einträge, neutrale Auswahl. Blur + Schatten macht niri
-// (layer-rule "rofi" in niri/config.kdl, gleicher Radius wie window).
-// Auswahl-Radius = window-Radius − padding → gleichmäßiger Abstand zum Rand
+// macOS Tahoe Spotlight: eine Glasfläche mit Kapsel-Suchfeld (voll gerundet)
+// und darunter weichen, ebenfalls kapselförmigen Treffern. Die Fläche wird
+// mit den Treffern höher und schrumpft bei wenigen Treffern auf die Kapsel.
+// Blur + Schatten machen Niri/Hyprland (layer-rule "rofi", gleicher Radius
+// wie window unten). Auswahl-Radius = window-Radius − padding.
 @import "~/.config/rofi/colors.rasi"
 
 * {
-    font: "Inter 12";
+    font: "Inter 13";
     background-color: transparent;
     text-color: @fg;
     spacing: 0;
 }
 
 window {
+    // Oben verankert: das Suchfeld bleibt beim Tippen an seinem Platz
     location: north;
     anchor: north;
-    y-offset: 220px;
-    width: 560px;
+    y-offset: 22%;
+    width: 640px;
     padding: 10px;
     border: 1px solid;
     border-color: @rim;
-    border-radius: 34px;
+    border-radius: 36px;
     background-color: @glass;
 }
 
 mainbox {
     children: [ inputbar, listview ];
+    spacing: 8px;
 }
 
 inputbar {
     children: [ icon-search, entry ];
-    spacing: 12px;
-    padding: 8px 14px 12px 14px;
-    margin: 0 8px 6px 8px;
-    border: 0 0 1px 0;
-    border-color: @divider;
+    spacing: 14px;
+    padding: 16px 24px;
+    border-radius: 100px;
+    background-color: @pill;
 }
 
 icon-search {
@@ -45,27 +47,29 @@ icon-search {
 }
 
 entry {
-    font: "Inter 17";
+    font: "Inter Medium 18";
     placeholder: "Spotlight-Suche";
     placeholder-color: @fg-faint;
-    cursor-color: @fg;
+    cursor-color: @accent;
     vertical-align: 0.5;
 }
 
 listview {
-    lines: 6;
+    lines: 5;
     columns: 1;
     fixed-height: false;
     dynamic: true;
     scrollbar: false;
     spacing: 2px;
+    // Abstand zur Kapsel wie zum Rand
+    margin: 2px 0 0 0;
 }
 
 element {
     children: [ element-icon, element-text ];
-    spacing: 12px;
-    padding: 5px 12px;
-    border-radius: 24px;
+    spacing: 14px;
+    padding: 6px 14px;
+    border-radius: 26px;
     cursor: pointer;
 }
 
@@ -90,5 +94,7 @@ element-text {
 
 // "Keine Treffer" usw.
 message, error-message {
-    padding: 8px 14px;
+    padding: 10px 18px;
+    border-radius: 22px;
+    background-color: @pill;
 }

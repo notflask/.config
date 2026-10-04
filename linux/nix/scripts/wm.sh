@@ -184,8 +184,8 @@ case "$wm:$cmd" in
   niri:focus-window) niri msg action focus-window --id "${1:?ID fehlt}" ;;
   hyprland:focus-window) hypr_dispatch "hl.dsp.focus({ window = \"address:${1:?Adresse fehlt}\" })" ;;
 
-  # Niri liest den Cursor aus niri/cursor.kdl (schreibt theme.sh) und lädt
-  # die Datei bei Änderungen selbst neu
+  # Niri liest den Cursor aus niri/config.kdl und lädt die Datei bei
+  # Änderungen selbst neu
   niri:cursor) : "${1:?Name fehlt}" ;;
   hyprland:cursor) hyprctl setcursor "${1:?Name fehlt}" "${2:-24}" >/dev/null ;;
 

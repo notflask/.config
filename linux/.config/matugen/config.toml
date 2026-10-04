@@ -68,7 +68,3 @@ output_path = "~/.config/hypr/hyprlock-colors.conf"
 input_path  = "~/.config/matugen/templates/vencord.theme.css"
 output_path = "~/.config/Vencord/themes/matugen.theme.css"
 
-# Cursor: Füllung und Rand für theme-cursor (theme.sh)
-[templates.cursor]
-input_path  = "~/.config/matugen/templates/cursor-colors"
-output_path = "~/.cache/matugen/cursor-colors"

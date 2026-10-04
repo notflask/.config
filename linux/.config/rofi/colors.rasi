@@ -5,6 +5,10 @@
     fg-dim:    #c7c5d0cc;
     fg-faint:  #c7c5d080;
     selection: #e4e1e929;
+    // Suchkapsel: leicht abgesetzte Fläche auf dem Glas
+    pill:      #ffffff17;
+    // Akzent aus dem Hintergrundbild (Textcursor)
+    accent:    #bbc3ff;
     rim:       #ffffff40;
     divider:   #ffffff1f;
 }

@@ -27,6 +27,7 @@ let
     "hypr" # Hyprland, hyprlock, hypridle
     "hyprshell" # Alt+Tab unter Hyprland
     "MangoHud" # FPS-Overlay (gaming-mode), Farben von matugen
+    "sioyek" # PDF-Betrachter für Typst-Notizen
   ];
 in
 {
@@ -59,6 +60,12 @@ in
     # cmake-tools.nvim / vimtex
     cmake
     sioyek
+
+    # Typst (Mathe-Notizen): Compiler, Sprachserver für Neovim, Formatter.
+    # Nix statt Mason, weil Mason-Binaries unter NixOS nicht zuverlässig laufen
+    typst
+    tinymist
+    typstyle
 
     # Python-Versionen verwalten: `uv python install` (läuft dank nix-ld)
     uv

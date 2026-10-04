@@ -3,7 +3,8 @@
 #
 # Spiele starten – Steam-Startoption:
 #   gaming-mode %command%
-# Details: scripts/gaming-mode.sh und README.md
+# Roblox (Sober): einmalig `sober-setup` (MangoHud, Shader-Cache)
+# Details: scripts/gaming-mode.sh, scripts/sober-setup.sh und README.md
 { pkgs, ... }:
 
 let
@@ -15,6 +16,13 @@ let
       gamescope
     ];
     text = builtins.readFile ../../scripts/gaming-mode.sh;
+  };
+
+  # `sober-setup`: MangoHud + Shader-Cache für Sober (Flatpak, Benutzerebene)
+  sober-setup = pkgs.writeShellApplication {
+    name = "sober-setup";
+    runtimeInputs = [ pkgs.flatpak ];
+    text = builtins.readFile ../../scripts/sober-setup.sh;
   };
 in
 {
@@ -76,6 +84,7 @@ in
 
   environment.systemPackages = with pkgs; [
     gaming-mode # gaming-mode %command%
+    sober-setup # MangoHud & Co. für Sober (Roblox)
     mangohud # FPS-/Frametime-Overlay
     lutris # Battle.net & andere Launcher
   ];

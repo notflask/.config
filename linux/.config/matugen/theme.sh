@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
 #  und Niri, Hyprland, Waybar, Rofi, Mako, GTK- und Qt-Apps,
-#  Cursor, Firefox (Pywalfox), Spotify und Discord anpassen.
+#  Firefox (Pywalfox), Spotify und Discord anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD
@@ -90,7 +90,7 @@ matugen image "$image" \
 
 # GTK: Hell/Dunkel, Thema und Icons passend zum Modus. Über das
 # Einstellungs-Portal folgen auch Firefox, Electron-Apps, libadwaita und
-# Ghostty sofort. Schrift, Cursorgröße usw. bleiben bei den Vorgaben aus
+# Ghostty sofort. Schrift, Cursor (macOS) usw. bleiben bei den Vorgaben aus
 # theme.nix (alte Einträge, die KDE geschrieben hat, fliegen raus).
 if [ "$mode" = light ]; then
   scheme=prefer-light gtk_theme=adw-gtk3 icon_theme=Papirus-Light
@@ -100,7 +100,7 @@ fi
 dconf write /org/gnome/desktop/interface/color-scheme "'$scheme'" >/dev/null 2>&1 || true
 dconf write /org/gnome/desktop/interface/gtk-theme "'$gtk_theme'" >/dev/null 2>&1 || true
 dconf write /org/gnome/desktop/interface/icon-theme "'$icon_theme'" >/dev/null 2>&1 || true
-for key in cursor-size font-name; do
+for key in cursor-size cursor-theme font-name; do
   dconf reset "/org/gnome/desktop/interface/$key" >/dev/null 2>&1 || true
 done
 # Dasselbe für Apps, die dconf nicht lesen (Electron-Apps wie Claude oder
@@ -114,12 +114,16 @@ for gtk in gtk-3.0 gtk-4.0; do
 [Settings]
 gtk-theme-name=$gtk_theme
 gtk-icon-theme-name=$icon_theme
-gtk-cursor-theme-name=matugen-cursor
+gtk-cursor-theme-name=macOS
 gtk-cursor-theme-size=24
 gtk-font-name=Noto Sans 10
 gtk-application-prefer-dark-theme=$prefer_dark
 INI
 done
+
+# Sober (Flatpak) sieht ~/.config nicht: MangoHud-Farben dorthin kopieren
+sober_mango="$HOME/.var/app/org.vinegarhq.Sober/config/MangoHud"
+[ -d "$sober_mango" ] && cp -f "$config/MangoHud/MangoHud.conf" "$sober_mango/" 2>/dev/null || true
 
 # Neu laden, was die Farben nicht selbst neu einliest
 # (Rofi und Hyprlock lesen sie beim nächsten Start)
@@ -136,19 +140,6 @@ pywalfox "$mode" >/dev/null 2>&1 || true
 # Farbschema-Wechsel in Plasma: PaletteChanged)
 dbus-send --session --type=signal /KGlobalSettings \
   org.kde.KGlobalSettings.notifyChange int32:0 int32:0 >/dev/null 2>&1 || true
-
-# Cursor in den neuen Farben (theme-cursor aus theme.nix, dauert ein paar
-# Sekunden – deshalb zum Schluss). Jede Farbkombination bekommt einen
-# eigenen Namen, sonst laden Niri und GTK den Cursor nicht neu.
-if command -v theme-cursor >/dev/null &&
-  read -r fill outline <"$cache/matugen/cursor-colors" &&
-  cursor=$(theme-cursor "$fill" "$outline"); then
-  printf '%s\ncursor {\n    xcursor-theme "%s"\n}\n' \
-    "// Erzeugt von theme.sh (Cursor in den Farben des Hintergrundbilds)" \
-    "$cursor" >"$config/niri/cursor.kdl"
-  wm cursor "$cursor" 24 >/dev/null 2>&1 || true
-  dconf write /org/gnome/desktop/interface/cursor-theme "'$cursor'" >/dev/null 2>&1 || true
-fi
 
 # Für den einmaligen Lauf beim ersten Login (theme.nix)
 mkdir -p "$state" && touch "$state/matugen-theme-v2.done"
