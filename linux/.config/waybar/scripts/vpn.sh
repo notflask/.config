@@ -6,6 +6,7 @@
 # Farben (style.css): grün = verbunden, orange = verbindet / keine Antwort
 # vom Server, rot = getrennt / Fehler / nicht eingerichtet,
 # rot gefüllt = getrennt und Sperre aufgehoben (Internet ohne VPN)
+# In der Leiste nur ein runder Knopf mit Schild, Details im Tooltip.
 
 iface=wg0
 service=wg-quick-$iface
@@ -52,7 +53,7 @@ out() {
   t=${t//\\/\\\\}
   t=${t//\"/\\\"}
   t=${t//$'\n'/\\n}
-  printf '{"text":"<span font_family=%s size=%s rise=%s>%s</span>  VPN","class":"%s","tooltip":"%s"}\n' \
+  printf '{"text":"<span font_family=%s size=%s rise=%s>%s</span>","class":"%s","tooltip":"%s"}\n' \
     "'Symbols Nerd Font'" "'13pt'" "'-1pt'" "$1" "$2" "$t"
 }
 

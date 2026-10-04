@@ -104,4 +104,102 @@
 .main-topBar-background {
   background-color: var(--spice-main) !important;
 }
+
+/* ── Festes Weiß und Grau in Spotifys eigenem CSS ──
+   Spotify ist ein dunkles Design mit weißen Vordergründen: Titel, Menü,
+   Knöpfe, Trennlinien, Ladeplatzhalter und Bildlaufleisten sind fest
+   #fff bzw. weiß-transparent und verschwinden auf heller Fläche. Hier durch
+   die Themenfarben ersetzt (!important, Spotifys Regeln sind oft genauer). */
+:root {
+  --extracted-text-subdued: var(--spice-subtext);
+}
+.encore-dark-theme,
+.encore-dark-theme .encore-base-set {
+  --essential-subdued: var(--spice-misc);
+  --decorative-subdued: rgba(var(--spice-rgb-text), 0.12);
+  --background-elevated-press: var(--spice-highlight);
+  --text-negative: {{colors.error.default.hex}};
+  --text-warning: #9a6700;
+  --text-announcement: {{colors.primary.default.hex}};
+  --essential-negative: {{colors.error.default.hex}};
+  --essential-warning: #9a6700;
+  --essential-announcement: {{colors.primary.default.hex}};
+}
+a { color: var(--spice-text); }
+/* Titel und Künstler in der Wiedergabeleiste und der Ansicht „Wiedergabe“ */
+.main-trackInfo-name,
+.main-trackInfo-name a,
+.main-trackInfo-artists a:hover,
+.main-trackInfo-artists a:focus,
+.main-trackInfo-artists a:active,
+.wEvoRVryOYg6BMhg,
+.q9RjarbB5YMSfz3E,
+.P449XW17LOshnLZq,
+.e8gURiC8vswnE9Ok {
+  color: var(--spice-text) !important;
+}
+.FLzF1xhC7_A9J5qI,
+.Rv_H8HbR1wc0zpvk,
+.NWSVz2cFGLkzihtY,
+.OOOFEgRQMkuz5Cnj,
+.j3Wk2lxYbwcm_WlX,
+.qvhMjzhzZSI0xRvv,
+.J56iIOcLCQELZ6Hm,
+.Qppeh47lqMAaytR3,
+.yOFOVHFd7w9jUnbW,
+.hAavDVFxAU1W0e6U,
+.nkVTE6tE8MABXcgV,
+.x-filterBox-filterInput,
+.x-filterBox-filterInput::placeholder,
+.x-filterBox-searchIconContainer,
+.wNy4vq96oFgI73Pw {
+  color: var(--spice-subtext) !important;
+}
+.j3Wk2lxYbwcm_WlX:hover,
+.j3Wk2lxYbwcm_WlX:focus,
+.nkVTE6tE8MABXcgV:hover,
+.nkVTE6tE8MABXcgV:focus,
+.x-filterBox-expandButton:hover,
+.x-filterBox-expandButton:focus {
+  color: var(--spice-text) !important;
+}
+/* Kontextmenü (Rechtsklick, „…“) */
+.iakzFZiyiY2t0khy,
+.main-contextMenu-menuItemButton {
+  color: rgba(var(--spice-rgb-text), 0.85) !important;
+}
+.main-contextMenu-menuItemButton.zVA1h9TUy8QQBogj,
+.main-contextMenu-menuItemButton.zVA1h9TUy8QQBogj:hover,
+.main-contextMenu-menuItemButton.zVA1h9TUy8QQBogj:focus {
+  color: rgba(var(--spice-rgb-text), 0.45) !important;
+}
+.main-contextMenu-menuItemButton[aria-expanded=true],
+.main-contextMenu-menuItemButton:not([aria-checked=true]):focus,
+.main-contextMenu-menuItemButton:hover:not(.zVA1h9TUy8QQBogj) {
+  color: var(--spice-text) !important;
+  background-color: rgba(var(--spice-rgb-text), 0.08) !important;
+}
+.main-contextMenu-dividerBefore:has(+ .main-contextMenu-menuItem:not(:first-child)),
+.main-contextMenu-menuItem:not(:last-child) + .main-contextMenu-dividerAfter {
+  background: rgba(var(--spice-rgb-text), 0.12) !important;
+}
+/* Knöpfe, Suchfeld, Platzhalter, Bildlaufleiste */
+.main-nowPlayingView-actionButton,
+.x-filterBox-filterInput,
+.x-filterBox-expandButton:hover,
+.x-filterBox-expandButton:focus,
+.e3cQ2rZRr4UcfF0j,
+.fTDA8E4IjksFrvHx,
+.fCnN4YAvEQwTokg5 {
+  background-color: rgba(var(--spice-rgb-text), 0.08) !important;
+}
+.main-nowPlayingView-actionButton {
+  color: var(--spice-text) !important;
+}
+html {
+  scrollbar-color: rgba(var(--spice-rgb-text), 0.3) transparent !important;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(var(--spice-rgb-text), 0.3) !important;
+}
 <* endif *>

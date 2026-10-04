@@ -1,0 +1,27 @@
+# Erzeugt von matugen (templates/ghostty-theme) – hier nichts ändern.
+# Heller Modus von Ghostty (config.ghostty: theme = light:Matugen,…):
+# Fläche, Cursor und Auswahl aus dem Hintergrundbild, ANSI-Farben fest
+# gewählt, damit jede auf hellem Grund gut lesbar bleibt (Kontrast ≥ 4,5:1).
+palette = 0=#2b2d38
+palette = 1=#c4243b
+palette = 2=#1f7a3a
+palette = 3=#946200
+palette = 4=#2f5fd0
+palette = 5=#8a3fc7
+palette = 6=#0f7585
+palette = 7=#5c5f6e
+palette = 8=#6b6e7d
+palette = 9=#d63a50
+palette = 10=#2a8a46
+palette = 11=#a86f00
+palette = 12=#3f6ee0
+palette = 13=#9a50d8
+palette = 14=#16899b
+palette = 15=#1b1b21
+background = #fbf8ff
+foreground = #1b1b21
+cursor-color = #525a92
+cursor-text = #ffffff
+selection-background = #dee0ff
+selection-foreground = #0c154b
+background-opacity = 0.9

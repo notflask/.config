@@ -132,6 +132,18 @@ wm reload >/dev/null 2>&1 || true
 # Unter NixOS heißt der Prozess ".waybar-wrapped", daher beide Namen
 pkill -SIGUSR2 -x 'waybar|\.waybar-wrapped' || true
 makoctl reload >/dev/null 2>&1 || true
+# Ghostty (1.3+): Konfiguration samt Theme-Datei neu einlesen
+pkill -SIGUSR2 -x 'ghostty|\.ghostty-wrappe' || true
+# Discord (Vencord): Theme in die Liste der aktiven eintragen, falls es fehlt
+# (Vencord lädt die Datei danach bei jeder Änderung selbst neu; läuft Discord
+# gerade, übernimmt es die Liste erst beim nächsten Start)
+vc_settings="$config/Vencord/settings/settings.json"
+if [ -f "$vc_settings" ] && command -v jq >/dev/null &&
+  ! jq -e '.enabledThemes // [] | index("matugen.theme.css")' "$vc_settings" >/dev/null 2>&1; then
+  tmp=$(mktemp) &&
+    jq '.enabledThemes = ((.enabledThemes // []) + ["matugen.theme.css"])' "$vc_settings" >"$tmp" &&
+    mv "$tmp" "$vc_settings" || rm -f "$tmp"
+fi
 # Firefox (Pywalfox) übernimmt Farben und Hell/Dunkel sofort, wenn es läuft
 pywalfox update >/dev/null 2>&1 || true
 pywalfox "$mode" >/dev/null 2>&1 || true
