@@ -132,6 +132,8 @@ wm reload >/dev/null 2>&1 || true
 # Unter NixOS heißt der Prozess ".waybar-wrapped", daher beide Namen
 pkill -SIGUSR2 -x 'waybar|\.waybar-wrapped' || true
 makoctl reload >/dev/null 2>&1 || true
+# Ghostty (1.3+) liest Konfiguration und Themes neu ein
+pkill -SIGUSR2 -x 'ghostty|\.ghostty-wrappe' || true
 # Discord (Vencord): Theme in die Liste der aktiven eintragen, falls es fehlt
 # (Vencord lädt die Datei danach bei jeder Änderung selbst neu; läuft Discord
 # gerade, übernimmt es die Liste erst beim nächsten Start)
