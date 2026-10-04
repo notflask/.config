@@ -1,8 +1,8 @@
--- Farbschema passend zu Ghostty: dunkel Vague, hell Rose Pine Dawn.
+-- Farbschema passend zu Ghostty: dunkel Vague, hell Solarized Osaka (Light).
 -- Neovim fragt das Terminal nach seinem Hintergrund und setzt 'background'
 -- (auch später, wenn das System per theme.sh umschaltet).
 local function colorscheme()
-  local wanted = vim.o.background == "light" and "rose-pine-dawn" or "vague"
+  local wanted = vim.o.background == "light" and "solarized-osaka" or "vague"
   -- :colorscheme setzt selbst 'background' – nur wechseln, wenn nötig
   if vim.g.colors_name ~= wanted then
     vim.cmd.colorscheme(wanted)
@@ -27,11 +27,9 @@ return {
   },
 
   {
-    "rose-pine/neovim",
-    name = "rose-pine",
+    "craftzdog/solarized-osaka.nvim",
     opts = {
-      variant = "dawn",
-      styles = { transparency = true },
+      transparent = true,
     },
     lazy = false,
     priority = 1000,
