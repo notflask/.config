@@ -52,6 +52,11 @@ output_path = "~/.config/MangoHud/MangoHud.conf"
 input_path  = "~/.config/matugen/templates/pywalfox-colors.json"
 output_path = "~/.cache/wal/colors.json"
 
+# Firefox: Adressleisten-Vorschläge (Profilordner siehe theme.sh)
+[templates.firefox-userchrome]
+input_path  = "~/.config/matugen/templates/firefox-userchrome.css"
+output_path = "~/.cache/matugen/firefox-userChrome.css"
+
 # Spotify (Spicetify): Spotify liest die Datei über einen Symlink im
 # Paket (apps.nix) und lädt sie bei Änderungen selbst neu
 [templates.spicetify]

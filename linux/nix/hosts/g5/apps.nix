@@ -116,6 +116,8 @@ in
       "widget.use-xdg-desktop-portal.mime-handler" = 1;
       # Apple-Emoji statt des mitgelieferten Twemoji (siehe fonts.nix)
       "font.name-list.emoji" = "Apple Color Emoji";
+      # userChrome.css aus dem Profil laden (theme.sh, Adressleisten-Vorschläge)
+      "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       # Webseiten hell oder dunkel wie das System (theme.sh, 2 = wie Firefox)
       "layout.css.prefers-color-scheme.content-override" = 2;
 
