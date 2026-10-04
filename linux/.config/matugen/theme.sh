@@ -145,8 +145,31 @@ if [ -f "$vc_settings" ] && command -v jq >/dev/null &&
     mv "$tmp" "$vc_settings" || rm -f "$tmp"
 fi
 # Firefox (Pywalfox) übernimmt Farben und Hell/Dunkel sofort, wenn es läuft
-pywalfox update >/dev/null 2>&1 || true
-pywalfox "$mode" >/dev/null 2>&1 || true
+# (Profil liegt unter ~/.config/mozilla, nicht im Standardpfad ~/.mozilla)
+ff_profile=$(ls -d "$HOME"/.config/mozilla/firefox/*.default* 2>/dev/null | head -n1)
+# userChrome.css für die Adressleisten-Vorschläge ins Profil kopieren
+if [ -n "$ff_profile" ] && [ -f "$cache/matugen/firefox-userChrome.css" ]; then
+  mkdir -p "$ff_profile/chrome"
+  cp -f "$cache/matugen/firefox-userChrome.css" "$ff_profile/chrome/userChrome.css"
+fi
+# Der Socket liegt in $TMPDIR (Standard /tmp); unter Waypaper/Niri kann TMPDIR
+# abweichen, dann findet pywalfox den Daemon nicht. Fehler landen im Log.
+pwf() {
+  TMPDIR=/tmp pywalfox ${ff_profile:+--profile-path "$ff_profile"} "$@" \
+    >>"$state/pywalfox.log" 2>&1 || echo "pywalfox $* fehlgeschlagen" >>"$state/pywalfox.log"
+}
+# Erst den Modus, dann die Farben: sonst überholt ein noch laufendes
+# `update` den Moduswechsel und Firefox bleibt im alten Modus.
+# Im Hintergrund, damit der Wechsel nicht wartet. Firefox setzt sein Thema beim
+# Wechsel des System-Schemas ggf. zurück, daher ein zweiter Durchgang.
+# Der Modus wird jedes Mal neu gelesen, damit ein schnelles Zurückschalten nicht
+# von einem noch laufenden älteren Durchgang überholt wird.
+(
+  for wait in 0 4; do
+    sleep "$wait"
+    pwf "$(cat "$mode_file")"; sleep 1; pwf update
+  done
+) >/dev/null 2>&1 &
 
 # Qt-/KDE-Apps lesen ~/.config/kdeglobals sofort neu (Signal wie beim
 # Farbschema-Wechsel in Plasma: PaletteChanged)

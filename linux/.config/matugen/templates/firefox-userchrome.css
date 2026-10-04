@@ -1,0 +1,10 @@
+/* Erzeugt von matugen (templates/firefox-userchrome.css) – hier nichts ändern */
+/* Nur Variablen, keine Elementflächen: Rundungen und Zustände bleiben von Firefox */
+:root {
+  --toolbar-field-focus-background-color: #{{colors.surface_container_high.default.hex_stripped}} !important;
+  --toolbar-field-focus-color: #{{colors.on_surface.default.hex_stripped}} !important;
+  --urlbar-box-focus-bgcolor: #{{colors.surface_container_high.default.hex_stripped}} !important;
+  --urlbarView-hover-background: #{{colors.surface_container_highest.default.hex_stripped}} !important;
+  --urlbarView-highlight-background: #{{colors.primary_container.default.hex_stripped}} !important;
+  --urlbarView-highlight-color: #{{colors.on_primary_container.default.hex_stripped}} !important;
+}
