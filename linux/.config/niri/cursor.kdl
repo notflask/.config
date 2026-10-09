@@ -1,0 +1,4 @@
+// Erzeugt von theme.sh (Cursor in den Farben des Hintergrundbilds)
+cursor {
+    xcursor-theme "matugen-cursor-bbc3ff-232c61"
+}

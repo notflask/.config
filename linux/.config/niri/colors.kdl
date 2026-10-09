@@ -1,11 +1,11 @@
 layout {
     // 1px Glaskante (#rrggbbaa)
     border {
-        active-color   "#bdc2ff99"
+        active-color   "#c3c6d699"
         inactive-color "#ffffff26"
     }
     focus-ring {
-        active-color   "#bdc2ff"
-        inactive-color "#91909a"
+        active-color   "#c3c6d6"
+        inactive-color "#929092"
     }
 }

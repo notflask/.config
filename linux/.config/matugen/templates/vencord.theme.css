@@ -14,8 +14,8 @@
 
 body {
     /* font options */
-    --font: ''; /* change to '' for default discord font */
-    --code-font: ''; /* change to '' for default discord font */
+    --font: 'Fira Code'; /* change to '' for default discord font */
+    --code-font: 'Fira Code'; /* change to '' for default discord font */
     font-weight: 400; /* normal text font weight. DOES NOT AFFECT BOLD TEXT */
 
     /* sizes */
@@ -162,10 +162,18 @@ body {
     --text-5: {{colors.outline_variant.default.hex}};
 
     /* Flächen */
+    /* Dunkel: pechschwarz statt der Hintergrundbild-Flächen */
+<* if {{ is_dark_mode }} *>
+    --bg-1: #151515;
+    --bg-2: #0b0b0b;
+    --bg-3: #000000;
+    --bg-4: #000000;
+<* else *>
     --bg-1: {{colors.surface_container_highest.default.hex}};
     --bg-2: {{colors.surface_container_high.default.hex}};
     --bg-3: {{colors.surface_container_low.default.hex}};
     --bg-4: {{colors.surface.default.hex}};
+<* endif *>
     --hover: {{colors.on_surface.default.rgba | set_alpha: 0.06}};
     --active: {{colors.on_surface.default.rgba | set_alpha: 0.10}};
     --active-2: {{colors.on_surface.default.rgba | set_alpha: 0.14}};
@@ -208,4 +216,19 @@ body {
     --purple-3: {{colors.tertiary.default.hex}};
     --purple-4: {{colors.tertiary_container.default.hex}};
     --purple-5: {{colors.tertiary_container.default.hex}};
+}
+
+/* Serverliste ausblenden (Server wechseln: Strg+K) */
+nav[aria-label="Servers sidebar"],
+nav[class*="guilds_"] {
+    display: none !important;
+}
+
+/* Fira Code überall, auch wo midnight --font nicht greift */
+body,
+button,
+input,
+select,
+textarea {
+    font-family: 'Fira Code', monospace !important;
 }

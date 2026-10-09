@@ -24,6 +24,18 @@ let
     runtimeInputs = [ pkgs.flatpak ];
     text = builtins.readFile ../../scripts/sober-setup.sh;
   };
+
+  # Flatpak-NVIDIA-Erweiterung passend zum laufenden Treiber (siehe Skript)
+  flatpak-nvidia-sync = pkgs.writeShellApplication {
+    name = "flatpak-nvidia-sync";
+    runtimeInputs = with pkgs; [
+      flatpak
+      gnugrep
+      gnused
+      coreutils
+    ];
+    text = builtins.readFile ../../scripts/flatpak-nvidia-sync.sh;
+  };
 in
 {
   programs.steam = {
@@ -82,8 +94,21 @@ in
   # ── Flatpak (für Sober/Roblox, siehe README) ───────────────
   services.flatpak.enable = true;
 
+  # Nach Treiber-Updates beim Login die passende NVIDIA-Erweiterung holen
+  systemd.user.services.flatpak-nvidia-sync = {
+    description = "Flatpak-NVIDIA-Erweiterung an Treiber anpassen";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "default.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "''${flatpak-nvidia-sync}/bin/flatpak-nvidia-sync";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     gaming-mode # gaming-mode %command%
+    flatpak-nvidia-sync # NVIDIA-Erweiterung für Flatpaks (auch beim Login)
     sober-setup # MangoHud & Co. für Sober (Roblox)
     mangohud # FPS-/Frametime-Overlay
     lutris # Battle.net & andere Launcher

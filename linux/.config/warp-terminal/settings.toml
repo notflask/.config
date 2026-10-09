@@ -1,0 +1,26 @@
+# Startwerte für Warp (wird beim Boot nur kopiert, wenn ~/.config/warp-terminal/settings.toml
+# fehlt – Warp schreibt die Datei selbst um). Themes: ~/.local/share/warp-terminal/themes
+
+[appearance.text]
+font_name = "JetBrains Mono"
+font_size = 16.0
+ligature_rendering_enabled = true
+
+[appearance.themes]
+system_theme = true
+theme = { custom = { name = "Solarized Osaka Dark", path = "/home/flask/.local/share/warp-terminal/themes/solarized_osaka_dark.yaml" } }
+
+[appearance.themes.selected_system_themes]
+dark = { custom = { name = "Solarized Osaka Dark", path = "/home/flask/.local/share/warp-terminal/themes/solarized_osaka_dark.yaml" } }
+light = { custom = { name = "Solarized Osaka Light", path = "/home/flask/.local/share/warp-terminal/themes/solarized_osaka_light.yaml" } }
+
+[appearance.window]
+override_opacity = 90
+override_blur = 20
+
+[privacy]
+telemetry_enabled = false
+crash_reporting_enabled = false
+
+[general]
+autoupdate_enabled = false

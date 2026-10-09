@@ -4,7 +4,7 @@
 #
 #    rebuild.sh            Config anwenden (switch)
 #    rebuild.sh update     Pakete aktualisieren (flake.lock, Claude Desktop,
-#                          ATAS X)
+#                          ATAS X, HaruNeko)
 #                          + switch, danach auch Flatpaks (z. B. Sober)
 #    rebuild.sh boot       erst beim nächsten Neustart aktiv
 #    rebuild.sh test       aktivieren ohne Boot-Eintrag
@@ -93,6 +93,7 @@ case "$action" in
     (cd "$FLAKE_DIR" && nix flake update)
     "$FLAKE_DIR/scripts/update-claude-desktop.sh"
     "$FLAKE_DIR/scripts/update-atas-x.sh"
+    "$FLAKE_DIR/scripts/update-haruneko.sh"
     action="switch"
     update_flatpaks=1
     ;;
