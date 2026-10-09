@@ -9,6 +9,11 @@
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Minimaler PDF-Viewer (Branch bis zum Merge nach master)
+    mizu = {
+      url = "github:notflask/mizu/claude/minimalist-pdf-viewer-rx6t7m";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { nixpkgs, ... }@inputs: {

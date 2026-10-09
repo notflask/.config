@@ -1,0 +1,26 @@
+# Solarized Osaka Light – gleiche Palette wie Ghostty (.config/ghostty/themes)
+name: Solarized Osaka Light
+accent: '#268bd3'
+cursor: '#576d74'
+background: '#fdf5e2'
+foreground: '#576d74'
+details: lighter
+terminal_colors:
+  normal:
+    black: '#ffffff'
+    red: '#db302d'
+    green: '#849900'
+    yellow: '#b28500'
+    blue: '#268bd3'
+    magenta: '#d23681'
+    cyan: '#29a298'
+    white: '#002c38'
+  bright:
+    black: '#ede7d3'
+    red: '#b7211f'
+    green: '#586600'
+    yellow: '#664c00'
+    blue: '#1a6397'
+    magenta: '#af2668'
+    cyan: '#1a6265'
+    white: '#001419'

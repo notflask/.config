@@ -159,10 +159,21 @@ in
     nativeMessagingHosts.packages = [ pywalfoxHost ];
   };
 
+  nixpkgs.overlays = [ inputs.mizu.overlays.default ];
+
   # ── Messenger, Musik, KI-Tools ──────────────────────────────────────
   environment.systemPackages = with pkgs; [
+    mizu # PDF-Viewer, Overlay aus flake.nix (inputs.mizu)
     discord # mit Vencord, siehe oben
     telegram-desktop
+    # Terminal, Config: .config/warp-terminal (Startwerte), dotfiles.nix.
+    # Warp findet libwayland-client nicht (Panic NoWaylandLib), daher im Pfad
+    (symlinkJoin {
+      name = "warp-terminal-wayland";
+      paths = [ warp-terminal ];
+      nativeBuildInputs = [ makeWrapper ];
+      postBuild = "wrapProgram $out/bin/warp-terminal --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ wayland libxkbcommon ]}";
+    })
     tradingview
     atasX # Orderflow-Analyse (Linux-Alpha), auf der NVIDIA, siehe oben
     vlc # Videoplayer
@@ -177,6 +188,9 @@ in
 
     # Claude Desktop (Linux-Beta, aus dem offiziellen .deb verpackt)
     (callPackage ../../pkgs/claude-desktop/package.nix { })
+
+    # Manga-Downloader (Snap von GitHub, mit Electron aus nixpkgs)
+    (callPackage ../../pkgs/haruneko/package.nix { })
   ];
 
   # Stellt die in Cameractrls gespeicherten Webcam-Einstellungen wieder her

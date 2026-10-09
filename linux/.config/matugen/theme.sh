@@ -17,7 +17,7 @@
 set -euo pipefail
 
 # Standardwerte – hier ändern, wenn dir ein anderer Stil besser gefällt
-type=tonal-spot # tonal-spot content expressive fidelity fruit-salad monochrome neutral rainbow vibrant
+type=neutral # tonal-spot content expressive fidelity fruit-salad monochrome neutral rainbow vibrant
 index=0         # 0 = dominante Farbe, 1–4 = weitere
 contrast=0      # -1 … 1
 

@@ -199,9 +199,10 @@ window-rule {
     }
 }
 
-// Ghostty: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund)
+// Ghostty und Warp: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund)
 window-rule {
     match app-id=r#"^com\.mitchellh\.ghostty$"#
+    match app-id=r#"^dev\.warp\.Warp$"#
     background-effect {
         blur true
         xray false

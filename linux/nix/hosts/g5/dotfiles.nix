@@ -34,7 +34,16 @@ in
   systemd.tmpfiles.rules = [
     "d ${home}/.config 0755 ${user} users -"
   ]
-  ++ map (name: "L ${home}/.config/${name} - - - - ${repo}/linux/.config/${name}") linked;
+  ++ map (name: "L ${home}/.config/${name} - - - - ${repo}/linux/.config/${name}") linked
+  ++ [
+    # Warp: Themes verlinkt; settings.toml nur als Startwert kopiert, weil
+    # Warp die Datei selbst umschreibt (ein Symlink meldet Änderungen nicht)
+    "d ${home}/.local/share 0755 ${user} users -"
+    "d ${home}/.local/share/warp-terminal 0755 ${user} users -"
+    "L ${home}/.local/share/warp-terminal/themes - - - - ${repo}/linux/.local/share/warp-terminal/themes"
+    "d ${home}/.config/warp-terminal 0755 ${user} users -"
+    "C ${home}/.config/warp-terminal/settings.toml - ${user} users - ${repo}/linux/.config/warp-terminal/settings.toml"
+  ];
 
   # ── Neovim (LazyVim) ───────────────────────────────────────
   programs.neovim = {

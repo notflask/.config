@@ -39,14 +39,25 @@ window#waybar {
 
 #workspaces button:hover {
     background: @glass_hover;
-    box-shadow: none;
+    box-shadow: inset 0 0 8px alpha(@on_surface, 0.08);
     text-shadow: none;
 }
 
 #workspaces button.active {
     color: @on_surface;
-    background: alpha(@primary, 0.22);
-    box-shadow: inset 0 1px 0 @glass_pill_shine;
+    /* Milchglas: kaum Fläche, weiche Ränder statt harter Kante. Echtes
+       Weichzeichnen geht nur für die ganze Leiste (Compositor), nicht pro Knopf */
+    background: linear-gradient(to bottom,
+        alpha(@on_surface, 0.12),
+        alpha(@on_surface, 0.04));
+    /* Liquid-Glass-Kante: Licht fängt sich oben links und unten rechts,
+       an den Seiten bleibt der Rand fast unsichtbar */
+    box-shadow:
+        inset 0 0 0 1px alpha(@on_surface, 0.06),
+        inset 1px 1px 1px alpha(@on_surface, 0.55),
+        inset -1px -1px 1px alpha(@on_surface, 0.30),
+        inset 0 0 10px alpha(@on_surface, 0.12),
+        0 0 8px alpha(@on_surface, 0.06);
 }
 
 #workspaces button.urgent {

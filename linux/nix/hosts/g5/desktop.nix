@@ -174,6 +174,7 @@ in
 
   # Electron-Apps (Discord usw.) nativ unter Wayland
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+  environment.sessionVariables.WARP_ENABLE_WAYLAND = "1"; # Warp nativ unter Wayland statt XWayland (sonst kein Blur)
 
   # ── Tastatur: us/ru/ua/de, Umschalten mit Alt+Shift ─────────
   # Niri und Hyprland setzen das Layout in ihrer eigenen Config.
