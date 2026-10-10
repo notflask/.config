@@ -27,27 +27,26 @@
         ]
       },
       "locked": {
-        "lastModified": 1791552582,
-        "narHash": "sha256-r4KrT9ewovuR94j1Q3XncuQgJpWN/dFu5IGImTnNojc=",
+        "lastModified": 1791571783,
+        "narHash": "sha256-VtKxgR9xNI+oA6CpON+PPUmes/LFHHoZ2CynOFMQWcs=",
         "owner": "notflask",
         "repo": "mizu",
-        "rev": "23662a093e94f39e144a71529ab2945e7b774bfd",
+        "rev": "d9f7e82fc92003414cd4a1ddf9a6ff64d953e2ad",
         "type": "github"
       },
       "original": {
         "owner": "notflask",
-        "ref": "claude/minimalist-pdf-viewer-rx6t7m",
         "repo": "mizu",
         "type": "github"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1790822859,
-        "narHash": "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=",
+        "lastModified": 1791456040,
+        "narHash": "sha256-H83yz/do+hjOO0uujHyH8RgtIQP2v7Mw+cLwcZK/xKc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "c59305bab2065cfecc4944690d9eedbb56f3a9fa",
+        "rev": "e7439b6b14ad3cc35d05608ebca9bce01a25f5f8",
         "type": "github"
       },
       "original": {

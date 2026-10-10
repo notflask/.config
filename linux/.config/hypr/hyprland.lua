@@ -60,8 +60,8 @@ hl.config({
         gaps_in = 4,
         gaps_out = 8,
 
-        -- focus-ring off, border on width 1
-        border_size = 1,
+        -- focus-ring off, border on width 2
+        border_size = 2,
         col = {
             active_border = c.primary .. "99",
             inactive_border = c.rim,
