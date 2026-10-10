@@ -88,6 +88,16 @@ matugen image "$image" \
   --quiet ||
   fail "matugen ist fehlgeschlagen ($image)."
 
+# Hyprlock: verkleinerte Kopie des Bildes (1440p, JPEG). Ein 8K-PNG zu
+# dekodieren dauert spürbar, mit der Kopie erscheint die Sperre sofort.
+# Im Hintergrund, erst fertig schreiben, dann umbenennen.
+lock_wall="$cache/hyprlock/wallpaper.jpg"
+mkdir -p "${lock_wall%/*}"
+(
+  magick "$image[0]" -resize '2560x1440^' -quality 92 "$lock_wall.tmp.jpg" &&
+    mv -f "$lock_wall.tmp.jpg" "$lock_wall"
+) >/dev/null 2>&1 &
+
 # GTK: Hell/Dunkel, Thema und Icons passend zum Modus. Über das
 # Einstellungs-Portal folgen auch Firefox, Electron-Apps, libadwaita und
 # Ghostty sofort. Schrift, Cursor (macOS) usw. bleiben bei den Vorgaben aus
