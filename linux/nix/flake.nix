@@ -16,7 +16,7 @@
     };
     # Gigabyte Control Center: Tastaturlicht, Lüfter, Leistungsmodi (G5 KF)
     gigabyte-control-center = {
-      url = "github:notflask/gigabyte-control-center/claude/initial-implementation";
+      url = "github:notflask/gigabyte-control-center";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
