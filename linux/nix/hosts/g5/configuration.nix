@@ -21,6 +21,9 @@
   # ── Boot ───────────────────────────────────────────────────
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 5;
+  # Boot-Menü nur 1 s statt 5 s; ältere Generationen: beim Start Leertaste
+  # gedrückt halten, dann bleibt das Menü stehen
+  boot.loader.timeout = 1;
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Start ohne Textflut: Ladebildschirm (Plymouth, Thema "bgrt": Logo des

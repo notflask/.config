@@ -18,7 +18,7 @@ let
     # Niri- und Hyprland-Sitzung
     "fastfetch"
     "niri"
-    "waybar"
+    "quickshell" # Taskleiste
     "rofi"
     "mako"
     "wlogout"

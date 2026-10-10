@@ -1,11 +1,11 @@
 # Aussehen beider Sitzungen (ohne KDE Plasma).
 #
 # Alles richtet sich nach dem Hintergrundbild: matugen
-# (~/.config/matugen/theme.sh) färbt Niri/Hyprland-Rahmen, Waybar, Rofi,
+# (~/.config/matugen/theme.sh) färbt Niri/Hyprland-Rahmen, Taskleiste, Rofi,
 # Mako, Discord, Spotify, Firefox – und die Apps:
 #   GTK:  adw-gtk3 bzw. libadwaita + ~/.config/gtk-{3,4}.0/gtk.css
 #   Qt:   Breeze-Stil + Farben aus ~/.config/kdeglobals (auch Dolphin & Co.)
-# Hell oder dunkel: `theme.sh -m light|dark` oder Sonne/Mond in der Waybar.
+# Hell oder dunkel: `theme.sh -m light|dark` oder Sonne/Mond in der Taskleiste.
 # Fest bleiben nur Cursor (macOS), Icons (Papirus) und TTY/Login (Farben von Vague wie
 # im Terminal).
 {

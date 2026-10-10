@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
-#  und Niri, Hyprland, Waybar, Rofi, Mako, GTK- und Qt-Apps,
+#  und Niri, Hyprland, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
 #  Firefox (Pywalfox), Spotify und Discord anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
@@ -139,8 +139,6 @@ sober_mango="$HOME/.var/app/org.vinegarhq.Sober/config/MangoHud"
 # (Rofi und Hyprlock lesen sie beim nächsten Start)
 # (Niri oder Hyprland, `wm` aus desktop.nix)
 wm reload >/dev/null 2>&1 || true
-# Unter NixOS heißt der Prozess ".waybar-wrapped", daher beide Namen
-pkill -SIGUSR2 -x 'waybar|\.waybar-wrapped' || true
 makoctl reload >/dev/null 2>&1 || true
 # Ghostty (1.3+) liest Konfiguration und Themes neu ein
 pkill -SIGUSR2 -x 'ghostty|\.ghostty-wrappe' || true

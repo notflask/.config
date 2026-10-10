@@ -24,7 +24,7 @@ hl.config({
     input = {
         kb_layout = "us,ru,ua,de",
         -- Niri: grp:alt_shift_toggle. Hyprland führt die Sprache aber pro
-        -- Gerät (die Semitek-Tastatur sind zwei), dann zeigt Waybar Falsches –
+        -- Gerät (die Semitek-Tastatur sind zwei), dann zeigt die Taskleiste Falsches –
         -- deshalb schaltet Alt+Shift hier alle Geräte gemeinsam um (binds)
         kb_options = "",
 
@@ -60,8 +60,8 @@ hl.config({
         gaps_in = 4,
         gaps_out = 8,
 
-        -- focus-ring off, border on width 2
-        border_size = 2,
+        -- focus-ring off, border on width 1
+        border_size = 1,
         col = {
             active_border = c.primary .. "99",
             inactive_border = c.rim,
@@ -90,7 +90,7 @@ hl.config({
             color = "#00000064",
         },
 
-        -- Blur nur für Ghostty, Waybar, mako, wlogout, Rofi –
+        -- Blur nur für Ghostty, Taskleiste, mako, wlogout, Rofi –
         -- siehe window-rule/layer-rule unten (xray false)
         -- Wie Niri: 3 Durchgänge statt 1, kein Kontrast-Abschlag (sonst
         -- Grauschleier), dazu kräftigere Farben dahinter wie Liquid Glass
@@ -147,7 +147,7 @@ hl.config({
 -- ── spawn-at-startup ────────────────────────────────────────
 
 -- Gleiche Liste wie unter Niri, steht nur einmal in `wm autostart`
--- (scripts/wm.sh): Waybar, Hintergrund, Clipboard, EasyEffects, playerctld,
+-- (scripts/wm.sh): Taskleiste, Hintergrund, Clipboard, EasyEffects, playerctld,
 -- dazu nur hier hyprshell (Alt+Tab, siehe binds)
 hl.on("hyprland.start", function()
     hl.exec_cmd("wm autostart")
@@ -170,7 +170,7 @@ end)
 --   window-movement / window-resize  spring damping-ratio=1.0 stiffness=800
 --   window-open        150 ms ease-out-expo, wächst von 50 % + einblenden
 --   window-close       150 ms ease-out-quad, schrumpft auf 50 % + ausblenden
--- Rahmenfarbe, Leisten (Waybar, Rofi, mako) und Popups animiert Niri nicht.
+-- Rahmenfarbe, Leisten (Taskleiste, Rofi, mako) und Popups animiert Niri nicht.
 -- Dämpfung = damping-ratio · 2·√(stiffness · mass)
 --
 -- Etwas weicher als Niri: niedrigere Steifigkeit (600/750 statt 800/1000),
@@ -308,16 +308,16 @@ hl.window_rule({
     float = true,
     size = { "monitor_w*0.6", "monitor_h*0.5" },
     -- mittig: (100 % − 60 %) / 2 = 20 % (window_w ist hier noch die alte Größe)
-    move = { "monitor_w*0.2", "48" },
+    move = { "monitor_w*0.2", "8" },
 })
 
--- Gigabyte Control Center: Schnellmenü vom Tray-Symbol schwebt oben rechts
--- unter der Waybar (wie in Niri). Das Fenster ist fest 340 px breit.
+-- Gigabyte Control Center: Schnellmenü vom Tray-Symbol schwebt unten rechts
+-- über der Taskleiste (wie in Niri): 8 px vom Rand, 40 px Leiste + 8 px.
 hl.window_rule({
     name = "gbcc-popup",
     match = { class = "gigabyte-control-center", title = "Gigabyte Control Center Quick" },
     float = true,
-    move = { "monitor_w-350", "50" },
+    move = { "monitor_w-window_w-8", "monitor_h-window_h-48" },
 })
 
 -- Nur Hyprland: CS2 darf tearen (niedrigste Latenz bei fps_max 0)
@@ -339,8 +339,10 @@ hl.window_rule({
 -- Rundung und Schatten der Leisten kann Hyprland nicht setzen; ignore_alpha
 -- lässt den Blur an den durchsichtigen Ecken weg, dadurch folgt er der Rundung
 
--- gleiche Rundung wie window#waybar in waybar/style.css
-hl.layer_rule({ name = "waybar", match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.1 })
+-- Taskleiste (quickshell/taskbar) und ihre Popups (Startmenü, Vorschau,
+-- Lautstärke); ignore_alpha lässt den Blur den runden Ecken folgen
+hl.layer_rule({ name = "taskbar", match = { namespace = "^taskbar$" }, blur = true, ignore_alpha = 0.1 })
+hl.layer_rule({ name = "taskbar-popup", match = { namespace = "^taskbar-popup$" }, blur = true, ignore_alpha = 0.1 })
 
 -- Mako: Glas-Benachrichtigungen, beim Bildschirmteilen nicht mitsenden
 hl.layer_rule({
@@ -622,7 +624,7 @@ bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal",
 bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
--- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in Waybar)
+-- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in der Taskleiste)
 bind(key("CTRL + V"), hl.dsp.exec_cmd("clipboard-history"), title("Clipboard History", { repeating = false }))
 bind(key("SHIFT + E"), hl.dsp.exec_cmd("~/.config/wlogout/launch.sh"), title("Power Menu: wlogout", { repeating = false }))
 
@@ -837,7 +839,7 @@ if hl.plugin.hyprtasking then
             hyprtasking = {
                 layout = "grid",
                 gap_size = 16,
-                border_size = 2,
+                border_size = 1,
                 bg_color = 0xff000000 + tonumber(c.surface:sub(2, 7), 16),
                 gestures = { enabled = false },
                 grid = { rows = 3, cols = 3, gaps_use_aspect_ratio = true },

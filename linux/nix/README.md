@@ -93,7 +93,7 @@ verlinkt (`dotfiles.nix`):
 | `sioyek` | `linux/.config/sioyek` (PDF-Betrachter für Typst/Mathe-Notizen) |
 | `tmux` | `linux/.config/tmux` |
 | `ghostty` | `linux/.config/ghostty` |
-| `niri`, `hypr`, `waybar`, `rofi`, `mako`, `wlogout`, `matugen`, `waypaper` | für Niri und Hyprland |
+| `niri`, `hypr`, `quickshell`, `rofi`, `mako`, `wlogout`, `matugen`, `waypaper` | für Niri und Hyprland |
 
 Du bearbeitest die Dateien also direkt im Repo – Änderungen wirken sofort, `sync.sh`
 erkennt die Links und überspringt sie. Weitere Configs verlinken: Namen in
@@ -193,8 +193,13 @@ Rundung: Hyprland erlaubt höchstens 20 statt 24 px.
 
 ### Gemeinsam in beiden
 
-- Waybar, Rofi, mako (Benachrichtigungen), wlogout (Power-Knopf), Satty,
+- Taskleiste, Rofi, mako (Benachrichtigungen), wlogout (Power-Knopf), Satty,
   Zwischenablage mit Verlauf (cliphist), EasyEffects.
+- Taskleiste unten wie unter Windows 11 (Quickshell, `quickshell/taskbar`):
+  volle Breite, Liquid Glass, Startmenü, App-Symbole mittig je Monitor,
+  gleiche Apps zusammengefasst, Live-Vorschau der Fenster beim Hover,
+  Lautstärke-Regler wie unter macOS, Tray-Menüs im Glas-Stil.
+  Änderungen an den `.qml`-Dateien wirken sofort.
 - Animationen: Niris Standard (Federn für Fenster und Arbeitsflächen,
   Öffnen/Schließen in 150 ms), Leisten und Menüs ohne Animation.
 - Hintergrundbild über **Waypaper** aus `~/Wallpapers`. Matugen färbt daraus
@@ -480,7 +485,10 @@ Clips landen standardmäßig in `~/Videos`.
 | **NVIDIA PAT** (`NVreg_UsePageAttributeTable=1`) | schnellerer Zugriff der CPU auf den Grafikspeicher |
 | **i915 in der initrd** | Intel-Treiber vor NVIDIA → keine minutenlangen Hänger von Electron-Apps nach dem Start |
 | **`noatime`** | keine Schreibzugriffe beim bloßen Lesen |
-| **Waybar ohne Polling** | Energieprofil per D-Bus statt alle 2 s `powerprofilesctl`, VPN-Status ohne `sudo` alle 5 s |
+| **`preempt=full`** | Kernel unterbricht sofort für wach werdende Prozesse (Eingabe, Audio, Compositor) statt erst beim nächsten Tick – wie CachyOS |
+| **Boot-Menü 1 s** | statt 5 s; Leertaste beim Start hält das Menü offen (ältere Generationen) |
+| **Taskleiste: threaded Renderschleife** | Quickshell zeichnet jedes Fenster im eigenen Thread, Animationen im 180-Hz-Takt (`QSG_RENDER_LOOP=threaded` in `shell.qml`) |
+| **Taskleiste ohne Polling** | Energieprofil, Lautstärke, Akku, Netzwerk, Tray per D-Bus/PipeWire; nur der VPN-Status alle 5 s (ein kurzes Skript ohne `sudo`, einmal für alle Monitore) |
 
 `scx_lavd` ist auf Intel-CPUs mit P- und E-Kernen nicht immer besser. Vergleiche
 mit MangoHud (FPS und 1%-Lows): in `performance.nix` `services.scx.enable = false`
@@ -490,11 +498,14 @@ setzen, `rebuild`, nochmal testen. Status prüfen: `systemctl status scx`.
 - **RAM im Dual-Channel?** `sudo dmidecode -t memory` – bei nur einem Riegel verliert
   CS2 sehr viele FPS. Ein zweiter gleicher Riegel ist dann das beste Upgrade.
 - **Kühlung:** Laptop hinten erhöht aufstellen, Lüfter ab und zu reinigen.
+- **Start dauert ~11 s in der Firmware** (`systemd-analyze`: „firmware“), bevor
+  Linux überhaupt lädt: im BIOS **Fast Boot** einschalten und nicht genutzte
+  Boot-Quellen (Netzwerk-Boot/PXE) abschalten.
 
 ## Theme: Farben aus dem Hintergrundbild
 
 **Matugen** erzeugt aus dem Wallpaper ein Farbschema und färbt damit alles:
-Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako, Sperrbildschirm,
+Fensterrahmen (Niri und Hyprland), Taskleiste, Rofi, mako, Sperrbildschirm,
 **die Apps** – wahlweise **hell oder dunkel**:
 
 | Bereich | Wie |
@@ -510,10 +521,10 @@ Fensterrahmen (Niri und Hyprland), Waybar, Rofi, mako, Sperrbildschirm,
 | TTY, Login (ly), Ladebildschirm | Farben von Vague bzw. Plymouth *bgrt* (Herstellerlogo) – fest |
 
 **Wallpaper wechseln:** in Waypaper ein Bild wählen – danach läuft automatisch
-`theme` (`linux/.config/matugen/theme.sh`). Qt-Apps, Waybar, mako, die
+`theme` (`linux/.config/matugen/theme.sh`). Qt-Apps, Taskleiste, mako, die
 Rahmen und Hell/Dunkel passen sich sofort an. Laufende GTK-Apps übernehmen neue Farben nach einem Neustart.
 
-**Hell/dunkel:** Klick auf Sonne/Mond in der Waybar schaltet um. Der Modus
+**Hell/dunkel:** Klick auf Sonne/Mond in der Taskleiste schaltet um. Der Modus
 bleibt gespeichert (`~/.local/state/theme-mode`) und gilt auch für jedes
 neue Wallpaper.
 
@@ -551,7 +562,7 @@ Beim ersten Login nach einer Umstellung läuft `theme` einmal von selbst.
 ## Tastatur
 
 `us,ru,ua,de`, Umschalten mit Alt+Shift. Steht in beiden Configs
-(`niri/config.kdl`, `hypr/hyprland.lua`), Waybar zeigt das aktive Layout.
+(`niri/config.kdl`, `hypr/hyprland.lua`), die Taskleiste zeigt das aktive Layout.
 
 ## Umstieg von KDE
 

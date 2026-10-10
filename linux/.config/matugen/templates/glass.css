@@ -1,5 +1,5 @@
-/* Erzeugt von matugen (templates/waybar-glass.css) – hier nichts ändern.
-   Liquid Glass für Waybar, hyprshell und wlogout: Fläche, Kanten und
+/* Erzeugt von matugen (templates/glass.css) – hier nichts ändern.
+   Liquid Glass für Taskleiste (Quickshell), hyprshell und wlogout: Fläche, Kanten und
    Lichtkanten – dunkles bzw. helles Glas je nach Modus (theme.sh). */
 @define-color on_error {{colors.on_error.default.hex}};
 <* if {{ is_dark_mode }} *>

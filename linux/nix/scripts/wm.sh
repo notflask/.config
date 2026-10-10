@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 #  wm – ein Befehl für Niri und Hyprland. Erkennt, welcher Compositor
-#  läuft, und übersetzt in `niri msg` bzw. `hyprctl`. Skripte, Waybar,
+#  läuft, und übersetzt in `niri msg` bzw. `hyprctl`. Skripte, Taskleiste,
 #  hypridle, wlogout und theme.sh müssen das so nicht selbst prüfen.
 #  Wird von desktop.nix als Befehl `wm` installiert.
 # ============================================================
@@ -13,7 +13,7 @@ usage() {
 Benutzung:  wm <befehl> [argumente]
 
   name                 niri, hyprland – oder Fehler, wenn keiner läuft
-  autostart            Hintergrund-Programme der Sitzung starten (Waybar …)
+  autostart            Hintergrund-Programme der Sitzung starten (Taskleiste …)
   reload               Config neu laden
   screens on|off       alle Bildschirme an/aus (hypridle)
   logout               Sitzung beenden (Hyprland: Apps erst sauber schließen)
@@ -97,12 +97,11 @@ autostart() {
     exec waypaper --restore
   ) </dev/null &
 
+  # Taskleiste (Quickshell, ~/.config/quickshell/taskbar)
+  spawn quickshell -p "$config/quickshell/taskbar"
+
   case $1 in
-    niri)
-      spawn waybar -c "$config/waybar/config-niri"
-      ;;
     hyprland)
-      spawn waybar -c "$config/waybar/config-hyprland"
       # Alt+Tab mit Fenster-Vorschau (Niri hat das eingebaut);
       # HYPRSHELL_EXPERIMENTAL=1 schaltet die Vorschau statt App-Icons ein
       spawn env HYPRSHELL_EXPERIMENTAL=1 hyprshell run -c "$config/hyprshell/config.toml"

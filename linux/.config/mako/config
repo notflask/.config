@@ -3,7 +3,7 @@
 font=Inter 11
 width=380
 height=160
-# Rand außerhalb der Fläche (10 wie der Waybar-Rand), innen nur unten Abstand
+# Rand außerhalb der Fläche (10 px), innen nur unten Abstand
 # zwischen den Nachrichten – sonst zeichnet der Compositor den Rand mit weich
 outer-margin=10
 margin=0,0,10,0
