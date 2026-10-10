@@ -19,5 +19,9 @@
   services.gigabyte-control-center = {
     enable = true;
     group = "users"; # wer Einstellungen ändern darf
+    # Firmware-Modus „Leistung“ wie im Windows-Control-Center: höhere
+    # Leistungsgrenzen und Lüfterkurve der Firmware. Gilt beim Start, bis im
+    # Tray ein anderer Modus gewählt wird – der bleibt dann gespeichert.
+    profile = "performance";
   };
 }

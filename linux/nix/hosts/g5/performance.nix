@@ -42,7 +42,29 @@
     # Schreibschübe, bei denen alles kurz hängt
     "vm.dirty_bytes" = 268435456;
     "vm.dirty_background_bytes" = 67108864;
+
+    # Kein NMI-Watchdog (siehe Watchdogs unten)
+    "kernel.nmi_watchdog" = 0;
   };
+
+  # ── Watchdogs aus (wie CachyOS) ────────────────────────────
+  # Der Soft-/NMI-Watchdog prüft regelmäßig jeden Kern auf Hänger und weckt
+  # sie dafür per Interrupt – kleine, unregelmäßige Unterbrechungen. Die
+  # Hardware-Watchdogs (iTCO, Intel-OC) nutzt hier niemand: systemd hat
+  # RuntimeWatchdog unter NixOS aus. Gewinn klein, aber kostenlos.
+  boot.kernelParams = [ "nowatchdog" ];
+  boot.blacklistedKernelModules = [
+    "iTCO_wdt"
+    "intel_oc_wdt"
+  ];
+
+  # ── CPU taktet nach Warten auf Daten sofort hoch ───────────
+  # intel_pstate hebt den Mindesttakt kurz an, wenn ein Prozess nach
+  # Ein-/Ausgabe (Laden, Netzwerk, Eingaben) weiterläuft – weniger Mikro-
+  # Ruckler beim Nachladen. Windows macht das ähnlich.
+  systemd.tmpfiles.rules = [
+    "w /sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost - - - - 1"
+  ];
 
   # ── Energieprofil „Leistung“ beim Start setzen ─────────────
   systemd.services.performance-power-profile = {
