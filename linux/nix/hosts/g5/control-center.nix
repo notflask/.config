@@ -11,8 +11,11 @@
 # aktuelle Einstellungen. `gbcc-gui --popup` öffnet das Schnellmenü auch per
 # Tastenkürzel, `gbcc` ist die Kommandozeile. Farben kommen aus dem Qt-Thema
 # (kdeglobals von matugen, theme.nix).
-{ inputs, ... }:
+{ config, inputs, ... }:
 
+let
+  gbcc = "${config.services.gigabyte-control-center.package}/bin/gbcc";
+in
 {
   imports = [ inputs.gigabyte-control-center.nixosModules.default ];
 
@@ -23,5 +26,15 @@
     # Leistungsgrenzen und Lüfterkurve der Firmware. Gilt beim Start, bis im
     # Tray ein anderer Modus gewählt wird – der bleibt dann gespeichert.
     profile = "performance";
+  };
+
+  # ── Lüfter-Preset fürs Spielen ─────────────────────────────
+  # GameMode (gaming-mode / gamemoderun, siehe gaming.nix) schaltet beim
+  # Spielstart auf eine Kurve, die früh kühlt: CPU und RTX 4060 halten so
+  # länger hohe Takte, statt am Limit zu drosseln. Ab 85 °C 100 %, ab 90 °C
+  # erzwingt der Dienst ohnehin 100 %. Nach dem Spiel zurück auf Automatik.
+  programs.gamemode.settings.custom = {
+    start = "${gbcc} fan curve 50:25,60:40,70:60,78:80,85:100";
+    end = "${gbcc} fan auto";
   };
 }

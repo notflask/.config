@@ -53,9 +53,9 @@ window#waybar {
     /* Liquid-Glass-Kante: Licht fängt sich oben links und unten rechts,
        an den Seiten bleibt der Rand fast unsichtbar */
     box-shadow:
-        inset 0 0 0 1px alpha(@on_surface, 0.06),
-        inset 1px 1px 1px alpha(@on_surface, 0.55),
-        inset -1px -1px 1px alpha(@on_surface, 0.30),
+        inset 0 0 0 2px alpha(@on_surface, 0.06),
+        inset 2px 2px 2px alpha(@on_surface, 0.50),
+        inset -2px -2px 2px alpha(@on_surface, 0.28),
         inset 0 0 10px alpha(@on_surface, 0.12),
         0 0 8px alpha(@on_surface, 0.06);
 }

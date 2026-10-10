@@ -9,9 +9,9 @@
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Minimaler PDF-Viewer (Branch bis zum Merge nach master)
+    # Minimaler PDF-Viewer
     mizu = {
-      url = "github:notflask/mizu/claude/minimalist-pdf-viewer-rx6t7m";
+      url = "github:notflask/mizu";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # Gigabyte Control Center: Tastaturlicht, Lüfter, Leistungsmodi (G5 KF)
