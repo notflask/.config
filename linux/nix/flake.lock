@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791632536,
-        "narHash": "sha256-XOKZVuQ9CjICZsZG/D4/SWpFjcNBnI+UCRINCycWpG8=",
+        "lastModified": 1791632771,
+        "narHash": "sha256-aYG4s3/Kwh0K4bfLz9bQk9nS/ej0tf9+ywHa2btD6N8=",
         "owner": "notflask",
         "repo": "gigabyte-control-center",
-        "rev": "4898896969e4a668f672a259d1cfe9c719c8724e",
+        "rev": "04f261e3548d4a749c830333a46f09e603d72900",
         "type": "github"
       },
       "original": {
