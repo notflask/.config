@@ -4,7 +4,7 @@
 # nicht im Repo. Einrichten/bedienen mit dem Befehl `vpn`:
 #
 #   vpn import DATEI.conf [NAME]  Config übernehmen und verbinden; NAME
-#                           (Standard: Dateiname) zeigt das Waybar-Popup an
+#                           (Standard: Dateiname) ist der Profilname
 #   vpn name NAME           Profilnamen nachträglich setzen
 #   vpn up | down           verbinden / trennen
 #   vpn status              Verbindung und Kill-Switch anzeigen
@@ -22,7 +22,7 @@ let
   iface = "wg0";
   fwmark = "51820"; # setzt wg-quick für Table = auto
   conf = "/etc/wireguard/${iface}.conf";
-  nameFile = "/etc/wireguard/${iface}.name"; # Profilname fürs Waybar-Popup
+  nameFile = "/etc/wireguard/${iface}.name"; # Profilname
 
   # Regeln wie von Mullvad empfohlen: alles, was nicht über das Interface
   # läuft und nicht die verschlüsselten WireGuard-Pakete selbst sind
@@ -98,9 +98,9 @@ let
     '';
   };
 
-  # Für das Waybar-Popup: Endpoint und letzter Handshake, ohne Schlüssel.
+  # Für die Taskleiste (vpn.sh): Endpoint und letzter Handshake, ohne Schlüssel.
   # `wg show` braucht root – deshalb schreibt ein Dienst (unten) die Werte
-  # alle 5 s in eine lesbare Datei, statt dass Waybar alle 5 s sudo aufruft.
+  # alle 5 s in eine lesbare Datei, statt dass die Taskleiste alle 5 s sudo aufruft.
   peerInfoFile = "/run/${iface}-peer-info";
   peerInfo = pkgs.writeShellApplication {
     name = "vpn-peer-info";
@@ -200,7 +200,7 @@ in
 
   # Läuft nur, solange der Tunnel steht
   systemd.services.vpn-peer-info = {
-    description = "WireGuard-Status für das Waybar-Popup";
+    description = "WireGuard-Status für die Taskleiste";
     wantedBy = [ "wg-quick-${iface}.service" ];
     bindsTo = [ "wg-quick-${iface}.service" ];
     after = [ "wg-quick-${iface}.service" ];

@@ -3,8 +3,8 @@
    "logout_dialog" in niri/config.kdl bzw. hypr/hyprland.lua).
    Farben kommen von matugen (theme.sh), Symbole aus dem Icon-Theme des
    Systems (Papirus) – symbolische Icons nehmen die Schriftfarbe an. */
-@import url("file:///home/flask/.config/waybar/colors.css");
-@import url("file:///home/flask/.config/waybar/glass.css");
+@import url("file:///home/flask/.config/quickshell/taskbar/colors.css");
+@import url("file:///home/flask/.config/quickshell/taskbar/glass.css");
 
 * {
     background-image: none;

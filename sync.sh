@@ -130,12 +130,12 @@ sync_matugen() {
     "matugen config"
 }
 
-sync_waybar() {
-  echo "── Waybar ──────────────────────────────────────"
+sync_quickshell() {
+  echo "── Quickshell ──────────────────────────────────"
   sync_file \
-    "$HOME/.config/waybar" \
-    "$DOTFILES/linux/.config/waybar" \
-    "waybar config"
+    "$HOME/.config/quickshell" \
+    "$DOTFILES/linux/.config/quickshell" \
+    "quickshell config"
 }
 
 sync_waypaper() {
@@ -209,7 +209,7 @@ vscode) sync_vscode ;;
 sioyek) sync_sioyek ;;
 hypr) sync_hypr ;;
 matugen) sync_matugen ;;
-waybar) sync_waybar ;;
+quickshell) sync_quickshell ;;
 waypaper) sync_waypaper ;;
 tmux) sync_tmux ;;
 niri) sync_niri ;;
@@ -220,7 +220,7 @@ all)
   sync_nvim
   sync_hypr
   sync_matugen
-  sync_waybar
+  sync_quickshell
   sync_waypaper
   sync_glazewm
   sync_vscode
@@ -234,7 +234,7 @@ all)
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | waybar | waypaper | glazewm | vscode | sioyek | tmux | niri | rofi | ghostty | aerospace"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | quickshell | waypaper | glazewm | vscode | sioyek | tmux | niri | rofi | ghostty | aerospace"
   exit 1
   ;;
 esac

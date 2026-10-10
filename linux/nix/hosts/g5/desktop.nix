@@ -280,7 +280,7 @@ in
       xdg-terminal-exec # Terminal-Apps (nvim, btop) aus Menüs in Ghostty öffnen
 
       # Programme, die die Niri- und Hyprland-Config starten
-      waybar
+      quickshell # Taskleiste wie unter Windows (quickshell/taskbar)
       rofi # Spotlight-Starter (Super+Space)
       awww # Hintergrund mit Übergängen (Backend für Waypaper)
       waypaper
@@ -288,7 +288,6 @@ in
       cliphist
       wl-clip-persist # Zwischenablage überlebt das Schließen der Quell-App
       playerctl
-      imagemagick # abgerundete Cover im Waybar-Medienwidget
       jq # wlogout/launch.sh
       brightnessctl
       pavucontrol

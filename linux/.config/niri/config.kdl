@@ -61,7 +61,7 @@ layout {
 
     border {
         on
-        width 2
+        width 1
     }
 
     shadow {
@@ -85,7 +85,7 @@ cursor {
 
 
 // Gleiche Liste wie unter Hyprland, steht nur einmal in `wm autostart`
-// (scripts/wm.sh): Waybar, Hintergrund, Clipboard, EasyEffects, playerctld
+// (scripts/wm.sh): Taskleiste, Hintergrund, Clipboard, EasyEffects, playerctld
 spawn-at-startup "wm" "autostart"
 
 
@@ -136,7 +136,7 @@ window-rule {
 window-rule {
     match is-window-cast-target=true
     border {
-        width 2
+        width 1
         active-color "#e5484d"
         inactive-color "#e5484daa"
     }
@@ -185,13 +185,13 @@ window-rule {
     clip-to-geometry false
 }
 
-// Gigabyte Control Center: Schnellmenü vom Tray-Symbol schwebt oben rechts
-// unter der Waybar (34 px hoch + 8 px Abstand)
+// Gigabyte Control Center: Schnellmenü vom Tray-Symbol schwebt unten rechts
+// über der Taskleiste (Abstand wie die Popups der Leiste)
 window-rule {
     match app-id="gigabyte-control-center" title="^Gigabyte Control Center Quick$"
     open-floating true
     open-focused true
-    default-floating-position x=10 y=50 relative-to="top-right"
+    default-floating-position x=8 y=8 relative-to="bottom-right"
 }
 
 // Wegwerf-Terminal (Super+`, scratch-term in desktop.nix): schwebt oben mittig
@@ -201,7 +201,7 @@ window-rule {
     open-focused true
     default-column-width { proportion 0.6; }
     default-window-height { proportion 0.5; }
-    default-floating-position x=0 y=48 relative-to="top"
+    default-floating-position x=0 y=8 relative-to="top"
     background-effect {
         blur true
         xray false
@@ -218,14 +218,22 @@ window-rule {
     }
 }
 
+// Taskleiste (quickshell/taskbar): unten, volle Breite, eckig, ohne Schatten
 layer-rule {
-    match namespace="waybar"
-
+    match namespace="^taskbar$"
     background-effect {
         blur true
     }
-    // gleiche Rundung wie window#waybar in waybar/style.css
-    geometry-corner-radius 18
+}
+
+// Popups der Taskleiste (Startmenü, Vorschau, Lautstärke): Radius wie
+// Popup.qml in quickshell/taskbar
+layer-rule {
+    match namespace="^taskbar-popup$"
+    background-effect {
+        blur true
+    }
+    geometry-corner-radius 16
     shadow {
         on
         softness 30
@@ -282,7 +290,7 @@ binds {
     Mod+D hotkey-overlay-title="Run an Application: rofi" { spawn "rofi" "-show" "drun"; }
     Mod+Space hotkey-overlay-title=null { spawn "rofi" "-show" "drun"; }
     Mod+Shift+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
-    // Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in Waybar)
+    // Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in der Taskleiste)
     Mod+Ctrl+V repeat=false hotkey-overlay-title="Clipboard History" { spawn "clipboard-history"; }
     Mod+Shift+E repeat=false hotkey-overlay-title="Power Menu: wlogout" { spawn-sh "~/.config/wlogout/launch.sh"; }
 

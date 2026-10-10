@@ -1,8 +1,8 @@
-/* hyprshell (Alt+Tab) – Liquid Glass wie Waybar, Rofi und wlogout.
+/* hyprshell (Alt+Tab) – Liquid Glass wie Taskleiste, Rofi und wlogout.
    Blur macht Hyprland (layer-rule "hyprshell_switch" in hypr/hyprland.lua),
    Farben kommen von matugen. */
-@import url("file:///home/flask/.config/waybar/colors.css");
-@import url("file:///home/flask/.config/waybar/glass.css");
+@import url("file:///home/flask/.config/quickshell/taskbar/colors.css");
+@import url("file:///home/flask/.config/quickshell/taskbar/glass.css");
 
 /* hyprshell setzt keine Standardwerte mehr – alle Variablen belegen
    (Klassen unten überschreiben die Farben mit den matugen-Farben) */

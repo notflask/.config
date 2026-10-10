@@ -52,7 +52,15 @@
   # sie dafür per Interrupt – kleine, unregelmäßige Unterbrechungen. Die
   # Hardware-Watchdogs (iTCO, Intel-OC) nutzt hier niemand: systemd hat
   # RuntimeWatchdog unter NixOS aus. Gewinn klein, aber kostenlos.
-  boot.kernelParams = [ "nowatchdog" ];
+  boot.kernelParams = [
+    "nowatchdog"
+    # ── Kernel unterbricht sofort, nicht erst beim nächsten Takt ──
+    # Seit 6.18 ist "lazy" Standard (gut für Durchsatz): ein Prozess, der
+    # gerade wach wird (Eingabe, Audio, Compositor), wartet bis zu 1 ms auf
+    # den nächsten Tick. "full" wie bei CachyOS: kürzere Wege von Maus/Taste
+    # bis zum Bild. Zurück: Zeile löschen (Prüfen: dmesg | grep Preempt).
+    "preempt=full"
+  ];
   boot.blacklistedKernelModules = [
     "iTCO_wdt"
     "intel_oc_wdt"

@@ -29,8 +29,8 @@ generated=(
   linux/.config/mako/config
   linux/.config/niri/colors.kdl
   linux/.config/rofi/colors.rasi
-  linux/.config/waybar/colors.css
-  linux/.config/waybar/glass.css
+  linux/.config/quickshell/taskbar/colors.css
+  linux/.config/quickshell/taskbar/glass.css
 )
 
 warn() { echo "rebuild: $*" >&2; }
