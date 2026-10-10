@@ -311,6 +311,15 @@ hl.window_rule({
     move = { "monitor_w*0.2", "48" },
 })
 
+-- Gigabyte Control Center: Schnellmenü vom Tray-Symbol schwebt oben rechts
+-- unter der Waybar (wie in Niri). Das Fenster ist fest 340 px breit.
+hl.window_rule({
+    name = "gbcc-popup",
+    match = { class = "gigabyte-control-center", title = "Gigabyte Control Center Quick" },
+    float = true,
+    move = { "monitor_w-350", "50" },
+})
+
 -- Nur Hyprland: CS2 darf tearen (niedrigste Latenz bei fps_max 0)
 hl.window_rule({
     name = "cs2-tearing",

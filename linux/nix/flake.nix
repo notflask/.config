@@ -14,6 +14,11 @@
       url = "github:notflask/mizu/claude/minimalist-pdf-viewer-rx6t7m";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Gigabyte Control Center: Tastaturlicht, Lüfter, Leistungsmodi (G5 KF)
+    gigabyte-control-center = {
+      url = "github:notflask/gigabyte-control-center/claude/initial-implementation";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { nixpkgs, ... }@inputs: {

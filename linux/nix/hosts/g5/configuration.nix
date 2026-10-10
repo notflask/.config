@@ -8,6 +8,7 @@
     ./apps.nix
     ./gaming.nix
     ./performance.nix
+    ./control-center.nix
     ./theme.nix
     ./dotfiles.nix
     ./fonts.nix

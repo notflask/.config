@@ -1,5 +1,26 @@
 {
   "nodes": {
+    "gigabyte-control-center": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791632536,
+        "narHash": "sha256-XOKZVuQ9CjICZsZG/D4/SWpFjcNBnI+UCRINCycWpG8=",
+        "owner": "notflask",
+        "repo": "gigabyte-control-center",
+        "rev": "4898896969e4a668f672a259d1cfe9c719c8724e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "notflask",
+        "ref": "claude/initial-implementation",
+        "repo": "gigabyte-control-center",
+        "type": "github"
+      }
+    },
     "mizu": {
       "inputs": {
         "nixpkgs": [
@@ -39,6 +60,7 @@
     },
     "root": {
       "inputs": {
+        "gigabyte-control-center": "gigabyte-control-center",
         "mizu": "mizu",
         "nixpkgs": "nixpkgs",
         "spicetify-nix": "spicetify-nix"

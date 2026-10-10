@@ -185,6 +185,15 @@ window-rule {
     clip-to-geometry false
 }
 
+// Gigabyte Control Center: Schnellmenü vom Tray-Symbol schwebt oben rechts
+// unter der Waybar (34 px hoch + 8 px Abstand)
+window-rule {
+    match app-id="gigabyte-control-center" title="^Gigabyte Control Center Quick$"
+    open-floating true
+    open-focused true
+    default-floating-position x=10 y=50 relative-to="top-right"
+}
+
 // Wegwerf-Terminal (Super+`, scratch-term in desktop.nix): schwebt oben mittig
 window-rule {
     match app-id=r#"^com\.flask\.scratchpad$"#
