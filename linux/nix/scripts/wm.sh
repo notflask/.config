@@ -2,7 +2,7 @@
 # ============================================================
 #  wm – ein Befehl für Niri und Hyprland. Erkennt, welcher Compositor
 #  läuft, und übersetzt in `niri msg` bzw. `hyprctl`. Skripte, Taskleiste,
-#  hypridle, wlogout und theme.sh müssen das so nicht selbst prüfen.
+#  hypridle und theme.sh müssen das so nicht selbst prüfen.
 #  Wird von desktop.nix als Befehl `wm` installiert.
 # ============================================================
 
@@ -17,7 +17,6 @@ Benutzung:  wm <befehl> [argumente]
   reload               Config neu laden
   screens on|off       alle Bildschirme an/aus (hypridle)
   logout               Sitzung beenden (Hyprland: Apps erst sauber schließen)
-  output-size          Größe des aktiven Monitors in logischen Pixeln: "B H"
   find-window APP_ID   ID des ersten Fensters mit dieser App-ID/Klasse
   focused-window       ID des fokussierten Fensters
   focus-window ID      Fenster fokussieren (ID von find-window)
@@ -79,7 +78,7 @@ hypr_dispatch() { hyprctl dispatch "$1" >/dev/null; }
 spawn() { "$@" </dev/null & }
 
 autostart() {
-  # Gleich unter Niri und Hyprland
+  # Gleich unter Niri und Hyprland (Alt+Tab steckt unter Hyprland in der Taskleiste)
   spawn playerctld daemon # merkt sich den zuletzt aktiven Player
   spawn easyeffects --service-mode --hide-window
   spawn wl-paste --type text --watch cliphist store
@@ -99,14 +98,6 @@ autostart() {
 
   # Taskleiste (Quickshell, ~/.config/quickshell/taskbar)
   spawn quickshell -p "$config/quickshell/taskbar"
-
-  case $1 in
-    hyprland)
-      # Alt+Tab mit Fenster-Vorschau (Niri hat das eingebaut);
-      # HYPRSHELL_EXPERIMENTAL=1 schaltet die Vorschau statt App-Icons ein
-      spawn env HYPRSHELL_EXPERIMENTAL=1 hyprshell run -c "$config/hyprshell/config.toml"
-      ;;
-  esac
 }
 
 cmd=${1:-}
@@ -130,7 +121,7 @@ fi
 
 case "$wm:$cmd" in
   *:name) echo "$wm" ;;
-  *:autostart) autostart "$wm" ;;
+  *:autostart) autostart ;;
 
   niri:reload) niri msg action load-config-file >/dev/null ;;
   hyprland:reload) hyprctl reload >/dev/null ;;
@@ -160,13 +151,6 @@ case "$wm:$cmd" in
     exec hyprctl dispatch 'hl.dsp.exit()'
     ;;
 
-  niri:output-size)
-    niri msg --json focused-output | jq -r '.logical | "\(.width) \(.height)"'
-    ;;
-  hyprland:output-size)
-    hyprctl -j monitors |
-      jq -r '.[] | select(.focused) | "\(.width / .scale | floor) \(.height / .scale | floor)"'
-    ;;
 
   niri:find-window)
     niri msg --json windows |

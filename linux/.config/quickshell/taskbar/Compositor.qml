@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 
 // Hyprland oder Niri. Niri hat kein Quickshell-Modul: Arbeitsflächen und
@@ -17,6 +18,14 @@ Singleton {
     property var niriWorkspaces: []
     property var niriLayouts: []
     property int niriLayout: 0
+
+    // Name des fokussierten Monitors
+    function focusedOutput() {
+        if (hyprland)
+            return Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
+        const ws = niriWorkspaces.find(w => w.is_focused);
+        return ws ? ws.output : "";
+    }
 
     function niriEvent(e) {
         if (e.WorkspacesChanged) {

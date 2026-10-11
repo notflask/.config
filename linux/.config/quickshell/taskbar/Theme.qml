@@ -5,8 +5,7 @@ import Quickshell
 import Quickshell.Io
 
 // Farben aus colors.css und glass.css hier im Ordner (matugen, hell oder
-// dunkel; dieselben Dateien binden hyprshell und wlogout ein). Ändert
-// theme.sh sie, färbt sich alles sofort neu.
+// dunkel). Ändert theme.sh sie, färbt sich alles sofort neu.
 Singleton {
     id: root
 
@@ -27,6 +26,9 @@ Singleton {
     readonly property color pill: get("glass_pill", "#12ffffff")
     readonly property color pillShine: get("glass_pill_shine", "#24ffffff")
     readonly property color shadow: get("glass_shadow", "#59000000")
+    readonly property color surface: get("surface", "#151311")
+    readonly property color surfaceVariant: get("surface_variant", "#4a4544")
+    readonly property color outline: get("outline", "#95908c")
     readonly property color text: get("on_surface", "#e5e2e3")
     readonly property color textDim: get("on_surface_variant", "#c8c6c7")
     readonly property color primary: get("primary", "#c3c6d6")

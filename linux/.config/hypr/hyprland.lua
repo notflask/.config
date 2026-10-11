@@ -90,7 +90,7 @@ hl.config({
             color = "#00000064",
         },
 
-        -- Blur nur für Ghostty, Taskleiste, mako, wlogout, Rofi –
+        -- Blur nur für Ghostty, Taskleiste, mako, Ausschalt-Menü, Rofi –
         -- siehe window-rule/layer-rule unten (xray false)
         -- Wie Niri: 3 Durchgänge statt 1, kein Kontrast-Abschlag (sonst
         -- Grauschleier), dazu kräftigere Farben dahinter wie Liquid Glass
@@ -148,7 +148,6 @@ hl.config({
 
 -- Gleiche Liste wie unter Niri, steht nur einmal in `wm autostart`
 -- (scripts/wm.sh): Taskleiste, Hintergrund, Clipboard, EasyEffects, playerctld,
--- dazu nur hier hyprshell (Alt+Tab, siehe binds)
 hl.on("hyprland.start", function()
     hl.exec_cmd("wm autostart")
 end)
@@ -353,15 +352,16 @@ hl.layer_rule({
     ignore_alpha = 0.1,
 })
 
--- wlogout: Glas-Hintergrund
-hl.layer_rule({ name = "logout_dialog", match = { namespace = "logout_dialog" }, blur = true })
+-- Ausschalt-Menü (quickshell/taskbar/PowerMenu.qml): Glas-Hintergrund,
+-- blendet selbst ein
+hl.layer_rule({ name = "power_menu", match = { namespace = "power-menu" }, blur = true, no_anim = true })
 
 -- slurp (Bereich für screenshot/screenshot-edit) sofort weg, sonst fotografiert
 -- grim den ausblendenden Rahmen und Schleier mit
 hl.layer_rule({ name = "slurp", match = { namespace = "selection" }, no_anim = true })
 
--- hyprshell (Alt+Tab): Glas wie Rofi, Radius = .monitor in hyprshell/styles.css
-hl.layer_rule({ name = "hyprshell_switch", match = { namespace = "hyprshell_switch" }, blur = true, ignore_alpha = 0.1 })
+-- Alt+Tab (quickshell/taskbar/AltTab.qml): Glas wie Rofi, sofort da
+hl.layer_rule({ name = "alttab", match = { namespace = "alttab" }, blur = true, ignore_alpha = 0.1, no_anim = true })
 
 -- Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
 -- und geht wie Spotlight leicht wachsend auf
@@ -626,7 +626,7 @@ bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
 -- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in der Taskleiste)
 bind(key("CTRL + V"), hl.dsp.exec_cmd("clipboard-history"), title("Clipboard History", { repeating = false }))
-bind(key("SHIFT + E"), hl.dsp.exec_cmd("~/.config/wlogout/launch.sh"), title("Power Menu: wlogout", { repeating = false }))
+bind(key("SHIFT + E"), hl.dsp.exec_cmd("qs -c taskbar ipc call power toggle"), title("Power Menu", { repeating = false }))
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })
@@ -652,24 +652,19 @@ for _, keys in ipairs({ "ALT + Shift_L", "ALT + Shift_R", "SHIFT + Alt_L", "SHIF
     bind(keys, hl.dsp.exec_cmd(next_layout), { non_consuming = true, repeating = false })
 end
 
--- Alt+Tab (Niri: eingebaut): hyprshell, ~/.config/hyprshell.
--- hyprshell legt diese Tasten selbst per IPC an (hl.bind über `eval`), aber
--- jedes Neuladen der Config löscht sie wieder – theme.sh lädt nach jedem
--- Hintergrundwechsel neu, beim Login dazu das Plugin unten. Danach ging
--- Alt+Tab bis zum Neustart von hyprshell nicht mehr. Deshalb stehen sie
--- auch hier, mit denselben Flags wie bei hyprshell (ersetzt sie nur).
-local function hyprshell(msg)
-    return hl.dsp.exec_cmd("hyprshell socat '" .. msg .. "'")
+-- Alt+Tab (Niri: eingebaut): Quickshell, quickshell/taskbar/AltTab.qml.
+-- Global Shortcuts statt exec_cmd: kein eigener Prozess pro Tastendruck.
+local function alttab(action)
+    return hl.dsp.global("quickshell:alttab-" .. action)
 end
-local switch_next = hyprshell([[{"OpenSwitch":{"reverse":false}}]])
-local switch_prev = hyprshell([[{"OpenSwitch":{"reverse":true}}]])
-local switch_close = hyprshell([[{"CloseSwitch":{"switch":true}}]])
-hl.bind("ALT + Tab", switch_next, { auto_consuming = true, repeating = true, description = "Switch Windows" })
-hl.bind("ALT + SHIFT + Tab", switch_prev, { auto_consuming = true, repeating = true })
-hl.bind("ALT + grave", switch_prev, { auto_consuming = true, repeating = true })
--- Loslassen von Alt wechselt zum gewählten Fenster
+hl.bind("ALT + Tab", alttab("next"), { auto_consuming = true, repeating = true, description = "Switch Windows" })
+hl.bind("ALT + SHIFT + Tab", alttab("prev"), { auto_consuming = true, repeating = true })
+hl.bind("ALT + grave", alttab("prev"), { auto_consuming = true, repeating = true })
+-- Loslassen von Alt wechselt zum gewählten Fenster. Shift_L/R: Alt wurde
+-- bei Alt+Shift+Tab vor Shift losgelassen (dann passt ALT + Alt_L nicht).
+-- Ist Alt+Tab zu, tun die Global Shortcuts nichts.
 for _, keys in ipairs({ "ALT + Alt_L", "ALT + Alt_R", "SHIFT + Shift_L", "SHIFT + Shift_R" }) do
-    hl.bind(keys, switch_close, { release = true, transparent = true, auto_consuming = true })
+    hl.bind(keys, alttab("commit"), { release = true, transparent = true, auto_consuming = true })
 end
 
 bind(key("O"), toggle_overview, title("Open the Overview", { repeating = false }))
@@ -680,6 +675,8 @@ bind("Escape", function()
         ht.toggle("all")
     end
 end, { non_consuming = true, repeating = false })
+-- Alt gedrückt halten + Esc: Alt+Tab ohne Wechsel schließen
+bind("ALT + Escape", alttab("cancel"), { non_consuming = true, repeating = false })
 
 bind(key("Q"), hl.dsp.window.close(), title("Close Focused Window", { repeating = false }))
 

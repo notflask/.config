@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Status des WireGuard-Tunnels wg0 für die Taskleiste (Vpn.qml, siehe vpn.nix).
-#   vpn.sh          Zustand ausgeben: on | pending | off | open
-#   vpn.sh toggle   verbinden/trennen (fragt per Polkit nach dem Passwort)
+#   vpn.sh          Zustand ausgeben: on | pending | off | open, danach
+#                   Details als SCHLÜSSEL=WERT (name, endpoint, handshake,
+#                   rx, tx, lock) für das VPN-Fenster (VpnPanel.qml)
+#   vpn.sh toggle   verbinden/trennen
+#   vpn.sh lock | unlock   Internet ohne VPN sperren / freigeben
+# Ohne Passwort dank Polkit-Regel in vpn.nix.
 #
 # on = verbunden (grün), pending = verbindet / keine Antwort vom Server
 # (orange), off = getrennt, Fehler oder nicht eingerichtet (rot),
@@ -10,14 +14,29 @@
 iface=wg0
 service=wg-quick-$iface
 
-if [ "${1:-}" = toggle ]; then
-  if systemctl is-active --quiet "$service"; then
-    systemctl stop "$service"
-  else
-    systemctl start "$service"
-  fi
-  exit
-fi
+case ${1:-} in
+  toggle)
+    if systemctl is-active --quiet "$service"; then
+      systemctl stop "$service"
+    else
+      systemctl start "$service"
+    fi
+    exit
+    ;;
+  lock) exec systemctl start vpn-lock ;;
+  unlock) exec systemctl stop vpn-lock ;;
+esac
+
+endpoint="" handshake=0 rx=0 tx=0
+details() {
+  echo "name=$(cat /etc/wireguard/$iface.name 2>/dev/null)"
+  echo "endpoint=$endpoint"
+  echo "handshake=$handshake"
+  echo "rx=$rx"
+  echo "tx=$tx"
+  systemctl is-active --quiet vpn-lock && echo lock=on || echo lock=off
+}
+trap details EXIT
 
 if [ ! -e /etc/wireguard/$iface.conf ]; then
   echo off
@@ -34,7 +53,6 @@ esac
 
 if [ -d /sys/class/net/$iface ]; then
   # Endpoint und letzter Handshake – schreibt der Dienst vpn-peer-info
-  endpoint="" handshake=0
   while IFS='=' read -r k v; do
     case $k in
       endpoint) endpoint=$v ;;
@@ -42,6 +60,8 @@ if [ -d /sys/class/net/$iface ]; then
     esac
   done </run/$iface-peer-info 2>/dev/null
   printf -v now '%(%s)T' -1
+  read -r rx </sys/class/net/$iface/statistics/rx_bytes
+  read -r tx </sys/class/net/$iface/statistics/tx_bytes
 
   # WireGuard erneuert den Handshake alle 2 min; nach 3 min ohne gilt die
   # Verbindung als tot. Ohne Status-Datei: wurde überhaupt etwas empfangen?

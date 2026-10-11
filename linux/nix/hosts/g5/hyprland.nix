@@ -8,32 +8,6 @@ let
   # Fester Pfad, damit hyprland.lua das Plugin ohne Store-Pfad laden kann.
   hyprtasking = pkgs.hyprlandPlugins.hyprtasking;
 
-  # Alt+Tab (~/.config/hyprshell). Alpha statt 4.10.8 aus nixpkgs: erst ab
-  # 4.11 gibt es Fenster-Vorschauen (HYPRSHELL_EXPERIMENTAL=1, hyprland.lua).
-  # Zurück auf pkgs.hyprshell, sobald nixpkgs 4.11 hat.
-  hyprshell = pkgs.hyprshell.overrideAttrs (
-    final: old: {
-      version = "4.11.0-alpha.1";
-      src = pkgs.fetchFromGitHub {
-        owner = "H3rmt";
-        repo = "hyprshell";
-        tag = "v${final.version}";
-        hash = "sha256-LEtHGr9NzGBfd3kOuzdnCfcQV3hQRoU3lzDV7iCDhgA=";
-      };
-      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-        inherit (final) pname version src;
-        hash = "sha256-2GTICUypGVWcwSOuydT8BcejDffpcobIbSiJgwOIrrg=";
-      };
-      # 4.11 braucht zusätzlich libdbus und libgbm (Fenster-Aufnahme)
-      buildInputs = old.buildInputs ++ [
-        pkgs.dbus
-        pkgs.libgbm
-      ];
-      # Tests der Alpha nicht mitbauen (upstream baut auch ohne)
-      doCheck = false;
-    }
-  );
-
   # Druck: Bereich wählen → Clipboard + ~/Screenshots (wie Niris Screenshot)
   screenshot = pkgs.writeShellApplication {
     name = "screenshot";
@@ -48,7 +22,9 @@ let
       mkdir -p "$dir"
       file="$dir/Screenshot from $(date '+%Y-%m-%d %H-%M-%S').png"
       geom=$(slurp -d -b '#1e1e2e66' -c '#cba6f7' -w 2) || exit 0
-      grim -g "$geom" "$file"
+      # -l 1: schwache PNG-Kompression. Standard (6) braucht für 2560×1440
+      # ~1,5 s, bis Clipboard und Meldung da sind; 1 ~0,2 s, Datei kaum größer
+      grim -l 1 -g "$geom" "$file"
       wl-copy --type image/png <"$file"
       notify-send -a Screenshot -i "$file" "Screenshot kopiert" "''${file##*/}"
     '';
@@ -109,7 +85,5 @@ in
     pkgs.hyprshutdown # Abmelden: schließt Apps erst sauber
     screenshot # Druck
     hypr-keybinds # Super+Shift+/
-    # Alt+Tab mit Fenster-Vorschau (Niri hat das eingebaut), ~/.config/hyprshell
-    hyprshell
   ];
 }

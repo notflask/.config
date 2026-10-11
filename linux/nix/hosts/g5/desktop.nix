@@ -40,7 +40,7 @@ let
 
   # Ein Befehl für Niri und Hyprland: erkennt den laufenden Compositor
   # (auch mit veralteter Umgebung, z. B. in tmux) – `wm help` listet alles.
-  # Die Skripte unten, wlogout/launch.sh, matugen/theme.sh und der
+  # Die Skripte unten, matugen/theme.sh und der
   # Autostart beider Configs (`wm autostart`) laufen darüber.
   wm = pkgs.writeShellApplication {
     name = "wm";
@@ -58,7 +58,7 @@ let
     text = ''exec wm screens "''${1:?on oder off}"'';
   };
 
-  # Abmelden aus der laufenden Sitzung (wlogout, siehe wlogout/layout)
+  # Abmelden aus der laufenden Sitzung (Ausschalt-Menü, quickshell/taskbar/Power.qml)
   session-logout = pkgs.writeShellApplication {
     name = "session-logout";
     runtimeInputs = [ wm ];
@@ -288,14 +288,13 @@ in
       cliphist
       wl-clip-persist # Zwischenablage überlebt das Schließen der Quell-App
       playerctl
-      jq # wlogout/launch.sh
+      jq # matugen/theme.sh (Vencord-Theme)
       brightnessctl
       pavucontrol
-      wlogout
       mako # makoctl (Theme neu laden)
       libnotify # notify-send
       screenshot-edit # Super+Shift+S
-      session-logout # wlogout → Abmelden
+      session-logout # Ausschalt-Menü → Abmelden
       scratch-term # Super+`
       clipboard-history # Super+Strg+V
       screen-power # hypridle

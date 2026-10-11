@@ -25,7 +25,9 @@ let
   # Ausnahme Hyprland: Es rendert auf der NVIDIA und kann die Bildpuffer der
   # iGPU nicht importieren (eglCreateImageKHR: „buffer attributes are not
   # supported“) → Discord-Fenster bleibt schwarz. Dort zeichnet Discord daher
-  # auf der NVIDIA.
+  # auf der NVIDIA und kodiert wie unter Niri per NVENC (CUDA sichtbar): Ohne
+  # CUDA kodierte es den Stream auf der CPU (~140 % CPU, CPU dauernd im
+  # Thermal-Throttling).
   #
   # Ausnahme Niri: Niri rendert ebenfalls auf der NVIDIA und liefert den
   # Bildschirm-Stream nur als DMA-BUF mit NVIDIA-Modifiern (kein MemFd).
@@ -48,7 +50,7 @@ let
           --set LIBVA_DRIVER_NAME iHD \
           --prefix LD_LIBRARY_PATH : ${lib.getLib pkgs.libva}/lib \
           --run 'render_node=/dev/dri/intel-render; export CUDA_VISIBLE_DEVICES=-1' \
-          --run 'if [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then render_node=/dev/dri/nvidia-render; fi' \
+          --run 'if [ -n "''${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then render_node=/dev/dri/nvidia-render; unset CUDA_VISIBLE_DEVICES; fi' \
           --run 'if [ -n "''${NIRI_SOCKET:-}" ]; then render_node=/dev/dri/nvidia-render; unset CUDA_VISIBLE_DEVICES; fi' \
           --add-flags '--render-node-override=$render_node'
       done
@@ -129,6 +131,16 @@ in
       "network.http.max-persistent-connections-per-server" = 10;
       "network.http.max-urgent-start-excessive-connections-per-host" = 5;
       "network.http.pacing.requests.enabled" = false;
+      # Links vorausschauend auflösen und verbinden, auch auf HTTPS-Seiten
+      # (Firefox-Standard: nur auf HTTP-Seiten). Klick → Seite spart so den
+      # DNS- und TLS-Handschlag. uBlock schaltet das sonst ab, siehe policies.
+      "network.dns.disablePrefetch" = false;
+      "network.dns.disablePrefetchFromHTTPS" = false;
+      "network.prefetch-next" = true;
+      "network.http.speculative-parallel-limit" = 20;
+      "network.dnsCacheEntries" = 1000;
+      # Shader beim Start vorbereiten statt beim ersten Zeichnen
+      "gfx.webrender.precache-shaders" = true;
       # DNS-Antworten und TLS-Sitzungen länger merken (jede DNS-Anfrage
       # geht sonst durch den VPN-Tunnel, ~40 ms)
       "network.dnsCacheExpiration" = 3600;
@@ -156,6 +168,16 @@ in
         install_url = "https://addons.mozilla.org/firefox/downloads/latest/pywalfox/latest.xpi";
       };
     };
+    # uBlock Origin: „Pre-Fetching deaktivieren“ (Standard: an) setzt
+    # network.dns.disablePrefetch und network.prefetch-next fest auf aus –
+    # jede Seite wartete dann erst auf DNS und Verbindung. Wird bei jedem
+    # Start von uBlock übernommen.
+    policies."3rdparty".Extensions."uBlock0@raymondhill.net".userSettings = [
+      [
+        "prefetchingDisabled"
+        "false"
+      ]
+    ];
     nativeMessagingHosts.packages = [ pywalfoxHost ];
   };
 
