@@ -297,40 +297,14 @@ Popup {
                 color: Theme.textDim
             }
 
-            // Ein/Aus: dieselben Befehle wie wlogout/layout
+            // Ein/Aus: dieselben Befehle wie das Ausschalt-Menü (Power.qml)
             Row {
                 anchors.centerIn: grid
                 visible: menu.powerMode
                 spacing: 4
 
                 Repeater {
-                    model: [
-                        {
-                            glyph: "\u{F033E}",
-                            label: "Sperren",
-                            cmd: ["hyprlock"]
-                        },
-                        {
-                            glyph: "\u{F0343}",
-                            label: "Abmelden",
-                            cmd: ["session-logout"]
-                        },
-                        {
-                            glyph: "\u{F0904}",
-                            label: "Standby",
-                            cmd: ["systemctl", "suspend"]
-                        },
-                        {
-                            glyph: "\u{F0709}",
-                            label: "Neu starten",
-                            cmd: ["systemctl", "reboot"]
-                        },
-                        {
-                            glyph: "\u{F0425}",
-                            label: "Ausschalten",
-                            cmd: ["systemctl", "poweroff"]
-                        }
-                    ]
+                    model: Power.actions
 
                     delegate: Item {
                         id: action
@@ -352,7 +326,7 @@ Popup {
                             y: 18
                             text: action.modelData.glyph
                             font.pixelSize: 30
-                            color: action.modelData.label === "Ausschalten" ? Theme.error : Theme.text
+                            color: action.modelData.id === "shutdown" ? Theme.error : Theme.text
                         }
 
                         Label {

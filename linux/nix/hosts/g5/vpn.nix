@@ -16,6 +16,15 @@
 #
 # Kill-Switch: Solange der Tunnel steht, verwirft die Firewall zusätzlich
 # jedes Paket, das nicht durch wg0 geht (auch ins LAN).
+#
+# Split-Tunneling – am VPN vorbei (auch an Kill-Switch und Sperre vorbei):
+#   novpn BEFEHL [ARG...]   ein Programm samt Kindprozessen, z. B. in Steam
+#                           als Startoption: novpn gaming-mode %command%
+#   vpn-split domain-add ZIEL   Ziele für alle Programme (z. B. Seiten im
+#                           Browser), stehen in /var/lib/vpn-bypass/domains
+#   vpn-split add APP_ID    App immer am VPN vorbei starten (Startmenü, Rofi …)
+# Bequemer: VPN-Fenster in der Taskleiste (quickshell/taskbar/VpnPanel.qml).
+# Programme unter novpn bekommen nur IPv4, solange der Tunnel kein IPv6 hat.
 { pkgs, ... }:
 
 let
@@ -23,6 +32,12 @@ let
   fwmark = "51820"; # setzt wg-quick für Table = auto
   conf = "/etc/wireguard/${iface}.conf";
   nameFile = "/etc/wireguard/${iface}.name"; # Profilname
+
+  # Ziele am VPN vorbei, eins pro Zeile: Domains (alle 10 min neu aufgelöst,
+  # nur IPv4) oder IPv4-Adressen/-Netze. Bei CDNs wechseln die Adressen
+  # öfter – dann trifft es nicht jede Verbindung. Bearbeiten über
+  # `vpn-split domain-add|domain-remove` bzw. das VPN-Fenster.
+  bypassFile = "/var/lib/vpn-bypass/domains";
 
   # Regeln wie von Mullvad empfohlen: alles, was nicht über das Interface
   # läuft und nicht die verschlüsselten WireGuard-Pakete selbst sind
@@ -120,6 +135,164 @@ let
     '';
   };
 
+  # Split-Tunneling: Pakete am VPN vorbei bekommen die Markierung der
+  # verschlüsselten WireGuard-Pakete (fwmark). Dann nimmt die Routing-Regel
+  # von wg-quick die normale Route, Kill-Switch und Sperre lassen sie durch.
+  # Die Absenderadresse wurde aber schon für wg0 gewählt – MASQUERADE setzt
+  # die richtige. Die Verbindung merkt sich die Umleitung (connmark), damit sie
+  # nicht reißt, wenn sich die Adressliste ändert.
+  #   novpn       Kette in mangle/OUTPUT: entscheidet pro Paket
+  #   novpn-app   Programme in novpn.slice (vpn-bypass-app, beim Start von novpn)
+  #   novpn-dst   Ziele aus bypassFile (vpn-bypass-dst, Timer)
+  #   novpn-mark  markiert Paket und Verbindung
+  connmark = "0x10000/0x10000";
+  bypass = pkgs.writeShellApplication {
+    name = "vpn-bypass";
+    runtimeInputs = [ pkgs.iptables ];
+    text = ''
+      for ipt in iptables ip6tables; do
+        while "$ipt" -t mangle -D OUTPUT -j novpn 2>/dev/null; do :; done
+        while "$ipt" -t nat -D POSTROUTING ! -o ${iface} -m connmark --mark ${connmark} -j MASQUERADE 2>/dev/null; do :; done
+        for chain in novpn novpn-app novpn-dst novpn-mark; do
+          "$ipt" -t mangle -F $chain 2>/dev/null || true
+        done
+        for chain in novpn novpn-app novpn-dst novpn-mark; do
+          "$ipt" -t mangle -X $chain 2>/dev/null || true
+        done
+      done
+      [ "''${1:-}" = on ] || exit 0
+
+      for ipt in iptables ip6tables; do
+        for chain in novpn novpn-app novpn-dst novpn-mark; do
+          "$ipt" -t mangle -N $chain
+        done
+        "$ipt" -t mangle -A novpn-mark -j MARK --set-mark ${fwmark}
+        "$ipt" -t mangle -A novpn-mark -j CONNMARK --set-xmark ${connmark}
+
+        "$ipt" -t mangle -A novpn -o lo -j RETURN
+        "$ipt" -t mangle -A novpn -m mark --mark ${fwmark} -j RETURN
+        "$ipt" -t mangle -A novpn -m connmark --mark ${connmark} -j MARK --set-mark ${fwmark}
+        "$ipt" -t mangle -A novpn -m mark --mark ${fwmark} -j RETURN
+        "$ipt" -t mangle -A novpn -j novpn-app
+        "$ipt" -t mangle -A novpn -j novpn-dst
+        "$ipt" -t mangle -A OUTPUT -j novpn
+
+        "$ipt" -t nat -A POSTROUTING ! -o ${iface} -m connmark --mark ${connmark} -j MASQUERADE
+      done
+    '';
+  };
+
+  # Regel für novpn.slice des aufrufenden Benutzers (per sudo ohne Passwort,
+  # siehe unten). iptables löst den Pfad beim Anlegen auf, die Slice muss also
+  # schon da sein – novpn-anchor hält sie die ganze Sitzung über offen.
+  bypassApp = pkgs.writeShellApplication {
+    name = "vpn-bypass-app";
+    runtimeInputs = [ pkgs.iptables ];
+    text = ''
+      uid=''${SUDO_UID:?nur über sudo aufrufen}
+      path=user.slice/user-$uid.slice/user@$uid.service/novpn.slice
+      if [ ! -d "/sys/fs/cgroup/$path" ]; then
+        echo "vpn-bypass-app: $path fehlt (läuft novpn-anchor?)" >&2
+        exit 1
+      fi
+      for ipt in iptables ip6tables; do
+        "$ipt" -t mangle -F novpn-app
+        "$ipt" -t mangle -A novpn-app -m cgroup --path "$path" -j novpn-mark
+      done
+    '';
+  };
+
+  bypassDst = pkgs.writeShellApplication {
+    name = "vpn-bypass-dst";
+    runtimeInputs = with pkgs; [
+      iptables
+      getent
+      gawk
+      coreutils
+    ];
+    text = ''
+      # erst alles auflösen, dann die Kette in einem Rutsch ersetzen
+      hosts=()
+      if [ -f ${bypassFile} ]; then
+        mapfile -t hosts < <(grep -v '^[[:space:]]*\(#\|$\)' ${bypassFile})
+      fi
+      addrs=()
+      for host in "''${hosts[@]}"; do
+        if [[ $host =~ ^[0-9./]+$ ]]; then
+          addrs+=("$host")
+        else
+          while read -r addr; do
+            addrs+=("$addr")
+          done < <(getent ahostsv4 "$host" | awk '{ print $1 }' | sort -u)
+        fi
+      done
+      iptables -t mangle -F novpn-dst
+      for addr in "''${addrs[@]}"; do
+        iptables -t mangle -A novpn-dst -d "$addr" -j novpn-mark
+      done
+    '';
+  };
+
+  novpn = pkgs.writeShellApplication {
+    name = "novpn";
+    runtimeInputs = [ pkgs.systemd ];
+    text = ''
+      if [ $# -eq 0 ]; then
+        echo "novpn BEFEHL [ARG...]   startet BEFEHL am VPN vorbei" >&2
+        exit 2
+      fi
+      systemctl --user start novpn-anchor.service
+      # Klappt das nicht, läuft das Programm eben durchs VPN
+      /run/wrappers/bin/sudo -n ${bypassApp}/bin/vpn-bypass-app ||
+        echo "novpn: Regel nicht gesetzt, $1 läuft durchs VPN" >&2
+      exec systemd-run --user --scope --quiet --collect --slice=novpn -- "$@"
+    '';
+  };
+
+  # Ziel zur Liste hinzufügen/entfernen und gleich anwenden. Per sudo ohne
+  # Passwort (unten), deshalb nur Domainnamen und IPv4-Adressen/-Netze.
+  bypassEdit = pkgs.writeShellApplication {
+    name = "vpn-bypass-edit";
+    runtimeInputs = with pkgs; [
+      coreutils
+      gnugrep
+    ];
+    text = ''
+      action=''${1:-} target=''${2:-}
+      target=''${target,,}
+      if ! [[ $target =~ ^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$ || $target =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?$ ]]; then
+        echo "vpn-bypass-edit: ungültiges Ziel: $target" >&2
+        exit 2
+      fi
+      install -d -m 755 ${builtins.dirOf bypassFile}
+      touch ${bypassFile}
+      chmod 644 ${bypassFile}
+      case $action in
+        add) grep -qxF -- "$target" ${bypassFile} || echo "$target" >>${bypassFile} ;;
+        remove)
+          grep -vxF -- "$target" ${bypassFile} >${bypassFile}.tmp || true
+          mv ${bypassFile}.tmp ${bypassFile}
+          ;;
+        *) echo "vpn-bypass-edit add|remove ZIEL" >&2; exit 2 ;;
+      esac
+      ${bypassDst}/bin/vpn-bypass-dst
+    '';
+  };
+
+  # Split-Tunneling für den Benutzer (Apps und Ziele), scripts/vpn-split.sh
+  vpnSplit = pkgs.writeShellApplication {
+    name = "vpn-split";
+    runtimeInputs = with pkgs; [
+      coreutils
+      gnugrep
+      gnused
+    ];
+    text = ''
+      bypass_file=${bypassFile}
+      bypass_edit=${bypassEdit}/bin/vpn-bypass-edit
+    '' + builtins.readFile ../../scripts/vpn-split.sh;
+  };
+
   vpn = pkgs.writeShellApplication {
     name = "vpn";
     runtimeInputs = with pkgs; [
@@ -211,11 +384,90 @@ in
     };
   };
 
+  # ── Split-Tunneling ──────────────────────────────────────────
+  systemd.services.vpn-bypass = {
+    description = "VPN-Split-Tunneling: Ketten anlegen";
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-pre.target" ];
+    before = [ "network-pre.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${bypass}/bin/vpn-bypass on";
+      ExecStop = "${bypass}/bin/vpn-bypass off";
+    };
+  };
+
+  systemd.services.vpn-bypass-dst = {
+    description = "VPN-Split-Tunneling: Ziele auflösen";
+    wantedBy = [ "vpn-bypass.service" ];
+    requires = [ "vpn-bypass.service" ];
+    after = [
+      "vpn-bypass.service"
+      "network-online.target"
+    ];
+    wants = [ "network-online.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${bypassDst}/bin/vpn-bypass-dst";
+    };
+  };
+
+  systemd.timers.vpn-bypass-dst = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnActiveSec = "10min";
+      OnUnitActiveSec = "10min";
+    };
+  };
+
+  # Hält novpn.slice offen, damit die Regel von vpn-bypass-app gültig bleibt
+  systemd.user.services.novpn-anchor = {
+    description = "Platzhalter für novpn.slice";
+    wantedBy = [ "default.target" ];
+    serviceConfig = {
+      Slice = "novpn.slice";
+      ExecStart = "${pkgs.coreutils}/bin/sleep infinity";
+    };
+  };
+
+  security.sudo.extraRules = [
+    {
+      groups = [ "wheel" ];
+      commands = [
+        {
+          command = "${bypassApp}/bin/vpn-bypass-app";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "${bypassEdit}/bin/vpn-bypass-edit";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
+
   # Sonst verwirft der Reverse-Path-Filter die Antworten aus dem Tunnel
   networking.firewall.checkReversePath = "loose";
 
+  # VPN an/aus und Sperre ohne Passwort (Taskleiste, wie Mullvad), nur für
+  # die angemeldete Sitzung von wheel-Benutzern
+  security.polkit.extraConfig = ''
+    polkit.addRule(function (action, subject) {
+      if (action.id == "org.freedesktop.systemd1.manage-units" &&
+          subject.isInGroup("wheel") && subject.local && subject.active) {
+        var unit = action.lookup("unit"), verb = action.lookup("verb");
+        if ((unit == "wg-quick-${iface}.service" || unit == "vpn-lock.service") &&
+            (verb == "start" || verb == "stop" || verb == "restart"))
+          return polkit.Result.YES;
+      }
+    });
+  '';
+
   environment.systemPackages = [
     vpn
+    novpn
+    vpnSplit
     killswitch
     pkgs.wireguard-tools
   ];

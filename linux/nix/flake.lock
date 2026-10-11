@@ -27,11 +27,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791571783,
-        "narHash": "sha256-VtKxgR9xNI+oA6CpON+PPUmes/LFHHoZ2CynOFMQWcs=",
+        "lastModified": 1791650126,
+        "narHash": "sha256-JVN8MLZv4UJ5qjnium5t+ClPJgfZhXwR7uk4N2vNvxM=",
         "owner": "notflask",
         "repo": "mizu",
-        "rev": "d9f7e82fc92003414cd4a1ddf9a6ff64d953e2ad",
+        "rev": "426e89a4d05c038feaab4a2855351da8b6a4f5fa",
         "type": "github"
       },
       "original": {

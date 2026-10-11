@@ -93,7 +93,7 @@ verlinkt (`dotfiles.nix`):
 | `sioyek` | `linux/.config/sioyek` (PDF-Betrachter für Typst/Mathe-Notizen) |
 | `tmux` | `linux/.config/tmux` |
 | `ghostty` | `linux/.config/ghostty` |
-| `niri`, `hypr`, `quickshell`, `rofi`, `mako`, `wlogout`, `matugen`, `waypaper` | für Niri und Hyprland |
+| `niri`, `hypr`, `quickshell`, `rofi`, `mako`, `matugen`, `waypaper` | für Niri und Hyprland |
 
 Du bearbeitest die Dateien also direkt im Repo – Änderungen wirken sofort, `sync.sh`
 erkennt die Links und überspringt sie. Weitere Configs verlinken: Namen in
@@ -178,8 +178,8 @@ dort nur 16 Farben.
 | Druck | Screenshot eines Bereichs → Clipboard + `~/Screenshots` |
 | Super+Shift+L | Sperren (Hyprlock) |
 | Super+Strg+V | Zwischenablage-Verlauf (Enter: kopieren, Shift+Entf: löschen) |
-| Super+Shift+E | Ausschalt-Menü (wlogout: Sperren, Abmelden, Standby, Neustart, Aus) |
-| Alt+Tab / Alt+Shift+Tab | Fenster wechseln (Hyprland: hyprshell mit Vorschau) |
+| Super+Shift+E | Ausschalt-Menü (Quickshell: Sperren, Abmelden, Standby, Neu starten, Aus; Tasten L/E/S/R/P) |
+| Alt+Tab / Alt+Shift+Tab | Fenster wechseln (Hyprland: Quickshell mit Vorschau, Einstellungen oben in `AltTab.qml`) |
 | Super+Shift+/ | wichtige Tastenkürzel |
 
 `hypr/hyprland.lua` ist eine 1:1-Übersetzung von `niri/config.kdl`: gleiche
@@ -193,12 +193,16 @@ Rundung: Hyprland erlaubt höchstens 20 statt 24 px.
 
 ### Gemeinsam in beiden
 
-- Taskleiste, Rofi, mako (Benachrichtigungen), wlogout (Power-Knopf), Satty,
+- Taskleiste mit Ausschalt-Menü, Rofi, mako (Benachrichtigungen), Satty,
   Zwischenablage mit Verlauf (cliphist), EasyEffects.
 - Taskleiste unten wie unter Windows 11 (Quickshell, `quickshell/taskbar`):
   volle Breite, Liquid Glass, Startmenü, App-Symbole mittig je Monitor,
   gleiche Apps zusammengefasst, Live-Vorschau der Fenster beim Hover,
   Lautstärke-Regler wie unter macOS, Tray-Menüs im Glas-Stil.
+- VPN-Fenster (Klick auf den WireGuard-Knopf, mittlere Taste: direkt an/aus,
+  `qs -c taskbar ipc call vpn panel`): verbinden ohne Passwort, Server und
+  Datenrate, Sperre ohne VPN, Split-Tunneling für Apps und Domains/IPs
+  (auch per `vpn-split`, siehe `hosts/g5/vpn.nix`).
   Änderungen an den `.qml`-Dateien wirken sofort.
 - Animationen: Niris Standard (Federn für Fenster und Arbeitsflächen,
   Öffnen/Schließen in 150 ms), Leisten und Menüs ohne Animation.

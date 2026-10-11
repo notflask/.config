@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -188,7 +189,7 @@ Row {
         }
     }
 
-    // ── VPN: runder Knopf (Vpn.qml, scripts/vpn.sh) ──────────────────
+    // ── VPN: runder Knopf (Vpn.qml, VpnPanel.qml, scripts/vpn.sh) ────
     Item {
         id: vpn
 
@@ -203,26 +204,73 @@ Row {
             width: 26
             height: 26
             radius: 13
-            color: Vpn.state === "open" ? Theme.error : Qt.alpha(vpn.tint, 0.15)
+            // Milchglas wie die aktive Arbeitsfläche, leicht in der Zustandsfarbe;
+            // open (Internet ohne VPN) kräftiger
+            border.width: 1
+            border.color: Qt.alpha(vpn.tint, Vpn.state === "open" ? 0.5 : 0.35)
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: Qt.alpha(vpn.tint, Vpn.state === "open" ? 0.32 : 0.22)
+                }
+                GradientStop {
+                    position: 1
+                    color: Qt.alpha(vpn.tint, Vpn.state === "open" ? 0.12 : 0.06)
+                }
+            }
 
-            Glyph {
+            // Logo ist 24×24, auf 17 px verkleinert
+            Shape {
                 anchors.centerIn: parent
-                text: Vpn.glyph
-                font.pixelSize: 15
-                color: Vpn.state === "open" ? Theme.onError : vpn.tint
+                width: 24
+                height: 24
+                scale: 17 / 24
+                preferredRendererType: Shape.CurveRenderer
+
+                ShapePath {
+                    strokeWidth: -1
+                    fillColor: Vpn.state === "open" ? Theme.text : vpn.tint
+                    fillRule: ShapePath.OddEvenFill
+                    PathSvg { path: Vpn.logo }
+                }
             }
         }
 
+        // Klick: VPN-Fenster, mittlere Taste: direkt verbinden/trennen
         MouseArea {
             anchors.fill: parent
-            onClicked: Vpn.toggle()
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+            onClicked: m => {
+                if (m.button === Qt.MiddleButton)
+                    Vpn.toggle();
+                else if (vpnPanel.shown)
+                    vpnPanel.close();
+                else
+                    vpnPanel.open(vpn);
+            }
+        }
+
+        VpnPanel {
+            id: vpnPanel
+            bar: root.bar
+        }
+
+        // qs -c taskbar ipc call vpn panel
+        Connections {
+            target: Vpn
+            function onPanelRequested(output) {
+                if (vpnPanel.shown)
+                    vpnPanel.close();
+                else if (root.bar.screen && root.bar.screen.name === output)
+                    vpnPanel.open(vpn);
+            }
         }
     }
 
-    // ── Ein/Aus: wlogout ──────────────────────────────────────────────
+    // ── Ein/Aus: Ausschalt-Menü (PowerMenu.qml) ──────────────────────
     Tile {
         anchors.verticalCenter: parent.verticalCenter
-        onClicked: Quickshell.execDetached([root.home + "/.config/wlogout/launch.sh"])
+        onClicked: Power.toggle()
 
         Glyph {
             text: "\u{F0425}"

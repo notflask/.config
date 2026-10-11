@@ -89,4 +89,35 @@
       ExecStart = "${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance";
     };
   };
+
+  # ── Dauerleistung der CPU begrenzen ────────────────────────
+  # Firmware-Modus „Leistung“ erlaubt der CPU dauerhaft 90 W (PL1). Der
+  # i5-12500H ist für 45 W gebaut und teilt die Heatpipes mit der RTX 4060:
+  # Mit Spiel + Discord-Stream lief er bei 98 °C und 100 % Lüfter ständig ins
+  # Thermal-Throttling (43 von 112 min) – der Takt springt, alles ruckelt.
+  # 55 W hielten ihn sicher unter der Grenze, kosteten aber Leistung bei
+  # Dauerlast; 65 W als Mittelweg. Kurze Spitzen (PL2, 120 W) bleiben.
+  # Prüfen: cat /sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw
+  # und /sys/devices/system/cpu/cpu0/thermal_throttle/package_throttle_count
+  systemd.services.cpu-power-limit =
+    let
+      watts = 65;
+    in
+    {
+      description = "CPU-Dauerleistung (PL1) auf ${toString watts} W begrenzen";
+      wantedBy = [
+        "graphical.target"
+        "post-resume.target" # nach Suspend neu setzen
+      ];
+      # nach dem Firmware-Modus und dem Energieprofil, die PL1 neu setzen können
+      after = [
+        "performance-power-profile.service"
+        "gigabyte-control-center.service"
+        "post-resume.target"
+      ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.runtimeShell} -c 'echo ${toString (watts * 1000000)} > /sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw'";
+      };
+    };
 }

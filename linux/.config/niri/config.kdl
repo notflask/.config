@@ -255,9 +255,9 @@ layer-rule {
     geometry-corner-radius 20
 }
 
-// wlogout: Glas-Hintergrund
+// Ausschalt-Menü (quickshell/taskbar/PowerMenu.qml): Glas-Hintergrund
 layer-rule {
-    match namespace="logout_dialog"
+    match namespace="power-menu"
     background-effect {
         blur true
         xray false
@@ -292,7 +292,7 @@ binds {
     Mod+Shift+L hotkey-overlay-title="Lock the Screen: hyprlock" { spawn "hyprlock"; }
     // Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in der Taskleiste)
     Mod+Ctrl+V repeat=false hotkey-overlay-title="Clipboard History" { spawn "clipboard-history"; }
-    Mod+Shift+E repeat=false hotkey-overlay-title="Power Menu: wlogout" { spawn-sh "~/.config/wlogout/launch.sh"; }
+    Mod+Shift+E repeat=false hotkey-overlay-title="Power Menu" { spawn "qs" "-c" "taskbar" "ipc" "call" "power" "toggle"; }
 
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"; }
