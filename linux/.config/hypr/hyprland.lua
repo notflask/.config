@@ -67,7 +67,7 @@ hl.config({
             inactive_border = c.rim,
         },
 
-        -- nur für die cs2-Regel unten (Niri kennt kein Tearing)
+        -- nur für die Regel games-tearing unten (Niri kennt kein Tearing)
         allow_tearing = true,
 
         -- Fokus springt am Rand nicht ans andere Ende (wie Niri)
@@ -224,7 +224,7 @@ hl.window_rule({
 -- Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope, Roblox über Sober)
 hl.window_rule({
     name = "games-vrr",
-    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    match = { class = "steam_app_.*|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
     content = "game",
 })
 
@@ -235,7 +235,7 @@ hl.window_rule({
 -- Strecken. Mit eigener Fläche wechselt Alt+Tab nur die Arbeitsfläche.
 hl.window_rule({
     name = "games-own-workspace",
-    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    match = { class = "steam_app_.*|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
     workspace = "emptym",
 })
 
@@ -249,7 +249,7 @@ hl.window_rule({
 -- auf den anderen Monitor.
 hl.window_rule({
     name = "games-confine-pointer",
-    match = { class = "steam_app_.*|cs2|gamescope" },
+    match = { class = "steam_app_.*|cs2|dota2|gamescope" },
     confine_pointer = true,
 })
 
@@ -287,7 +287,7 @@ hl.window_rule({
 -- es direkt an den Monitor zu geben (Direct Scanout, render unten)
 hl.window_rule({
     name = "games-no-rounding",
-    match = { class = "steam_app_.*|cs2|gamescope|org\\.vinegarhq\\.Sober" },
+    match = { class = "steam_app_.*|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
     rounding = 0,
 })
 
@@ -319,10 +319,12 @@ hl.window_rule({
     move = { "monitor_w-window_w-8", "monitor_h-window_h-48" },
 })
 
--- Nur Hyprland: CS2 darf tearen (niedrigste Latenz bei fps_max 0)
+-- Nur Hyprland: schnelle Spiele dürfen tearen (niedrigste Latenz, im Spiel
+-- VSync aus): CS2, Dota 2, Deadlock (steam_app_1422450) und ARC Raiders
+-- (steam_app_1808500, beide über Proton)
 hl.window_rule({
-    name = "cs2-tearing",
-    match = { class = "cs2" },
+    name = "games-tearing",
+    match = { class = "^(cs2|dota2|steam_app_1422450|steam_app_1808500)$" },
     immediate = true,
 })
 

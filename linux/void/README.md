@@ -171,7 +171,7 @@ stimmungsvollen Foto.
 | | |
 |---|---|
 | Steam, GE-Proton, Lutris, Sober | wie unter NixOS |
-| Tearing | CS2 darf tearen (kleinste Latenz), sonst nur im Vollbild, wenn das Spiel es will |
+| Tearing | CS2, Dota 2, Deadlock und ARC Raiders dürfen tearen (kleinste Latenz, im Spiel VSync aus), andere Spiele nur, wenn sie es selbst wollen. Alles nur im Vollbild |
 | VRR | auf dem LG nur für Spiele im Vollbild |
 | Direct Scanout | ohne Effekte geht jedes Bild direkt an den Monitor |
 | GameMode | renice 5 (Discord-Stream ruckelt nicht), Lüfter drehen früh hoch |
