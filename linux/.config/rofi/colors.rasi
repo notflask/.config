@@ -10,7 +10,7 @@
     // Akzent aus dem Hintergrundbild (Textcursor)
     accent:    #b8cbc4;
     rim:       #ffffff40;
-    // flat.rasi (Void/Hyprland): deckende Fläche und Rahmen
+    // flat.rasi: deckende Fläche und Rahmen
     bg:        #121413;
     border-c:  #b8cbc4;
     divider:   #ffffff1f;

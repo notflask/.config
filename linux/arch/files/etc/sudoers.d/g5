@@ -1,4 +1,4 @@
-# VPN-Befehle und Split-Tunneling ohne Passwort (vpn.nix)
+# VPN-Befehle und Split-Tunneling ohne Passwort
 %wheel ALL=(root) NOPASSWD: /usr/bin/systemctl start wg-quick-wg0, /usr/bin/systemctl stop wg-quick-wg0, /usr/bin/systemctl restart wg-quick-wg0
 %wheel ALL=(root) NOPASSWD: /usr/bin/systemctl start vpn-lock, /usr/bin/systemctl stop vpn-lock, /usr/bin/systemctl restart vpn-lock
 %wheel ALL=(root) NOPASSWD: /usr/local/sbin/novpn-join, /usr/local/sbin/vpn-bypass-edit

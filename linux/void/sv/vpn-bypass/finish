@@ -1,3 +1,0 @@
-#!/bin/sh
-/usr/local/sbin/vpn-bypass off
-exit 0

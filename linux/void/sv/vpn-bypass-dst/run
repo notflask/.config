@@ -1,7 +1,0 @@
-#!/bin/sh
-# Split-Tunneling: Ziele alle 10 min neu auflösen (vpn.nix: Timer
-# vpn-bypass-dst) – runit startet das Skript nach dem sleep einfach neu
-exec 2>&1
-sv start vpn-bypass >/dev/null || exit 1
-/usr/local/sbin/vpn-bypass-dst
-exec sleep 600

@@ -6,7 +6,7 @@ import Quickshell.Widgets
 // VPN-Fenster über dem VPN-Knopf (wie die Mullvad-App): verbinden/trennen,
 // Server und Datenrate, Sperre ohne VPN und Split-Tunneling – Apps, die
 // immer am VPN vorbei starten, und Ziele (Domains/IPs) für alle Programme.
-// Daten und Befehle: Vpn.qml, scripts/vpn.sh und `vpn-split` (vpn.nix).
+// Daten und Befehle: Vpn.qml, scripts/vpn.sh und `vpn-split`.
 Popup {
     id: panel
 

@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-# Split-Tunneling für den Benutzer (Apps und Ziele) – dasselbe Skript wie
-# unter NixOS (linux/nix/scripts/vpn-split.sh), nur mit den Void-Pfaden
-set -euo pipefail
-bypass_file=/var/lib/vpn-bypass/domains
-bypass_edit=/usr/local/sbin/vpn-bypass-edit
-here=$(dirname "$(readlink -f "$0")")
-# shellcheck source=../../nix/scripts/vpn-split.sh
-. "$here/../../nix/scripts/vpn-split.sh"

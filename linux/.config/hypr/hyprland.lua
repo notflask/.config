@@ -17,17 +17,17 @@ if not ok or type(colors) ~= "table" then
 end
 local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#111318", rim = "#ffffff26" } })
 
--- Void Linux (linux/void): minimaler Stil, eckig und flach, schmale Textleiste
--- (quickshell/minibar) statt Taskleiste – Abweichungen hier mit `void`,
--- das Aussehen in void.lua (ganz unten geladen)
-local void = false
--- (Arch Linux, linux/arch, hat denselben Stil wie Void)
-for _, probe in ipairs({ "/usr/bin/xbps-install", "/usr/bin/pacman" }) do
-    local f = io.open(probe)
+-- Zwei Stile (Befehl `style minimal|glass`, Vorgabe minimal):
+--   minimal  eckig und flach, schmale Textleiste (quickshell/minibar), Aussehen in minimal.lua
+--   glass    Liquid Glass: abgerundet, Blur, Taskleiste (quickshell/taskbar), hyprtasking
+local minimal = true
+do
+    local f = io.open((os.getenv("HOME") or "") .. "/.config/g5/style")
     if f then
+        minimal = f:read("*l") ~= "glass"
         f:close()
-        void = true
     end
+end
 end
 
 
@@ -331,7 +331,7 @@ hl.window_rule({
     no_blur = true,
 })
 
--- Wegwerf-Terminal (Super+`, scratch-term in desktop.nix): schwebt oben
+-- Wegwerf-Terminal (Super+`, scratch-term): schwebt oben
 -- mittig, 60 % × 50 % des Monitors (wie in Niri)
 hl.window_rule({
     name = "scratchpad",
@@ -643,7 +643,7 @@ local function switch_focus_floating_tiling()
     end
 end
 
--- toggle-overview: Plugin hyprtasking (hyprland.nix)
+-- toggle-overview: Plugin hyprtasking
 local function toggle_overview()
     local ht = hl.plugin.hyprtasking
     if ht then
@@ -654,12 +654,12 @@ end
 
 bind(key("SHIFT + slash"), hl.dsp.exec_cmd("hypr-keybinds"), title("Show Important Hotkeys"))
 
--- Void: `term` lädt nur ghostty/void.ghostty (deckend, Farben des Wallpapers)
-bind(key("T"), hl.dsp.exec_cmd(void and "term" or "ghostty"), title("Open a Terminal: ghostty"))
+-- minimal: `term` lädt nur ghostty/minimal.ghostty (deckend, Farben des Wallpapers)
+bind(key("T"), hl.dsp.exec_cmd(minimal and "term" or "ghostty"), title("Open a Terminal: ghostty"))
 -- Wegwerf-Terminal: auf/zu, beim Schließen wird alles darin beendet
 bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal", { repeating = false }))
--- Void: flacher Rofi-Stil (rofi/flat.rasi), sonst Spotlight-Glas
-local launcher = void and "rofi -show drun -theme ~/.config/rofi/flat.rasi" or "rofi -show drun"
+-- minimal: flacher Rofi-Stil (rofi/flat.rasi), sonst Spotlight-Glas
+local launcher = minimal and "rofi -show drun -theme ~/.config/rofi/flat.rasi" or "rofi -show drun"
 bind(key("D"), hl.dsp.exec_cmd(launcher), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd(launcher))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("wm lock"), title("Lock the Screen"))
@@ -667,7 +667,7 @@ bind(key("SHIFT + L"), hl.dsp.exec_cmd("wm lock"), title("Lock the Screen"))
 bind(key("SHIFT + T"), hl.dsp.exec_cmd("~/.config/matugen/theme.sh -T"), title("Toggle Light/Dark Theme", { repeating = false }))
 -- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in der Taskleiste)
 bind(key("CTRL + V"), hl.dsp.exec_cmd("clipboard-history"), title("Clipboard History", { repeating = false }))
-bind(key("SHIFT + E"), hl.dsp.exec_cmd(void and "power-menu" or "qs -c taskbar ipc call power toggle"), title("Power Menu", { repeating = false }))
+bind(key("SHIFT + E"), hl.dsp.exec_cmd(minimal and "power-menu" or "qs -c taskbar ipc call power toggle"), title("Power Menu", { repeating = false }))
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })
@@ -694,7 +694,7 @@ for _, keys in ipairs({ "ALT + Shift_L", "ALT + Shift_R", "SHIFT + Alt_L", "SHIF
 end
 
 -- Alt+Tab (Niri: eingebaut): Quickshell, quickshell/taskbar/AltTab.qml bzw.
--- unter Void quickshell/minibar/AltTab.qml (flache Liste).
+-- im minimalen Stil quickshell/minibar/AltTab.qml (flache Liste).
 -- Global Shortcuts statt exec_cmd: kein eigener Prozess pro Tastendruck.
 local function alttab(action)
     return hl.dsp.global("quickshell:alttab-" .. action)
@@ -854,7 +854,7 @@ bind(key("SHIFT + S"), hl.dsp.exec_cmd("opal region"))
 bind("Print", hl.dsp.exec_cmd("opal region --no-edit"), title("Take a Screenshot"))
 
 -- GPU Screen Recorder: dieselben Tasten wie seine eigenen. gsr-global-hotkeys
--- bräuchte Lesezugriff auf /dev/input (unter Void ohne setcap) – stattdessen
+-- bräuchte Lesezugriff auf /dev/input (ohne setcap) – stattdessen
 -- schickt Hyprland die Befehle an die laufende Oberfläche (gsr-ui-cli)
 local function gsr(cmd)
     return hl.dsp.exec_cmd("gsr-ui-cli " .. cmd)
@@ -879,9 +879,9 @@ hl.config({ gestures = { workspace_swipe_create_new = true } })
 
 -- ── Übersicht (toggle-overview) ─────────────────────────────
 -- Niri hat eine eingebaute Übersicht, Hyprland braucht das Plugin
--- hyprtasking (hyprland.nix). Rechtsklick wechselt die Arbeitsfläche.
--- (unter Void gibt es das Plugin nicht)
-if not void then
+-- hyprtasking. Rechtsklick wechselt die Arbeitsfläche.
+-- (im minimalen Stil wird es nicht geladen)
+if not minimal then
     -- Fehlt die Datei (Plugin nicht gebaut), bleibt die Config trotzdem heil
     local plugin = "/etc/hyprland/plugins/libhyprtasking.so"
     local f = io.open(plugin)
@@ -911,7 +911,7 @@ end
 
 -- ── debug ───────────────────────────────────────────────────
 
--- RTX 4060 (render-drm-device): AQ_DRM_DEVICES in nvidia.nix
+-- RTX 4060 (render-drm-device): AQ_DRM_DEVICES in uwsm/env-hyprland
 
 hl.config({
     cursor = {
@@ -941,7 +941,7 @@ hl.config({
 })
 
 
--- ── Void Linux ──────────────────────────────────────────────
-if void then
-    require("void")
+-- ── Minimaler Stil ──────────────────────────────────────────────
+if minimal then
+    require("minimal")
 end

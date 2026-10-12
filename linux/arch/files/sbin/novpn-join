@@ -1,0 +1,10 @@
+#!/bin/bash
+# Prozess in die cgroup novpn verschieben – alles, was er danach startet,
+# läuft am VPN vorbei (Regel in vpn-bypass). Legt Programme in die cgroup novpn. Per sudo ohne Passwort
+# (/etc/sudoers.d/g5-vpn); nur eigene Prozesse des Aufrufers.
+set -euo pipefail
+uid=${SUDO_UID:?nur über sudo aufrufen}
+pid=${1:-}
+[[ $pid =~ ^[0-9]+$ ]] || { echo "novpn-join PID" >&2; exit 2; }
+[ "$(stat -c %u "/proc/$pid")" = "$uid" ] || { echo "novpn-join: $pid gehört nicht dir" >&2; exit 1; }
+echo "$pid" >/sys/fs/cgroup/novpn/cgroup.procs

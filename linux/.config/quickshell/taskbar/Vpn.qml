@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Io
 
 // Zustand des VPN (scripts/vpn.sh): on | pending | off | open, dazu
-// Details und Split-Tunneling (vpn-split, vpn.nix) für das VPN-Fenster.
+// Details und Split-Tunneling für das VPN-Fenster.
 // Einmal für alle Monitore abgefragt, alle 5 s (Fenster offen: jede
 // Sekunde) und kurz nach einem Klick.
 Singleton {

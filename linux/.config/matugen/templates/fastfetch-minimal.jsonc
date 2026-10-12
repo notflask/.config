@@ -1,0 +1,37 @@
+// Erzeugt von matugen (templates/fastfetch-minimal.jsonc) – hier nichts ändern.
+// fastfetch unter Arch (`style minimal` verlinkt das als config.jsonc):
+// großes Arch-Logo und Beschriftungen in der Akzentfarbe des Wallpapers.
+// Im Glas-Stil gilt config.jsonc (kleines Logo).
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "builtin",
+    "source": "arch",
+    "color": { "1": "{{colors.primary.default.hex}}", "2": "{{colors.outline.default.hex}}" },
+    "padding": { "right": 3 }
+  },
+  "display": {
+    "separator": "  ",
+    "color": { "keys": "{{colors.primary.default.hex}}", "title": "{{colors.primary.default.hex}}" }
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "wm",
+    "terminal",
+    "terminalfont",
+    "separator",
+    "cpu",
+    "gpu",
+    "memory",
+    "disk",
+    "datetime",
+    "break",
+    "colors"
+  ]
+}

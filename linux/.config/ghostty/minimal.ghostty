@@ -1,0 +1,15 @@
+# Ghostty im minimalen Stil – lädt nur der Befehl `term`
+# (arch/files/bin/term) statt config.ghostty, ohne
+# `language` und `freetype-load-flags = no-light` aus der Arch-Config noch
+# nicht kennt (sonst Fehlerdialog bei jedem Start). Dazu der minimale Stil:
+# Farben aus dem Wallpaper (themes/matugen von matugen), deckend, ohne Blur.
+theme = matugen
+font-family = "JetBrains Mono"
+font-family = "Apple Color Emoji"
+font-size = 16
+gtk-titlebar = false
+window-padding-x = 10
+window-padding-y = 10
+window-decoration = false
+background-blur = false
+confirm-close-surface = false

@@ -1,5 +1,5 @@
 #!/bin/sh
-# WireGuard-Status für die Taskleiste (vpn.nix: vpn-peer-info): Endpoint und
+# WireGuard-Status für die Taskleiste: Endpoint und
 # letzter Handshake, ohne Schlüssel. `wg show` braucht root – deshalb
 # schreibt dieser Dienst die Werte alle 5 s in eine lesbare Datei.
 exec 2>&1

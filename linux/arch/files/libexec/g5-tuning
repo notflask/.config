@@ -1,6 +1,6 @@
 #!/bin/sh
-# Leistungs-Einstellungen, die NixOS als einmalige systemd-Dienste setzt
-# (performance.nix, nvidia.nix). Nach dem Standby startet sie
+# Leistungs-Einstellungen als einmaliger systemd-Dienst
+#. Nach dem Standby startet sie
 # sleep/g5-tuning neu.
 
 # Energieprofil „Leistung“ (power-profiles-daemon braucht einen Moment)

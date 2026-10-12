@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Hyprland
-Comment=Hyprland über UWSM (graphical-session.target, wie unter NixOS)
+Comment=Hyprland über UWSM (graphical-session.target, )
 Exec=uwsm start -e -D Hyprland hyprland.desktop
 Type=Application
 DesktopNames=Hyprland

@@ -22,21 +22,21 @@ output_path = "~/.config/quickshell/taskbar/glass.css"
 input_path  = "~/.config/matugen/templates/mako.ini"
 output_path = "~/.config/mako/config"
 
-# Ghostty und fastfetch in den Farben des Wallpapers (Void Linux)
+# Ghostty und fastfetch in den Farben des Wallpapers 
 [templates.ghostty]
 input_path  = "~/.config/matugen/templates/ghostty-theme"
 output_path = "~/.config/ghostty/themes/matugen"
 
-# Neovim: Farbschema `matugen` (Void, plugins/ui.lua)
+# Neovim: Farbschema `matugen` (plugins/ui.lua)
 [templates.nvim]
 input_path  = "~/.config/matugen/templates/nvim-colors.lua"
 output_path = "~/.config/nvim/colors/matugen.lua"
 
-[templates.fastfetch-void]
-input_path  = "~/.config/matugen/templates/fastfetch-void.jsonc"
-output_path = "~/.config/fastfetch/void.jsonc"
+[templates.fastfetch-minimal]
+input_path  = "~/.config/matugen/templates/fastfetch-minimal.jsonc"
+output_path = "~/.config/fastfetch/minimal.jsonc"
 
-# mako im minimalen Stil (Void Linux)
+# mako im minimalen Stil 
 [templates.mako-flat]
 input_path  = "~/.config/matugen/templates/mako-flat.ini"
 output_path = "~/.config/mako/config-flat"
@@ -77,7 +77,7 @@ input_path  = "~/.config/matugen/templates/firefox-userchrome.css"
 output_path = "~/.cache/matugen/firefox-userChrome.css"
 
 # Spotify (Spicetify): Spotify liest die Datei über einen Symlink im
-# Paket (apps.nix) und lädt sie bei Änderungen selbst neu
+# Paket und lädt sie bei Änderungen selbst neu
 [templates.spicetify]
 input_path  = "~/.config/matugen/templates/spicetify-colors.css"
 output_path = "~/.cache/matugen/spicetify-colors.css"
@@ -87,7 +87,7 @@ output_path = "~/.cache/matugen/spicetify-colors.css"
 input_path  = "~/.config/matugen/templates/hyprlock-colors.conf"
 output_path = "~/.config/hypr/hyprlock-colors.conf"
 
-# gtklock (Sperrbildschirm unter Void Linux, `wm lock`)
+# gtklock (Sperrbildschirm unter Arch, `wm lock`)
 [templates.gtklock]
 input_path  = "~/.config/matugen/templates/gtklock.css"
 output_path = "~/.config/gtklock/style.css"

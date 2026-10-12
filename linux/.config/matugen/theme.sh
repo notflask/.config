@@ -88,7 +88,7 @@ matugen image "$image" \
   --quiet ||
   fail "matugen ist fehlgeschlagen ($image)."
 
-# Hyprlock bzw. gtklock (Void): verkleinerte Kopie des Bildes (1440p, JPEG). Ein 8K-PNG zu
+# Hyprlock bzw. gtklock: verkleinerte Kopie des Bildes (1440p, JPEG). Ein 8K-PNG zu
 # dekodieren dauert spürbar, mit der Kopie erscheint die Sperre sofort.
 # Im Hintergrund, erst fertig schreiben, dann umbenennen.
 lock_wall="$cache/hyprlock/wallpaper.jpg"
@@ -101,7 +101,7 @@ mkdir -p "${lock_wall%/*}"
 # GTK: Hell/Dunkel, Thema und Icons passend zum Modus. Über das
 # Einstellungs-Portal folgen auch Firefox, Electron-Apps, libadwaita und
 # Ghostty sofort. Schrift, Cursor (macOS) usw. bleiben bei den Vorgaben aus
-# theme.nix (alte Einträge, die KDE geschrieben hat, fliegen raus).
+# (alte Einträge, die KDE geschrieben hat, fliegen raus).
 if [ "$mode" = light ]; then
   scheme=prefer-light gtk_theme=adw-gtk3 icon_theme=Papirus-Light
 else
@@ -115,7 +115,7 @@ for key in cursor-size cursor-theme font-name; do
 done
 # Dasselbe für Apps, die dconf nicht lesen (Electron-Apps wie Claude oder
 # Discord in „System“, Apps in FHS-Umgebungen): GTK-Einstellungsdateien
-# des Benutzers, sie gehen vor /etc/xdg (theme.nix, dort fest dunkel)
+# des Benutzers, sie gehen vor /etc/xdg (dort fest dunkel)
 [ "$mode" = dark ] && prefer_dark=true || prefer_dark=false
 for gtk in gtk-3.0 gtk-4.0; do
   mkdir -p "$config/$gtk"
@@ -137,11 +137,11 @@ sober_mango="$HOME/.var/app/org.vinegarhq.Sober/config/MangoHud"
 
 # Neu laden, was die Farben nicht selbst neu einliest
 # (Rofi und Hyprlock lesen sie beim nächsten Start)
-# (Niri oder Hyprland, `wm` aus desktop.nix bzw. linux/void)
+# (Niri oder Hyprland, `wm`)
 wm reload >/dev/null 2>&1 || true
 makoctl reload >/dev/null 2>&1 || true
 # Ghostty: ab 1.2 lädt SIGUSR2 Konfiguration und Themes neu. Ghostty 1.1
-# (Void) kennt das Signal nicht – dort BEENDET es alle Terminals. Für 1.1
+# kennt das Signal nicht – dort BEENDET es alle Terminals. Für 1.1
 # stattdessen die neuen Farben per OSC 4/10/11/12 in jedes offene Terminal
 # schreiben (wie pywal); neue Fenster lesen themes/matugen ohnehin.
 ghostty_version=$(ghostty --version 2>/dev/null | sed -n 's/^Ghostty //p;q')
@@ -225,5 +225,5 @@ pwf() {
 dbus-send --session --type=signal /KGlobalSettings \
   org.kde.KGlobalSettings.notifyChange int32:0 int32:0 >/dev/null 2>&1 || true
 
-# Für den einmaligen Lauf beim ersten Login (theme.nix)
+# Für den einmaligen Lauf beim ersten Login
 mkdir -p "$state" && touch "$state/matugen-theme-v2.done"

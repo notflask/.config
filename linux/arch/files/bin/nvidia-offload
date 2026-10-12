@@ -1,5 +1,5 @@
 #!/bin/sh
-# nvidia-offload BEFEHL – Programm auf der RTX 4060 starten (nvidia.nix)
+# nvidia-offload BEFEHL – Programm auf der RTX 4060 starten
 export __NV_PRIME_RENDER_OFFLOAD=1
 export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
 export __GLX_VENDOR_LIBRARY_NAME=nvidia

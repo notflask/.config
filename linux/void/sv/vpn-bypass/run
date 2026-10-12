@@ -1,5 +1,0 @@
-#!/bin/sh
-# Split-Tunneling: Ketten anlegen (vpn.nix: vpn-bypass)
-exec 2>&1
-/usr/local/sbin/vpn-bypass on || exit 1
-exec pause

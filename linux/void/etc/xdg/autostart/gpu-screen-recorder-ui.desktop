@@ -1,6 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=GPU Screen Recorder
-Comment=Overlay mit Alt+Z: Aufnahme, Replay, Streaming (gaming.nix)
-Exec=gsr-ui launch-daemon
-NoDisplay=true

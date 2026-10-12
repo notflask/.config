@@ -1,5 +1,5 @@
 -- Erzeugt von matugen (templates/nvim-colors.lua) – hier nichts ändern.
--- Farbschema `matugen` für Neovim unter Void (plugins/ui.lua): Flächen,
+-- Farbschema `matugen` für Neovim im minimalen Stil (plugins/ui.lua): Flächen,
 -- Schrift, Auswahl und Funktionen aus dem Wallpaper, die übrigen
 -- Syntaxfarben wie die Terminalfarben in Ghostty (templates/ghostty-theme).
 -- theme.sh lädt es in laufenden Neovims neu.

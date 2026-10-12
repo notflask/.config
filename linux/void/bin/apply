@@ -1,5 +1,0 @@
-#!/bin/sh
-# apply – Änderungen an den Configs im Repo anwenden, ohne Pakete zu bauen:
-# /etc, Befehle, Dienste, Dotfiles (setup.sh system services user).
-# Alles inkl. Updates: `update`. Nur Void-Pakete: sudo xbps-install -Su
-exec sudo "$(dirname "$(readlink -f "$0")")/../setup.sh" system services user

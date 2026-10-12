@@ -1,6 +1,6 @@
 # Erzeugt von matugen (templates/mako-flat.ini) – hier nichts ändern
-# Minimaler Stil für Void/Hyprland (`wm autostart` startet mako damit):
-# eckig, deckend, 1px Rahmen in der Akzentfarbe. Unter NixOS: config (Glas)
+# Minimaler Stil (`wm autostart` startet mako damit):
+# eckig, deckend, 1px Rahmen in der Akzentfarbe. Glas-Stil: config
 font=JetBrains Mono 10
 width=360
 height=160

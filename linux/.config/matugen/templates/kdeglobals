@@ -1,6 +1,6 @@
 # Erzeugt von matugen (templates/kdeglobals) – hier nichts ändern.
 # Farben aus dem Hintergrundbild für Qt- und KDE-Apps (Dolphin, Okular,
-# Gwenview …), gelesen über QT_QPA_PLATFORMTHEME=kde (theme.nix).
+# Gwenview …), gelesen über QT_QPA_PLATFORMTHEME=kde.
 
 [ColorEffects:Disabled]
 Color=56,56,56

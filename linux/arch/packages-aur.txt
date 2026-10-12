@@ -7,5 +7,6 @@ tradingview warp-terminal
 waypaper sioyek cameractrls
 gpu-screen-recorder gpu-screen-recorder-ui
 proton-ge-custom-bin
+hyprtasking                  # Übersicht (Super+O), nur im Glas-Stil
 cachyos-ananicy-rules-git
 ttf-amiri vazirmatn-fonts ttf-gelasio ttf-ms-fonts ttf-vista-fonts

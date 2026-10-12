@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # ============================================================
 #  install.sh – Arch Linux auf dem G5 (i5-12500H, Iris Xe + RTX 4060) einrichten
-#  bzw. auf den Stand im Repo bringen. Gegenstück zu `nixos-rebuild switch`
-#  (NixOS) und linux/void/setup.sh (Void).
+#  bzw. auf den Stand im Repo bringen.
+#
+#  Zwei Stile (Befehl `style minimal|glass`, Vorgabe minimal):
+#  minimal (eckig, flach) und glass (Liquid Glass).
 #
 #  Voraussetzung: archinstall mit Limine, btrfs (Standard-Subvolumes),
 #  Kernel linux-zen, NetworkManager, Benutzer flask (sudo), ohne Desktop.
@@ -26,7 +28,6 @@ set -euo pipefail
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 repo=$(cd "$here/../.." && pwd)
-void=$here/../void
 user=$(id -un)
 home=$HOME
 FAILED=()
@@ -54,12 +55,6 @@ overlay() {
     rel=${f#"$src"/}
     sdo install -D -m "$(stat -c %a "$f")" "$f" "$dst/$rel"
   done < <(find "$src" -type f -print0)
-}
-
-# Einzeldatei aus dem Void-Overlay (Linux-Kern-Tuning ist distributionsunabhängig)
-from_void() {
-  local f
-  for f in "$@"; do sdo install -D -m "$(stat -c %a "$void/$f")" "$void/$f" "/$f"; done
 }
 
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -135,23 +130,13 @@ gbcc_commit=d0dc074726ba410bf70b06c77ec5acf16843c1ed
 do_system() {
   step "Systemdateien (/etc, /usr/local)"
   overlay "$here/files/etc" /etc
-  # Linux-Tuning, GPU-Namen, Portale, Firefox usw. – dieselben Dateien wie unter Void
-  from_void \
-    etc/udev/rules.d/90-g5.rules etc/sysctl.d/90-g5.conf etc/modprobe.d/g5.conf \
-    etc/modules-load.d/g5.conf etc/gamemode.ini \
-    etc/nvidia/nvidia-application-profiles-rc.d/50-limit-free-buffer-pool-in-wayland-compositors.json \
-    etc/dconf/db/local.d/00-g5 etc/dconf/profile/user etc/fonts/local.conf \
-    etc/xdg/autostart/gigabyte-control-center.desktop etc/xdg/autostart/gpu-screen-recorder-ui.desktop \
-    etc/xdg/gtk-3.0/settings.ini etc/xdg/gtk-4.0/settings.ini etc/xdg/menus/applications.menu \
-    etc/xdg/mimeapps.list etc/xdg/xdg-terminals.list etc/xdg-desktop-portal/hyprland-portals.conf \
-    usr/lib/firefox/defaults/pref/g5.js
+  overlay "$here/files/usr" /usr
   sdo chmod 440 /etc/sudoers.d/g5
   sdo visudo -cq -f /etc/sudoers.d/g5 || { sdo rm -f /etc/sudoers.d/g5; warn "sudoers.d/g5 fehlerhaft – entfernt"; }
 
   # root-Hilfsprogramme kopieren statt verlinken (laufen als root bzw. per sudo ohne Passwort)
   sdo install -d /usr/local/sbin /usr/local/libexec
-  sdo install -m 755 "$void"/sbin/* /usr/local/sbin/
-  sdo install -m 755 "$here/files/bin/vencord-patch" /usr/local/sbin/
+  sdo install -m 755 "$here"/files/sbin/* /usr/local/sbin/
   sdo install -m 755 "$here/files/libexec/g5-tuning" "$here/files/libexec/vpn-peer-info" /usr/local/libexec/
   sdo install -D -m 755 "$here/files/sleep/g5-tuning" /usr/lib/systemd/system-sleep/g5-tuning
   sdo install -d -m 755 /var/lib/vpn-bypass
@@ -160,25 +145,16 @@ do_system() {
   # Befehle für den Benutzer: Links ins Repo (Änderungen wirken sofort)
   sdo install -d /usr/local/bin
   local c
-  for c in hypr-keybinds screenshot screenshot-edit clipboard-history screen-power session-logout \
-    power-menu novpn vpn-split steam term scratch-term; do
-    sdo ln -sfn "$void/bin/$c" "/usr/local/bin/$c"
+  for c in "$here"/files/bin/*; do
+    sdo ln -sfn "$c" "/usr/local/bin/$(basename "$c")"
   done
-  for c in discord nvidia-offload update; do
-    sdo ln -sfn "$here/files/bin/$c" "/usr/local/bin/$c"
-  done
-  sdo ln -sfn "$repo/linux/nix/scripts/wm.sh" /usr/local/bin/wm
-  sdo ln -sfn "$repo/linux/nix/scripts/gaming-mode.sh" /usr/local/bin/gaming-mode
-  sdo ln -sfn "$repo/linux/nix/scripts/flatpak-nvidia-sync.sh" /usr/local/bin/flatpak-nvidia-sync
+  sdo ln -sfn "$here/scripts/wm.sh" /usr/local/bin/wm
+  sdo ln -sfn "$here/scripts/gaming-mode.sh" /usr/local/bin/gaming-mode
+  sdo ln -sfn "$here/scripts/flatpak-nvidia-sync.sh" /usr/local/bin/flatpak-nvidia-sync
   sdo ln -sfn "$repo/linux/.config/matugen/theme.sh" /usr/local/bin/theme
-  sdo ln -sfn "$repo/linux/nix/scripts/gpu-info.sh" /usr/local/bin/gpu-info
-  printf '#!/bin/sh\nexec bash %s "$@"\n' "$repo/linux/nix/scripts/sober-setup.sh" | sdo tee /usr/local/bin/sober-setup >/dev/null
+  sdo ln -sfn "$here/scripts/gpu-info.sh" /usr/local/bin/gpu-info
+  printf '#!/bin/sh\nexec bash %s "$@"\n' "$here/scripts/sober-setup.sh" | sdo tee /usr/local/bin/sober-setup >/dev/null
   sdo chmod 755 /usr/local/bin/sober-setup
-  # vpn und spicetify-setup: wie unter Void, nur systemctl statt sv und Spotify unter /opt
-  sed -e 's/sudo sv up/sudo systemctl start/; s/sudo sv down/sudo systemctl stop/; s/sudo sv restart/sudo systemctl restart/' \
-    "$void/bin/vpn" | sdo tee /usr/local/bin/vpn >/dev/null
-  sed 's|/usr/libexec/spotify|/opt/spotify|' "$void/bin/spicetify-setup" | sdo tee /usr/local/bin/spicetify-setup >/dev/null
-  sdo chmod 755 /usr/local/bin/vpn /usr/local/bin/spicetify-setup
   sdo install -d -m 755 /etc/wireguard
 
   step "Sprache, Zeit, Name"
@@ -253,7 +229,7 @@ do_system() {
   sdo fc-cache -f >/dev/null
   have dconf && sdo dconf update
 
-  step "Gigabyte Control Center (aus dem Quelltext, wie unter Void)"
+  step "Gigabyte Control Center (aus dem Quelltext)"
   if [ "$(cat /var/lib/g5-gbcc.rev 2>/dev/null)" != "$gbcc_commit" ]; then
     tmp=$(mktemp -d)
     if (cd "$tmp" && git init -q && git fetch -q --depth 1 https://github.com/notflask/gigabyte-control-center.git "$gbcc_commit" &&
@@ -268,6 +244,16 @@ do_system() {
       warn "Gigabyte Control Center nicht gebaut"; FAILED+=(gigabyte-control-center)
     fi
     rm -rf "$tmp"
+  fi
+
+  step "Hyprland-Übersicht (hyprtasking, nur im Glas-Stil) verlinken, falls gebaut"
+  local so
+  so=$(pacman -Ql hyprtasking 2>/dev/null | awk '/libhyprtasking\.so$/ {print $2; exit}')
+  if [ -n "$so" ]; then
+    sdo install -d /etc/hyprland/plugins
+    sdo ln -sfn "$so" /etc/hyprland/plugins/libhyprtasking.so
+  else
+    info "hyprtasking fehlt – Super+O (Übersicht) geht im Glas-Stil dann nicht"
   fi
 
   step "Firewall und Kernel-Einstellungen sofort anwenden"
@@ -298,7 +284,7 @@ do_boot() {
     esac
   done
   [[ $base == *" rw"* ]] || base="$base rw"
-  # Wie configuration.nix/performance.nix: ohne Textflut (Plymouth), Watchdogs aus,
+  # ohne Textflut (Plymouth), Watchdogs aus,
   # Kernel unterbricht sofort (preempt=full wie CachyOS), zram statt zswap
   extras="quiet splash loglevel=3 udev.log_level=3 rd.udev.log_level=3 systemd.show_status=auto"
   extras="$extras nowatchdog preempt=full nvidia-drm.modeset=1 zswap.enabled=0 $vt_colors"
@@ -375,12 +361,12 @@ do_services() {
   else
     warn "ly-Dienst nicht gefunden"
   fi
-  # Benutzerdienste, die NixOS in desktop.nix/apps.nix/theme.nix startet
+  # Benutzerdienste der Sitzung
   sdo install -d /etc/systemd/user/graphical-session.target.wants
   for s in polkit-agent swayidle cameractrlsd flatpak-nvidia-sync matugen-first-run; do
     sdo ln -sfn "/etc/systemd/user/$s.service" "/etc/systemd/user/graphical-session.target.wants/$s.service"
   done
-  # mako startet `wm autostart` mit dem flachen Stil – kein Dienst, sonst käme der Glas-Stil
+  # mako startet `wm autostart` je nach Stil – kein Dienst, sonst käme immer dieselbe Config
   # Ab jetzt regeln NetworkManager+openresolv das Netz (Schritt network)
   sdo systemctl disable systemd-networkd.service systemd-networkd.socket systemd-resolved.service >/dev/null 2>&1 || true
 }
@@ -408,12 +394,12 @@ do_user() {
     cp "$repo/linux/.config/warp-terminal/settings.toml" "$home/.config/warp-terminal/settings.toml"
   xdg-user-dirs-update || true
   mkdir -p "$home/Wallpapers"
-  cp -n "$void"/wallpapers/* "$home/Wallpapers/" 2>/dev/null || true
+  cp -n "$here"/wallpapers/* "$home/Wallpapers/" 2>/dev/null || true
 
-  step "Sitzung: UWSM-Umgebung (nvidia.nix, theme.nix, desktop.nix)"
+  step "Sitzung: UWSM-Umgebung"
   mkdir -p "$home/.config/uwsm"
   cat >"$home/.config/uwsm/env" <<'EOF'
-# Umgebung der Sitzung (UWSM) – wie environment.sessionVariables unter NixOS
+# Umgebung der Sitzung (UWSM)
 export PATH="$HOME/.local/bin:$PATH"
 # Videodekodierung (Firefox) auf derselben GPU wie der Desktop
 export LIBVA_DRIVER_NAME=nvidia
@@ -434,17 +420,14 @@ EOF
 export AQ_DRM_DEVICES=/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu
 EOF
 
-  step "Starter: Discord und Ghostty (Void-Stil: term)"
+  step "Starter: Discord"
   if [ -f /usr/share/applications/discord.desktop ]; then
     sed 's|^Exec=.*|Exec=/usr/local/bin/discord|' /usr/share/applications/discord.desktop >"$home/.local/share/applications/discord.desktop"
   fi
-  if [ -f /usr/share/applications/com.mitchellh.ghostty.desktop ]; then
-    sed 's|^Exec=ghostty|Exec=/usr/local/bin/term|' /usr/share/applications/com.mitchellh.ghostty.desktop >"$home/.local/share/applications/com.mitchellh.ghostty.desktop"
-  fi
-  # fastfetch: Config mit großem Logo (void.jsonc erzeugt matugen) – ein Ordner mit Link
-  [ -L "$home/.config/fastfetch" ] && rm "$home/.config/fastfetch"
-  mkdir -p "$home/.config/fastfetch"
-  ln -sfn "$repo/linux/.config/fastfetch/void.jsonc" "$home/.config/fastfetch/config.jsonc"
+
+  step "Stil (minimal oder glass)"
+  [ -e "$home/.config/g5/style" ] || /usr/local/bin/style minimal
+  /usr/local/bin/style | sed 's/^/    Stil: /'
 
   step "Programme ohne Paket (pipx, cargo)"
   # Firefox (Pywalfox): Native-Messaging-Host liest die Farben von matugen

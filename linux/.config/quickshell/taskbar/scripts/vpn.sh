@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-# Status des WireGuard-Tunnels wg0 für die Taskleiste (Vpn.qml, siehe vpn.nix).
+# Status des WireGuard-Tunnels wg0 für die Taskleiste (Vpn.qml).
 #   vpn.sh          Zustand ausgeben: on | pending | off | open, danach
 #                   Details als SCHLÜSSEL=WERT (name, endpoint, handshake,
 #                   rx, tx, lock) für das VPN-Fenster (VpnPanel.qml)
 #   vpn.sh toggle   verbinden/trennen
 #   vpn.sh lock | unlock   Internet ohne VPN sperren / freigeben
-# Ohne Passwort: NixOS über die Polkit-Regel in vpn.nix, Void Linux über
-# sudo-Regeln für `sv` (linux/void/etc/sudoers.d/g5-vpn).
+# Ohne Passwort über die Polkit-Regel (arch/files/etc/polkit-1/rules.d/50-g5-vpn.rules).
 #
 # on = verbunden (grün), pending = verbindet / keine Antwort vom Server
 # (orange), off = getrennt, Fehler oder nicht eingerichtet (rot),
@@ -15,36 +14,12 @@
 iface=wg0
 service=wg-quick-$iface
 
-if [ -d /run/systemd/system ]; then
-  svc_start() { systemctl start "$1"; }
-  svc_stop() { systemctl stop "$1"; }
-  svc_active() { systemctl is-active --quiet "$1"; }
-  svc_state() { systemctl is-active "$1" 2>/dev/null; }
-  configured() { [ -e /etc/wireguard/$iface.conf ]; }
-  name_file=/etc/wireguard/$iface.name
-else
-  # Void Linux (runit): Zustand aus /run/vpn – die Dienste in linux/void/sv
-  # legen dort NAME.up, NAME.starting bzw. NAME.failed an (der Status von
-  # runit selbst ist nur für root lesbar)
-  svc_start() { sudo -n sv up "$1"; }
-  svc_stop() { sudo -n sv down "$1"; }
-  svc_active() { [ -e "/run/vpn/$1.up" ]; }
-  # /etc/wireguard ist nur für root lesbar – der Dienst sagt, ob es eine
-  # Config gibt, und legt den Profilnamen ab (linux/void/sv/wg-quick-wg0)
-  configured() { [ ! -e "/run/vpn/$service.noconf" ]; }
-  name_file=/run/vpn/$iface.name
-  svc_state() {
-    if [ -e "/run/vpn/$1.starting" ]; then
-      echo activating
-    elif [ -e "/run/vpn/$1.up" ]; then
-      echo active
-    elif [ -e "/run/vpn/$1.failed" ]; then
-      echo failed
-    else
-      echo inactive
-    fi
-  }
-fi
+svc_start() { systemctl start "$1"; }
+svc_stop() { systemctl stop "$1"; }
+svc_active() { systemctl is-active --quiet "$1"; }
+svc_state() { systemctl is-active "$1" 2>/dev/null; }
+configured() { [ -e /etc/wireguard/$iface.conf ]; }
+name_file=/etc/wireguard/$iface.name
 
 case ${1:-} in
   toggle)

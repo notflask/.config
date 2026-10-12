@@ -1,5 +1,5 @@
 #!/bin/sh
-# Discord (mit Vencord) auf der richtigen GPU – wie apps.nix: Hyprland rendert
+# Discord (mit Vencord) auf der richtigen GPU –: Hyprland rendert
 # auf der NVIDIA und kann Bildpuffer der Iris Xe nicht importieren (Fenster
 # bliebe schwarz); der Bildschirm-Stream kommt als DMA-BUF der NVIDIA. Discord
 # zeichnet daher auf der NVIDIA und kodiert per NVENC. VA-API auf der Iris Xe.

@@ -1,5 +1,5 @@
-# swayidle – Auto-Sperre unter Void Linux (Hyprland), dieselben Zeiten wie
-# hypr/hypridle.conf unter NixOS. Start: `wm autostart` (swayidle -w).
+# swayidle – Auto-Sperre (Hyprland), dieselben Zeiten wie
+# hypr/hypridle.conf. Start: `wm autostart` (swayidle -w).
 # Pausiert, solange eine App das Sperren verhindert: Videos (Firefox, VLC),
 # Spiele, Anrufe. Zeiten in Sekunden. Nach Änderungen: pkill swayidle, dann
 # `swayidle -w &` (oder neu anmelden).

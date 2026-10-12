@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- gtklock-Anordnung (Void Linux, `wm lock` übergibt sie mit -x). Alle IDs
+<!-- gtklock-Anordnung (Arch, `wm lock` übergibt sie mit -x). Alle IDs
      und Signale wie in gtklocks eigener gtklock.ui, nur neu angeordnet:
      ganzflächige Abdunklung, darin mittig Datum, große dünne Uhr, ein kurzer
      Strich in der Akzentfarbe und das Passwortfeld mit angesetztem Knopf.

@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=Hyprland
-Comment=Compositor zum Spielen (linux/void, hyprland-session setzt die Umgebung)
-Exec=hyprland-session
-Type=Application
-DesktopNames=Hyprland

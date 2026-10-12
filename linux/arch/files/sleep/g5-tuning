@@ -1,5 +1,5 @@
 #!/bin/sh
 # Nach dem Standby CPU-Limit, Energieprofil und GPU-Mindesttakt neu setzen
-# (unter NixOS: post-resume.target)
+# (Arch hat kein post-resume.target)
 [ "$1" = post ] && systemctl restart g5-tuning.service
 exit 0

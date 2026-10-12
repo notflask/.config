@@ -1,10 +1,10 @@
 //@ pragma UseQApplication
 //@ pragma Env QSG_RENDER_LOOP=threaded
-// Schmale Textleiste oben im minimalen Stil (Void Linux, Hyprland) – wie die
+// Schmale Textleiste oben im minimalen Stil (Hyprland) – wie die
 // Leiste von dwm: Tags, Layout, Fenstertitel; rechts Tray, Tastatur, VPN,
 // Lautstärke, Akku, Uhr. Keine Symbole, keine Effekte. Farben aus dem
 // Wallpaper (../taskbar/colors.css von matugen).
-// Unter NixOS bleibt die Taskleiste (../taskbar).
+// Im Glas-Stil gilt die Taskleiste (../taskbar).
 //
 // Start: quickshell -p ~/.config/quickshell/minibar (`wm autostart`).
 // Quickshell lädt Änderungen an den .qml-Dateien sofort neu.
