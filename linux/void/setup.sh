@@ -13,7 +13,7 @@
 #                 mit xbps-src bauen und installieren, Vencord
 #      system     /etc, Hilfsprogramme, Befehle, Sprache, Benutzer, Firewall
 #      services   runit-Dienste einschalten
-#      boot       Kernel-Parameter, GRUB, initramfs, Ladebildschirm
+#      boot       Kernel-Parameter, GRUB, initramfs
 #      user       Dotfiles verlinken, pipx/cargo/Flatpak, Claude Code, Spicetify
 #
 #  Jeder Schritt darf beliebig oft laufen. Das Repo muss unter
@@ -34,7 +34,8 @@ as_user() { sudo -u "$user" -H -- "$@"; }
 
 check() {
   [ "$(id -u)" -eq 0 ] || { echo "setup.sh: bitte mit sudo starten" >&2; exit 1; }
-  grep -q '^ID=void' /etc/os-release 2>/dev/null || { echo "setup.sh: das ist kein Void Linux" >&2; exit 1; }
+  # Void schreibt ID="void" (mit Anführungszeichen)
+  grep -Eq '^ID="?void"?$' /etc/os-release 2>/dev/null || { echo "setup.sh: das ist kein Void Linux" >&2; exit 1; }
   [ "$(xbps-uhelper arch)" = x86_64 ] ||
     { echo "setup.sh: braucht Void mit glibc (x86_64), nicht musl – NVIDIA und Steam laufen nur mit glibc" >&2; exit 1; }
   [ "$user" != root ] && [ -n "$home" ] || { echo "setup.sh: mit sudo als normaler Benutzer starten" >&2; exit 1; }
@@ -223,6 +224,10 @@ JSON
     set_ly waylandsessions /etc/ly/sessions
     set_ly xsessions /etc/ly/xsessions
     install -d /etc/ly/xsessions
+    # ly schreibt das Sitzungs-Log nach ~/.local/state und bricht mit
+    # „FileNotFound“ ab, wenn der Ordner fehlt (frischer Benutzer)
+    as_user mkdir -p "$home/.local/state"
+    install -d /etc/skel/.local/state
   else
     warn "ly ist nicht installiert (Schritt custom)"
   fi
@@ -335,10 +340,11 @@ do_boot() {
     warn "linux-mainline ist nicht installiert (Schritt packages)"
   fi
 
-  step "Kernel-Parameter und Ladebildschirm"
-  # Wie configuration.nix/performance.nix: ohne Textflut starten,
+  step "Kernel-Parameter und GRUB"
+  # Wie configuration.nix/performance.nix: ohne Textflut starten (ohne
+  # Plymouth: runit beendet es nicht, ly wartete dann minutenlang auf sein TTY),
   # Watchdogs aus, Kernel unterbricht sofort (preempt=full wie CachyOS)
-  local cmdline="loglevel=3 quiet splash udev.log_level=3 nowatchdog preempt=full nvidia-drm.modeset=1"
+  local cmdline="loglevel=3 quiet udev.log_level=3 nowatchdog preempt=full nvidia-drm.modeset=1"
   # TTY und ly in den Farben von Vague (theme.nix: console.colors)
   cmdline="$cmdline vt.default_red=0x14,0xd8,0x7f,0xf3,0x6e,0xbb,0xae,0xcd,0x60,0xe0,0x99,0xf5,0x8b,0xc9,0xbe,0xd7 vt.default_grn=0x14,0x64,0xa5,0xbe,0x94,0x9d,0xae,0xcd,0x60,0x83,0xb7,0xcb,0xa9,0xb1,0xbe,0xd7 vt.default_blu=0x15,0x7e,0x63,0x7c,0xb2,0xbd,0xd1,0xcd,0x79,0x98,0x82,0x96,0xc1,0xca,0xda,0xd7"
   sed -i -E "s|^#?GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"$cmdline\"|" /etc/default/grub
@@ -372,7 +378,9 @@ GRUB
   # Boot-Menü 1 s (Esc hält an), mit NixOS 5 s; ein noch nicht entfernter
   # alter Kernel steht unter „Erweiterte Optionen“
   sed -i -E "s|^#?GRUB_TIMEOUT=.*|GRUB_TIMEOUT=$timeout|" /etc/default/grub
-  plymouth-set-default-theme bgrt 2>/dev/null || warn "Plymouth-Thema bgrt nicht gefunden"
+  if xbps-query plymouth >/dev/null 2>&1; then
+    xbps-remove -Ry plymouth || warn "Plymouth ließ sich nicht entfernen"
+  fi
   info "initramfs neu bauen (alle Kernel)…"
   dracut --regenerate-all --force >/dev/null
   update-grub

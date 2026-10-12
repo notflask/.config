@@ -14,7 +14,6 @@ linux-firmware-nvidia
 linux-firmware-network
 sof-firmware              # Laptop-Lautsprecher/Mikrofon
 dracut
-plymouth                  # Ladebildschirm mit Herstellerlogo (Thema bgrt)
 grub-x86_64-efi
 efibootmgr
 glibc-locales
