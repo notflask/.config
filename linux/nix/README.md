@@ -481,6 +481,7 @@ Clips landen standardmäßig in `~/Videos`.
 
 | Tweak | Wirkung |
 |---|---|
+| **Neuester Kernel** (`linuxPackages_latest` in `configuration.nix`) | wie `linux` bei Arch statt LTS; NVIDIA-Treiber passt sich an. Startet er nicht: Leertaste beim Booten, vorige Generation |
 | **scx_lavd** (CPU-Scheduler, `--performance`) | für Gaming gebaut (Steam Deck), soll Ruckler reduzieren, wenn nebenbei Discord/Firefox laufen |
 | **NTSYNC** | schnellere Synchronisation für Windows-Spiele unter Proton (Diablo IV), bessere Frametimes |
 | **Split-Lock-Bremse aus** | wie SteamOS – verhindert starke Ruckler in einzelnen Windows-Spielen |

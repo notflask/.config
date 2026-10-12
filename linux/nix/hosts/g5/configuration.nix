@@ -26,6 +26,12 @@
   boot.loader.timeout = 1;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # Neuester Kernel statt LTS (wie `linux` bei Arch). Der NVIDIA-Treiber
+  # (nvidia.nix) wird automatisch passend dazu gebaut. Startet ein neuer
+  # Kernel nicht: beim Booten Leertaste halten, vorige Generation wählen.
+  # Zurück auf LTS: Zeile löschen.
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
   # Start ohne Textflut: Ladebildschirm (Plymouth, Thema "bgrt": Logo des
   # Laptop-Herstellers aus der Firmware + Ladekreis) statt Kernel- und
   # systemd-Meldungen. Fehler landen weiter im Journal (journalctl -b).
