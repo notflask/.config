@@ -47,6 +47,9 @@ list() { sed 's/#.*//' "$1" | tr -s ' \t' '\n' | grep -v '^$'; }
 # ── repos ────────────────────────────────────────────────────────────────
 do_repos() {
   step "Repos (nonfree, multilib) und System aktualisieren"
+  # Nur ein Kernel (linux-mainline): `linux` aus base-system abwählen,
+  # bevor xbps es bei einem Update wieder mitbringt
+  install -D -m 644 "$here/etc/xbps.d/10-kernel.conf" /etc/xbps.d/10-kernel.conf
   xbps-install -Sy void-repo-nonfree void-repo-multilib void-repo-multilib-nonfree
   xbps-install -Syu xbps
   xbps-install -Syu
@@ -306,6 +309,32 @@ do_services() {
 
 # ── boot ─────────────────────────────────────────────────────────────────
 do_boot() {
+  step "Kernel: nur linux-mainline"
+  # Der normale `linux` kommt vom Installer mit. Entfernt wird eine alte
+  # Kernel-Serie aber erst, wenn sie nicht mehr läuft – also nach dem ersten
+  # Start mit dem neuen Kernel. Das gilt auch, wenn linux-mainline später auf
+  # eine neue Serie springt (7.2 → 7.3): Bis der neue Kernel einmal gestartet
+  # ist, bleibt der alte im Boot-Menü als Rückfall.
+  local main running p series
+  main=$(xbps-query -p run_depends linux-mainline 2>/dev/null | grep -oE '^linux[0-9]+\.[0-9]+' | head -n1)
+  running=linux$(uname -r | cut -d. -f1,2)
+  if [ -n "$main" ]; then
+    for p in linux linux-headers; do
+      xbps-query "$p" >/dev/null 2>&1 && xbps-remove -y "$p"
+    done
+    for p in $(xbps-query -l | awk '{print $2}' | sed -E 's/-[^-]+$//' | grep -E '^linux[0-9]+\.[0-9]+(-headers)?$'); do
+      series=${p%-headers}
+      [ "$series" = "$main" ] && continue
+      if [ "$series" = "$running" ]; then
+        info "$p läuft gerade – wird nach dem Neustart entfernt (setup.sh boot bzw. update)"
+        continue
+      fi
+      xbps-remove -y "$p"
+    done
+  else
+    warn "linux-mainline ist nicht installiert (Schritt packages)"
+  fi
+
   step "Kernel-Parameter und Ladebildschirm"
   # Wie configuration.nix/performance.nix: ohne Textflut starten,
   # Watchdogs aus, Kernel unterbricht sofort (preempt=full wie CachyOS)
@@ -313,7 +342,8 @@ do_boot() {
   # TTY und ly in den Farben von Vague (theme.nix: console.colors)
   cmdline="$cmdline vt.default_red=0x14,0xd8,0x7f,0xf3,0x6e,0xbb,0xae,0xcd,0x60,0xe0,0x99,0xf5,0x8b,0xc9,0xbe,0xd7 vt.default_grn=0x14,0x64,0xa5,0xbe,0x94,0x9d,0xae,0xcd,0x60,0x83,0xb7,0xcb,0xa9,0xb1,0xbe,0xd7 vt.default_blu=0x15,0x7e,0x63,0x7c,0xb2,0xbd,0xd1,0xcd,0x79,0x98,0x82,0x96,0xc1,0xca,0xda,0xd7"
   sed -i -E "s|^#?GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"$cmdline\"|" /etc/default/grub
-  # Boot-Menü 1 s; ältere Kernel unter „Erweiterte Optionen“ (Esc hält an)
+  # Boot-Menü 1 s (Esc hält an); ein noch nicht entfernter alter Kernel steht
+  # unter „Erweiterte Optionen“
   sed -i -E 's|^#?GRUB_TIMEOUT=.*|GRUB_TIMEOUT=1|' /etc/default/grub
   plymouth-set-default-theme bgrt 2>/dev/null || warn "Plymouth-Thema bgrt nicht gefunden"
   info "initramfs neu bauen (alle Kernel)…"

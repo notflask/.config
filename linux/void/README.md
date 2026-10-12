@@ -19,7 +19,7 @@ einzige Deko.
 | **Leiste** | Text statt Symbole: Tags `I II III`, Fenstertitel, `us · vpn · vol 40% · Mo. 12.10. 11:40` |
 | **Terminal** | Ghostty mit fastfetch (großes Void-Logo), cmatrix, btop |
 | **Farben** | matugen: Rahmen, Leiste, Terminal, Rofi, Benachrichtigungen, Sperrbildschirm, Firefox, Discord, Spotify folgen dem Wallpaper. Hell oder dunkel |
-| **Kernel** | `linux-mainline` (neuester), der normale `linux` bleibt als Rückfall |
+| **Kernel** | nur einer: `linux-mainline`, der neueste (wie bei Arch) |
 | **Hardware** | i5-12500H + RTX 4060 Laptop, eDP-1 1080p@144 Hz, LG 1440p@180 Hz (DP-2) |
 
 ## So sieht es aus
@@ -192,7 +192,7 @@ mit MangoHud: dasselbe Spiel an derselben Stelle, FPS und 1%-Lows vergleichen.
 | Glas-Look, Windows-Taskleiste unten | minimal: eckig, 1px, Textleiste oben |
 | hyprlock / hypridle | gtklock / swayidle, gleiche Zeiten |
 | systemd | runit (`sv/`), Programme der Sitzung in `wm autostart` |
-| Rollback auf ältere Generationen | **gibt es nicht**, nur den zweiten Kernel im Boot-Menü |
+| Rollback auf ältere Generationen | **gibt es nicht**. Springt der Kernel auf eine neue Version, bleibt die alte im Boot-Menü, bis die neue einmal gestartet ist |
 | Pakete aus nixpkgs | Void-Repos + `srcpkgs/` (xbps-src) + pipx/cargo |
 | VPN-Fenster mit Split-Tunneling | `vpn-split` und `novpn` im Terminal |
 | Startmenü, Fenster-Vorschau | Rofi, Alt+Tab von MangoWC |
@@ -231,7 +231,7 @@ und `vpn-split.sh`.
 | Tearing klappt nicht | in `mango-session` `export WLR_DRM_NO_ATOMIC=1` |
 | Kein Ton | `pgrep -a pipewire`, sonst neu anmelden |
 | Paket baut nicht (neue Version upstream) | `linux/void/update-sources.sh NAME`, dann `sudo setup.sh custom` |
-| Neuer Kernel startet nicht | GRUB, „Erweiterte Optionen“, den `linux`-Kernel wählen |
+| Neuer Kernel startet nicht (z. B. NVIDIA noch nicht so weit) | GRUB, „Erweiterte Optionen“, den vorigen Kernel wählen. Er wird erst entfernt, wenn der neue einmal gelaufen ist |
 
 > **Stand:** auf echter Hardware noch nicht gestartet. Geprüft in einem
 > Void-chroot: Alle Pakete lösen sich auf, die MangoWC-Config besteht `mango -p`,

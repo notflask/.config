@@ -4,9 +4,8 @@
 # Nicht in Void: siehe srcpkgs/ (eigene Pakete) und setup.sh (user-Schritt).
 
 # ── Basis (configuration.nix) ───────────────────────────────────────────
-linux-mainline            # neuester Kernel wie bei Arch (7.x); `linux` bleibt als Rückfall
+linux-mainline            # der einzige Kernel: der neueste wie bei Arch (7.x), `linux` ist abgewählt (etc/xbps.d)
 linux-mainline-headers    # für DKMS (NVIDIA, tuxedo-drivers)
-linux-headers
 dkms
 intel-ucode               # CPU-Microcode (nonfree)
 linux-firmware
