@@ -109,7 +109,10 @@ do_packages() {
   # cannot open shared object file“). Darum prüfen, ob paru wirklich läuft.
   if ! paru --version >/dev/null 2>&1; then
     sdo pacman -S --needed --noconfirm base-devel git rust
-    pacman -Qq paru-bin >/dev/null 2>&1 && sdo pacman -Rdd --noconfirm paru-bin
+    # paru-bin samt Debug-Paket weg (sonst Dateikonflikt mit paru-debug)
+    local old_paru
+    old_paru=$(pacman -Qq paru-bin paru-bin-debug 2>/dev/null) || true
+    [ -z "$old_paru" ] || sdo pacman -Rdd --noconfirm $old_paru
     local tmp
     tmp=$(mktemp -d)
     git clone --depth 1 https://aur.archlinux.org/paru.git "$tmp/paru"
