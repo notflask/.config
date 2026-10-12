@@ -35,7 +35,7 @@ einzige Deko.
   </tr>
 </table>
 
-<sub>Die Screenshots stammen aus einer Testumgebung ohne GPU: Sway mit Software-Rendering und denselben Rahmen, Abständen und Farben wie MangoWC, die Leiste mit Beispiel-Tags. Deshalb zeigt fastfetch „vm“, Sway und eine Xeon-CPU. Die Wallpaper sind erzeugter Nebel. Die Farben hat matugen genau so daraus berechnet wie `theme.sh` auf dem Laptop.</sub>
+<sub>Die Screenshots stammen aus einer Testumgebung ohne GPU: Sway mit Software-Rendering und denselben Rahmen, Abständen und Farben wie MangoWC, die Leiste mit Beispiel-Tags. Deshalb zeigt fastfetch „vm“, Sway und eine Xeon-CPU. Die Wallpaper sind erzeugter Nebel und liegen in `wallpapers/` (setup.sh kopiert sie nach `~/Wallpapers`). Die Farben hat matugen genau so daraus berechnet wie `theme.sh` auf dem Laptop.</sub>
 
 ## Installation
 
@@ -84,7 +84,7 @@ verbinden (NetworkManager ersetzt dhcpcd/wpa_supplicant).
 
 | Was | Wie |
 |---|---|
-| Wallpaper | Waypaper öffnen und ein dunkles, stimmungsvolles Foto wählen. Die Farben ziehen überall mit |
+| Wallpaper | Beim ersten Login ist der dunkle Nebel gesetzt. Anderes Bild: Waypaper öffnen und wählen, die Farben ziehen überall mit |
 | VPN | `vpn import ~/Downloads/xyz.conf Name` |
 | Discord | einmal starten (lädt die App nach), dann `sudo ~/dotfiles/linux/void/setup.sh custom`, das installiert Vencord |
 | Spotify | einmal starten und anmelden, dann `spicetify-setup` |

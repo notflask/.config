@@ -455,6 +455,9 @@ do_user() {
   [ -e "$home/.config/warp-terminal/settings.toml" ] ||
     as_user cp "$repo/linux/.config/warp-terminal/settings.toml" "$home/.config/warp-terminal/settings.toml"
   as_user xdg-user-dirs-update || true
+  # Hintergründe aus dem Repo (Nebel dunkel/hell, wie in der README)
+  as_user mkdir -p "$home/Wallpapers"
+  as_user cp -n "$here"/wallpapers/* "$home/Wallpapers/"
 
   step "Programme ohne Void-Paket (pipx, cargo, Installer)"
   # Hintergrund-Auswahl und Firefox-Farben (Python, mit GTK/GObject vom System)

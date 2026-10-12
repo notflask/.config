@@ -13,7 +13,7 @@ Singleton {
 
     readonly property string font: "JetBrains Mono"
     readonly property int size: 12
-    readonly property int height: 24
+    readonly property int height: 28
 
     readonly property color bg: get("surface", "#151311")
     readonly property color fg: get("on_surface", "#e5e2e3")
