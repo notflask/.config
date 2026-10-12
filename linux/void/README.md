@@ -46,8 +46,12 @@ einzige Deko.
 
 **1. Void installieren**
 
-ISO `void-live-x86_64-*-base.iso` mit **glibc** (nicht musl, NVIDIA und Steam
-laufen nur mit glibc). Im Installer (`sudo void-installer`):
+Schritt für Schritt mit allen Befehlen (Platte löschen, installieren,
+einrichten): [INSTALL.md](INSTALL.md).
+
+Kurzfassung für den Installer: ISO `void-live-x86_64-*-base.iso` mit **glibc**
+(nicht musl, NVIDIA und Steam laufen nur mit glibc). Im Installer
+(`sudo void-installer`):
 
 - Benutzer `flask`, Gruppe `wheel`
 - Bootloader GRUB (EFI)
