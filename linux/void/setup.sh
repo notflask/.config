@@ -342,9 +342,36 @@ do_boot() {
   # TTY und ly in den Farben von Vague (theme.nix: console.colors)
   cmdline="$cmdline vt.default_red=0x14,0xd8,0x7f,0xf3,0x6e,0xbb,0xae,0xcd,0x60,0xe0,0x99,0xf5,0x8b,0xc9,0xbe,0xd7 vt.default_grn=0x14,0x64,0xa5,0xbe,0x94,0x9d,0xae,0xcd,0x60,0x83,0xb7,0xcb,0xa9,0xb1,0xbe,0xd7 vt.default_blu=0x15,0x7e,0x63,0x7c,0xb2,0xbd,0xd1,0xcd,0x79,0x98,0x82,0x96,0xc1,0xca,0xda,0xd7"
   sed -i -E "s|^#?GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"$cmdline\"|" /etc/default/grub
-  # Boot-Menü 1 s (Esc hält an); ein noch nicht entfernter alter Kernel steht
-  # unter „Erweiterte Optionen“
-  sed -i -E 's|^#?GRUB_TIMEOUT=.*|GRUB_TIMEOUT=1|' /etc/default/grub
+  # Dual-Boot mit NixOS (DUALBOOT.md): Liegt systemd-boot von NixOS auf der
+  # gemeinsamen EFI-Partition, startet GRUB es über einen eigenen Eintrag,
+  # und das Menü wartet 5 s. Ist NixOS entfernt, verschwindet beides wieder.
+  local esp="" timeout=1
+  for d in /boot/efi /efi /boot; do
+    [ -f "$d/EFI/systemd/systemd-bootx64.efi" ] && { esp=$d; break; }
+  done
+  if [ -n "$esp" ]; then
+    cat >/etc/grub.d/41_nixos <<'GRUB'
+#!/bin/sh
+# Erzeugt von linux/void/setup.sh (Dual-Boot) – NixOS über systemd-boot
+cat <<'ENTRY'
+menuentry "NixOS" --class nixos {
+	insmod part_gpt
+	insmod fat
+	insmod chain
+	search --no-floppy --file --set=root /EFI/systemd/systemd-bootx64.efi
+	chainloader /EFI/systemd/systemd-bootx64.efi
+}
+ENTRY
+GRUB
+    chmod 755 /etc/grub.d/41_nixos
+    timeout=5
+    info "NixOS gefunden ($esp/EFI/systemd) – Eintrag im Boot-Menü"
+  else
+    rm -f /etc/grub.d/41_nixos
+  fi
+  # Boot-Menü 1 s (Esc hält an), mit NixOS 5 s; ein noch nicht entfernter
+  # alter Kernel steht unter „Erweiterte Optionen“
+  sed -i -E "s|^#?GRUB_TIMEOUT=.*|GRUB_TIMEOUT=$timeout|" /etc/default/grub
   plymouth-set-default-theme bgrt 2>/dev/null || warn "Plymouth-Thema bgrt nicht gefunden"
   info "initramfs neu bauen (alle Kernel)…"
   dracut --regenerate-all --force >/dev/null

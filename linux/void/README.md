@@ -39,6 +39,11 @@ einzige Deko.
 
 ## Installation
 
+> **Erst ausprobieren?** [DUALBOOT.md](DUALBOOT.md): Void neben NixOS
+> installieren, testen, Spiele und Daten aus NixOS holen und NixOS danach
+> entfernen. `setup.sh` trägt NixOS dabei selbst ins Boot-Menü ein.
+
+
 **1. Void installieren**
 
 ISO `void-live-x86_64-*-base.iso` mit **glibc** (nicht musl, NVIDIA und Steam
@@ -205,6 +210,7 @@ Nicht übernommen: **Antigravity CLI** (`agy`), dafür gibt es kein Void-Paket.
 linux/void/
 ├── setup.sh            einrichten bzw. auf den Stand im Repo bringen
 ├── update.sh           Befehl `update`
+├── DUALBOOT.md         Void neben NixOS: ausprobieren, Spiele holen, NixOS entfernen
 ├── update-sources.sh   neue Versionen von Claude Desktop, ATAS X, HaruNeko, TradingView, Warp
 ├── packages.txt        Pakete aus den Void-Repos (nach NixOS-Modulen sortiert)
 ├── srcpkgs/            eigene xbps-src-Rezepte: ly, Claude Desktop, ATAS X, Schriften …
