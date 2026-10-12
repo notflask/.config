@@ -1,5 +1,5 @@
 # Erzeugt von matugen (templates/mako-flat.ini) – hier nichts ändern
-# Minimaler Stil für Void/MangoWC (`wm autostart` startet mako damit):
+# Minimaler Stil für Void/Hyprland (`wm autostart` startet mako damit):
 # eckig, deckend, 1px Rahmen in der Akzentfarbe. Unter NixOS: config (Glas)
 font=JetBrains Mono 10
 width=360
@@ -18,15 +18,15 @@ max-visible=5
 layer=overlay
 anchor=top-right
 
-background-color=#151311
-text-color=#e8e1dd
-border-color=#dac2ac
-progress-color=over #544433
+background-color=#121413
+text-color=#e3e2e1
+border-color=#b8cbc4
+progress-color=over #3a4a45
 
-format=<b>%s</b>\n<span color="#ccc5c2">%b</span>
+format=<b>%s</b>\n<span color="#c7c6c5">%b</span>
 
 [urgency=low]
-border-color=#95908c
+border-color=#91918f
 
 [urgency=critical]
 border-color=#ffb4ab

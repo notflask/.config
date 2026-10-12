@@ -9,11 +9,6 @@ output_path = "~/.config/hypr/colors.lua"
 input_path  = "~/.config/matugen/templates/niri-colors.kdl"
 output_path = "~/.config/niri/colors.kdl"
 
-# MangoWC (Void Linux, linux/void)
-[templates.mango-colors]
-input_path  = "~/.config/matugen/templates/mango-colors.conf"
-output_path = "~/.config/mango/colors.conf"
-
 # Farben und Glasflächen hell/dunkel (Taskleiste)
 [templates.glass-colors]
 input_path = "~/.config/matugen/templates/glass-colors.css"
@@ -27,16 +22,21 @@ output_path = "~/.config/quickshell/taskbar/glass.css"
 input_path  = "~/.config/matugen/templates/mako.ini"
 output_path = "~/.config/mako/config"
 
-# Ghostty und fastfetch in den Farben des Wallpapers (Void/MangoWC)
+# Ghostty und fastfetch in den Farben des Wallpapers (Void Linux)
 [templates.ghostty]
 input_path  = "~/.config/matugen/templates/ghostty-theme"
 output_path = "~/.config/ghostty/themes/matugen"
+
+# Neovim: Farbschema `matugen` (Void, plugins/ui.lua)
+[templates.nvim]
+input_path  = "~/.config/matugen/templates/nvim-colors.lua"
+output_path = "~/.config/nvim/colors/matugen.lua"
 
 [templates.fastfetch-void]
 input_path  = "~/.config/matugen/templates/fastfetch-void.jsonc"
 output_path = "~/.config/fastfetch/void.jsonc"
 
-# mako im minimalen Stil (Void/MangoWC)
+# mako im minimalen Stil (Void Linux)
 [templates.mako-flat]
 input_path  = "~/.config/matugen/templates/mako-flat.ini"
 output_path = "~/.config/mako/config-flat"
@@ -96,3 +96,9 @@ output_path = "~/.config/gtklock/style.css"
 [templates.vencord]
 input_path  = "~/.config/matugen/templates/vencord.theme.css"
 output_path = "~/.config/Vencord/themes/matugen.theme.css"
+
+# Telegram Desktop: Palette; theme.sh packt sie mit dem Chat-Hintergrund zu
+# ~/.cache/matugen/matugen.tdesktop-theme und bietet sie Telegram an
+[templates.telegram]
+input_path  = "~/.config/matugen/templates/telegram.tdesktop-theme"
+output_path = "~/.cache/matugen/telegram/colors.tdesktop-theme"

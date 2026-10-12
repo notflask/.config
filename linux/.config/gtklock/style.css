@@ -1,59 +1,106 @@
 /* Erzeugt von matugen (templates/gtklock.css) – hier nichts ändern.
-   gtklock (Void Linux, minimaler Stil wie MangoWC): Uhr und Datum direkt auf
-   dem Bild, Passwortfeld in einem eckigen Kasten mit 1px Rahmen. */
+   gtklock (Void Linux, minimaler Stil, Anordnung in layout.ui): das Bild
+   unter einer Abdunklung in der Flächenfarbe, darüber gesperrtes Datum in
+   der Akzentfarbe, große dünne Uhr, kurzer Akzentstrich und ein eckiges
+   Passwortfeld mit angesetztem Knopf – alles mit 1px-Kanten, ohne Rundung. */
 window {
   background-size: cover;
   background-position: center;
-  background-color: #151311;
+  background-color: #121413;
 }
 
+/* Ganzflächig: zur Mitte hin klarer, zu den Rändern dichter */
 #window-box {
-  padding: 24px 28px;
-  border-radius: 0;
-  background-color: #151311;
-  border: 1px solid #dac2ac;
-  color: #e8e1dd;
-}
-
-#clock-label {
-  font-family: "JetBrains Mono";
-  font-size: 88px;
-  font-weight: 700;
-  color: #f5f5f7;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  background-image: radial-gradient(ellipse at center,
+      alpha(#121413, 0.45) 0%,
+      alpha(#121413, 0.88) 100%);
+  color: #e3e2e1;
 }
 
 #date-label {
   font-family: "JetBrains Mono";
-  font-size: 18px;
-  color: rgba(245, 245, 247, 0.75);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 6px;
+  color: #b8cbc4;
+}
+
+#clock-label {
+  font-family: "JetBrains Mono";
+  font-size: 156px;
+  font-weight: 100;
+  letter-spacing: -6px;
+  color: #e3e2e1;
+  margin-top: -12px;
+}
+
+#accent-bar {
+  background-color: #b8cbc4;
+  margin: 4px 0 44px;
 }
 
 entry {
-  min-height: 40px;
-  min-width: 280px;
+  min-height: 44px;
   padding: 0 16px;
   border-radius: 0;
-  border: 1px solid #95908c;
-  background-color: #221f1d;
-  color: inherit;
+  border: 1px solid #464746;
+  border-right-width: 0;
+  background-color: alpha(#1f201f, 0.72);
+  color: #e3e2e1;
+  caret-color: #b8cbc4;
   font-family: "JetBrains Mono";
   font-size: 15px;
+  letter-spacing: 3px;
   box-shadow: none;
+  transition: border-color 200ms, background-color 200ms;
 }
 
 entry:focus {
-  border-color: #dac2ac;
+  border-color: #b8cbc4;
+  background-color: alpha(#292a29, 0.85);
 }
 
-button {
+entry image {
+  color: #c7c6c5;
+}
+
+/* Platzhalter */
+entry placeholder,
+entry text placeholder {
+  color: #c7c6c5;
+  letter-spacing: 1px;
+}
+
+#unlock-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
   border-radius: 0;
-  border: none;
+  border: 1px solid #b8cbc4;
   background-image: none;
-  background-color: #dac2ac;
-  color: #3c2e1e;
+  background-color: #b8cbc4;
+  color: #23342f;
+  font-family: "JetBrains Mono";
+  font-size: 18px;
   box-shadow: none;
+  text-shadow: none;
+  transition: background-color 200ms;
+}
+
+#unlock-button:hover {
+  background-color: #b8cbc4;
+}
+
+#unlock-button:active {
+  background-color: #3a4a45;
+  color: #d4e7e0;
+}
+
+#error-label,
+#warning-label {
+  font-family: "JetBrains Mono";
+  font-size: 12px;
+  letter-spacing: 2px;
 }
 
 #error-label {

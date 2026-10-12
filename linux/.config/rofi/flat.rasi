@@ -1,4 +1,4 @@
-// Starter im minimalen Stil (Void/MangoWC, Super+Space): eckiger Kasten mit
+// Starter im minimalen Stil (Void/Hyprland, Super+Space): eckiger Kasten mit
 // 1px Rahmen in der Akzentfarbe, nur Text. Farben: colors.rasi (matugen).
 // Unter Niri/Hyprland bleibt spotlight.rasi.
 @import "colors.rasi"

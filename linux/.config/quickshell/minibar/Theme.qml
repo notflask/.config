@@ -12,8 +12,8 @@ Singleton {
     property var c: ({})
 
     readonly property string font: "JetBrains Mono"
-    readonly property int size: 12
-    readonly property int height: 28
+    readonly property int size: 15
+    readonly property int height: 32
 
     readonly property color bg: get("surface", "#151311")
     readonly property color fg: get("on_surface", "#e5e2e3")
@@ -24,6 +24,12 @@ Singleton {
     readonly property color error: get("error", "#ffb4ab")
     readonly property color ok: "#8fd19e"
     readonly property color warn: "#f0c674"
+    readonly property color orange: "#f5a35c"
+
+    // VPN-Zustand (vpn.sh) → Farbe: grün verbunden, orange verbindet, rot sonst
+    function vpnColor(state) {
+        return state === "on" ? ok : state === "pending" ? orange : error;
+    }
 
     function get(name, fallback) {
         return c[name] !== undefined ? c[name] : fallback;

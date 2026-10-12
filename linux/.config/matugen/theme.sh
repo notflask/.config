@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
-#  und Niri, Hyprland, MangoWC, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
+#  und Niri, Hyprland, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
 #  Firefox (Pywalfox), Spotify und Discord anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
@@ -137,11 +137,33 @@ sober_mango="$HOME/.var/app/org.vinegarhq.Sober/config/MangoHud"
 
 # Neu laden, was die Farben nicht selbst neu einliest
 # (Rofi und Hyprlock lesen sie beim nächsten Start)
-# (Niri, Hyprland oder MangoWC, `wm` aus desktop.nix bzw. linux/void)
+# (Niri oder Hyprland, `wm` aus desktop.nix bzw. linux/void)
 wm reload >/dev/null 2>&1 || true
 makoctl reload >/dev/null 2>&1 || true
-# Ghostty (1.3+) liest Konfiguration und Themes neu ein
-pkill -SIGUSR2 -x 'ghostty|\.ghostty-wrappe' || true
+# Ghostty: ab 1.2 lädt SIGUSR2 Konfiguration und Themes neu. Ghostty 1.1
+# (Void) kennt das Signal nicht – dort BEENDET es alle Terminals. Für 1.1
+# stattdessen die neuen Farben per OSC 4/10/11/12 in jedes offene Terminal
+# schreiben (wie pywal); neue Fenster lesen themes/matugen ohnehin.
+ghostty_version=$(ghostty --version 2>/dev/null | sed -n 's/^Ghostty //p;q')
+if [ -n "$ghostty_version" ] &&
+  [ "$(printf '%s\n' 1.2.0 "$ghostty_version" | sort -V | head -n1)" = 1.2.0 ]; then
+  pkill -SIGUSR2 -x 'ghostty|\.ghostty-wrappe' || true
+elif [ -f "$config/ghostty/themes/matugen" ]; then
+  osc=$(awk -F' *= *' '
+    $1 == "foreground"   { printf "\033]10;%s\033\\", $2 }
+    $1 == "background"   { printf "\033]11;%s\033\\", $2 }
+    $1 == "cursor-color" { printf "\033]12;%s\033\\", $2 }
+    $1 == "palette"      { printf "\033]4;%s;%s\033\\", $2, $3 }
+  ' "$config/ghostty/themes/matugen")
+  for term_pid in $(pgrep -x 'ghostty|\.ghostty-wrappe'); do
+    for shell_pid in $(pgrep -P "$term_pid"); do
+      tty=$(readlink "/proc/$shell_pid/fd/0" 2>/dev/null) || continue
+      case $tty in /dev/pts/*) [ -w "$tty" ] && printf '%s' "$osc" >"$tty" 2>/dev/null ;; esac
+    done
+  done
+fi
+# Neovim lädt das Farbschema selbst neu, sobald matugen colors/matugen.lua
+# schreibt (Dateiüberwachung in plugins/ui.lua)
 # Discord (Vencord): Theme in die Liste der aktiven eintragen, falls es fehlt
 # (Vencord lädt die Datei danach bei jeder Änderung selbst neu; läuft Discord
 # gerade, übernimmt es die Liste erst beim nächsten Start)
@@ -151,6 +173,25 @@ if [ -f "$vc_settings" ] && command -v jq >/dev/null &&
   tmp=$(mktemp) &&
     jq '.enabledThemes = ((.enabledThemes // []) + ["matugen.theme.css"])' "$vc_settings" >"$tmp" &&
     mv "$tmp" "$vc_settings" || rm -f "$tmp"
+fi
+# Telegram Desktop: Palette (matugen) + einfarbiger Chat-Hintergrund als
+# .tdesktop-theme (ZIP), flach wie Discord. Läuft Telegram, öffnet es die
+# Datei als Vorschau – ein Klick auf „Anwenden“ übernimmt sie (von außen geht
+# es nicht ohne).
+tg_dir="$cache/matugen/telegram"
+if [ -f "$tg_dir/colors.tdesktop-theme" ]; then
+  tg_bg=$(sed -n 's/^windowBg: *\(#[0-9a-fA-F]*\);.*/\1/p' "$tg_dir/colors.tdesktop-theme")
+  tg_theme="$cache/matugen/matugen.tdesktop-theme"
+  rm -f "$tg_dir/background.jpg"
+  magick -size 64x64 "xc:${tg_bg:-#000000}" "$tg_dir/tiled.png" 2>/dev/null &&
+    python3 -I -c 'import sys, zipfile
+with zipfile.ZipFile(sys.argv[1] + ".tmp", "w") as z:
+    for f in sys.argv[2:]: z.write(f, f.rsplit("/", 1)[1])' \
+      "$tg_theme" "$tg_dir/colors.tdesktop-theme" "$tg_dir/tiled.png" &&
+    mv -f "$tg_theme.tmp" "$tg_theme"
+  if [ -f "$tg_theme" ] && pgrep -x Telegram >/dev/null; then
+    setsid -f Telegram -- "$tg_theme" >/dev/null 2>&1 </dev/null || true
+  fi
 fi
 # Firefox (Pywalfox) übernimmt Farben und Hell/Dunkel sofort, wenn es läuft
 # (Profil liegt unter ~/.config/mozilla, nicht im Standardpfad ~/.mozilla)
