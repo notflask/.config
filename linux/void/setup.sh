@@ -94,6 +94,28 @@ do_custom() {
   as_user sh -c "grep -qx XBPS_ALLOW_RESTRICTED=yes '$vp/etc/conf' 2>/dev/null || echo XBPS_ALLOW_RESTRICTED=yes >>'$vp/etc/conf'"
   [ -d "$vp/masterdir-x86_64" ] || [ -d "$vp/masterdir" ] || as_user "$vp/xbps-src" binary-bootstrap
 
+  # xbps-fetch hängt bei codeberg.org gern endlos (kein IPv4-Rückfall) –
+  # die Quellen für ly deshalb vorher mit curl holen; xbps-src prüft die
+  # Prüfsummen und lädt nur nach, was fehlt oder falsch ist
+  local t=$here/srcpkgs/ly/template lyv zig lysrc f url
+  lyv=$(sed -n 's/^version=//p' "$t")
+  zig=$(sed -n 's/^_zig=//p' "$t")
+  lysrc=$vp/hostdir/sources/ly-$lyv
+  as_user mkdir -p "$lysrc"
+  while read -r f url; do
+    [ -s "$lysrc/$f" ] && continue
+    if as_user curl -fL --connect-timeout 20 --retry 3 -o "$lysrc/$f.part" "$url"; then
+      as_user mv "$lysrc/$f.part" "$lysrc/$f"
+    else
+      rm -f "$lysrc/$f.part"
+      warn "ly: $f nicht geladen"
+    fi
+  done <<EOF
+ly-$lyv.tar.gz https://codeberg.org/fairyglade/ly/archive/v$lyv.tar.gz
+ly-vendor-$lyv.tar.zst https://codeberg.org/fairyglade/ly/releases/download/v$lyv/vendor.tar.zst
+zig-x86_64-linux-$zig.tar.xz https://ziglang.org/download/$zig/zig-x86_64-linux-$zig.tar.xz
+EOF
+
   local p failed=() built=() upd=() new=()
   for p in "${custom_pkgs[@]}"; do
     info "baue $p"
