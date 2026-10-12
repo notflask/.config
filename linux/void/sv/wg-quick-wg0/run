@@ -1,0 +1,26 @@
+#!/bin/sh
+# WireGuard-Tunnel wg0 mit Kill-Switch (vpn.nix: wg-quick-wg0). Die Config
+# mit den Schlüsseln liegt nur lokal in /etc/wireguard/wg0.conf (`vpn import`).
+# Zustand für die Taskleiste (vpn.sh): /run/vpn/wg-quick-wg0.{starting,up,failed}
+exec 2>&1
+name=wg-quick-wg0
+conf=/etc/wireguard/wg0.conf
+mkdir -p /run/vpn
+rm -f /run/vpn/$name.up /run/vpn/$name.failed
+
+# Ohne importierte Config still warten (`vpn import` startet neu)
+[ -e $conf ] || exec pause
+
+touch /run/vpn/$name.starting
+ip link show wg0 >/dev/null 2>&1 && wg-quick down wg0
+if wg-quick up wg0 && /usr/local/sbin/vpn-killswitch on wg0; then
+  rm -f /run/vpn/$name.starting
+  touch /run/vpn/$name.up
+  exec pause
+fi
+
+# z. B. noch kein Netz beim Booten: runit versucht es nach 10 s erneut
+rm -f /run/vpn/$name.starting
+touch /run/vpn/$name.failed
+sleep 10
+exit 1

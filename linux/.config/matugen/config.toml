@@ -9,6 +9,11 @@ output_path = "~/.config/hypr/colors.lua"
 input_path  = "~/.config/matugen/templates/niri-colors.kdl"
 output_path = "~/.config/niri/colors.kdl"
 
+# MangoWC (Void Linux, linux/void)
+[templates.mango-colors]
+input_path  = "~/.config/matugen/templates/mango-colors.conf"
+output_path = "~/.config/mango/colors.conf"
+
 # Farben und Glasflächen hell/dunkel (Taskleiste)
 [templates.glass-colors]
 input_path = "~/.config/matugen/templates/glass-colors.css"
@@ -67,6 +72,11 @@ output_path = "~/.cache/matugen/spicetify-colors.css"
 [templates.hyprlock]
 input_path  = "~/.config/matugen/templates/hyprlock-colors.conf"
 output_path = "~/.config/hypr/hyprlock-colors.conf"
+
+# gtklock (Sperrbildschirm unter Void Linux, `wm lock`)
+[templates.gtklock]
+input_path  = "~/.config/matugen/templates/gtklock.css"
+output_path = "~/.config/gtklock/style.css"
 
 # Discord (Vencord): theme.sh trägt die Datei selbst unter „aktive Themes“ ein
 [templates.vencord]

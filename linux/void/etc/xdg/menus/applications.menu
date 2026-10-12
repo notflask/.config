@@ -1,0 +1,11 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+  "http://www.freedesktop.org/standards/menu-spec/1.0/menu.dtd">
+<!-- Ohne Plasma fehlt das Programm-Menü, aus dem KDE „Öffnen mit“ und die
+     Standard-Apps liest – dieses nimmt einfach alle installierten Programme
+     (desktop.nix) -->
+<Menu>
+  <Name>Applications</Name>
+  <DefaultAppDirs/>
+  <DefaultDirectoryDirs/>
+  <Include><All/></Include>
+</Menu>

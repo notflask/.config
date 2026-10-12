@@ -1,0 +1,14 @@
+#!/bin/sh
+# Screenshot mit Zeichnen (Super+Shift+S, wie Shottr/Spectacle): Bereich
+# aufziehen → Satty (Pfeil, Rechteck, Text, Marker, Verpixeln …) → Enter
+# kopiert ins Clipboard, speichert nach ~/Screenshots und schließt.
+mkdir -p "$HOME/Screenshots"
+geom=$(slurp -d -b '#1e1e2e66' -c '#cba6f7' -w 2) || exit 0
+grim -g "$geom" -t ppm - | satty --filename - \
+  --output-filename "$HOME/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png" \
+  --copy-command wl-copy \
+  --early-exit copy save \
+  --actions-on-enter save-to-clipboard,save-to-file \
+  --save-after-copy \
+  --actions-on-escape exit \
+  --initial-tool arrow

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Gigabyte Control Center
+Comment=Tray-Symbol: Leistungsmodus, Tastaturlicht, Lüfter
+Exec=gbcc-gui --hidden
+Icon=gigabyte-control-center

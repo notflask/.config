@@ -1,0 +1,82 @@
+# Template file for 'atas-x'
+# ATAS X – Orderflow-/Volumenanalyse (ATAS-Plattform auf .NET 10 + Avalonia).
+# Offiziell nur Windows/macOS; auf ATAS' Update-Server liegt ein Linux-Build
+# im Alpha-Kanal. Entspricht linux/nix/pkgs/atas-x. Void hat kein .NET –
+# die Laufzeit von Microsoft kommt mit ins Paket.
+# Neue Version: update-sources.sh
+pkgname=atas-x
+version=8.0.12.502
+revision=1
+_dotnet=10.0.12
+archs="x86_64"
+hostmakedepends="python3"
+depends="icu openssl libopenal fontconfig freetype zlib libGL vulkan-loader
+ libxkbcommon wayland libX11 libXext libXi libXcursor libXrandr libXrender
+ libICE libSM tzdata"
+short_desc="ATAS X order flow trading platform (Linux alpha)"
+maintainer="flask <skyba@tutamail.com>"
+license="custom:Proprietary"
+homepage="https://atas.net/atas-x/"
+distfiles="https://updates.orderflowtrading.net/v2/platformx_linux_alpha/atasx_linux_${version}.tar.gz
+ https://builds.dotnet.microsoft.com/dotnet/Runtime/${_dotnet}/dotnet-runtime-${_dotnet}-linux-x64.tar.gz"
+checksum="d1e25f0f1e97ac7813ead1f6767ebab5382637327a4886086b4c35010eadee7d
+ 8458f4cef855fcebd139d9853e47fb0a5d86ab65d4aa101ea158a11e036c0fa4"
+repository=nonfree
+restricted=yes
+nostrip=yes
+nopie=yes
+create_wrksrc=yes
+skip_extraction="dotnet-runtime-${_dotnet}-linux-x64.tar.gz"
+
+post_extract() {
+	mkdir -p dotnet
+	bsdtar -xf "${XBPS_SRCDISTDIR}/${pkgname}-${version}/${skip_extraction}" -C dotnet
+}
+
+do_build() {
+	cd net10.0
+	# Kopie des ganzen Programms und Bibliotheken für andere Systeme/CPUs
+	rm -rf publish
+	find runtimes -mindepth 1 -maxdepth 1 ! -name linux-x64 -exec rm -rf {} +
+	# Avalonia rendert unter X11 fest mit 60 fps → 120 fps für DOM, Tape und
+	# Panels auf 144/180-Hz-Monitoren (die Charts zeichnen selbst per GLX)
+	python3 "${FILESDIR}/raise-frame-rate.py" Avalonia.X11.dll 120
+}
+
+do_install() {
+	# cp statt vcopy: Dateinamen mit Leerzeichen („ATAS X“)
+	vmkdir usr/lib
+	cp -a net10.0 "${DESTDIR}/usr/lib/atas-x"
+	cp -a dotnet "${DESTDIR}/usr/lib/atas-x/dotnet"
+
+	# Auf der RTX 4060: Oberfläche und Charts zeichnen per OpenGL über GLX
+	# (XWayland). Die Variablen sind die von `nvidia-offload` (apps.nix).
+	# Einstellungen, Workspaces und Logs landen in ~/.config/ATAS/.
+	vmkdir usr/bin
+	cat >"${DESTDIR}/usr/bin/atas-x" <<-'SH'
+	#!/bin/sh
+	export DOTNET_ROOT=/usr/lib/atas-x/dotnet
+	export __NV_PRIME_RENDER_OFFLOAD=1
+	export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+	export __GLX_VENDOR_LIBRARY_NAME=nvidia
+	export __VK_LAYER_NV_optimus=NVIDIA_only
+	exec "/usr/lib/atas-x/ATAS X" "$@"
+	SH
+	chmod 755 "${DESTDIR}/usr/bin/atas-x"
+
+	python3 "${FILESDIR}/extract-icon.py" net10.0/OFT.Platform.Avalonia.dll \
+		"${DESTDIR}/usr/share/icons/hicolor"
+
+	vmkdir usr/share/applications
+	cat >"${DESTDIR}/usr/share/applications/atas-x.desktop" <<-'DESKTOP'
+	[Desktop Entry]
+	Type=Application
+	Name=ATAS X
+	GenericName=Trading-Plattform
+	Comment=Orderflow- und Volumenanalyse
+	Exec=atas-x
+	Icon=atas-x
+	Categories=Office;Finance;
+	StartupWMClass=ATAS X
+	DESKTOP
+}

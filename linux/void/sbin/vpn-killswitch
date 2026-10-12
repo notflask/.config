@@ -1,0 +1,34 @@
+#!/bin/sh
+# Kill-Switch für wg-quick (vpn.nix: vpn-killswitch). Startet/stoppt der
+# runit-Dienst wg-quick-wg0 (sv/wg-quick-wg0).
+#
+# Regeln wie von Mullvad empfohlen: alles, was nicht über das Interface
+# läuft und nicht die verschlüsselten WireGuard-Pakete selbst sind (fwmark),
+# wird abgelehnt – außer an eigene Adressen (localhost).
+set -eu
+action=${1:-} dev=${2:-}
+case $action in
+  on) op=-I ;;
+  off) op=-D ;;
+  *) echo "vpn-killswitch on|off INTERFACE" >&2; exit 2 ;;
+esac
+mark=51820 # setzt wg-quick für Table = auto
+for ipt in iptables ip6tables; do
+  "$ipt" "$op" OUTPUT ! -o "$dev" -m mark ! --mark "$mark" \
+    -m addrtype ! --dst-type LOCAL -j REJECT || [ "$action" = off ]
+done
+# Hat der Tunnel kein IPv6, versuchen Programme trotzdem IPv6 (der Router
+# verteilt ja Adressen) und hängen jedes Mal ~1 s, bis sie auf IPv4
+# ausweichen. Deshalb IPv6 außer LAN auf eine unreachable-Route legen –
+# connect() scheitert sofort.
+if [ "$action" = off ]; then
+  ip -6 rule del not fwmark "$mark" table "$mark" 2>/dev/null || true
+  ip -6 rule del table main suppress_prefixlength 0 2>/dev/null || true
+  ip -6 route flush table "$mark" 2>/dev/null || true
+elif [ -z "$(ip -6 -o addr show dev "$dev" scope global)" ]; then
+  ip -6 route replace unreachable default table "$mark"
+  if [ -z "$(ip -6 rule show table "$mark")" ]; then
+    ip -6 rule add not fwmark "$mark" table "$mark"
+    ip -6 rule add table main suppress_prefixlength 0
+  fi
+fi

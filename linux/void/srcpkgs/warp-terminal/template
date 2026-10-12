@@ -1,0 +1,25 @@
+# Template file for 'warp-terminal'
+# Warp – Terminal (Config: linux/.config/warp-terminal). Aus Warps Paket für
+# Arch (pacman), das nur /opt und /usr enthält. Neue Version: update-sources.sh
+pkgname=warp-terminal
+version=0.2026.10.07.08.29
+revision=1
+_build=stable_00
+archs="x86_64"
+depends="fontconfig libxkbcommon wayland libGL vulkan-loader alsa-lib xdg-utils"
+short_desc="Warp, the agentic terminal"
+maintainer="flask <skyba@tutamail.com>"
+license="custom:Proprietary"
+homepage="https://www.warp.dev"
+distfiles="https://releases.warp.dev/stable/v${version}.${_build}/warp-terminal-v${version}.${_build}-1-x86_64.pkg.tar.zst"
+checksum=c481652795704e8c21a2b6b6ebbd7ebd9390d57f1e9d151af666a28218b6abe6
+repository=nonfree
+restricted=yes
+nostrip=yes
+nopie=yes
+create_wrksrc=yes
+
+do_install() {
+	vcopy opt /
+	vcopy usr /
+}

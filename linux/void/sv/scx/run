@@ -1,0 +1,7 @@
+#!/bin/sh
+# CPU-Scheduler scx_lavd (performance.nix): für Gaming gebaut (Steam Deck),
+# soll Ruckler unter Last reduzieren. Stürzt er ab, übernimmt sofort der
+# normale Kernel-Scheduler, runit startet ihn neu. Abschalten:
+#   sudo sv down scx   bzw. dauerhaft: sudo rm /var/service/scx
+exec 2>&1
+exec scx_lavd --performance

@@ -1,0 +1,20 @@
+# Template file for 'apple-cursor'
+# macOS-Cursor: „macOS“ schwarz mit weißem Rand, „macOS-White“ weiß (theme.nix)
+pkgname=apple-cursor
+version=2.0.1
+revision=1
+short_desc="Cursor theme in the style of macOS"
+maintainer="flask <skyba@tutamail.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/ful1e5/apple_cursor"
+distfiles="${homepage}/releases/download/v${version}/macOS.tar.xz
+ ${homepage}/releases/download/v${version}/macOS-White.tar.xz"
+checksum="9c6e5e13b068ce51a9e90a9abd6ce232ec7d25d4ceb05aa8ac76efbb99c76762
+ 3d2f731ade1828d73b19681db9afc62e6f8d059185e870edda64f8bedb783856"
+create_wrksrc=yes
+
+do_install() {
+	vmkdir usr/share/icons
+	vcopy macOS usr/share/icons
+	vcopy macOS-White usr/share/icons
+}

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# WireGuard-VPN (wg-quick) mit Kill-Switch – wie `vpn` aus vpn.nix.
+# Die Config mit den Schlüsseln liegt nur lokal in /etc/wireguard/wg0.conf.
+#
+#   vpn import DATEI.conf [NAME]  Config übernehmen und verbinden; NAME
+#                           (Standard: Dateiname) ist der Profilname
+#   vpn name NAME           Profilnamen nachträglich setzen
+#   vpn up | down           verbinden / trennen
+#   vpn status              Verbindung und Kill-Switch anzeigen
+#   vpn unlock | lock       Internet ohne VPN freigeben / wieder sperren
+#
+# Sperre (Dienst vpn-lock): Ohne Tunnel gibt es kein Internet, auch nicht
+# beim Booten oder nach `vpn down`. Erreichbar bleiben nur LAN/Router.
+# `vpn unlock` hebt sie bis zum nächsten Neustart auf.
+# Split-Tunneling: novpn, vpn-split (siehe dort) oder das VPN-Fenster in der
+# Taskleiste.
+set -euo pipefail
+iface=wg0
+conf=/etc/wireguard/$iface.conf
+name_file=/etc/wireguard/$iface.name
+service=wg-quick-$iface
+
+case ${1:-status} in
+  import)
+    src=${2:?Pfad zur WireGuard-.conf angeben}
+    name=${3:-$(basename "$src" .conf)}
+    tmp=$(mktemp)
+    trap 'rm -f "$tmp"' EXIT
+    # Eigene Up/Down-Hooks der Datei entfernen – den Kill-Switch schaltet
+    # der runit-Dienst, damit immer die aktuelle Version läuft.
+    # sudo cat, damit auch `vpn import /etc/wireguard/wg0.conf` geht.
+    sudo cat "$src" | awk '
+      /^[[:space:]]*(PreUp|PostUp|PreDown|PostDown)[[:space:]]*=/ { next }
+      { print }
+    ' >"$tmp"
+    sudo install -D -m 600 -o root -g root "$tmp" "$conf"
+    echo "$name" | sudo install -m 644 /dev/stdin "$name_file"
+    echo "Gespeichert in $conf (Profil: $name)"
+    # Sperre jetzt auch setzen (ohne Config war sie aus)
+    sudo sv restart vpn-lock "$service"
+    ;;
+  name)
+    echo "${2:?Profilnamen angeben}" | sudo install -m 644 /dev/stdin "$name_file"
+    ;;
+  up) sudo sv up "$service" ;;
+  down) sudo sv down "$service" ;;
+  lock) sudo sv up vpn-lock ;;
+  unlock) sudo sv down vpn-lock ;;
+  status)
+    if [ -e "/run/vpn/$service.up" ]; then
+      echo "VPN: verbunden (Kill-Switch aktiv)"
+      sudo wg show "$iface" | sed -n '/latest handshake\|transfer\|endpoint/p'
+    elif [ -e /run/vpn/vpn-lock.up ]; then
+      echo "VPN: getrennt, Internet gesperrt (vpn unlock zum Freigeben)"
+    else
+      echo "VPN: getrennt, Internet OFFEN (vpn lock zum Sperren)"
+    fi
+    ;;
+  *)
+    echo "vpn import DATEI [NAME] | name NAME | up | down | lock | unlock | status" >&2
+    exit 2
+    ;;
+esac

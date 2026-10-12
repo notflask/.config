@@ -1,0 +1,9 @@
+#!/bin/sh
+# Tunnel abbauen, Kill-Switch aus (vpn-lock bleibt, falls aktiv)
+name=wg-quick-wg0
+if ip link show wg0 >/dev/null 2>&1; then
+  wg-quick down wg0
+fi
+/usr/local/sbin/vpn-killswitch off wg0 2>/dev/null
+rm -f /run/vpn/$name.up /run/vpn/$name.starting
+exit 0

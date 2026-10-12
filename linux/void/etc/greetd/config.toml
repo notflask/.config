@@ -1,0 +1,9 @@
+# Login (statt ly unter NixOS): tuigreet auf tty7, merkt sich den Benutzer.
+# Startet MangoWC über mango-session (linux/void/bin), dort stehen die
+# Umgebungsvariablen für GPU, Qt, Cursor usw.
+[terminal]
+vt = 7
+
+[default_session]
+command = "tuigreet --time --time-format '%a %d.%m.%Y %H:%M' --remember --asterisks --greeting 'g5' --cmd mango-session"
+user = "_greeter"

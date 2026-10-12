@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
-#  und Niri, Hyprland, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
+#  und Niri, Hyprland, MangoWC, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
 #  Firefox (Pywalfox), Spotify und Discord anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
@@ -88,7 +88,7 @@ matugen image "$image" \
   --quiet ||
   fail "matugen ist fehlgeschlagen ($image)."
 
-# Hyprlock: verkleinerte Kopie des Bildes (1440p, JPEG). Ein 8K-PNG zu
+# Hyprlock bzw. gtklock (Void): verkleinerte Kopie des Bildes (1440p, JPEG). Ein 8K-PNG zu
 # dekodieren dauert spürbar, mit der Kopie erscheint die Sperre sofort.
 # Im Hintergrund, erst fertig schreiben, dann umbenennen.
 lock_wall="$cache/hyprlock/wallpaper.jpg"
@@ -137,7 +137,7 @@ sober_mango="$HOME/.var/app/org.vinegarhq.Sober/config/MangoHud"
 
 # Neu laden, was die Farben nicht selbst neu einliest
 # (Rofi und Hyprlock lesen sie beim nächsten Start)
-# (Niri oder Hyprland, `wm` aus desktop.nix)
+# (Niri, Hyprland oder MangoWC, `wm` aus desktop.nix bzw. linux/void)
 wm reload >/dev/null 2>&1 || true
 makoctl reload >/dev/null 2>&1 || true
 # Ghostty (1.3+) liest Konfiguration und Themes neu ein

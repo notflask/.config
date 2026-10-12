@@ -1,0 +1,5 @@
+# zram wie unter NixOS (zramSwap): halber RAM, komprimiert mit zstd.
+# Tuning der Auslagerung: sysctl.d/90-g5.conf
+export ZRAM_COMP_ALGORITHM=zstd
+export ZRAM_SIZE=50
+export ZRAM_PRIORITY=100

@@ -19,6 +19,15 @@ Row {
                         activate: () => w.activate()
                     }));
         }
+        if (Compositor.mango) {
+            // Tags mit Fenstern plus der gerade angezeigte, wie Arbeitsflächen in Niri
+            const mon = Compositor.mangoMonitors.find(m => m.name === name);
+            return (mon ? mon.tags : []).filter(t => t.is_active || t.client_count > 0).map(t => ({
+                        label: String(t.index),
+                        active: t.is_active,
+                        activate: () => Quickshell.execDetached(["mmsg", "dispatch", `viewcrossmon,${t.index},${name}`])
+                    }));
+        }
         return Compositor.niriWorkspaces.filter(w => w.output === name).sort((a, b) => a.idx - b.idx).map(w => ({
                     label: w.name || String(w.idx),
                     active: w.is_active,

@@ -1,0 +1,23 @@
+# Template file for 'spicetify-cli'
+# Spicetify: Spotify mit eigenem Theme und Farben von matugen (apps.nix).
+# Einrichten pro Benutzer: spicetify-setup (linux/void/bin)
+pkgname=spicetify-cli
+version=2.45.3
+revision=1
+archs="x86_64"
+short_desc="Command-line tool to customize the Spotify client"
+maintainer="flask <skyba@tutamail.com>"
+license="LGPL-2.1-only"
+homepage="https://spicetify.app"
+distfiles="https://github.com/spicetify/cli/releases/download/v${version}/spicetify-${version}-linux-amd64.tar.gz"
+checksum=29e7f0fb49c4a722afbd7e305c25d3953b4cf0cb642216bfd4de69f63bb2c41e
+create_wrksrc=yes
+nostrip=yes
+
+do_install() {
+	# Spicetify sucht Themes, Extensions und jsHelper neben dem Programm
+	vmkdir usr/lib/spicetify
+	vcopy "*" usr/lib/spicetify
+	vmkdir usr/bin
+	ln -s /usr/lib/spicetify/spicetify "${DESTDIR}/usr/bin/spicetify"
+}

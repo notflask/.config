@@ -1,0 +1,53 @@
+# Template file for 'haruneko'
+# HaruNeko – Manga-, Anime- und Novel-Downloader (Nachfolger von HakuNeko).
+# Für Linux gibt es nur ein Snap; es bringt sein eigenes Electron mit (das
+# Electron von Void ist zu alt). Entspricht linux/nix/pkgs/haruneko.
+# Neue Version: update-sources.sh
+pkgname=haruneko
+version=260903T1833
+revision=1
+_electron=44.1.1
+archs="x86_64"
+hostmakedepends="squashfs-tools"
+depends="gtk+3 nss alsa-lib libnotify xdg-utils"
+short_desc="Manga, anime and novel downloader (HakuNeko successor)"
+maintainer="flask <skyba@tutamail.com>"
+license="Unlicense"
+homepage="https://github.com/manga-download/haruneko"
+distfiles="https://github.com/manga-download/haruneko/releases/download/${version}/hakuneko-electron-v${_electron}-linux-x64.snap
+ https://raw.githubusercontent.com/manga-download/haruneko/f8e87b4ad2e35b2b22f88002a23006cd784e209c/app/res/darwin/app.iconset/icon_256x256.png>haruneko.png"
+checksum="3ebdcb0c7521810bfb28f867469967163c1e4eb5e02279a8b8067d160c883d5f
+ ff73807bdf7323b861da72e0b96c8bc66185dbb3294d36d491c3cc58d58272be"
+nostrip=yes
+nopie=yes
+create_wrksrc=yes
+skip_extraction="hakuneko-electron-v${_electron}-linux-x64.snap haruneko.png"
+
+do_extract() {
+	unsquashfs -q -d "${wrksrc}/snap" \
+		"${XBPS_SRCDISTDIR}/${pkgname}-${version}/hakuneko-electron-v${_electron}-linux-x64.snap"
+}
+
+do_install() {
+	rm -rf snap/meta snap/gpu-2404
+	vmkdir usr/lib/haruneko
+	vcopy "snap/*" usr/lib/haruneko
+	# Die Oberfläche lädt die App von app.hakuneko.download, Einstellungen
+	# und Lesezeichen landen in ~/.config/hakuneko-electron/
+	vmkdir usr/bin
+	ln -s /usr/lib/haruneko/hakuneko-electron "${DESTDIR}/usr/bin/haruneko"
+	vinstall "${XBPS_SRCDISTDIR}/${pkgname}-${version}/haruneko.png" 644 \
+		usr/share/icons/hicolor/256x256/apps
+	vmkdir usr/share/applications
+	cat >"${DESTDIR}/usr/share/applications/haruneko.desktop" <<-'DESKTOP'
+	[Desktop Entry]
+	Type=Application
+	Name=HaruNeko
+	GenericName=Manga-Downloader
+	Comment=Manga, Anime und Novels herunterladen
+	Exec=haruneko %U
+	Icon=haruneko
+	Categories=Network;Graphics;
+	StartupWMClass=hakuneko-electron
+	DESKTOP
+}

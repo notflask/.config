@@ -1,0 +1,8 @@
+#!/bin/sh
+# Discord (mit Vencord, setup.sh) auf der richtigen GPU – wie apps.nix:
+# MangoWC rendert auf der NVIDIA und liefert den Bildschirm-Stream nur als
+# DMA-BUF der NVIDIA. Discord nimmt nur Puffer der GPU an, mit der es auch
+# kodiert → Discord zeichnet auf der NVIDIA und kodiert per NVENC (CUDA
+# sichtbar). VA-API (nur Dekodieren von Kamerabildern) auf der Iris Xe.
+export LIBVA_DRIVER_NAME=iHD
+exec /usr/bin/discord --render-node-override=/dev/dri/nvidia-render "$@"

@@ -1,0 +1,3 @@
+#!/bin/sh
+# SSD wöchentlich trimmen (unter NixOS: services.fstrim)
+exec fstrim --all --quiet-unsupported

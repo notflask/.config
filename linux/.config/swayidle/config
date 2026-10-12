@@ -1,0 +1,19 @@
+# swayidle – Auto-Sperre unter Void Linux (MangoWC), dieselben Zeiten wie
+# hypr/hypridle.conf unter NixOS. Start: `wm autostart` (swayidle -w).
+# Pausiert, solange eine App das Sperren verhindert: Videos (Firefox, VLC),
+# Spiele, Anrufe. Zeiten in Sekunden. Nach Änderungen: pkill swayidle, dann
+# `swayidle -w &` (oder neu anmelden).
+
+# 5 min: interner Bildschirm dunkler
+timeout 300 'brightnessctl --class=backlight -s set 10%' resume 'brightnessctl --class=backlight -r'
+
+# 10 min: sperren
+timeout 600 'loginctl lock-session'
+
+# 11 min: Bildschirme aus (Maus oder Taste weckt sie)
+timeout 660 'wm screens off' resume 'wm screens on'
+
+# loginctl lock-session (auch vom Standby) → Sperrbildschirm
+lock 'wm lock'
+before-sleep 'loginctl lock-session'
+after-resume 'wm screens on'

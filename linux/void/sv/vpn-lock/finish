@@ -1,0 +1,4 @@
+#!/bin/sh
+/usr/local/sbin/vpn-lock off
+rm -f /run/vpn/vpn-lock.up
+exit 0

@@ -1,6 +1,6 @@
 # vpn-split – Split-Tunneling (am VPN vorbei), siehe hosts/g5/vpn.nix.
 # Wird von vpn.nix als Befehl `vpn-split` installiert; bypass_file und
-# bypass_edit setzt vpn.nix davor.
+# bypass_edit setzt vpn.nix davor. Unter Void Linux: linux/void/bin/vpn-split.
 #
 #   vpn-split apps                 Apps, die immer am VPN vorbei starten
 #   vpn-split add|remove APP_ID    App hinzufügen/entfernen (Desktop-ID)
@@ -19,6 +19,9 @@ config=${XDG_CONFIG_HOME:-$HOME/.config}/vpn-split
 list=$config/apps
 apps_dir=${XDG_DATA_HOME:-$HOME/.local/share}/applications
 marker=X-Vpn-Split=true
+# NixOS: sudo liegt in /run/wrappers (setuid), sonst im normalen PATH
+sudo=/run/wrappers/bin/sudo
+[ -x "$sudo" ] || sudo=sudo
 
 apps() {
   [ -f "$list" ] && grep -v '^$' "$list" || true
@@ -31,7 +34,7 @@ listed() {
 # Starter des Systems (nicht unsere eigene Kopie)
 source_of() {
   local dir file
-  IFS=: read -ra dirs <<<"${XDG_DATA_DIRS:-/run/current-system/sw/share}"
+  IFS=: read -ra dirs <<<"${XDG_DATA_DIRS:-/run/current-system/sw/share:/usr/local/share:/usr/share}"
   for dir in "${dirs[@]}"; do
     file=$dir/applications/$1.desktop
     [ -f "$file" ] && ! grep -qx "$marker" "$file" && echo "$file" && return
@@ -89,21 +92,37 @@ case ${1:-apps} in
     ;;
   sync) sync ;;
   running)
-    # Erster Prozess jeder Scope in novpn.slice = das gestartete Programm
-    slice=/sys/fs/cgroup/user.slice/user-$UID.slice/user@$UID.service/novpn.slice
-    for procs in "$slice"/*.scope/cgroup.procs; do
-      [ -f "$procs" ] || continue
-      read -r pid <"$procs" || continue
-      [ -n "$pid" ] || continue
-      IFS= read -r -d '' exe <"/proc/$pid/cmdline" 2>/dev/null || [ -n "${exe:-}" ] || continue
+    # Name des Programms zu einer PID (ohne Pfad und Nix-Wrapper)
+    exe_of() {
+      local exe
+      IFS= read -r -d '' exe <"/proc/$1/cmdline" 2>/dev/null || [ -n "${exe:-}" ] || return 0
       exe=${exe##*/}
       exe=${exe#.}
       echo "${exe%-wrapped}"
-    done | sort -u
+    }
+    slice=/sys/fs/cgroup/user.slice/user-$UID.slice/user@$UID.service/novpn.slice
+    if [ -d "$slice" ]; then
+      # systemd: erster Prozess jeder Scope in novpn.slice = das gestartete Programm
+      for procs in "$slice"/*.scope/cgroup.procs; do
+        [ -f "$procs" ] || continue
+        read -r pid <"$procs" || continue
+        [ -n "$pid" ] && exe_of "$pid"
+      done | sort -u
+    elif [ -r /sys/fs/cgroup/novpn/cgroup.procs ]; then
+      # Void Linux: eine gemeinsame cgroup (novpn-join) – Programme, deren
+      # Elternprozess nicht selbst darin läuft, eigene zuerst
+      mapfile -t pids </sys/fs/cgroup/novpn/cgroup.procs
+      for pid in "${pids[@]}"; do
+        [ -O "/proc/$pid" ] || continue
+        read -r _ _ _ ppid _ <"/proc/$pid/stat" 2>/dev/null || continue
+        case " ${pids[*]} " in *" $ppid "*) continue ;; esac
+        exe_of "$pid"
+      done | sort -u
+    fi
     ;;
   domains) [ -f "$bypass_file" ] && grep -v '^[[:space:]]*\(#\|$\)' "$bypass_file" || true ;;
-  domain-add) /run/wrappers/bin/sudo -n "$bypass_edit" add "${2:?Ziel angeben}" ;;
-  domain-remove) /run/wrappers/bin/sudo -n "$bypass_edit" remove "${2:?Ziel angeben}" ;;
+  domain-add) "$sudo" -n "$bypass_edit" add "${2:?Ziel angeben}" ;;
+  domain-remove) "$sudo" -n "$bypass_edit" remove "${2:?Ziel angeben}" ;;
   *)
     echo "vpn-split apps | add ID | remove ID | sync | running | domains | domain-add ZIEL | domain-remove ZIEL" >&2
     exit 2

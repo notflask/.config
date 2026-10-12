@@ -1,0 +1,34 @@
+#!/bin/sh
+# Wegwerf-Terminal (Super+`): schwebt oben mittig über allem (Fensterregel
+# com.flask.scratchpad in mango/config.conf). Nochmal drücken schließt es und
+# beendet alles, was darin lief – auch Hintergrundprozesse: Ghostty läuft in
+# einer eigenen Sitzung (setsid), beim Schließen bekommt die ganze Sitzung
+# SIGTERM. Unter NixOS übernimmt das ein systemd-Dienst (desktop.nix).
+# Ist es offen, aber nicht fokussiert, holt die Taste es nur nach vorn.
+app_id=com.flask.scratchpad
+pidfile=${XDG_RUNTIME_DIR:-/tmp}/scratch-term.pid
+
+stop() {
+  [ -f "$pidfile" ] || return 0
+  pid=$(cat "$pidfile")
+  rm -f "$pidfile"
+  # alles in der Sitzung von Ghostty (Shell, Jobs, Hintergrundprozesse)
+  pkill -TERM -s "$pid" 2>/dev/null || true
+}
+
+id=$(wm find-window "$app_id" 2>/dev/null || true)
+if [ -n "$id" ]; then
+  if [ "$id" = "$(wm focused-window)" ]; then
+    stop
+  else
+    wm focus-window "$id" >/dev/null
+  fi
+  exit 0
+fi
+
+# Reste eines vorigen Laufs (z. B. hängender Prozess) wegräumen
+stop
+# shellcheck disable=SC2016 # $1/$2/$$ gelten in der inneren Shell
+setsid -f sh -c 'echo $$ >"$1"; exec ghostty --class="$2" \
+  --gtk-single-instance=false --confirm-close-surface=false \
+  --working-directory=home' sh "$pidfile" "$app_id"

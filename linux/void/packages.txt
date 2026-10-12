@@ -1,0 +1,216 @@
+# Pakete aus den offiziellen Void-Repos (glibc, x86_64). setup.sh installiert
+# alle Zeilen; `#` leitet einen Kommentar ein. Entspricht den NixOS-Modulen in
+# linux/nix/hosts/g5 (Dateiname jeweils in der Überschrift).
+# Nicht in Void: siehe srcpkgs/ (eigene Pakete) und setup.sh (user-Schritt).
+
+# ── Basis (configuration.nix) ───────────────────────────────────────────
+linux-mainline            # neuester Kernel wie bei Arch (7.x); `linux` bleibt als Rückfall
+linux-mainline-headers    # für DKMS (NVIDIA, tuxedo-drivers)
+linux-headers
+dkms
+intel-ucode               # CPU-Microcode (nonfree)
+linux-firmware
+linux-firmware-intel
+linux-firmware-nvidia
+linux-firmware-network
+sof-firmware              # Laptop-Lautsprecher/Mikrofon
+dracut
+plymouth                  # Ladebildschirm mit Herstellerlogo (Thema bgrt)
+grub-x86_64-efi
+efibootmgr
+glibc-locales
+fish-shell
+sudo
+git
+curl
+wget
+pciutils
+usbutils
+htop
+btop
+fastfetch
+chrony                    # Uhrzeit (NixOS: systemd-timesyncd)
+cronie                    # wöchentliches fstrim
+socklog-void              # Systemlog (svlogtail)
+dbus
+elogind                   # Sitzungen, loginctl, Standby (ersetzt systemd-logind)
+polkit
+polkit-elogind
+rtkit
+zramen                    # zram (configuration.nix: zramSwap)
+fwupd
+power-profiles-daemon
+upower
+udisks2
+fuse3
+libmtp
+xtools                    # xlocate, xcheckrestart …
+zstd
+unzip
+jq
+ImageMagick               # theme.sh (verkleinertes Wallpaper für den Sperrbildschirm)
+
+# ── Netzwerk und VPN (network.nix, vpn.nix) ─────────────────────────────
+NetworkManager
+iptables                  # Firewall, Kill-Switch, Sperre, Split-Tunneling (runit-Dienste iptables/ip6tables)
+wireguard-tools
+openresolv                # wg-quick setzt den DNS-Server des Tunnels
+ethtool
+bluez
+blueman
+
+# ── Audio (configuration.nix) ───────────────────────────────────────────
+pipewire
+wireplumber
+alsa-pipewire
+libjack-pipewire
+pavucontrol
+easyeffects
+
+# ── Grafik (nvidia.nix) ─────────────────────────────────────────────────
+nvidia                    # 595er, nonfree
+nvidia-dkms               # offene Kernel-Module (kernel-open)
+nvidia-libs-32bit         # Steam/Proton
+nvidia-vaapi-driver       # Firefox-Videos auf der NVIDIA
+mesa-dri
+mesa-dri-32bit
+mesa-vulkan-intel
+mesa-vulkan-intel-32bit
+vulkan-loader
+vulkan-loader-32bit
+intel-media-driver        # VA-API auf der Iris Xe (Discord)
+libva-utils
+xorg-server-xwayland
+
+# ── Desktop: MangoWC (statt niri.nix / hyprland.nix) ────────────────────
+mangowc
+greetd                    # Login (statt ly)
+tuigreet
+quickshell                # Taskleiste (quickshell/taskbar)
+rofi
+mako
+awww                      # Hintergrund mit Übergängen (Backend für Waypaper)
+matugen
+cliphist
+wl-clipboard
+wl-clip-persist
+playerctl
+brightnessctl
+libnotify
+grim
+slurp
+satty
+swayidle                  # Auto-Sperre (statt hypridle)
+gtklock                   # Sperrbildschirm (statt hyprlock)
+dex                       # XDG-Autostart (Blueman, GSR, Discord „beim Login“)
+wlr-randr
+wev
+xdg-desktop-portal
+xdg-desktop-portal-wlr    # Bildschirm teilen
+xdg-desktop-portal-gtk    # Einstellungen für GTK-Apps
+xdg-desktop-portal-kde    # Dateidialog
+xdg-utils
+xdg-user-dirs
+qt5-wayland
+qt6-wayland
+
+# ── KDE-Apps ohne Plasma (desktop.nix) ──────────────────────────────────
+dolphin
+dolphin-plugins
+ark
+gwenview
+okular
+filelight
+kwallet
+kwalletmanager
+kwallet-pam               # KWallet beim Login entsperren
+polkit-kde-agent          # Passwortabfragen
+kio
+kio-extras
+kf6-kio-fuse
+kio-admin
+ffmpegthumbs
+kdegraphics-thumbnailers
+kf6-kimageformats
+qt6-imageformats
+qt6-svg
+kf6-kservice
+breeze-icons
+
+# ── Aussehen (theme.nix) ────────────────────────────────────────────────
+breeze
+plasma-integration        # Qt liest Farben/Icons aus kdeglobals (matugen)
+kf6-qqc2-desktop-style
+papirus-icon-theme
+dconf
+hicolor-icon-theme
+
+# ── Schriften (fonts.nix) ───────────────────────────────────────────────
+font-inter
+nerd-fonts-symbols-ttf
+font-ibm-plex-ttf
+font-firacode
+# msttcorefonts: nur als Rezept (restricted), baut setup.sh selbst – siehe srcpkgs
+liberation-fonts-ttf
+font-crosextra-carlito-ttf
+font-crosextra-caladea-ttf
+noto-fonts-ttf
+noto-fonts-ttf-extra
+noto-fonts-cjk
+noto-fonts-emoji
+amiri-font
+font-vazirmatn
+dejavu-fonts-ttf
+
+# ── Terminal und Entwicklung (dotfiles.nix) ─────────────────────────────
+neovim
+ghostty
+tmux
+fzf
+gcc
+make
+cmake
+tree-sitter-cli
+ripgrep
+fd
+nodejs
+lazygit
+github-cli
+typst
+tinymist
+typstyle
+uv
+python3-pipx              # Waypaper, Pywalfox (setup.sh user)
+cargo                     # mizu (setup.sh user)
+clang                     # mizu baut MuPDF (bindgen)
+pkg-config
+sioyek
+
+# ── Apps (apps.nix) ─────────────────────────────────────────────────────
+firefox
+firefox-i18n-de
+telegram-desktop
+vlc
+cameractrls
+qemu                      # Cowork in Claude Desktop (VM)
+edk2-ovmf
+
+# ── Gaming (gaming.nix, performance.nix) ────────────────────────────────
+steam
+libgcc-32bit
+libstdc++-32bit
+libdrm-32bit
+libglvnd-32bit
+gamemode
+libgamemode-32bit
+MangoHud
+MangoHud-32bit
+gamescope
+lutris
+wine                      # Lutris (Battle.net)
+gpu-screen-recorder
+gpu-screen-recorder-ui    # Alt+Z wie ShadowPlay
+flatpak                   # Sober (Roblox)
+scx                       # CPU-Scheduler scx_lavd
+tuxedo-drivers            # Gigabyte Control Center (Clevo-Firmware)
+python3-pyside6-dbus      # Gigabyte Control Center (Oberfläche, Rest kommt als Abhängigkeit)

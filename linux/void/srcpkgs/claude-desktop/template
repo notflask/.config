@@ -1,0 +1,46 @@
+# Template file for 'claude-desktop'
+# Claude Desktop – offizielle Linux-Beta von Anthropic, nur als .deb.
+# Entspricht linux/nix/pkgs/claude-desktop. Neue Version: update-sources.sh
+pkgname=claude-desktop
+version=2.31226.1
+revision=1
+archs="x86_64"
+hostmakedepends="bsdtar"
+depends="gtk+3 nss alsa-lib libnotify libsecret libayatana-appindicator
+ xdg-utils git qemu virtiofsd edk2-ovmf"
+short_desc="Claude Desktop (Linux beta, from the official .deb)"
+maintainer="flask <skyba@tutamail.com>"
+license="custom:Proprietary"
+homepage="https://claude.ai/download"
+distfiles="https://downloads.claude.ai/claude-desktop/apt/stable/pool/main/c/claude-desktop/claude-desktop_${version}_amd64.deb"
+checksum=5a9bebdfcb1df6ce38767b373f3a7fabf77156a2ddd8a3f5d04961da5bde305e
+repository=nonfree
+restricted=yes
+nostrip=yes
+nopie=yes
+skip_extraction="claude-desktop_${version}_amd64.deb"
+
+do_extract() {
+	mkdir -p "${wrksrc}"
+	bsdtar -xOf "${XBPS_SRCDISTDIR}/${pkgname}-${version}/${skip_extraction}" 'data.tar*' |
+		bsdtar -xf - -C "${wrksrc}"
+}
+
+do_install() {
+	rm -rf usr/share/lintian
+	vcopy usr/lib /usr
+	vcopy usr/share /usr
+	# Starter wie im .deb (Electron nutzt die User-Namespace-Sandbox)
+	if [ ! -e usr/bin/claude-desktop ]; then
+		vmkdir usr/bin
+		ln -s /usr/lib/claude-desktop/claude-desktop "${DESTDIR}/usr/bin/claude-desktop"
+	else
+		vcopy usr/bin /usr
+	fi
+	# Cowork (VM) sucht die UEFI-Firmware unter den Debian-Pfaden
+	vmkdir usr/share/OVMF
+	for n in OVMF_CODE OVMF_VARS; do
+		ln -s ../edk2/x64/${n}.fd "${DESTDIR}/usr/share/OVMF/${n}.fd"
+		ln -s ../edk2/x64/${n}.fd "${DESTDIR}/usr/share/OVMF/${n}_4M.fd"
+	done
+}

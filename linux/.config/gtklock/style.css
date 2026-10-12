@@ -1,0 +1,67 @@
+/* Erzeugt von matugen (templates/gtklock.css) – hier nichts ändern.
+   gtklock (Void Linux): Liquid Glass wie hyprlock.conf und die Taskleiste.
+   Uhr und Datum hell direkt auf dem Bild, Passwortfeld auf einer Glasfläche. */
+window {
+  background-size: cover;
+  background-position: center;
+  background-color: #131314;
+}
+
+#window-box {
+  padding: 28px 32px;
+  border-radius: 28px;
+background-color: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #f5f5f7;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+#clock-label {
+  font-family: "Inter";
+  font-size: 96px;
+  font-weight: 700;
+  color: #f5f5f7;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+#date-label {
+  font-family: "Inter";
+  font-size: 20px;
+  color: rgba(245, 245, 247, 0.75);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+}
+
+entry {
+  min-height: 40px;
+  min-width: 280px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background-color: rgba(0, 0, 0, 0.18);
+  color: inherit;
+  font-family: "Inter";
+  font-size: 15px;
+  box-shadow: none;
+}
+
+entry:focus {
+  border-color: #bfc7d5;
+}
+
+button {
+  border-radius: 20px;
+  border: none;
+  background-image: none;
+  background-color: #bfc7d5;
+  color: #29313c;
+  box-shadow: none;
+}
+
+#error-label {
+  color: #ffb4ab;
+}
+
+#warning-label {
+  color: #f0c674;
+}

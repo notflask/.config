@@ -1,0 +1,34 @@
+#!/bin/sh
+# Dauerhafte VPN-Sperre (vpn.nix: vpn-lock): ohne Tunnel kein Internet.
+# Erlaubt nur Loopback, den Tunnel, die verschlüsselten WireGuard-Pakete
+# (fwmark) und das lokale Netz (DHCP, Router-DNS für den Endpoint-Namen,
+# Drucker usw.).
+#   vpn-lock on    Sperre setzen (beim Booten: core-services, sv/vpn-lock)
+#   vpn-lock off   Sperre aufheben (`vpn unlock`, bis zum Neustart)
+set -eu
+iface=wg0
+mark=51820
+chain=vpn-lock
+for ipt in iptables ip6tables; do
+  while "$ipt" -D OUTPUT -j $chain 2>/dev/null; do :; done
+  "$ipt" -F $chain 2>/dev/null || true
+  "$ipt" -X $chain 2>/dev/null || true
+done
+[ "${1:-}" = on ] || exit 0
+
+for ipt in iptables ip6tables; do
+  "$ipt" -N $chain
+  "$ipt" -A $chain -o lo -j RETURN
+  "$ipt" -A $chain -o $iface -j RETURN
+  "$ipt" -A $chain -m mark --mark $mark -j RETURN
+done
+for net in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 224.0.0.0/4 255.255.255.255; do
+  iptables -A $chain -d $net -j RETURN
+done
+for net in fe80::/10 fc00::/7 ff00::/8; do
+  ip6tables -A $chain -d $net -j RETURN
+done
+for ipt in iptables ip6tables; do
+  "$ipt" -A $chain -j REJECT
+  "$ipt" -I OUTPUT -j $chain
+done
