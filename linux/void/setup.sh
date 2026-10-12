@@ -295,7 +295,14 @@ do_services() {
   for d in "$here"/sv/*/; do
     s=$(basename "$d")
     install -d "/etc/sv/$s"
-    install -m 755 "$d"/* "/etc/sv/$s/"
+    cp -rT "$d" "/etc/sv/$s"
+    # Ausgabe ins Systemlog (socklog, `sudo svlogtail`) statt auf die Konsole
+    if [ ! -e "/etc/sv/$s/log" ]; then
+      install -d "/etc/sv/$s/log"
+      printf '#!/bin/sh\nexec vlogger -t %s -p daemon\n' "$s" >"/etc/sv/$s/log/run"
+    fi
+    chmod 755 "/etc/sv/$s"/run "/etc/sv/$s"/log/run
+    [ ! -e "/etc/sv/$s/finish" ] || chmod 755 "/etc/sv/$s/finish"
   done
   for s in "${services[@]}"; do
     if [ ! -d "/etc/sv/$s" ]; then

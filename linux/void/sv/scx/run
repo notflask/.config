@@ -4,4 +4,10 @@
 # normale Kernel-Scheduler, runit startet ihn neu. Abschalten:
 #   sudo sv down scx   bzw. dauerhaft: sudo rm /var/service/scx
 exec 2>&1
+# Kernel ohne sched_ext (CONFIG_SCHED_CLASS_EXT): einmal melden und aus,
+# statt im Sekundentakt abzustürzen
+if [ ! -d /sys/kernel/sched_ext ]; then
+  echo "scx: Kernel $(uname -r) hat kein sched_ext – Dienst aus"
+  exec sv down scx
+fi
 exec scx_lavd --performance
