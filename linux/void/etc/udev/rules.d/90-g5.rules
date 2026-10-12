@@ -14,6 +14,6 @@ KERNEL=="ntsync", MODE="0666"
 ACTION=="add", SUBSYSTEM=="net", DRIVERS=="r8169", RUN+="/usr/bin/ethtool --set-eee $name eee off"
 
 # NVMe mit BFQ statt "none": nur BFQ beachtet I/O-Prioritäten. Steam läuft
-# mit ionice idle (bin/steam) – große Downloads schreiben dann nur, wenn
+# mit ionice niedrig (bin/steam) – große Downloads schreiben dann nur, wenn
 # sonst niemand die Platte braucht, Firefox & Co. hängen nicht mehr
 ACTION=="add|change", KERNEL=="nvme[0-9]*n[0-9]*", ATTR{queue/scheduler}="bfq"
