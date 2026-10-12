@@ -1,0 +1,9 @@
+# Sonames der selbst gebauten Hyprland-Bausteine (srcpkgs/). setup.sh
+# ersetzt damit die Zeilen in void-packages/common/shlibs, sonst bricht
+# xbps-src bei Paketen ab, die gegen sie linken.
+libhyprutils.so.13 hyprutils-0.14.2_1
+libhyprlang.so.2 hyprlang-0.6.8_1
+libhyprcursor.so.0 hyprcursor-0.1.13_1
+libhyprgraphics.so.4 hyprgraphics-0.5.1_1
+libaquamarine.so.14 aquamarine-0.15.1_1
+libhyprwire.so.3 hyprwire-0.3.1_1

@@ -1,0 +1,53 @@
+#!/bin/sh
+# Hyprland starten (ly → /etc/ly/sessions/hyprland.desktop → hyprland-session).
+# Wie unter NixOS (desktop.nix, nvidia.nix, theme.nix). Selbst gebaut:
+# srcpkgs/hyprland. Config: ~/.config/hypr/hyprland.lua
+# Log der Sitzung: ~/.local/state/hyprland.log (vorige: hyprland.log.old)
+
+# Rendern auf der RTX 4060 wie unter NixOS: Spiele auf dem LG (DP-2, an der
+# NVIDIA) gehen ohne Umweg über die Iris Xe direkt auf den Bildschirm, der
+# interne Bildschirm bekommt das Bild kopiert (aquamarine kann das, wlroots
+# nicht – siehe mango-session). Feste Namen: udev/rules.d/90-g5.rules
+# (zum Testen überschreibbar: AQ_DRM_DEVICES=… hyprland-session)
+export AQ_DRM_DEVICES=${AQ_DRM_DEVICES:-/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu}
+
+export XDG_SESSION_TYPE=wayland
+export XDG_SESSION_DESKTOP=Hyprland
+export XDG_CURRENT_DESKTOP=Hyprland
+
+# Videodekodierung (Firefox) auf derselben GPU wie der Desktop.
+# nvidia-vaapi-driver braucht Firefox ohne RDD-Sandbox für den Decoder.
+export LIBVA_DRIVER_NAME=nvidia
+export NVD_BACKEND=direct
+export MOZ_DISABLE_RDD_SANDBOX=1
+
+# Electron-Apps (Discord, Claude …), Warp und Qt nativ unter Wayland
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+export WARP_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM="wayland;xcb"
+# Qt-Apps nutzen Farben, Icons und Terminal aus ~/.config/kdeglobals (matugen)
+export QT_QPA_PLATFORMTHEME=kde
+export XCURSOR_THEME=macOS
+export XCURSOR_SIZE=24
+
+# ~/.local/bin (uv python, claude, pipx-Programme) zuerst
+export PATH="$HOME/.local/bin:$PATH"
+
+state=${XDG_STATE_HOME:-$HOME/.local/state}
+mkdir -p "$state"
+[ -f "$state/hyprland.log" ] && mv -f "$state/hyprland.log" "$state/hyprland.log.old"
+# Hintergrund-Programme der Sitzung (`wm autostart`) überleben Hyprland, laufen
+# danach aber ohne Bildschirm und ohne $XDG_RUNTIME_DIR weiter (PipeWire ohne
+# Socket → 0 % Lautstärke in der nächsten Sitzung). Vorher und nachher beenden.
+daemons="pipewire wireplumber easyeffects quickshell mako swayidle awww-daemon
+  wl-paste wl-clip-persist cliphist playerctld cameractrlsd gsr-ui
+  blueman-applet blueman-tray polkit-kde-auth" # Namen wie in ps (max. 15 Zeichen)
+cleanup() {
+  for d in $daemons; do pkill -u "$(id -u)" -x "$d"; done
+  return 0
+}
+cleanup
+
+# start-hyprland: empfohlener Starter (Watchdog), sonst Warnung beim Start
+dbus-run-session start-hyprland >"$state/hyprland.log" 2>&1
+cleanup

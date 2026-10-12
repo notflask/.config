@@ -1,0 +1,79 @@
+# Template file for 'hyprland'
+# Hyprland – Void packt es nicht, also selbst gebaut, ohne Fremd-Repos.
+# Die Quellen kommen direkt von hyprwm, die Bausteine liegen daneben in
+# srcpkgs/ (Reihenfolge: setup.sh, custom_pkgs):
+#   hyprutils → hyprwayland-scanner → hyprlang → hyprcursor → hyprgraphics
+#   → aquamarine → hyprwire → hyprland-protocols → hyprland
+# Neue Sonames der Bausteine stehen in ../shlibs (setup.sh trägt sie in
+# void-packages/common/shlibs ein).
+# glaze (nur Header) lädt CMake sonst beim Bauen per git nach – hier als
+# eigener distfile, gebaut wird ohne Netz.
+pkgname=hyprland
+version=0.56.2
+revision=1
+_glaze=7.2.0
+build_style=cmake
+configure_args="-DNO_SYSTEMD=ON -DNO_UWSM=ON -DNO_HYPRPM=ON -DBUILD_TESTING=OFF
+ -DFETCHCONTENT_FULLY_DISCONNECTED=ON"
+hostmakedepends="bsdtar perl pkg-config hyprwayland-scanner hyprwire-devel wayland-devel git"
+makedepends="aquamarine-devel hyprlang-devel hyprcursor-devel hyprutils-devel
+ hyprgraphics-devel hyprwire-devel libxkbcommon-devel libuuid-devel wayland-devel
+ wayland-protocols cairo-devel pango-devel pixman-devel libXcursor-devel
+ libdrm-devel libinput-devel libei-devel libgbm-devel glib-devel re2-devel
+ muparser-devel lcms2-devel lua55-devel glslang-devel SPIRV-Tools-devel libglvnd-devel
+ readline-devel libxcb-devel xcb-util-wm-devel xcb-util-errors-devel"
+depends="xorg-server-xwayland"
+short_desc="Dynamic tiling Wayland compositor"
+maintainer="flask <skyba@tutamail.com>"
+license="BSD-3-Clause"
+homepage="https://hypr.land"
+# source-v….tar.gz enthält die Submodule (udis86, hyprland-protocols)
+distfiles="https://github.com/hyprwm/Hyprland/releases/download/v${version}/source-v${version}.tar.gz>hyprland-${version}.tar.gz
+ https://github.com/stephenberry/glaze/archive/refs/tags/v${_glaze}.tar.gz>glaze-${_glaze}.tar.gz"
+checksum="03ad3f5ef152ff44116ffd56fcf808486211ecabf4f0ba567108ee746ba5cd2e
+ 17dba19ae63ae48f94994f00d49d5cb3c8f1306db1046c534c4828662490b7d4"
+skip_extraction="glaze-${_glaze}.tar.gz"
+
+post_extract() {
+	bsdtar -xf "${XBPS_SRCDISTDIR}/${pkgname}-${version}/glaze-${_glaze}.tar.gz"
+}
+
+# Void hat GCC 14, Hyprland braucht an ein paar Stellen GCC 15 – hier in
+# gleichwertigen GCC-14-Code umschreiben:
+#  - vector::insert_range  → insert(end(), begin, end)
+#  - string + string_view  → std::format bzw. append
+#  - std::ranges::starts_with → std::ranges::mismatch
+#  - #embed (Beispiel-Config ins Programm) → Byteliste aus od, per #include
+#  - ?: mit Umwandlung (XWM.hpp) → ausdrücklicher static_cast
+post_patch() {
+	perl -pi -e 's/(\w+)\.insert_range\(\1\.end\(\), (.*)\);/{ auto&& _r = $2; $1.insert($1.end(), std::begin(_r), std::end(_r)); }/' \
+		src/output/Monitor.cpp
+	perl -pi -e 's/getRuntimeDir\(\) \+ "\/" \+ instanceSignature \+ "\/" \+ filename;/std::format("{}\/{}\/{}", getRuntimeDir(), instanceSignature, filename);/' \
+		hyprctl/src/main.cpp
+	perl -pi -e 's/return m_connection \? \*m_connection : nullptr;/return m_connection ? static_cast<xcb_connection_t*>(*m_connection) : nullptr;/' \
+		src/xwayland/XWM.hpp
+	perl -pi -e 's/std::string\{"0x"\} \+ value/std::string{"0x"}.append(value)/' \
+		src/config/shared/parserUtils/ParserUtils.cpp
+	perl -pi -e 's/std::ranges::starts_with\(str_view, prefixes\)/(std::ranges::mismatch(str_view, prefixes).in2 == std::ranges::end(prefixes))/' \
+		src/helpers/MiscFunctions.cpp
+	od -An -v -tx1 example/hyprland.lua | sed -E 's/ ([0-9a-f]{2})/0x\1,/g' >example/hyprland.lua.inc
+	sed -i 's|^#embed "\(.*\)"$|#include "\1.inc"|' src/config/lua/DefaultConfig.hpp
+}
+
+pre_configure() {
+	configure_args+=" -DFETCHCONTENT_SOURCE_DIR_GLAZE=${wrksrc}/glaze-${_glaze}"
+}
+
+post_install() {
+	vlicense LICENSE
+}
+
+hyprland-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision} aquamarine-devel hyprutils-devel
+	 hyprlang-devel hyprgraphics-devel hyprcursor-devel"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/share/pkgconfig
+	}
+}

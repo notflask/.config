@@ -15,6 +15,7 @@ einzige Deko.
 |  |  |
 |---|---|
 | **Fenstermanager** | [MangoWC](https://github.com/mangowm/mango): wie dwm (Tags, Layouts), dazu Scrollen wie Niri |
+| **Zum Spielen** | Hyprland als zweite Sitzung (ly), selbst gebaut aus `srcpkgs/`, rendert auf der RTX 4060. Gleiche Leiste, gleicher Stil |
 | **Login** | ly mit Schwarzem-Loch-Animation |
 | **Leiste** | Text statt Symbole: Tags `I II III`, Fenstertitel, `us · vpn · vol 40% · Mo. 12.10. 11:40` |
 | **Terminal** | Ghostty mit fastfetch (großes Void-Logo), cmatrix, btop |
@@ -113,6 +114,28 @@ Und sonst:
 | `nvidia-offload BEFEHL`, `gpu-info` | Programm auf der RTX 4060, welcher Anschluss an welcher GPU |
 | `sudo sv status /var/service/*` | Dienste (statt `systemctl status`) |
 | `sudo svlogtail` | Systemlog (statt `journalctl`) |
+
+## Hyprland (zum Spielen)
+
+ly bietet zwei Sitzungen: **MangoWC** und **Hyprland**. MangoWC (wlroots)
+muss auf der Iris Xe rendern, sonst bleibt der interne Bildschirm schwarz.
+Ein Spiel auf dem LG geht dann von der RTX 4060 zur Iris Xe und wieder
+zurück. Hyprland (aquamarine) rendert wie unter NixOS auf der RTX 4060 und
+kopiert nur das Bild für den internen Bildschirm. Spiele auf dem LG gehen
+direkt auf den Bildschirm, mit VRR und Tearing (Regeln in `hyprland.lua`).
+
+- Void packt Hyprland nicht. Die Rezepte liegen in `srcpkgs/` (hyprutils,
+  hyprlang, hyprcursor, hyprgraphics, aquamarine, hyprwire,
+  hyprland-protocols, hyprland, xdg-desktop-portal-hyprland), die Quellen
+  kommen direkt von hyprwm. `update` baut sie mit.
+- Void hat GCC 14, Hyprland verlangt Teile von GCC 15: die zwei Stellen
+  (`append_range`, `insert_range`) schreiben die Rezepte beim Bauen um.
+- Neue Bibliotheksversionen: Rezept anpassen und den Soname in `shlibs`
+  nachtragen.
+- Config: `~/.config/hypr/hyprland.lua` (wie unter NixOS), unter Void lädt
+  sie zusätzlich `void.lua` (eckig, keine Effekte). Die Leiste ist die
+  Textleiste (`quickshell/minibar`), Tags sind die Arbeitsflächen 1–9.
+- Sitzung: `hyprland-session`, Log: `~/.local/state/hyprland.log`.
 
 ## Tastenkürzel
 
@@ -237,7 +260,7 @@ und `vpn-split.sh`.
 
 | Problem | |
 |---|---|
-| Schwarzer Bildschirm nach dem Login | `~/.local/state/mango.log` lesen. In `bin/mango-session` testweise `WLR_DRM_DEVICES=/dev/dri/nvidia-dgpu`, bei Cursor-Fehlern `WLR_NO_HARDWARE_CURSORS=1` |
+| Schwarzer Bildschirm nach dem Login | `~/.local/state/mango.log` lesen. In `bin/mango-session` testweise `WLR_DRM_DEVICES=/dev/dri/intel-igpu` (nur interner Bildschirm), bei Cursor-Fehlern `WLR_NO_HARDWARE_CURSORS=1` |
 | Tearing klappt nicht | in `mango-session` `export WLR_DRM_NO_ATOMIC=1` |
 | Kein Ton | `pgrep -a pipewire`, sonst neu anmelden |
 | Paket baut nicht (neue Version upstream) | `linux/void/update-sources.sh NAME`, dann `sudo setup.sh custom` |

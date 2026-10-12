@@ -48,7 +48,7 @@ Row {
 
         Label {
             id: langLabel
-            text: Compositor.niri ? language.code(Compositor.niriLayouts[Compositor.niriLayout] || "") : Compositor.mango ? language.code(Compositor.mangoLayout) : language.code(language.layout)
+            text: Compositor.niri ? language.code(Compositor.niriLayouts[Compositor.niriLayout] || "") : language.code(language.layout)
             font.weight: Font.Bold
         }
 

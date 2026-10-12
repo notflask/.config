@@ -1,8 +1,26 @@
 #!/bin/sh
 # Discord (mit Vencord, setup.sh) auf der richtigen GPU – wie apps.nix:
-# MangoWC rendert auf der NVIDIA und liefert den Bildschirm-Stream nur als
-# DMA-BUF der NVIDIA. Discord nimmt nur Puffer der GPU an, mit der es auch
-# kodiert → Discord zeichnet auf der NVIDIA und kodiert per NVENC (CUDA
-# sichtbar). VA-API (nur Dekodieren von Kamerabildern) auf der Iris Xe.
+# Hyprland rendert auf der NVIDIA (hyprland-session: AQ_DRM_DEVICES) und
+# kann Bildpuffer der Iris Xe nicht importieren (Fenster bliebe schwarz);
+# der Bildschirm-Stream kommt als DMA-BUF der NVIDIA. Discord zeichnet daher
+# auf der NVIDIA und kodiert per NVENC (CUDA sichtbar) – ohne NVENC kodiert
+# es auf der CPU (~140 % CPU, Thermal-Throttling). VA-API (nur Dekodieren
+# von Kamerabildern) auf der Iris Xe.
 export LIBVA_DRIVER_NAME=iHD
-exec /usr/bin/discord --render-node-override=/dev/dri/nvidia-render "$@"
+
+# Discord (updater_bootstrap) lädt die App nach ~/.config/discord/app-X.Y.Z
+# und aktualisiert sie dort selbst – jede neue Version ist wieder ohne
+# Vencord. Neueste unpatchte Version vor dem Start patchen (Installer lädt
+# setup.sh herunter, geprüft per SHA-256).
+dir=${XDG_CONFIG_HOME:-$HOME/.config}/discord
+app=$(ls -d "$dir"/app-*/ 2>/dev/null | sort -V | tail -n 1)
+cli=$(ls "$HOME"/.cache/VencordInstallerCli-* 2>/dev/null | sort -V | tail -n 1)
+if [ -n "$app" ] && [ -x "$cli" ] && [ ! -e "$app/resources/_app.asar" ]; then
+  (cd "$HOME" && "$cli" -install -location "${app%/}") >/dev/null 2>&1
+fi
+
+# Wayland nativ (ELECTRON_OZONE_PLATFORM_HINT aus hyprland-session), GPU-
+# Rasterung: flüssiges Scrollen. Kein VA-API-Dekodieren im Chat: die Iris Xe
+# dekodiert, die NVIDIA zeichnet – über GPUs hinweg bleiben Videos schwarz.
+exec /usr/bin/discord --render-node-override=/dev/dri/nvidia-render \
+  --enable-gpu-rasterization "$@"

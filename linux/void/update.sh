@@ -19,7 +19,6 @@ repo=$(git -C "$here" rev-parse --show-toplevel)
 # Von theme.sh (matugen) erzeugt, aber im Repo als Startwerte eingecheckt –
 # vor dem Pull verwerfen, theme.sh erzeugt sie danach neu (wie rebuild.sh)
 generated=(
-  linux/.config/mango/colors.conf
   linux/.config/gtklock/style.css
   linux/.config/mako/config
   linux/.config/mako/config-flat

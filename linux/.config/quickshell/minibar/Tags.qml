@@ -8,7 +8,7 @@ Row {
     id: root
 
     required property string output
-    readonly property var mon: Mango.monitor(output)
+    readonly property var mon: Wm.monitor(output)
     readonly property var roman: ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 
     Repeater {
@@ -35,8 +35,8 @@ Row {
                 id: mouse
                 anchors.fill: parent
                 hoverEnabled: true
-                onClicked: Mango.view(tag.modelData.index, root.output)
-                onWheel: w => Quickshell.execDetached(["mmsg", "dispatch", w.angleDelta.y > 0 ? "viewtoleft_have_client" : "viewtoright_have_client"])
+                onClicked: Wm.view(tag.modelData.index, root.output)
+                onWheel: w => Wm.scroll(w.angleDelta.y > 0 ? -1 : 1, root.output)
             }
         }
     }

@@ -7,7 +7,7 @@ import Quickshell.Io
 // Ein/Aus: Befehle für das Ausschalt-Menü (PowerMenu.qml) und die
 // Ein/Aus-Ansicht im Startmenü. loginctl statt systemctl: geht mit systemd
 // (NixOS) und mit elogind (Void Linux). Öffnen per Knopf in der Leiste oder von
-// außen (Super+Shift+E in niri/config.kdl, hypr/hyprland.lua bzw. mango/config.conf):
+// außen (Super+Shift+E in niri/config.kdl, bzw. hypr/hyprland.lua):
 //   qs -c taskbar ipc call power toggle
 Singleton {
     id: root

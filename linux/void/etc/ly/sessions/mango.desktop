@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=MangoWC
-Comment=Fenstermanager (linux/void, mango-session setzt die Umgebung)
-Exec=mango-session
-Type=Application
-DesktopNames=mango

@@ -8,8 +8,16 @@ conf=/etc/wireguard/wg0.conf
 mkdir -p /run/vpn
 rm -f /run/vpn/$name.up /run/vpn/$name.failed
 
+# /etc/wireguard ist nur für root lesbar: ob es eine Config gibt und ihren
+# Profilnamen für die Leiste (vpn.sh) nach /run/vpn legen
+rm -f /run/vpn/$name.noconf /run/vpn/wg0.name
+cp /etc/wireguard/wg0.name /run/vpn/wg0.name 2>/dev/null
+
 # Ohne importierte Config still warten (`vpn import` startet neu)
-[ -e $conf ] || exec pause
+if [ ! -e $conf ]; then
+  touch /run/vpn/$name.noconf
+  exec pause
+fi
 
 touch /run/vpn/$name.starting
 ip link show wg0 >/dev/null 2>&1 && wg-quick down wg0

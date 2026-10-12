@@ -1,0 +1,29 @@
+# Template file for 'hyprgraphics'
+# Hyprland-Baustein, selbst gebaut (Void hat ihn nicht oder zu alt), siehe hyprland/template
+pkgname=hyprgraphics
+version=0.5.1
+revision=1
+build_style=cmake
+configure_args="-DBUILD_TESTING=OFF"
+hostmakedepends="pkg-config"
+makedepends="hyprutils-devel libdrm-devel pixman-devel cairo-devel pango-devel libjpeg-turbo-devel libwebp-devel file-devel libpng-devel librsvg-devel libjxl-devel libheif-devel libglvnd-devel"
+short_desc="Hyprland graphics and resource utilities"
+maintainer="flask <skyba@tutamail.com>"
+license="BSD-3-Clause"
+homepage="https://github.com/hyprwm/hyprgraphics"
+distfiles="https://github.com/hyprwm/hyprgraphics/archive/refs/tags/v${version}.tar.gz>hyprgraphics-${version}.tar.gz"
+checksum=861ecaad872835922dd5745a612d7a4cc7bfc4babb1d06bc92bc63c2ac013b74
+
+post_install() {
+	vlicense LICENSE
+}
+
+hyprgraphics-devel_package() {
+	depends="${sourcepkg}>=${version}_${revision} hyprutils-devel cairo-devel"
+	short_desc+=" - development files"
+	pkg_install() {
+		vmove usr/include
+		vmove usr/lib/pkgconfig
+		vmove "usr/lib/*.so"
+	}
+}

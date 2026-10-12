@@ -20,6 +20,8 @@ if [ -d /run/systemd/system ]; then
   svc_stop() { systemctl stop "$1"; }
   svc_active() { systemctl is-active --quiet "$1"; }
   svc_state() { systemctl is-active "$1" 2>/dev/null; }
+  configured() { [ -e /etc/wireguard/$iface.conf ]; }
+  name_file=/etc/wireguard/$iface.name
 else
   # Void Linux (runit): Zustand aus /run/vpn – die Dienste in linux/void/sv
   # legen dort NAME.up, NAME.starting bzw. NAME.failed an (der Status von
@@ -27,6 +29,10 @@ else
   svc_start() { sudo -n sv up "$1"; }
   svc_stop() { sudo -n sv down "$1"; }
   svc_active() { [ -e "/run/vpn/$1.up" ]; }
+  # /etc/wireguard ist nur für root lesbar – der Dienst sagt, ob es eine
+  # Config gibt, und legt den Profilnamen ab (linux/void/sv/wg-quick-wg0)
+  configured() { [ ! -e "/run/vpn/$service.noconf" ]; }
+  name_file=/run/vpn/$iface.name
   svc_state() {
     if [ -e "/run/vpn/$1.starting" ]; then
       echo activating
@@ -55,7 +61,8 @@ esac
 
 endpoint="" handshake=0 rx=0 tx=0
 details() {
-  echo "name=$(cat /etc/wireguard/$iface.name 2>/dev/null)"
+  echo "name=$(cat "$name_file" 2>/dev/null)"
+  configured && echo setup=yes || echo setup=no
   echo "endpoint=$endpoint"
   echo "handshake=$handshake"
   echo "rx=$rx"
@@ -64,7 +71,7 @@ details() {
 }
 trap details EXIT
 
-if [ ! -e /etc/wireguard/$iface.conf ]; then
+if ! configured; then
   echo off
   exit
 fi

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ============================================================
-#  wm – ein Befehl für Niri, Hyprland und MangoWC. Erkennt, welcher
-#  Compositor läuft, und übersetzt in `niri msg`, `hyprctl` bzw. `mmsg`.
+#  wm – ein Befehl für Niri und Hyprland. Erkennt, welcher
+#  Compositor läuft, und übersetzt in `niri msg` bzw. `hyprctl`.
 #  Skripte, Taskleiste, hypridle/swayidle und theme.sh müssen das so nicht
 #  selbst prüfen.
 #  NixOS: desktop.nix installiert es als Befehl `wm`.
-#  Void Linux (MangoWC): linux/void/setup.sh verlinkt es nach /usr/local/bin.
+#  Void Linux (Hyprland): linux/void/setup.sh verlinkt es nach /usr/local/bin.
 # ============================================================
 
 set -euo pipefail
@@ -14,7 +14,7 @@ usage() {
   cat <<'HELP'
 Benutzung:  wm <befehl> [argumente]
 
-  name                 niri, hyprland, mango – oder Fehler, wenn keiner läuft
+  name                 niri, hyprland – oder Fehler, wenn keiner läuft
   autostart            Hintergrund-Programme der Sitzung starten (Taskleiste …)
   reload               Config neu laden
   screens on|off       alle Bildschirme an/aus (hypridle)
@@ -48,13 +48,9 @@ detect() {
     echo hyprland
     return
   fi
-  if [ -n "${MANGO_INSTANCE_SIGNATURE:-}" ] && [ -S "$MANGO_INSTANCE_SIGNATURE" ]; then
-    echo mango
-    return
-  fi
 
   local s newest="" kind=""
-  for s in "$runtime"/niri.*.sock "$runtime"/hypr/*/.socket.sock "$runtime"/mango-*.sock; do
+  for s in "$runtime"/niri.*.sock "$runtime"/hypr/*/.socket.sock; do
     [ -S "$s" ] || continue
     if [ -z "$newest" ] || [ "$s" -nt "$newest" ]; then
       newest=$s
@@ -63,7 +59,6 @@ detect() {
   case $newest in
     "$runtime"/niri.*) kind=niri ;;
     "$runtime"/hypr/*) kind=hyprland ;;
-    "$runtime"/mango-*) kind=mango ;;
   esac
   if [ "$kind" = niri ] && NIRI_SOCKET=$newest niri msg version >/dev/null 2>&1; then
     export NIRI_SOCKET=$newest
@@ -75,14 +70,8 @@ detect() {
       export HYPRLAND_INSTANCE_SIGNATURE=$sig
       echo hyprland
     fi
-  elif [ "$kind" = mango ] && MANGO_INSTANCE_SIGNATURE=$newest mmsg get version >/dev/null 2>&1; then
-    export MANGO_INSTANCE_SIGNATURE=$newest
-    echo mango
   fi
 }
-
-# MangoWC: Befehl an den Compositor, z. B. mango_dispatch reload_config
-mango_dispatch() { mmsg dispatch "$@" >/dev/null; }
 
 # Sperrbildschirm, nie zwei auf einmal. hyprlock gibt es unter Void nicht,
 # dort gtklock (Aussehen: ~/.config/gtklock, Farben von matugen)
@@ -93,8 +82,9 @@ lock() {
     # Hintergrund: verkleinerte Kopie des Wallpapers (theme.sh), Aussehen
     # aus ~/.config/gtklock/style.css (matugen)
     local wall=${XDG_CACHE_HOME:-$HOME/.cache}/hyprlock/wallpaper.jpg
-    local args=(-d)
+    local args=(-d) layout=$config/gtklock/layout.ui
     [ -f "$wall" ] && args+=(-b "$wall")
+    [ -f "$layout" ] && args+=(-x "$layout")
     pidof gtklock >/dev/null || exec gtklock "${args[@]}"
   fi
   exit 0
@@ -113,12 +103,19 @@ autostart_without_systemd() {
   local state=${XDG_STATE_HOME:-$HOME/.local/state}
   # Audio: PipeWire lädt WirePlumber und den Pulse-Server selbst
   # (/etc/pipewire/pipewire.conf.d, linux/void/setup.sh)
-  pgrep -u "$(id -u)" -x pipewire >/dev/null || spawn pipewire
+  # Nur der Socket zählt: ein PipeWire aus einer früheren Sitzung läuft
+  # evtl. noch, aber ohne Socket (das Abmelden leert $XDG_RUNTIME_DIR) –
+  # dann zeigt alles 0 % Lautstärke und bleibt stumm
+  if [ ! -S "$runtime/pipewire-0" ]; then
+    pkill -u "$(id -u)" -x wireplumber || true
+    pkill -u "$(id -u)" -x pipewire || true
+    spawn pipewire
+  fi
   # Passwortabfragen (Polkit). Sein Autostart-Eintrag gilt nur für KDE
   spawn /usr/libexec/polkit-kde-authentication-agent-1
   # XDG-Autostart: KWallet entsperren, Blueman, GPU Screen Recorder,
   # Gigabyte Control Center, „Beim Login starten“ von Discord/Telegram
-  spawn dex --autostart --environment mango
+  spawn dex --autostart --environment Hyprland
   # Auto-Sperre (~/.config/swayidle/config, wie hypridle.conf)
   spawn swayidle -w
   # Webcam-Einstellungen wiederherstellen (cameractrls)
@@ -132,7 +129,7 @@ autostart_without_systemd() {
 autostart() {
   [ -d /run/systemd/system ] || autostart_without_systemd
 
-  # Gleich unter Niri, Hyprland und MangoWC (Alt+Tab steckt unter Hyprland in der Taskleiste)
+  # Gleich unter Niri und Hyprland (Alt+Tab steckt unter Hyprland in der Taskleiste)
   spawn playerctld daemon # merkt sich den zuletzt aktiven Player
   spawn easyeffects --service-mode --hide-window
   spawn wl-paste --type text --watch cliphist store
@@ -158,8 +155,8 @@ autostart() {
     exec waypaper --restore
   ) </dev/null &
 
-  if [ "$wm" = mango ]; then
-    # Void/MangoWC: minimaler Stil – schmale Textleiste oben und mako flach
+  if [ ! -d /run/systemd/system ]; then
+    # Void (Hyprland): minimaler Stil – schmale Textleiste oben und mako flach
     # (vor der ersten Nachricht starten, sonst holt D-Bus mako mit dem
     # Glas-Stil aus ~/.config/mako/config)
     spawn mako --config "$config/mako/config-flat"
@@ -186,7 +183,7 @@ if [ -z "$wm" ]; then
     exec loginctl terminate-session "${XDG_SESSION_ID:-}"
   fi
   [ "$cmd" = lock ] && lock
-  echo "wm: weder Niri, Hyprland noch MangoWC gefunden" >&2
+  echo "wm: weder Niri noch Hyprland gefunden" >&2
   exit 1
 fi
 
@@ -197,7 +194,6 @@ case "$wm:$cmd" in
 
   niri:reload) niri msg action load-config-file >/dev/null ;;
   hyprland:reload) hyprctl reload >/dev/null ;;
-  mango:reload) mango_dispatch reload_config ;;
 
   *:screens)
     state=${1:?on oder off}
@@ -208,12 +204,6 @@ case "$wm:$cmd" in
     esac
     if [ "$wm" = niri ]; then
       niri msg action "power-$state-monitors"
-    elif [ "$wm" = mango ]; then
-      action=sleep_monitor
-      [ "$state" = on ] && action=wakeup_monitor
-      for mon in $(mmsg get all-monitors | jq -r '.monitors[].name'); do
-        mango_dispatch "$action,$mon"
-      done
     else
       action=disable
       [ "$state" = on ] && action=enable
@@ -229,8 +219,6 @@ case "$wm:$cmd" in
     fi
     exec hyprctl dispatch 'hl.dsp.exit()'
     ;;
-  mango:logout) exec mmsg dispatch quit ;;
-
 
   niri:find-window)
     niri msg --json windows |
@@ -240,43 +228,20 @@ case "$wm:$cmd" in
     hyprctl clients -j |
       jq -r --arg app "${1:?Klasse fehlt}" 'first(.[] | select(.class == $app)) | .address // empty'
     ;;
-  mango:find-window)
-    mmsg get all-clients |
-      jq -r --arg app "${1:?App-ID fehlt}" 'first(.clients[] | select(.appid == $app)) | .id // empty'
-    ;;
 
   niri:focused-window) niri msg --json focused-window | jq -r '.id // empty' ;;
   hyprland:focused-window) hyprctl activewindow -j | jq -r '.address // empty' ;;
-  mango:focused-window) mmsg get focusing-client | jq -r '.id // empty' ;;
 
   niri:focus-window) niri msg action focus-window --id "${1:?ID fehlt}" ;;
   hyprland:focus-window) hypr_dispatch "hl.dsp.focus({ window = \"address:${1:?Adresse fehlt}\" })" ;;
-  mango:focus-window) mango_dispatch focusid "client,${1:?ID fehlt}" ;;
 
   # Niri liest den Cursor aus niri/config.kdl und lädt die Datei bei
   # Änderungen selbst neu
   niri:cursor) : "${1:?Name fehlt}" ;;
   hyprland:cursor) hyprctl setcursor "${1:?Name fehlt}" "${2:-24}" >/dev/null ;;
-  # MangoWC liest den Cursor aus mango/config.conf (cursor_theme)
-  mango:cursor) : "${1:?Name fehlt}" ;;
 
   niri:hotkeys) niri msg action show-hotkey-overlay ;;
   hyprland:hotkeys) exec hypr-keybinds ;;
-  # Alle bind=-Zeilen aus mango/config.conf, lesbar gemacht
-  mango:hotkeys)
-    grep -hE '^bind[a-z]*=' "$config/mango/config.conf" |
-      sed -E 's/^bind[a-z]*=//' |
-      awk -F, '{
-        mods = ($1 == "NONE" || $1 == "none") ? "" : $1 " + "
-        gsub(/SUPER/, "Super", mods); gsub(/CTRL/, "Strg", mods)
-        gsub(/ALT/, "Alt", mods); gsub(/SHIFT/, "Shift", mods); gsub(/\+/, " + ", mods)
-        gsub(/  +/, " ", mods)
-        action = $3; for (i = 4; i <= NF; i++) action = action " " $i
-        printf "%s%s\t%s\n", mods, $2, action
-      }' |
-      column -t -s "$(printf '\t')" |
-      rofi -dmenu -i -no-custom -p "Tastenkürzel" -theme "$config/rofi/flat.rasi" >/dev/null || true
-    ;;
 
   *)
     echo "wm: unbekannter Befehl: $cmd" >&2

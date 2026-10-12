@@ -17,6 +17,18 @@ if not ok or type(colors) ~= "table" then
 end
 local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#111318", rim = "#ffffff26" } })
 
+-- Void Linux (linux/void): minimaler Stil, eckig und flach, schmale Textleiste
+-- (quickshell/minibar) statt Taskleiste – Abweichungen hier mit `void`,
+-- das Aussehen in void.lua (ganz unten geladen)
+local void = false
+do
+    local f = io.open("/usr/bin/xbps-install")
+    if f then
+        f:close()
+        void = true
+    end
+end
+
 
 -- ── input ───────────────────────────────────────────────────
 
@@ -361,6 +373,8 @@ hl.layer_rule({ name = "power_menu", match = { namespace = "power-menu" }, blur 
 -- slurp (Bereich für screenshot/screenshot-edit) sofort weg, sonst fotografiert
 -- grim den ausblendenden Rahmen und Schleier mit
 hl.layer_rule({ name = "slurp", match = { namespace = "selection" }, no_anim = true })
+-- opal ebenso
+hl.layer_rule({ name = "opal", match = { namespace = "^opal$" }, no_anim = true })
 
 -- Alt+Tab (quickshell/taskbar/AltTab.qml): Glas wie Rofi, sofort da
 hl.layer_rule({ name = "alttab", match = { namespace = "alttab" }, blur = true, ignore_alpha = 0.1, no_anim = true })
@@ -620,15 +634,20 @@ end
 
 bind(key("SHIFT + slash"), hl.dsp.exec_cmd("hypr-keybinds"), title("Show Important Hotkeys"))
 
-bind(key("T"), hl.dsp.exec_cmd("ghostty"), title("Open a Terminal: ghostty"))
+-- Void: `term` lädt nur ghostty/void.ghostty (deckend, Farben des Wallpapers)
+bind(key("T"), hl.dsp.exec_cmd(void and "term" or "ghostty"), title("Open a Terminal: ghostty"))
 -- Wegwerf-Terminal: auf/zu, beim Schließen wird alles darin beendet
 bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal", { repeating = false }))
-bind(key("D"), hl.dsp.exec_cmd("rofi -show drun"), title("Run an Application: rofi"))
-bind(key("space"), hl.dsp.exec_cmd("rofi -show drun"))
-bind(key("SHIFT + L"), hl.dsp.exec_cmd("hyprlock"), title("Lock the Screen: hyprlock"))
+-- Void: flacher Rofi-Stil (rofi/flat.rasi), sonst Spotlight-Glas
+local launcher = void and "rofi -show drun -theme ~/.config/rofi/flat.rasi" or "rofi -show drun"
+bind(key("D"), hl.dsp.exec_cmd(launcher), title("Run an Application: rofi"))
+bind(key("space"), hl.dsp.exec_cmd(launcher))
+bind(key("SHIFT + L"), hl.dsp.exec_cmd("wm lock"), title("Lock the Screen"))
+-- Hell/dunkel umschalten: Farben bleiben vom Wallpaper (matugen/theme.sh -T)
+bind(key("SHIFT + T"), hl.dsp.exec_cmd("~/.config/matugen/theme.sh -T"), title("Toggle Light/Dark Theme", { repeating = false }))
 -- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in der Taskleiste)
 bind(key("CTRL + V"), hl.dsp.exec_cmd("clipboard-history"), title("Clipboard History", { repeating = false }))
-bind(key("SHIFT + E"), hl.dsp.exec_cmd("qs -c taskbar ipc call power toggle"), title("Power Menu", { repeating = false }))
+bind(key("SHIFT + E"), hl.dsp.exec_cmd(void and "power-menu" or "qs -c taskbar ipc call power toggle"), title("Power Menu", { repeating = false }))
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })
@@ -654,7 +673,8 @@ for _, keys in ipairs({ "ALT + Shift_L", "ALT + Shift_R", "SHIFT + Alt_L", "SHIF
     bind(keys, hl.dsp.exec_cmd(next_layout), { non_consuming = true, repeating = false })
 end
 
--- Alt+Tab (Niri: eingebaut): Quickshell, quickshell/taskbar/AltTab.qml.
+-- Alt+Tab (Niri: eingebaut): Quickshell, quickshell/taskbar/AltTab.qml bzw.
+-- unter Void quickshell/minibar/AltTab.qml (flache Liste).
 -- Global Shortcuts statt exec_cmd: kein eigener Prozess pro Tastendruck.
 local function alttab(action)
     return hl.dsp.global("quickshell:alttab-" .. action)
@@ -807,10 +827,22 @@ bind(key("SHIFT + V"), switch_focus_floating_tiling, title("Switch Focus Between
 bind(key("W"), hl.dsp.group.toggle())
 
 
--- Wie Spectacle unter KDE: Bereich wählen → zeichnen → Enter kopiert
-bind(key("SHIFT + S"), hl.dsp.exec_cmd("screenshot-edit"))
--- Ohne Zeichnen: Bereich → Clipboard + Datei (Niri: eingebauter Screenshot)
-bind("Print", hl.dsp.exec_cmd("screenshot"), title("Take a Screenshot"))
+-- opal (github:notflask/opal): Bereich wählen → zeichnen → Enter kopiert
+-- und speichert nach ~/Screenshots
+bind(key("SHIFT + S"), hl.dsp.exec_cmd("opal region"))
+-- Ohne Zeichnen: Bereich → Clipboard + Datei beim Loslassen
+bind("Print", hl.dsp.exec_cmd("opal region --no-edit"), title("Take a Screenshot"))
+
+-- GPU Screen Recorder: dieselben Tasten wie seine eigenen. gsr-global-hotkeys
+-- bräuchte Lesezugriff auf /dev/input (unter Void ohne setcap) – stattdessen
+-- schickt Hyprland die Befehle an die laufende Oberfläche (gsr-ui-cli)
+local function gsr(cmd)
+    return hl.dsp.exec_cmd("gsr-ui-cli " .. cmd)
+end
+bind("ALT + Z", gsr("toggle-show"), title("GPU Screen Recorder", { repeating = false }))
+bind("ALT + F9", gsr("toggle-record"), title("Start/Stop Recording", { repeating = false }))
+bind("ALT + F7", gsr("toggle-pause"), { repeating = false })
+bind("ALT + F10", gsr("replay-save"), title("Save Replay", { repeating = false }))
 
 -- Bildschirmteilen (set-dynamic-cast-window/-monitor, clear-dynamic-cast-target,
 -- Mod+Ctrl+Shift+F/M/C): gibt es in Hyprland nicht – beim Teilen fragt
@@ -828,7 +860,10 @@ hl.config({ gestures = { workspace_swipe_create_new = true } })
 -- ── Übersicht (toggle-overview) ─────────────────────────────
 -- Niri hat eine eingebaute Übersicht, Hyprland braucht das Plugin
 -- hyprtasking (hyprland.nix). Rechtsklick wechselt die Arbeitsfläche.
-hl.plugin.load("/etc/hyprland/plugins/libhyprtasking.so")
+-- (unter Void gibt es das Plugin nicht)
+if not void then
+    hl.plugin.load("/etc/hyprland/plugins/libhyprtasking.so")
+end
 
 -- Die Optionen gibt es erst, nachdem Hyprland das Plugin geladen und die
 -- Config neu eingelesen hat
@@ -878,3 +913,9 @@ hl.config({
         no_donation_nag = true,
     },
 })
+
+
+-- ── Void Linux ──────────────────────────────────────────────
+if void then
+    require("void")
+end

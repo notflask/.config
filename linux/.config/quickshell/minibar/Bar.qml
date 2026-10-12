@@ -7,7 +7,7 @@ PanelWindow {
     id: bar
 
     required property var modelData
-    readonly property var mon: Mango.monitor(modelData.name)
+    readonly property var mon: Wm.monitor(modelData.name)
 
     screen: modelData
     anchors {

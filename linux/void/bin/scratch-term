@@ -1,6 +1,6 @@
 #!/bin/sh
 # Wegwerf-Terminal (Super+`): schwebt oben mittig über allem (Fensterregel
-# com.flask.scratchpad in mango/config.conf). Nochmal drücken schließt es und
+# com.flask.scratchpad in hypr/hyprland.lua). Nochmal drücken schließt es und
 # beendet alles, was darin lief – auch Hintergrundprozesse: Ghostty läuft in
 # einer eigenen Sitzung (setsid), beim Schließen bekommt die ganze Sitzung
 # SIGTERM. Unter NixOS übernimmt das ein systemd-Dienst (desktop.nix).

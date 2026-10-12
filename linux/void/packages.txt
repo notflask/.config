@@ -66,6 +66,8 @@ alsa-pipewire
 libjack-pipewire
 pavucontrol
 easyeffects
+lsp-plugins-lv2           # Kompressor, Delay … für die Easy-Effects-Presets
+libspa-bluetooth          # Bluetooth-Kopfhörer (sonst „BlueZ SPA plugin is missing“)
 
 # ── Grafik (nvidia.nix) ─────────────────────────────────────────────────
 nvidia                    # 595er, nonfree
@@ -82,8 +84,7 @@ intel-media-driver        # VA-API auf der Iris Xe (Discord)
 libva-utils
 xorg-server-xwayland
 
-# ── Desktop: MangoWC (statt niri.nix / hyprland.nix) ────────────────────
-mangowc
+# ── Desktop: Hyprland (srcpkgs/hyprland, statt niri.nix) ────────────────
 quickshell                # Taskleiste (quickshell/taskbar)
 rofi
 mako
@@ -101,10 +102,9 @@ satty
 swayidle                  # Auto-Sperre (statt hypridle)
 gtklock                   # Sperrbildschirm (statt hyprlock)
 dex                       # XDG-Autostart (Blueman, GSR, Discord „beim Login“)
-wlr-randr
 wev
 xdg-desktop-portal
-xdg-desktop-portal-wlr    # Bildschirm teilen
+# Bildschirm teilen: xdg-desktop-portal-hyprland (srcpkgs)
 xdg-desktop-portal-gtk    # Einstellungen für GTK-Apps
 xdg-desktop-portal-kde    # Dateidialog
 xdg-utils
@@ -158,6 +158,7 @@ noto-fonts-cjk
 noto-fonts-emoji
 amiri-font
 font-vazirmatn
+font-minecraft             # Minecraftia + Monocraft (Discord, Telegram, Spotify)
 dejavu-fonts-ttf
 
 # ── Terminal und Entwicklung (dotfiles.nix) ─────────────────────────────
@@ -183,11 +184,12 @@ python3-gobject           # Waypaper (setup.sh user): GTK aus Python
 python3-Pillow
 python3-imageio
 python3-platformdirs
-cargo                     # mizu (setup.sh user)
+cargo                     # mizu, opal (setup.sh user)
 clang                     # mizu baut MuPDF (bindgen)
 fontconfig-devel          # mizu (font-kit linkt fontconfig/freetype)
 freetype-devel
 pkg-config
+libxkbcommon-devel        # opal (smithay-client-toolkit linkt xkbcommon)
 sioyek
 
 # ── Apps (apps.nix) ─────────────────────────────────────────────────────

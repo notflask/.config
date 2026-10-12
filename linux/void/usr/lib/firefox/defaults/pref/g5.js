@@ -11,6 +11,10 @@ pref("widget.use-xdg-desktop-portal.mime-handler", 1);
 pref("font.name-list.emoji", "Apple Color Emoji");
 // userChrome.css aus dem Profil laden (theme.sh, Adressleisten-Vorschläge)
 pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+// Kompakte Leisten (Tabs und Adressleiste schmaler), im Menü
+// „Symbolleiste anpassen → Dichte“ wieder umstellbar
+pref("browser.compactmode.show", true);
+pref("browser.uidensity", 1);
 // Webseiten hell oder dunkel wie das System (theme.sh)
 pref("layout.css.prefers-color-scheme.content-override", 2);
 
