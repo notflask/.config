@@ -28,7 +28,7 @@ die Wahl steht in `~/.config/g5/style`.
 | Leiste | schmale Textleiste (`quickshell/minibar`) | Taskleiste (`quickshell/taskbar`) |
 | Terminal / Starter | `term`, Rofi flat | Ghostty mit Blur, Rofi Spotlight-Glas |
 | mako, fastfetch | flach, großes Logo | Glas, kleines Logo |
-| Übersicht Super+O | – | hyprtasking (AUR, falls gebaut) |
+| Übersicht Super+O | – | hyprtasking (von raybbian passend zur Hyprland-Version gebaut, `install.sh plugins`) |
 
 ## Was es tut
 

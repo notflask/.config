@@ -9,6 +9,8 @@ if ! paru --version >/dev/null 2>&1; then
   "$HOME/dotfiles/linux/arch/install.sh" packages || exit 1
 fi
 paru -Syu "$@" || exit 1
+# Hyprland-Plugin neu bauen, falls Hyprland aktualisiert wurde
+"$HOME/dotfiles/linux/arch/install.sh" plugins
 command -v spicetify-setup >/dev/null && spicetify-setup 2>/dev/null
 flatpak update -y 2>/dev/null
 exit 0

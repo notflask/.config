@@ -253,17 +253,7 @@ do_system() {
     rm -rf "$tmp"
   fi
 
-  step "Hyprland-Übersicht (hyprtasking, nur im Glas-Stil) verlinken, falls gebaut"
-  local so
-  # `|| true`: Ohne hyprtasking schlägt pacman -Ql fehl, und mit
-  # set -e/pipefail brach install.sh hier stumm ab (Dienste, ly, Boot fehlten)
-  so=$(pacman -Ql hyprtasking 2>/dev/null | awk '/libhyprtasking\.so$/ {print $2; exit}') || true
-  if [ -n "$so" ]; then
-    sdo install -d /etc/hyprland/plugins
-    sdo ln -sfn "$so" /etc/hyprland/plugins/libhyprtasking.so
-  else
-    info "hyprtasking fehlt – Super+O (Übersicht) geht im Glas-Stil dann nicht"
-  fi
+  do_plugins
 
   step "Firewall und Kernel-Einstellungen sofort anwenden"
   sdo sysctl --quiet --system || true
@@ -271,6 +261,41 @@ do_system() {
   sdo /usr/local/sbin/vencord-patch || true
   [ -d /opt/spotify ] && { sdo chmod a+wr /opt/spotify; sdo chmod -R a+wr /opt/spotify/Apps; }
   have gamescope && sdo setcap cap_sys_nice+ep /usr/bin/gamescope || true
+}
+
+# ── plugins ──────────────────────────────────────────────────────────────
+# hyprtasking (Übersicht, Super+O im Glas-Stil) direkt von raybbian bauen:
+# Das AUR-Paket ist ein veralteter Fork und baut nicht mehr. Ein Plugin muss
+# genau zur installierten Hyprland-Version passen – hyprpm.toml im Repo nennt
+# dafür je Version den passenden Commit. `update` ruft diesen Schritt nach
+# jedem Update auf; gebaut wird nur, wenn sich Hyprland geändert hat.
+hyprtasking_repo=https://github.com/raybbian/hyprtasking.git
+
+do_plugins() {
+  step "Hyprland-Übersicht (hyprtasking) für die installierte Hyprland-Version"
+  local hv tmp commit
+  hv=$(pacman -Q hyprland 2>/dev/null | awk '{print $2}' | cut -d- -f1) || true
+  [ -n "$hv" ] || { warn "Hyprland nicht installiert"; return 0; }
+  if [ "$(cat /var/lib/g5-hyprtasking.ver 2>/dev/null)" = "$hv" ] && [ -e /etc/hyprland/plugins/libhyprtasking.so ]; then
+    info "passt schon zu Hyprland $hv"
+    return 0
+  fi
+  sdo pacman -S --needed --noconfirm meson ninja cmake >/dev/null
+  tmp=$(mktemp -d)
+  if git clone -q "$hyprtasking_repo" "$tmp/ht"; then
+    commit=$(awk -v v="#v$hv" '{ sub(/[ \t]+$/, "") } substr($0, length($0) - length(v) + 1) == v {print; exit}' "$tmp/ht/hyprpm.toml" | grep -oE '"[0-9a-f]{40}"' | tail -1 | tr -d '"') || true
+    [ -n "$commit" ] && git -C "$tmp/ht" checkout -q "$commit" || info "kein fester Stand für Hyprland $hv – nehme den neuesten"
+    if (cd "$tmp/ht" && meson setup build --buildtype=release >/dev/null && meson compile -C build >/dev/null); then
+      sdo install -Dm755 "$tmp/ht/build/libhyprtasking.so" /etc/hyprland/plugins/libhyprtasking.so
+      echo "$hv" | sdo tee /var/lib/g5-hyprtasking.ver >/dev/null
+      info "gebaut für Hyprland $hv"
+    else
+      warn "hyprtasking nicht gebaut – Super+O (Übersicht) geht im Glas-Stil nicht"; FAILED+=(hyprtasking)
+    fi
+  else
+    warn "hyprtasking: Quelltext nicht geladen"; FAILED+=(hyprtasking)
+  fi
+  rm -rf "$tmp"
 }
 
 # ── boot ─────────────────────────────────────────────────────────────────
@@ -503,11 +528,12 @@ do_network() {
 
 # ── main ─────────────────────────────────────────────────────────────────
 all=(repos packages system boot services user network)
+# plugins läuft in system mit; einzeln: install.sh plugins (nach Hyprland-Updates)
 check
 [ $# -gt 0 ] || set -- "${all[@]}"
 for s in "$@"; do
   case $s in
-    repos | packages | system | boot | services | user | network) "do_$s" ;;
+    repos | packages | system | plugins | boot | services | user | network) "do_$s" ;;
     *) echo "install.sh: unbekannter Schritt: $s (${all[*]})" >&2; exit 2 ;;
   esac
 done

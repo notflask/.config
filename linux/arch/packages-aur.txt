@@ -3,10 +3,9 @@ tuxedo-drivers-dkms          # Clevo-Firmware (Gigabyte Control Center)
 limine-mkinitcpio-hook limine-snapper-sync   # Limine-Einträge + Snapshots im Boot-Menü
 spotify spicetify-cli
 claude-code claude-desktop antigravity-cli
-tradingview warp-terminal
+tradingview warp-terminal-bin
 waypaper sioyek cameractrls
 gpu-screen-recorder gpu-screen-recorder-ui
 proton-ge-custom-bin
-hyprtasking                  # Übersicht (Super+O), nur im Glas-Stil
 cachyos-ananicy-rules-git
 ttf-amiri vazirmatn-fonts ttf-gelasio ttf-ms-fonts ttf-vista-fonts
