@@ -207,7 +207,7 @@ stimmungsvollen Foto.
 | VRR | auf dem LG nur für Spiele im Vollbild |
 | Direct Scanout | ohne Effekte geht jedes Bild direkt an den Monitor |
 | GameMode | renice 5 (Discord-Stream ruckelt nicht), Lüfter drehen früh hoch |
-| System | scx_lavd, NTSYNC, Split-Lock-Bremse aus, `preempt=full`, Watchdogs aus, zram, BBR |
+| System | NTSYNC, Split-Lock-Bremse aus, `preempt=full`, Watchdogs aus, zram, BBR |
 | Leistungsgrenzen | CPU 65 W Dauerleistung, GPU-Mindesttakt, Energieprofil „Leistung“ |
 | Aufnahme | GPU Screen Recorder, `alt + z` wie ShadowPlay |
 

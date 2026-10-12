@@ -327,10 +327,13 @@ JSON
 }
 
 # ── services ─────────────────────────────────────────────────────────────
+# scx (scx_lavd) bewusst nicht: unter Void stürzte er alle paar Minuten ab
+# (32× in 2 h), bei jedem Absturz hing das ganze System bis zu 30 s, bis der
+# Kernel ihn rauswarf. sv/scx bleibt zum Testen: sudo ln -s /etc/sv/scx /var/service/
 services=(
   dbus elogind polkitd NetworkManager bluetoothd chronyd cronie
   socklog-unix nanoklogd power-profiles-daemon nvidia-powerd zramen
-  ly scx gigabyte-control-center g5-tuning
+  ly gigabyte-control-center g5-tuning
   vpn-bypass vpn-bypass-dst vpn-lock wg-quick-wg0 vpn-peer-info
 )
 
