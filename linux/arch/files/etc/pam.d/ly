@@ -1,0 +1,12 @@
+#%PAM-1.0
+# Wie das ly-Paket, dazu KWallet: entsperrt sich mit dem Login-Passwort
+# (desktop.nix: security.pam.services.login.kwallet)
+auth       include      login
+-auth      optional     pam_kwallet5.so
+
+account    include      login
+
+password   include      login
+
+session    include      login
+-session   optional     pam_kwallet5.so auto_start

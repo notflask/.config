@@ -1,0 +1,7 @@
+[Unit]
+Description=Flatpak-NVIDIA-Erweiterung an Treiber anpassen
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/flatpak-nvidia-sync

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Alles aktualisieren: Pakete (Arch + AUR), Spicetify, Flatpaks.
+# Snapper legt vor dem Update über snap-pac einen Snapshot an.
+paru -Syu "$@" || exit 1
+command -v spicetify-setup >/dev/null && spicetify-setup 2>/dev/null
+flatpak update -y 2>/dev/null
+exit 0

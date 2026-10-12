@@ -245,11 +245,30 @@ hl.window_rule({
 -- dem Spiel dafür das Vollbild (misc.on_focus_under_fullscreen) und es wird
 -- gekachelt – CS2 fällt auf Fenstermodus, gamescope (Deadlock) verliert das
 -- Strecken. Mit eigener Fläche wechselt Alt+Tab nur die Arbeitsfläche.
-hl.window_rule({
-    name = "games-own-workspace",
-    match = { class = "steam_app_.*|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
-    workspace = "emptym",
-})
+-- Nicht workspace = "emptym": das nimmt die leere Fläche mit der kleinsten
+-- Nummer, auch wenn sie auf dem anderen Monitor liegt – meist Fläche 2 auf
+-- dem Laptop-Bildschirm, und auf dem LG blieb das Spiel unsichtbar.
+local game_classes = { cs2 = true, dota2 = true, gamescope = true, ["org.vinegarhq.Sober"] = true }
+
+hl.on("window.open", function(w)
+    if not (game_classes[w.class] or w.class:match("^steam_app_")) then
+        return
+    end
+    local own = w.workspace
+    if not own or not w.monitor or (own.windows <= 1 and not own.special) then
+        return
+    end
+    -- erste Nummer, die frei ist oder deren leere Fläche auf diesem Monitor liegt
+    local id = 1
+    while true do
+        local ws = hl.get_workspace(id)
+        if not ws or (ws.windows == 0 and ws.monitor and ws.monitor.name == w.monitor.name) then
+            break
+        end
+        id = id + 1
+    end
+    hl.dispatch(hl.dsp.window.move({ window = w, workspace = id }))
+end)
 
 -- Nur Hyprland: Mauszeiger bleibt im Spiel, solange es den Fokus hat.
 -- Fängt den Fall ab, dass die Zeigersperre des Spiels (CS2, gamescope)
@@ -862,7 +881,13 @@ hl.config({ gestures = { workspace_swipe_create_new = true } })
 -- hyprtasking (hyprland.nix). Rechtsklick wechselt die Arbeitsfläche.
 -- (unter Void gibt es das Plugin nicht)
 if not void then
-    hl.plugin.load("/etc/hyprland/plugins/libhyprtasking.so")
+    -- Fehlt die Datei (Plugin nicht gebaut), bleibt die Config trotzdem heil
+    local plugin = "/etc/hyprland/plugins/libhyprtasking.so"
+    local f = io.open(plugin)
+    if f then
+        f:close()
+        hl.plugin.load(plugin)
+    end
 end
 
 -- Die Optionen gibt es erst, nachdem Hyprland das Plugin geladen und die

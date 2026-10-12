@@ -1,0 +1,12 @@
+[Unit]
+Description=Leistungs-Einstellungen (Energieprofil, CPU-Limit, GPU-Mindesttakt)
+After=power-profiles-daemon.service gigabyte-control-center.service nvidia-persistenced.service
+Wants=power-profiles-daemon.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/libexec/g5-tuning
+
+[Install]
+WantedBy=multi-user.target

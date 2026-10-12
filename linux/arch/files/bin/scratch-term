@@ -1,0 +1,19 @@
+#!/bin/sh
+# Wegwerf-Terminal (Super+`): schwebt oben mittig über allem. Nochmal drücken
+# schließt es samt allem, was darin lief – es läuft als eigener systemd-Dienst
+# und systemd räumt beim Beenden die ganze cgroup ab (desktop.nix).
+app_id=com.flask.scratchpad
+unit=scratchpad.service
+id=$(wm find-window "$app_id" 2>/dev/null || true)
+if [ -n "$id" ]; then
+  if [ "$id" = "$(wm focused-window)" ]; then
+    systemctl --user stop "$unit"
+  else
+    wm focus-window "$id" >/dev/null
+  fi
+  exit 0
+fi
+systemctl --user stop "$unit" 2>/dev/null || true
+exec systemd-run --user --unit="$unit" --collect --quiet \
+  ghostty --class="$app_id" --gtk-single-instance=false \
+  --confirm-close-surface=false --working-directory=home

@@ -1,0 +1,12 @@
+# AUR (über paru). Nicht gefundene Namen meldet install.sh am Ende, der Rest läuft durch.
+tuxedo-drivers-dkms          # Clevo-Firmware (Gigabyte Control Center)
+limine-mkinitcpio-hook limine-snapper-sync   # Limine-Einträge + Snapshots im Boot-Menü
+spotify spicetify-cli
+claude-code claude-desktop antigravity-cli
+tradingview warp-terminal
+waypaper sioyek cameractrls
+gpu-screen-recorder gpu-screen-recorder-ui
+proton-ge-custom-bin
+cachyos-ananicy-rules-git
+hyprtasking                  # Übersicht (Super+O), optional
+ttf-amiri vazirmatn-fonts ttf-gelasio ttf-ms-fonts ttf-vista-fonts

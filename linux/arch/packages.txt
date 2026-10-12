@@ -1,0 +1,40 @@
+# Offizielle Pakete (core/extra/multilib). Was fehlt, versucht install.sh danach über paru.
+base-devel git curl wget pciutils usbutils htop btop fastfetch cmatrix fish sudo man-db unzip jq imagemagick
+# Kernel, Firmware, Microcode
+linux-zen linux-zen-headers linux-firmware intel-ucode sof-firmware dkms mkinitcpio efibootmgr
+# NVIDIA (offene Module, DKMS wegen linux-zen) + Intel
+nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings nvtop libva-nvidia-driver egl-wayland
+mesa lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
+intel-media-driver libva-utils vulkan-tools
+# Boot, Ladebildschirm, Snapshots, zram
+plymouth btrfs-progs snapper snap-pac zram-generator
+# Sitzung
+hyprland uwsm xorg-xwayland xdg-desktop-portal xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
+xdg-desktop-portal-kde hyprshutdown polkit polkit-kde-agent ly
+# Netz, Bluetooth, Audio
+networkmanager iptables wireguard-tools openresolv ethtool bluez bluez-utils blueman
+pipewire pipewire-alsa pipewire-pulse pipewire-jack lib32-pipewire wireplumber pavucontrol
+easyeffects lsp-plugins realtime-privileges rtkit
+# Laptop
+power-profiles-daemon upower udisks2 fuse3 libmtp fwupd
+# Desktop-Werkzeuge
+quickshell rofi mako awww matugen cliphist wl-clipboard wl-clip-persist playerctl brightnessctl
+libnotify grim slurp satty swayidle gtklock dex wev xdg-utils xdg-user-dirs xdg-terminal-exec
+qt5-wayland qt6-wayland
+# KDE-Apps ohne Plasma
+dolphin dolphin-plugins ark gwenview okular filelight kwalletmanager kwallet kwallet-pam kio
+kio-extras kio-fuse kio-admin ffmpegthumbs kdegraphics-thumbnailers kimageformats
+qt6-imageformats qt6-svg kservice breeze-icons breeze plasma-integration qqc2-desktop-style
+papirus-icon-theme dconf hicolor-icon-theme adw-gtk-theme
+# Schriften
+inter-font ttf-jetbrains-mono ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols ttf-ibm-plex
+ttf-fira-code ttf-liberation ttf-carlito ttf-caladea ttf-dejavu noto-fonts noto-fonts-cjk
+noto-fonts-emoji noto-fonts-extra
+# Entwicklung
+neovim ghostty tmux fzf gcc make cmake clang tree-sitter-cli ripgrep fd nodejs npm lazygit
+github-cli typst tinymist typstyle uv python-pipx python-gobject python-pillow python-imageio
+python-platformdirs python-build python-installer python-setuptools python-wheel pyside6
+rust freetype2 fontconfig pkgconf libxkbcommon
+# Programme und Spiele
+firefox firefox-i18n-de telegram-desktop vlc discord steam gamemode lib32-gamemode mangohud
+lib32-mangohud gamescope lutris wine flatpak qemu-desktop edk2-ovmf ananicy-cpp

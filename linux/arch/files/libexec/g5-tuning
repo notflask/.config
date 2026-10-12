@@ -1,0 +1,28 @@
+#!/bin/sh
+# Leistungs-Einstellungen, die NixOS als einmalige systemd-Dienste setzt
+# (performance.nix, nvidia.nix). Nach dem Standby startet sie
+# sleep/g5-tuning neu.
+
+# Energieprofil „Leistung“ (power-profiles-daemon braucht einen Moment)
+for _ in $(seq 30); do
+  powerprofilesctl set performance 2>/dev/null &&
+    [ "$(powerprofilesctl get)" = performance ] && break
+  sleep 0.5
+done
+
+# CPU taktet nach Warten auf Daten sofort hoch
+echo 1 >/sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost 2>/dev/null
+
+# Dauerleistung (PL1) auf 65 W: der Firmware-Modus „Leistung“ erlaubt 90 W,
+# damit lief der i5-12500H mit Spiel + Stream ständig ins Thermal-Throttling.
+# Erst nach dem Control Center setzen, das PL1 neu schreibt.
+systemctl is-active --quiet gigabyte-control-center && sleep 2
+echo 65000000 >/sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw
+
+# Mindesttakt für die RTX 4060: Animationen sind sofort flüssig (kostet
+# ~10–15 W im Leerlauf). Zurücksetzen: sudo nvidia-smi -rgc
+if command -v nvidia-smi >/dev/null; then
+  nvidia-smi -pm 1 >/dev/null
+  nvidia-smi --lock-gpu-clocks=1500,3105 >/dev/null
+fi
+exit 0

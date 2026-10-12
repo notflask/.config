@@ -1,0 +1,13 @@
+[Unit]
+Description=Gigabyte Control Center (Tastaturlicht, Lüfter, Leistungsmodi)
+After=systemd-modules-load.service
+
+[Service]
+ExecStartPre=-/usr/bin/modprobe tuxedo_io
+ExecStart=/usr/bin/gbccd --group users --default-profile performance
+RuntimeDirectory=gigabyte-control-center
+StateDirectory=gigabyte-control-center
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

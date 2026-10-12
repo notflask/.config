@@ -1,0 +1,17 @@
+[Unit]
+Description=VPN-Sperre: ohne Tunnel kein Internet
+ConditionPathExists=/etc/wireguard/wg0.conf
+DefaultDependencies=no
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/vpn-lock on
+ExecStartPost=/bin/sh -c 'mkdir -p /run/vpn && touch /run/vpn/vpn-lock.up'
+ExecStop=/usr/local/sbin/vpn-lock off
+ExecStopPost=/bin/rm -f /run/vpn/vpn-lock.up
+
+[Install]
+WantedBy=multi-user.target
