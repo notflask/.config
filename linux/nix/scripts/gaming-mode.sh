@@ -102,6 +102,10 @@ if [ -z "${MANGOHUD_CONFIG:-}" ] && [ ! -e "${XDG_CONFIG_HOME:-$HOME/.config}/Ma
   export MANGOHUD_CONFIG="position=top-left,background_alpha=0.4,fps,frametime,frame_timing,gpu_stats,gpu_temp,cpu_stats,cpu_temp,ram,vram"
 fi
 
+# Normale Platten-Priorität: unter Void startet Steam mit ionice idle
+# (linux/void/bin/steam), das Spiel soll aber nicht hinter anderen warten
+ionice -c 2 -n 4 -p $$ 2>/dev/null || true
+
 cmd=(gamemoderun)
 
 if [ -n "$stretch" ]; then

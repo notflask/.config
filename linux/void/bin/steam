@@ -1,0 +1,6 @@
+#!/bin/sh
+# Steam mit Platten-Priorität "idle" – wie Windows Hintergrund-I/O drosselt:
+# Downloads und Shader-Caches (bis 150 MB/s) bremsen sonst alle anderen
+# Programme aus (Firefox hängt). Wirkt nur mit BFQ (etc/udev/rules.d/90-g5.rules).
+# Spiele erben "idle"; gaming-mode setzt sie zurück auf normal.
+exec ionice -c 3 /usr/bin/steam "$@"

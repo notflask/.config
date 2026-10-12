@@ -5,8 +5,15 @@
 exec 2>&1
 
 # Energieprofil „Leistung“ (power-profiles-daemon muss laufen)
+# `sv start` wartet nur auf den Start, nicht bis der Dienst auf D-Bus
+# erreichbar ist – sonst scheitert das Setzen beim Booten still (blieb
+# „balanced“). Bis zu 15 s erneut versuchen.
 sv start power-profiles-daemon >/dev/null || exit 1
-powerprofilesctl set performance
+for _ in $(seq 30); do
+  powerprofilesctl set performance 2>/dev/null &&
+    [ "$(powerprofilesctl get)" = performance ] && break
+  sleep 0.5
+done
 
 # CPU taktet nach Warten auf Daten (Laden, Netzwerk, Eingaben) sofort hoch
 echo 1 >/sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost 2>/dev/null

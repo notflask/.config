@@ -172,7 +172,7 @@ overlay() {
 user_commands=(
   mango-session screenshot screenshot-edit scratch-term clipboard-history
   screen-power session-logout novpn vpn vpn-split discord spicetify-setup
-  power-menu term apply nvidia-offload
+  power-menu term apply nvidia-offload steam
 )
 
 do_system() {
