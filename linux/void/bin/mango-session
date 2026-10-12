@@ -5,7 +5,8 @@
 
 # Rendern auf der RTX 4060; der interne Bildschirm hängt an der Iris Xe
 # und bekommt das Bild von der NVIDIA kopiert (feste Namen: udev/rules.d)
-export WLR_DRM_DEVICES=/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu
+# (zum Testen überschreibbar: WLR_DRM_DEVICES=… mango-session)
+export WLR_DRM_DEVICES=${WLR_DRM_DEVICES:-/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu}
 
 export XDG_SESSION_TYPE=wayland
 export XDG_SESSION_DESKTOP=mango
