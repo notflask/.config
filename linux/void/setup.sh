@@ -407,7 +407,12 @@ proton_ge_sha256=7ed5b4bc4e39bf626c6da62aa3f4a8d1915fbddb5a9075f45c45c41384ddc4b
 
 do_user() {
   step "Dotfiles für $user verlinken"
-  local name dst
+  local name dst d
+  # Was root hier angelegt hat (z. B. ein Programm unter sudo), gehört dem
+  # Benutzer – sonst scheitern die Links mit „Keine Berechtigung“
+  for d in .config .local .cache; do
+    [ -e "$home/$d" ] && find "$home/$d" -xdev -user root -exec chown -h "$user:$user" {} +
+  done
   as_user mkdir -p "$home/.config" "$home/.local/share/applications" "$home/.local/bin"
   for name in "${linked[@]}"; do
     dst=$home/.config/$name
