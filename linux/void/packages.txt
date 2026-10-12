@@ -179,7 +179,10 @@ tinymist
 typstyle
 uv
 python3-pipx              # Waypaper, Pywalfox (setup.sh user)
-python3-gobject           # Waypaper braucht GTK aus Python (pip kann es nicht bauen)
+python3-gobject           # Waypaper (setup.sh user): GTK aus Python
+python3-Pillow
+python3-imageio
+python3-platformdirs
 cargo                     # mizu (setup.sh user)
 clang                     # mizu baut MuPDF (bindgen)
 fontconfig-devel          # mizu (font-kit linkt fontconfig/freetype)

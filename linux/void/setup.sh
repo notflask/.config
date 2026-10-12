@@ -436,8 +436,19 @@ do_user() {
 
   step "Programme ohne Void-Paket (pipx, cargo, Installer)"
   # Hintergrund-Auswahl und Firefox-Farben (Python, mit GTK/GObject vom System)
-  [ -x "$home/.local/bin/waypaper" ] ||
-    as_user pipx install --system-site-packages waypaper || warn "waypaper nicht installiert"
+  # Waypaper in eigener venv: GTK, Pillow, imageio und platformdirs kommen
+  # von Void, nur der Rest aus PyPI (--no-deps – sonst will pip/uv PyGObject
+  # und pycairo selbst kompilieren)
+  if [ ! -x "$home/.local/bin/waypaper" ]; then
+    local wp=$home/.local/share/waypaper-venv
+    as_user rm -rf "$wp"
+    if as_user python3 -m venv --system-site-packages "$wp" &&
+      as_user "$wp/bin/pip" install -q --disable-pip-version-check --no-deps waypaper screeninfo imageio-ffmpeg; then
+      as_user ln -sfn "$wp/bin/waypaper" "$home/.local/bin/waypaper"
+    else
+      warn "waypaper nicht installiert"
+    fi
+  fi
   [ -x "$home/.local/bin/pywalfox" ] ||
     as_user pipx install pywalfox || warn "pywalfox nicht installiert"
   # Claude Code (offizieller Installer, aktualisiert sich selbst)
