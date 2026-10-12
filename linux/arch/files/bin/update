@@ -1,6 +1,13 @@
 #!/bin/sh
 # Alles aktualisieren: Pakete (Arch + AUR), Spicetify, Flatpaks.
 # Snapper legt vor dem Update über snap-pac einen Snapshot an.
+# Nach einem pacman-Update mit neuer libalpm startet paru nicht mehr:
+# erst das System mit pacman, dann paru neu bauen (install.sh packages)
+if ! paru --version >/dev/null 2>&1; then
+  sudo pacman -Syu || exit 1
+  echo "paru startet nicht (neue libalpm) – baue neu: install.sh packages"
+  "$HOME/dotfiles/linux/arch/install.sh" packages || exit 1
+fi
 paru -Syu "$@" || exit 1
 command -v spicetify-setup >/dev/null && spicetify-setup 2>/dev/null
 flatpak update -y 2>/dev/null

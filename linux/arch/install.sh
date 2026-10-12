@@ -104,12 +104,16 @@ do_repos() {
 # ── packages ─────────────────────────────────────────────────────────────
 do_packages() {
   step "paru (AUR-Helfer)"
-  if ! have paru; then
-    sdo pacman -S --needed --noconfirm base-devel git
+  # Aus dem Quelltext statt paru-bin: paru-bin ist gegen eine feste libalpm
+  # gebaut und startet nach einem pacman-Update nicht mehr („libalpm.so.15:
+  # cannot open shared object file“). Darum prüfen, ob paru wirklich läuft.
+  if ! paru --version >/dev/null 2>&1; then
+    sdo pacman -S --needed --noconfirm base-devel git rust
+    pacman -Qq paru-bin >/dev/null 2>&1 && sdo pacman -Rdd --noconfirm paru-bin
     local tmp
     tmp=$(mktemp -d)
-    git clone --depth 1 https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
-    (cd "$tmp/paru-bin" && makepkg -si --noconfirm)
+    git clone --depth 1 https://aur.archlinux.org/paru.git "$tmp/paru"
+    (cd "$tmp/paru" && makepkg -si --noconfirm)
     rm -rf "$tmp"
   fi
 
@@ -248,7 +252,9 @@ do_system() {
 
   step "Hyprland-Übersicht (hyprtasking, nur im Glas-Stil) verlinken, falls gebaut"
   local so
-  so=$(pacman -Ql hyprtasking 2>/dev/null | awk '/libhyprtasking\.so$/ {print $2; exit}')
+  # `|| true`: Ohne hyprtasking schlägt pacman -Ql fehl, und mit
+  # set -e/pipefail brach install.sh hier stumm ab (Dienste, ly, Boot fehlten)
+  so=$(pacman -Ql hyprtasking 2>/dev/null | awk '/libhyprtasking\.so$/ {print $2; exit}') || true
   if [ -n "$so" ]; then
     sdo install -d /etc/hyprland/plugins
     sdo ln -sfn "$so" /etc/hyprland/plugins/libhyprtasking.so
