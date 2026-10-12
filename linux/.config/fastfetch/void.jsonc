@@ -1,10 +1,19 @@
+// Erzeugt von matugen (templates/fastfetch-void.jsonc) – hier nichts ändern.
 // fastfetch unter Void Linux (setup.sh verlinkt das als config.jsonc):
-// großes Void-Logo und mehr Zeilen, wie im Minimal-Look üblich.
+// großes Void-Logo und Beschriftungen in der Akzentfarbe des Wallpapers.
 // Unter NixOS gilt config.jsonc (kleines NixOS-Logo).
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
-  "logo": { "type": "builtin", "source": "void", "padding": { "right": 3 } },
-  "display": { "separator": "  " },
+  "logo": {
+    "type": "builtin",
+    "source": "void",
+    "color": { "1": "#dac2ac", "2": "#95908c" },
+    "padding": { "right": 3 }
+  },
+  "display": {
+    "separator": "  ",
+    "color": { "keys": "#dac2ac", "title": "#dac2ac" }
+  },
   "modules": [
     "title",
     "separator",

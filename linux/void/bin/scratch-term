@@ -29,6 +29,6 @@ fi
 # Reste eines vorigen Laufs (z. B. hängender Prozess) wegräumen
 stop
 # shellcheck disable=SC2016 # $1/$2/$$ gelten in der inneren Shell
-setsid -f sh -c 'echo $$ >"$1"; exec ghostty --class="$2" \
+setsid -f sh -c 'echo $$ >"$1"; exec term --class="$2" \
   --gtk-single-instance=false --confirm-close-surface=false \
   --working-directory=home' sh "$pidfile" "$app_id"

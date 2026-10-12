@@ -23,6 +23,8 @@ generated=(
   linux/.config/gtklock/style.css
   linux/.config/mako/config
   linux/.config/mako/config-flat
+  linux/.config/fastfetch/void.jsonc
+  linux/.config/ghostty/themes/matugen
   linux/.config/rofi/colors.rasi
   linux/.config/quickshell/taskbar/colors.css
   linux/.config/quickshell/taskbar/glass.css

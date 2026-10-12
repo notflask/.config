@@ -63,11 +63,14 @@ do_packages() {
 # Eigene Rezepte (srcpkgs/) plus Pakete, die Void nur als Rezept hat, weil
 # sie nicht weiterverteilt werden dürfen (restricted)
 custom_pkgs=(
-  adw-gtk3 apple-cursor font-jetbrains-mono font-minecraft font-apple-color-emoji
+  ly adw-gtk3 apple-cursor font-jetbrains-mono font-minecraft font-apple-color-emoji
   spicetify-cli gigabyte-control-center claude-desktop atas-x haruneko tradingview
   warp-terminal
   discord spotify msttcorefonts
 )
+# Login-Animation: Planet mit Schwarzem Loch (ly-community, wie desktop.nix)
+blackhole_url=https://codeberg.org/fairyglade/ly-community/raw/commit/fd85d8584545433520f34fb25584b17280f4c0b9/animations/dur/blackhole-smooth-240x67.dur
+blackhole_sha256=c28dc5ccfb67802b20fdb4520d360742a2a7329e2f63e06d9b5e2f6a42444415
 vencord_version=v1.4.2
 vencord_sha256=52642c8521a866ad241c10337144a4f513672c54b9c86a8169954785054c815d
 
@@ -143,7 +146,7 @@ overlay() {
 user_commands=(
   mango-session screenshot screenshot-edit scratch-term clipboard-history
   screen-power session-logout novpn vpn vpn-split discord spicetify-setup
-  power-menu
+  power-menu term apply
 )
 
 do_system() {
@@ -185,6 +188,40 @@ do_system() {
   "allowed_extensions": ["pywalfox@frewacom.org"]
 }
 JSON
+
+  step "Login: ly"
+  # Wie unter NixOS (desktop.nix): Deutsch, Schwarzes Loch als Animation,
+  # große Uhr, nur MangoWC als Sitzung (/etc/ly/sessions, startet
+  # mango-session). Die übrigen Einstellungen bleiben die von ly.
+  if [ -f /etc/ly/config.ini ]; then
+    local dur=/etc/ly/blackhole.dur
+    if ! echo "$blackhole_sha256  $dur" | sha256sum -c --quiet 2>/dev/null; then
+      if curl -fsSL -o "$dur.tmp" "$blackhole_url" &&
+        echo "$blackhole_sha256  $dur.tmp" | sha256sum -c --quiet; then
+        mv "$dur.tmp" "$dur"
+      else
+        rm -f "$dur.tmp"
+        warn "ly: Animation nicht geladen"
+      fi
+    fi
+    set_ly() { # Schlüssel in /etc/ly/config.ini setzen (auch auskommentierte)
+      sed -i -E "s|^#?[[:space:]]*$1[[:space:]]*=.*|$1 = $2|" /etc/ly/config.ini
+      grep -qE "^$1 = " /etc/ly/config.ini || echo "$1 = $2" >>/etc/ly/config.ini
+    }
+    set_ly lang de
+    set_ly animation dur_file
+    set_ly dur_file_path "$dur"
+    set_ly dur_offset_alignment center
+    # Pflicht für die 256 Farben der Animation
+    set_ly full_color true
+    set_ly bigclock en
+    set_ly clock "%a %d.%m.%Y %H:%M"
+    set_ly waylandsessions /etc/ly/sessions
+    set_ly xsessions /etc/ly/xsessions
+    install -d /etc/ly/xsessions
+  else
+    warn "ly ist nicht installiert (Schritt custom)"
+  fi
 
   step "Sprache, Zeit, Name"
   echo g5 >/etc/hostname
@@ -237,7 +274,7 @@ JSON
 services=(
   dbus elogind polkitd NetworkManager bluetoothd chronyd cronie
   socklog-unix nanoklogd power-profiles-daemon nvidia-powerd zramen
-  greetd scx gigabyte-control-center g5-tuning
+  ly scx gigabyte-control-center g5-tuning
   vpn-bypass vpn-bypass-dst vpn-lock wg-quick-wg0 vpn-peer-info
 )
 
@@ -256,8 +293,9 @@ do_services() {
     fi
     [ -e "/var/service/$s" ] || { ln -s "/etc/sv/$s" /var/service/; info "an: $s"; }
   done
-  # NetworkManager übernimmt das Netz (WLAN-Daten neu eingeben: nmtui)
-  for s in dhcpcd wpa_supplicant; do
+  # NetworkManager übernimmt das Netz (WLAN-Daten neu eingeben: nmtui),
+  # ly läuft auf tty2 statt der Text-Anmeldung
+  for s in dhcpcd wpa_supplicant agetty-tty2; do
     [ -e "/var/service/$s" ] && rm "/var/service/$s" && info "aus: $s"
   done
   return 0
@@ -269,6 +307,8 @@ do_boot() {
   # Wie configuration.nix/performance.nix: ohne Textflut starten,
   # Watchdogs aus, Kernel unterbricht sofort (preempt=full wie CachyOS)
   local cmdline="loglevel=3 quiet splash udev.log_level=3 nowatchdog preempt=full nvidia-drm.modeset=1"
+  # TTY und ly in den Farben von Vague (theme.nix: console.colors)
+  cmdline="$cmdline vt.default_red=0x14,0xd8,0x7f,0xf3,0x6e,0xbb,0xae,0xcd,0x60,0xe0,0x99,0xf5,0x8b,0xc9,0xbe,0xd7 vt.default_grn=0x14,0x64,0xa5,0xbe,0x94,0x9d,0xae,0xcd,0x60,0x83,0xb7,0xcb,0xa9,0xb1,0xbe,0xd7 vt.default_blu=0x15,0x7e,0x63,0x7c,0xb2,0xbd,0xd1,0xcd,0x79,0x98,0x82,0x96,0xc1,0xca,0xda,0xd7"
   sed -i -E "s|^#?GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT=\"$cmdline\"|" /etc/default/grub
   # Boot-Menü 1 s; ältere Kernel unter „Erweiterte Optionen“ (Esc hält an)
   sed -i -E 's|^#?GRUB_TIMEOUT=.*|GRUB_TIMEOUT=1|' /etc/default/grub
@@ -342,6 +382,11 @@ DESKTOP
 
   step "Flatpak (Sober), Discord-Starter, Split-Tunneling"
   as_user flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  # Ghostty aus Menüs/Rofi ebenfalls im Stil von Void (linux/void/bin/term)
+  if [ -f /usr/share/applications/com.mitchellh.ghostty.desktop ]; then
+    sed 's|^Exec=ghostty|Exec=/usr/local/bin/term|' /usr/share/applications/com.mitchellh.ghostty.desktop |
+      as_user tee "$home/.local/share/applications/com.mitchellh.ghostty.desktop" >/dev/null
+  fi
   # Discord über den Starter mit GPU-Wahl (linux/void/bin/discord)
   if [ -f /usr/share/applications/discord.desktop ]; then
     sed 's|^Exec=.*|Exec=/usr/local/bin/discord|' /usr/share/applications/discord.desktop |

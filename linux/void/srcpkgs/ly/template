@@ -1,0 +1,47 @@
+# Template file for 'ly'
+# ly – Login im Terminal (wie unter NixOS, desktop.nix), mit runit-Dienst.
+# ly braucht Zig 0.17, Void hat nur 0.13 – der offizielle Zig-Build von
+# ziglang.org kommt nur zum Bauen dazu. Die Zig-Abhängigkeiten liefert ly
+# gebündelt mit (vendor.tar.zst), gebaut wird ohne Netz.
+# Config und Schwarzes-Loch-Animation: linux/void/etc/ly (setup.sh)
+pkgname=ly
+version=1.5.0
+revision=1
+_zig=0.17.0
+archs="x86_64"
+hostmakedepends="bsdtar"
+makedepends="pam-devel libxcb-devel"
+depends="pam libxcb util-linux"
+short_desc="TUI display manager"
+maintainer="flask <skyba@tutamail.com>"
+license="WTFPL"
+homepage="https://codeberg.org/fairyglade/ly"
+distfiles="${homepage}/archive/v${version}.tar.gz>ly-${version}.tar.gz
+ ${homepage}/releases/download/v${version}/vendor.tar.zst>ly-vendor-${version}.tar.zst
+ https://ziglang.org/download/${_zig}/zig-x86_64-linux-${_zig}.tar.xz"
+checksum="115a7f7fb281803ca7f9e0ddbdf76834a53f7fa6bc702d766d03772ce1976dc3
+ cdf04c3d5cd0e4ae4eaf37cba0627b708558f779f36ba4512140f2b573e64217
+ 1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026"
+conf_files="/etc/ly/config.ini /etc/pam.d/ly"
+nostrip=yes
+skip_extraction="ly-vendor-${version}.tar.zst zig-x86_64-linux-${_zig}.tar.xz"
+
+post_extract() {
+	# zig-pkg/ (Abhängigkeiten) in den Quellbaum, Zig daneben
+	bsdtar -xf "${XBPS_SRCDISTDIR}/${pkgname}-${version}/ly-vendor-${version}.tar.zst"
+	bsdtar -xf "${XBPS_SRCDISTDIR}/${pkgname}-${version}/zig-x86_64-linux-${_zig}.tar.xz" -C ..
+}
+
+do_build() {
+	export ZIG_GLOBAL_CACHE_DIR="${wrksrc}/.zig-global"
+	"../zig-x86_64-linux-${_zig}/zig" build -Doptimize=ReleaseSafe -Dinit_system=runit --summary none
+}
+
+do_install() {
+	export ZIG_GLOBAL_CACHE_DIR="${wrksrc}/.zig-global"
+	"../zig-x86_64-linux-${_zig}/zig" build installexe -Doptimize=ReleaseSafe -Dinit_system=runit \
+		-Ddest_directory="${DESTDIR}" --summary none
+	# runit legt supervise selbst unter /run an
+	rm -rf "${DESTDIR}/etc/sv/ly/supervise"
+	vlicense license.md
+}

@@ -7,7 +7,7 @@ Fenstermanager.
 - Laptop: Intel i5-12500H (Iris Xe) + NVIDIA RTX 4060 Laptop, eDP-1 1080p@144 Hz
 - Externer Monitor: LG UltraGear 2K, 1440p@180 Hz (DP-2)
 - Desktop: **MangoWC**: wie dwm (Tags 1–9, Layouts zum Umschalten), dazu ein
-  Scroll-Layout wie Niri. Login über greetd/tuigreet
+  Scroll-Layout wie Niri. Login über **ly** mit Schwarzem-Loch-Animation wie unter NixOS
 - Stil: **anders als unter NixOS, ganz minimal**: eckige Fenster mit 1px-Rahmen,
   keine Effekte, keine Animationen, schmale Textleiste oben, großes Void-Logo
   in fastfetch. Das Wallpaper ist die einzige Deko, und die Farben kommen wie
@@ -46,7 +46,7 @@ linux/void/
 ├── sv/                 # runit-Dienste: VPN, scx, Control Center, Leistung
 ├── sbin/               # root-Hilfsprogramme: Firewall, Kill-Switch, Sperre, Split-Tunneling
 ├── bin/                # Befehle: mango-session, vpn, novpn, scratch-term, screenshot …
-├── etc/                # wird nach /etc kopiert (sysctl, udev, greetd, sudoers, Firefox …)
+├── etc/                # wird nach /etc kopiert (sysctl, udev, ly, sudoers, Firefox …)
 └── usr/                # wird nach /usr kopiert (Firefox-Vorgaben, Standby-Hook)
 ```
 
@@ -61,13 +61,18 @@ MangoWC) und `vpn-split.sh`. Nur für Void (der minimale Stil):
 | `rofi/flat.rasi` | Starter und Ausschalt-Menü (`power-menu`) als eckiger Kasten |
 | `matugen/templates/mako-flat.ini` | Benachrichtigungen flach (→ `mako/config-flat`) |
 | `matugen/templates/gtklock.css` | Sperrbildschirm: Uhr auf dem Wallpaper, eckiges Passwortfeld |
-| `fastfetch/void.jsonc` | großes Void-Logo, mehr Zeilen |
+| `matugen/templates/fastfetch-void.jsonc` | großes Void-Logo, Logo und Beschriftungen in der Akzentfarbe (→ `fastfetch/void.jsonc`) |
+| `matugen/templates/ghostty-theme` | Ghostty (`term`, Super+T) in den Farben des Wallpapers, deckend, ohne Blur (→ `ghostty/themes/matugen`) |
 | `swayidle/config` | Auto-Sperre wie hypridle.conf |
 
 Die Leiste in `quickshell/minibar`: Tag anklicken wechselt, Mausrad blättert;
 „vpn“ grün/gelb/rot, Klick verbindet bzw. trennt, „VPN AUS“ heißt Internet ohne
 VPN; Lautstärke: Mausrad ändert, Klick stumm, Rechtsklick pavucontrol; Tray:
 Linksklick App, Rechtsklick Menü.
+
+Dazu passend: ly und die Textkonsole in den Farben von Vague (wie unter NixOS),
+Rofi überall im flachen Stil (Starter, Zwischenablage, Ausschalt-Menü,
+Tastenkürzel).
 
 Für den Look wie in den Videos: Terminals mit `fastfetch`, `cmatrix -b` oder
 `tty-clock -c` über ein stimmungsvolles Foto als Wallpaper (Waypaper). Die Farben
@@ -90,7 +95,7 @@ von Rahmen, Leiste und Menüs ziehen beim Wechsel mit.
    ```
    Das dauert: Über 900 Pakete, dazu baut `xbps-src` Discord, Spotify, die
    MS-Schriften und die eigenen Pakete (`srcpkgs/`).
-3. Neu starten. greetd/tuigreet fragt nach dem Passwort und startet MangoWC.
+3. Neu starten. ly (auf tty2) fragt nach dem Passwort und startet MangoWC.
    WLAN danach mit `nmtui` verbinden (NetworkManager ersetzt dhcpcd/wpa_supplicant).
 4. Einmal nach dem ersten Login:
    - **VPN**: `vpn import ~/Downloads/xyz.conf Name`
@@ -103,10 +108,16 @@ Einzelne Schritte: `sudo setup.sh system` (nur /etc und Befehle),
 
 ## Alltag
 
+Ein `rebuild` wie unter NixOS gibt es auf Void nicht. Void aktualisiert man
+eigentlich einfach mit `xbps-install -Su`. Das reicht aber nicht für alles hier:
+Die eigenen Pakete (srcpkgs) baut `xbps-src` neu, und die Configs aus dem Repo
+landen per setup.sh in /etc. Deshalb gibt es zwei Befehle mit klaren Namen:
+
 | Befehl | |
 |---|---|
-| `update` | alles aktualisieren (wie `rebuild update`) |
-| `sudo ~/dotfiles/linux/void/setup.sh` | Änderungen im Repo anwenden (wie `rebuild`) |
+| `update` | alles aktualisieren: Void-Pakete, eigene Pakete, Configs, Flatpak, Spicetify |
+| `apply` | nur die Configs aus dem Repo anwenden (/etc, Befehle, Dienste, Dotfiles), ohne Pakete zu bauen |
+| `sudo xbps-install -Su` | nur die Void-Pakete aktualisieren, der normale Void-Weg |
 | `theme`, `theme -m light` | Farben neu erzeugen / hell–dunkel |
 | `vpn status`, `vpn up`, `vpn unlock` … | wie unter NixOS |
 | `novpn BEFEHL` | Programm am VPN vorbei (Steam: `novpn gaming-mode %command%`) |
@@ -143,7 +154,7 @@ Einzelne Schritte: `sudo setup.sh system` (nur /etc und Befehle),
 | NixOS | Void |
 |---|---|
 | Niri / Hyprland | MangoWC |
-| ly mit Schwarzem Loch | greetd + tuigreet (Text, merkt sich den Benutzer) |
+| ly mit Schwarzem Loch | ly mit Schwarzem Loch (eigenes Paket, Zig 0.17 nur zum Bauen) |
 | Glas-Look, Windows-Taskleiste unten | minimal: eckig, 1px, Textleiste oben |
 | hyprlock / hypridle | gtklock (Farben von matugen, Wallpaper als Hintergrund) / swayidle, gleiche Zeiten |
 | systemd-Dienste | runit (`sv/`), Sitzungsprogramme in `wm autostart` |

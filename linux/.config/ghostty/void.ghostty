@@ -1,0 +1,15 @@
+# Ghostty unter Void Linux (MangoWC) – lädt nur der Befehl `term`
+# (linux/void/bin/term) statt config.ghostty: Void hat Ghostty 1.1, das
+# `language` und `freetype-load-flags = no-light` aus der NixOS-Config noch
+# nicht kennt (sonst Fehlerdialog bei jedem Start). Dazu der minimale Stil:
+# Farben aus dem Wallpaper (themes/matugen von matugen), deckend, ohne Blur.
+theme = matugen
+font-family = "JetBrains Mono"
+font-family = "Apple Color Emoji"
+font-size = 12
+gtk-titlebar = false
+window-padding-x = 10
+window-padding-y = 10
+window-decoration = false
+background-blur = false
+confirm-close-surface = false

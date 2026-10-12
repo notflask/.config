@@ -1,5 +1,5 @@
 #!/bin/sh
-# MangoWC starten (greetd → tuigreet → mango-session). Entspricht unter
+# MangoWC starten (ly → /etc/ly/sessions/mango.desktop → mango-session). Entspricht unter
 # NixOS den Sitzungsvariablen aus desktop.nix, nvidia.nix und theme.nix.
 # Log der Sitzung: ~/.local/state/mango.log (vorige: mango.log.old)
 

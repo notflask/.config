@@ -86,8 +86,6 @@ xorg-server-xwayland
 
 # ── Desktop: MangoWC (statt niri.nix / hyprland.nix) ────────────────────
 mangowc
-greetd                    # Login (statt ly)
-tuigreet
 quickshell                # Taskleiste (quickshell/taskbar)
 rofi
 mako

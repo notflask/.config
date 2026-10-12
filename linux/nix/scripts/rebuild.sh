@@ -27,6 +27,9 @@ generated=(
   linux/.config/hypr/colors.lua
   linux/.config/hypr/hyprlock-colors.conf
   linux/.config/mako/config
+  linux/.config/mako/config-flat
+  linux/.config/fastfetch/void.jsonc
+  linux/.config/ghostty/themes/matugen
   linux/.config/niri/colors.kdl
   linux/.config/rofi/colors.rasi
   linux/.config/quickshell/taskbar/colors.css

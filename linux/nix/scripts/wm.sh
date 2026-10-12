@@ -267,7 +267,7 @@ case "$wm:$cmd" in
         printf "%s%s\t%s\n", mods, $2, action
       }' |
       column -t -s "$(printf '\t')" |
-      rofi -dmenu -i -no-custom -p "Tastenkürzel" >/dev/null || true
+      rofi -dmenu -i -no-custom -p "Tastenkürzel" -theme "$config/rofi/flat.rasi" >/dev/null || true
     ;;
 
   *)
