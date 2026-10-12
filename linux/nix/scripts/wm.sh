@@ -150,8 +150,16 @@ autostart() {
     exec waypaper --restore
   ) </dev/null &
 
-  # Taskleiste (Quickshell, ~/.config/quickshell/taskbar)
-  spawn quickshell -p "$config/quickshell/taskbar"
+  if [ "$wm" = mango ]; then
+    # Void/MangoWC: minimaler Stil – schmale Textleiste oben und mako flach
+    # (vor der ersten Nachricht starten, sonst holt D-Bus mako mit dem
+    # Glas-Stil aus ~/.config/mako/config)
+    spawn mako --config "$config/mako/config-flat"
+    spawn quickshell -p "$config/quickshell/minibar"
+  else
+    # Taskleiste (Quickshell, ~/.config/quickshell/taskbar)
+    spawn quickshell -p "$config/quickshell/taskbar"
+  fi
 }
 
 cmd=${1:-}

@@ -22,6 +22,7 @@ generated=(
   linux/.config/mango/colors.conf
   linux/.config/gtklock/style.css
   linux/.config/mako/config
+  linux/.config/mako/config-flat
   linux/.config/rofi/colors.rasi
   linux/.config/quickshell/taskbar/colors.css
   linux/.config/quickshell/taskbar/glass.css

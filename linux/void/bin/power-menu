@@ -1,0 +1,12 @@
+#!/bin/sh
+# Ausschalt-Menü im minimalen Stil (Super+Shift+E unter MangoWC): Rofi mit
+# den Einträgen der Taskleiste (quickshell/taskbar/Power.qml)
+choice=$(printf '%s\n' Sperren Abmelden Standby "Neu starten" Ausschalten |
+  rofi -dmenu -i -no-custom -p "aus" -theme ~/.config/rofi/flat.rasi -lines 5) || exit 0
+case $choice in
+  Sperren) exec wm lock ;;
+  Abmelden) exec wm logout ;;
+  Standby) exec loginctl suspend ;;
+  "Neu starten") exec loginctl reboot ;;
+  Ausschalten) exec loginctl poweroff ;;
+esac

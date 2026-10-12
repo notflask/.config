@@ -27,6 +27,11 @@ output_path = "~/.config/quickshell/taskbar/glass.css"
 input_path  = "~/.config/matugen/templates/mako.ini"
 output_path = "~/.config/mako/config"
 
+# mako im minimalen Stil (Void/MangoWC)
+[templates.mako-flat]
+input_path  = "~/.config/matugen/templates/mako-flat.ini"
+output_path = "~/.config/mako/config-flat"
+
 [templates.rofi]
 input_path  = "~/.config/matugen/templates/rofi-colors.rasi"
 output_path = "~/.config/rofi/colors.rasi"

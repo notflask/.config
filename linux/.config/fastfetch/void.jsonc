@@ -1,0 +1,28 @@
+// fastfetch unter Void Linux (setup.sh verlinkt das als config.jsonc):
+// großes Void-Logo und mehr Zeilen, wie im Minimal-Look üblich.
+// Unter NixOS gilt config.jsonc (kleines NixOS-Logo).
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": { "type": "builtin", "source": "void", "padding": { "right": 3 } },
+  "display": { "separator": "  " },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "wm",
+    "terminal",
+    "terminalfont",
+    "separator",
+    "cpu",
+    "gpu",
+    "memory",
+    "disk",
+    "datetime",
+    "break",
+    "colors"
+  ]
+}

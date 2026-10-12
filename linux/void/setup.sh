@@ -143,6 +143,7 @@ overlay() {
 user_commands=(
   mango-session screenshot screenshot-edit scratch-term clipboard-history
   screen-power session-logout novpn vpn vpn-split discord spicetify-setup
+  power-menu
 )
 
 do_system() {
@@ -281,7 +282,7 @@ do_boot() {
 # Configs aus linux/.config, die nach ~/.config verlinkt werden
 # (dotfiles.nix; niri und hypr braucht es unter Void nicht)
 linked=(
-  nvim tmux ghostty fastfetch quickshell rofi mako matugen waypaper
+  nvim tmux ghostty quickshell rofi mako matugen waypaper
   MangoHud sioyek mango gtklock swayidle
 )
 mizu_rev=426e89a4d05c038feaab4a2855351da8b6a4f5fa
@@ -298,6 +299,11 @@ do_user() {
     fi
     as_user ln -sfn "$repo/linux/.config/$name" "$dst"
   done
+  # fastfetch: eigene Config mit großem Void-Logo (config.jsonc ist die von
+  # NixOS) – ein Ordner mit Link statt Link auf den ganzen Ordner
+  [ -L "$home/.config/fastfetch" ] && as_user rm "$home/.config/fastfetch"
+  as_user mkdir -p "$home/.config/fastfetch"
+  as_user ln -sfn "$repo/linux/.config/fastfetch/void.jsonc" "$home/.config/fastfetch/config.jsonc"
   # Warp: Themes verlinkt, settings.toml nur als Startwert (Warp schreibt sie selbst)
   as_user mkdir -p "$home/.local/share/warp-terminal" "$home/.config/warp-terminal" "$home/.config/Vencord/themes"
   as_user ln -sfn "$repo/linux/.local/share/warp-terminal/themes" "$home/.local/share/warp-terminal/themes"

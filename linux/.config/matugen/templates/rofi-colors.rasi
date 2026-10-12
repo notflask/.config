@@ -10,5 +10,8 @@
     // Akzent aus dem Hintergrundbild (Textcursor)
     accent:    #{{colors.primary.default.hex_stripped}};
     rim:       <* if {{ is_dark_mode }} *>#ffffff40<* else *>#00000024<* endif *>;
+    // flat.rasi (Void/MangoWC): deckende Fläche und Rahmen
+    bg:        #{{colors.surface.default.hex_stripped}};
+    border-c:  #{{colors.primary.default.hex_stripped}};
     divider:   <* if {{ is_dark_mode }} *>#ffffff1f<* else *>#00000014<* endif *>;
 }

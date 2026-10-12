@@ -7,8 +7,11 @@ Fenstermanager.
 - Laptop: Intel i5-12500H (Iris Xe) + NVIDIA RTX 4060 Laptop, eDP-1 1080p@144 Hz
 - Externer Monitor: LG UltraGear 2K, 1440p@180 Hz (DP-2)
 - Desktop: **MangoWC**: wie dwm (Tags 1–9, Layouts zum Umschalten), dazu ein
-  Scroll-Layout wie Niri, Blur, runde Ecken und Schatten. Login über greetd/tuigreet.
-  Farben kommen wie gehabt aus dem Hintergrundbild (matugen), hell oder dunkel
+  Scroll-Layout wie Niri. Login über greetd/tuigreet
+- Stil: **anders als unter NixOS, ganz minimal**: eckige Fenster mit 1px-Rahmen,
+  keine Effekte, keine Animationen, schmale Textleiste oben, großes Void-Logo
+  in fastfetch. Das Wallpaper ist die einzige Deko, und die Farben kommen wie
+  gehabt daraus (matugen), hell oder dunkel
 - Kernel: `linux-mainline` (neuester, wie bei Arch). Der normale `linux`
   bleibt als Rückfall im Boot-Menü
 
@@ -24,8 +27,7 @@ Fenstermanager.
 |---|---|
 | **Wie dwm, aber Wayland** | MangoWC ist ein Fork von dwl („dwm für Wayland“): Tags statt Arbeitsflächen, mehrere Tags gleichzeitig ansehen, Layouts per Taste |
 | **Wie Niri** | Das Standard-Layout ist `scroller`: Neue Fenster kommen rechts daneben, man scrollt durch |
-| **Glas-Look** | scenefx: Blur, runde Ecken, Schatten, Animationen. Taskleiste, Rofi und mako bekommen ihren Blur |
-| **Gaming** | Tearing für Spiele (`allow_tearing`, CS2 wie unter Hyprland), VRR nur im Vollbild, explizite Synchronisation (`syncobj`), Direct Scanout (Spiele ohne Effekte), Maus bleibt im Spiel |
+| **Gaming** | Tearing für Spiele (`allow_tearing`, CS2 wie unter Hyprland), VRR nur im Vollbild, explizite Synchronisation (`syncobj`), Direct Scanout, Maus bleibt im Spiel. Ohne Effekte bleibt die GPU ganz fürs Spiel |
 | **In Void** | Offizielles Paket `mangowc`. Hyprland gibt es bei Void nicht, niri schon (bleibt aber außen vor) |
 
 NVIDIA: MangoWC baut wie Sway/SwayFX auf wlroots auf. Dass Sway NVIDIA als
@@ -48,10 +50,28 @@ linux/void/
 └── usr/                # wird nach /usr kopiert (Firefox-Vorgaben, Standby-Hook)
 ```
 
-Gemeinsam mit NixOS (`linux/.config`): `mango/` (neu), `gtklock/`, `swayidle/`
-(neu), die Taskleiste (`quickshell/taskbar` kann jetzt auch MangoWC), matugen,
-Rofi, mako, nvim, Ghostty …, dazu `linux/nix/scripts/wm.sh` (der Befehl `wm`
-kann jetzt Niri, Hyprland und MangoWC) und `vpn-split.sh`.
+Gemeinsam mit NixOS (`linux/.config`): nvim, Ghostty, matugen, Rofi, mako …,
+dazu `linux/nix/scripts/wm.sh` (der Befehl `wm` kann jetzt Niri, Hyprland und
+MangoWC) und `vpn-split.sh`. Nur für Void (der minimale Stil):
+
+| Datei | |
+|---|---|
+| `mango/config.conf` | MangoWC: eckig, 1px, keine Effekte/Animationen |
+| `quickshell/minibar/` | Textleiste oben: Tags (I II III …), Layout, Fenstertitel; rechts Tray, Tastatur, VPN, Lautstärke, Akku, Uhr |
+| `rofi/flat.rasi` | Starter und Ausschalt-Menü (`power-menu`) als eckiger Kasten |
+| `matugen/templates/mako-flat.ini` | Benachrichtigungen flach (→ `mako/config-flat`) |
+| `matugen/templates/gtklock.css` | Sperrbildschirm: Uhr auf dem Wallpaper, eckiges Passwortfeld |
+| `fastfetch/void.jsonc` | großes Void-Logo, mehr Zeilen |
+| `swayidle/config` | Auto-Sperre wie hypridle.conf |
+
+Die Leiste in `quickshell/minibar`: Tag anklicken wechselt, Mausrad blättert;
+„vpn“ grün/gelb/rot, Klick verbindet bzw. trennt, „VPN AUS“ heißt Internet ohne
+VPN; Lautstärke: Mausrad ändert, Klick stumm, Rechtsklick pavucontrol; Tray:
+Linksklick App, Rechtsklick Menü.
+
+Für den Look wie in den Videos: Terminals mit `fastfetch`, `cmatrix -b` oder
+`tty-clock -c` über ein stimmungsvolles Foto als Wallpaper (Waypaper). Die Farben
+von Rahmen, Leiste und Menüs ziehen beim Wechsel mit.
 
 ## Installation
 
@@ -115,7 +135,7 @@ Einzelne Schritte: `sudo setup.sh system` (nur /etc und Befehle),
 | Alt+Tab | Fensterwechsel mit Vorschau |
 | Super+Shift+S, Druck | Screenshot mit Zeichnen / direkt |
 | Super+Strg+V | Zwischenablage-Verlauf |
-| Super+Shift+L, Super+Shift+E | sperren, Ausschalt-Menü |
+| Super+Shift+L, Super+Shift+E | sperren, Ausschalt-Menü (Rofi) |
 | Super+Shift+C | MangoWC-Config neu laden |
 
 ## Was anders ist als unter NixOS
@@ -124,6 +144,7 @@ Einzelne Schritte: `sudo setup.sh system` (nur /etc und Befehle),
 |---|---|
 | Niri / Hyprland | MangoWC |
 | ly mit Schwarzem Loch | greetd + tuigreet (Text, merkt sich den Benutzer) |
+| Glas-Look, Windows-Taskleiste unten | minimal: eckig, 1px, Textleiste oben |
 | hyprlock / hypridle | gtklock (Farben von matugen, Wallpaper als Hintergrund) / swayidle, gleiche Zeiten |
 | systemd-Dienste | runit (`sv/`), Sitzungsprogramme in `wm autostart` |
 | systemd-Slice `novpn.slice` | eigene cgroup `/sys/fs/cgroup/novpn` (`novpn-join` per sudo) |

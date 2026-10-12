@@ -29,6 +29,8 @@ usbutils
 htop
 btop
 fastfetch
+cmatrix                   # Matrix-Regen im Terminal (Minimal-Look)
+tty-clock                 # große Uhr im Terminal
 chrony                    # Uhrzeit (NixOS: systemd-timesyncd)
 cronie                    # wöchentliches fstrim
 socklog-void              # Systemlog (svlogtail)

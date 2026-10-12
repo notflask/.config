@@ -10,5 +10,8 @@
     // Akzent aus dem Hintergrundbild (Textcursor)
     accent:    #dac2ac;
     rim:       #ffffff40;
+    // flat.rasi (Void/MangoWC): deckende Fläche und Rahmen
+    bg:        #151311;
+    border-c:  #dac2ac;
     divider:   #ffffff1f;
 }
