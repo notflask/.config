@@ -121,7 +121,8 @@ landen per setup.sh in /etc. Deshalb gibt es zwei Befehle mit klaren Namen:
 | `theme`, `theme -m light` | Farben neu erzeugen / hell–dunkel |
 | `vpn status`, `vpn up`, `vpn unlock` … | wie unter NixOS |
 | `novpn BEFEHL` | Programm am VPN vorbei (Steam: `novpn gaming-mode %command%`) |
-| `gaming-mode %command%` | Steam-Startoption, wie unter NixOS |
+| `gaming-mode %command%` | Steam-Startoption, wie unter NixOS (GameMode mit Lüfterkurve, `etc/gamemode.ini`) |
+| `nvidia-offload BEFEHL`, `gpu-info` | Programm auf der RTX 4060 / welcher Anschluss an welcher GPU |
 | `sudo sv status /var/service/*` | Dienste (statt `systemctl status`) |
 | `sudo svlogtail` | Systemlog (statt `journalctl`) |
 | `wm hotkeys` (Super+Shift+/) | alle Tastenkürzel |
@@ -164,7 +165,11 @@ landen per setup.sh in /etc. Deshalb gibt es zwei Befehle mit klaren Namen:
 | Rollback auf ältere Generationen | **gibt es nicht**. Nur der zweite Kernel im Boot-Menü (Erweiterte Optionen) |
 | Pakete aus nixpkgs | Void-Repos + `srcpkgs/` (xbps-src) + pipx/cargo |
 
-Nicht übernommen:
+Nicht übernommen bzw. anders:
+- **VPN-Fenster der Taskleiste** (Split-Tunneling per Klick): Die Textleiste zeigt
+  nur den Zustand und verbindet/trennt per Klick. Apps und Ziele am VPN vorbei
+  gehen über `vpn-split` und `novpn` im Terminal
+- **Startmenü und Fenster-Vorschau** der Taskleiste: Rofi (Super+Space) und Alt+Tab von MangoWC
 - **Antigravity CLI** (`agy`): kein Void-Paket und keine bekannte Linux-Quelle. Bei Bedarf von Hand installieren
 - **Hyprland-Übersicht** (hyprtasking) und **Niris Dynamic Cast**: MangoWC hat eine eigene Übersicht (Super+O). Beim Teilen wählt man den Bildschirm im Dialog von xdg-desktop-portal-wlr
 

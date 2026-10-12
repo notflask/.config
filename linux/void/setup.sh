@@ -146,7 +146,7 @@ overlay() {
 user_commands=(
   mango-session screenshot screenshot-edit scratch-term clipboard-history
   screen-power session-logout novpn vpn vpn-split discord spicetify-setup
-  power-menu term apply
+  power-menu term apply nvidia-offload
 )
 
 do_system() {
@@ -170,6 +170,7 @@ do_system() {
   ln -sfn "$repo/linux/nix/scripts/gaming-mode.sh" /usr/local/bin/gaming-mode
   ln -sfn "$repo/linux/nix/scripts/flatpak-nvidia-sync.sh" /usr/local/bin/flatpak-nvidia-sync
   ln -sfn "$repo/linux/.config/matugen/theme.sh" /usr/local/bin/theme
+  ln -sfn "$repo/linux/nix/scripts/gpu-info.sh" /usr/local/bin/gpu-info
   ln -sfn "$here/update.sh" /usr/local/bin/update
   printf '#!/bin/sh\nexec bash %s "$@"\n' "$repo/linux/nix/scripts/sober-setup.sh" >/usr/local/bin/sober-setup
   chmod 755 /usr/local/bin/sober-setup
@@ -242,7 +243,9 @@ JSON
   set_rc CGROUP_MODE unified
 
   step "Benutzer $user"
-  usermod -aG wheel,video,audio,input,kvm,users "$user"
+  # gamemode: Prozess-Priorität und GPU/CPU-Helfer ohne Passwort
+  groupadd -f gamemode
+  usermod -aG wheel,video,audio,input,kvm,users,gamemode "$user"
   [ "$(getent passwd "$user" | cut -d: -f7)" = /usr/bin/fish ] || chsh -s /usr/bin/fish "$user"
 
   step "Dateisystem, Audio, Aussehen"
@@ -326,6 +329,9 @@ linked=(
   MangoHud sioyek mango gtklock swayidle
 )
 mizu_rev=426e89a4d05c038feaab4a2855351da8b6a4f5fa
+# GE-Proton: dieselbe Version wie proton-ge-bin in nixpkgs
+proton_ge=GE-Proton11-7
+proton_ge_sha256=7ed5b4bc4e39bf626c6da62aa3f4a8d1915fbddb5a9075f45c45c41384ddc4b9
 
 do_user() {
   step "Dotfiles für $user verlinken"
@@ -378,6 +384,21 @@ DESKTOP
     else
       warn "mizu nicht gebaut"
     fi
+  fi
+
+  step "GE-Proton (in Steam unter Kompatibilität wählbar, wie gaming.nix)"
+  local compat=$home/.local/share/Steam/compatibilitytools.d
+  if [ ! -d "$compat/$proton_ge-x86_64" ]; then
+    local tgz=$home/.cache/$proton_ge-x86_64.tar.gz
+    as_user mkdir -p "$compat"
+    if as_user curl -fsSL -o "$tgz" \
+      "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/$proton_ge/$proton_ge-x86_64.tar.gz" &&
+      echo "$proton_ge_sha256  $tgz" | sha256sum -c --quiet; then
+      as_user tar -xzf "$tgz" -C "$compat"
+    else
+      warn "GE-Proton nicht geladen"
+    fi
+    rm -f "$tgz"
   fi
 
   step "Flatpak (Sober), Discord-Starter, Split-Tunneling"
