@@ -8,5 +8,4 @@ waypaper sioyek cameractrls
 gpu-screen-recorder gpu-screen-recorder-ui
 proton-ge-custom-bin
 cachyos-ananicy-rules-git
-hyprtasking                  # Übersicht (Super+O), optional
 ttf-amiri vazirmatn-fonts ttf-gelasio ttf-ms-fonts ttf-vista-fonts

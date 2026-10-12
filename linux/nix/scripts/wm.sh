@@ -155,8 +155,8 @@ autostart() {
     exec waypaper --restore
   ) </dev/null &
 
-  if [ ! -d /run/systemd/system ]; then
-    # Void (Hyprland): minimaler Stil – schmale Textleiste oben und mako flach
+  if [ -e /usr/bin/xbps-install ] || [ -e /usr/bin/pacman ]; then
+    # Void und Arch (Hyprland): minimaler Stil – schmale Textleiste oben und mako flach
     # (vor der ersten Nachricht starten, sonst holt D-Bus mako mit dem
     # Glas-Stil aus ~/.config/mako/config)
     spawn mako --config "$config/mako/config-flat"

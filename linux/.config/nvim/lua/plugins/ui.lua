@@ -5,7 +5,7 @@
 -- später, wenn das System per theme.sh umschaltet).
 local function on_void()
   for _, line in ipairs(vim.fn.readfile("/etc/os-release")) do
-    if line:match('^ID="?void"?$') then return true end
+    if line:match('^ID="?void"?$') or line:match('^ID="?arch"?$') then return true end
   end
   return false
 end

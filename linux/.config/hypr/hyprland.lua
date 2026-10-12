@@ -21,8 +21,9 @@ local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#11
 -- (quickshell/minibar) statt Taskleiste – Abweichungen hier mit `void`,
 -- das Aussehen in void.lua (ganz unten geladen)
 local void = false
-do
-    local f = io.open("/usr/bin/xbps-install")
+-- (Arch Linux, linux/arch, hat denselben Stil wie Void)
+for _, probe in ipairs({ "/usr/bin/xbps-install", "/usr/bin/pacman" }) do
+    local f = io.open(probe)
     if f then
         f:close()
         void = true

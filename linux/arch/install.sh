@@ -161,10 +161,10 @@ do_system() {
   sdo install -d /usr/local/bin
   local c
   for c in hypr-keybinds screenshot screenshot-edit clipboard-history screen-power session-logout \
-    power-menu novpn vpn-split steam; do
+    power-menu novpn vpn-split steam term scratch-term; do
     sdo ln -sfn "$void/bin/$c" "/usr/local/bin/$c"
   done
-  for c in discord scratch-term nvidia-offload update; do
+  for c in discord nvidia-offload update; do
     sdo ln -sfn "$here/files/bin/$c" "/usr/local/bin/$c"
   done
   sdo ln -sfn "$repo/linux/nix/scripts/wm.sh" /usr/local/bin/wm
@@ -268,16 +268,6 @@ do_system() {
       warn "Gigabyte Control Center nicht gebaut"; FAILED+=(gigabyte-control-center)
     fi
     rm -rf "$tmp"
-  fi
-
-  step "Hyprland-Übersicht (hyprtasking) verlinken, falls gebaut"
-  local so
-  so=$(pacman -Ql hyprtasking 2>/dev/null | awk '/libhyprtasking\.so$/ {print $2; exit}')
-  if [ -n "$so" ]; then
-    sdo install -d /etc/hyprland/plugins
-    sdo ln -sfn "$so" /etc/hyprland/plugins/libhyprtasking.so
-  else
-    info "hyprtasking fehlt – Super+O (Übersicht) geht dann nicht, der Rest der Config schon"
   fi
 
   step "Firewall und Kernel-Einstellungen sofort anwenden"
@@ -390,14 +380,13 @@ do_services() {
   for s in polkit-agent swayidle cameractrlsd flatpak-nvidia-sync matugen-first-run; do
     sdo ln -sfn "/etc/systemd/user/$s.service" "/etc/systemd/user/graphical-session.target.wants/$s.service"
   done
-  [ -e /usr/lib/systemd/user/mako.service ] &&
-    sdo ln -sfn /usr/lib/systemd/user/mako.service /etc/systemd/user/graphical-session.target.wants/mako.service
+  # mako startet `wm autostart` mit dem flachen Stil – kein Dienst, sonst käme der Glas-Stil
   # Ab jetzt regeln NetworkManager+openresolv das Netz (Schritt network)
   sdo systemctl disable systemd-networkd.service systemd-networkd.socket systemd-resolved.service >/dev/null 2>&1 || true
 }
 
 # ── user ─────────────────────────────────────────────────────────────────
-linked=(nvim tmux ghostty fastfetch quickshell rofi mako matugen waypaper hypr MangoHud sioyek gtklock swayidle)
+linked=(nvim tmux ghostty quickshell rofi mako matugen waypaper hypr MangoHud sioyek gtklock swayidle)
 mizu_rev=426e89a4d05c038feaab4a2855351da8b6a4f5fa
 opal_rev=abd7ace2de249e5539e5c49c712ae1a82e158595
 
@@ -445,10 +434,17 @@ EOF
 export AQ_DRM_DEVICES=/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu
 EOF
 
-  step "Starter: Discord und Ghostty"
+  step "Starter: Discord und Ghostty (Void-Stil: term)"
   if [ -f /usr/share/applications/discord.desktop ]; then
     sed 's|^Exec=.*|Exec=/usr/local/bin/discord|' /usr/share/applications/discord.desktop >"$home/.local/share/applications/discord.desktop"
   fi
+  if [ -f /usr/share/applications/com.mitchellh.ghostty.desktop ]; then
+    sed 's|^Exec=ghostty|Exec=/usr/local/bin/term|' /usr/share/applications/com.mitchellh.ghostty.desktop >"$home/.local/share/applications/com.mitchellh.ghostty.desktop"
+  fi
+  # fastfetch: Config mit großem Logo (void.jsonc erzeugt matugen) – ein Ordner mit Link
+  [ -L "$home/.config/fastfetch" ] && rm "$home/.config/fastfetch"
+  mkdir -p "$home/.config/fastfetch"
+  ln -sfn "$repo/linux/.config/fastfetch/void.jsonc" "$home/.config/fastfetch/config.jsonc"
 
   step "Programme ohne Paket (pipx, cargo)"
   # Firefox (Pywalfox): Native-Messaging-Host liest die Farben von matugen
