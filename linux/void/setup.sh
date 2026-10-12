@@ -403,7 +403,7 @@ linked=(
 mizu_rev=426e89a4d05c038feaab4a2855351da8b6a4f5fa
 # GE-Proton: dieselbe Version wie proton-ge-bin in nixpkgs
 proton_ge=GE-Proton11-7
-proton_ge_sha256=7ed5b4bc4e39bf626c6da62aa3f4a8d1915fbddb5a9075f45c45c41384ddc4b9
+proton_ge_sha256=c5448b76a230384e2d7bc6beb5ccb97bafb7e2c3b6c527cb03a1a546bbcb00a0
 
 do_user() {
   step "Dotfiles für $user verlinken"

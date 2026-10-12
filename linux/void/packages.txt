@@ -181,6 +181,8 @@ uv
 python3-pipx              # Waypaper, Pywalfox (setup.sh user)
 cargo                     # mizu (setup.sh user)
 clang                     # mizu baut MuPDF (bindgen)
+fontconfig-devel          # mizu (font-kit linkt fontconfig/freetype)
+freetype-devel
 pkg-config
 sioyek
 
