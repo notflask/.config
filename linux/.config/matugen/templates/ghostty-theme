@@ -1,8 +1,9 @@
 # Erzeugt von matugen (templates/ghostty-theme) – hier nichts ändern.
 # Ghostty unter Void/MangoWC (Befehl `term`, linux/void/bin): Fläche, Schrift,
 # Cursor und Auswahl aus dem Wallpaper, deckend und ohne Blur (minimaler
-# Stil). Die 16 Terminalfarben bleiben fest, damit Programme lesbar bleiben:
-# dunkel wie Vague (TTY, theme.nix), hell wie Solarized Osaka Light.
+# Stil). Die Terminalfarben 1–15 bleiben fest, damit Programme lesbar
+# bleiben: dunkel wie Vague (TTY, theme.nix), hell wie Solarized Osaka Light.
+# Farbe 0 („schwarz“, z. B. Hintergrund von cmatrix) ist die Fläche selbst.
 # Unter NixOS gilt weiter das Thema aus config.ghostty.
 background = {{colors.surface.default.hex}}
 foreground = {{colors.on_surface.default.hex}}
@@ -12,7 +13,7 @@ selection-background = {{colors.primary_container.default.hex}}
 selection-foreground = {{colors.on_primary_container.default.hex}}
 background-opacity = 1
 <* if {{ is_dark_mode }} *>
-palette = 0=#252530
+palette = 0={{colors.surface.default.hex}}
 palette = 1=#d8647e
 palette = 2=#7fa563
 palette = 3=#f3be7c
@@ -29,7 +30,7 @@ palette = 13=#c9b1ca
 palette = 14=#bebeda
 palette = 15=#d7d7d7
 <* else *>
-palette = 0=#ede7d3
+palette = 0={{colors.surface.default.hex}}
 palette = 1=#db302d
 palette = 2=#849900
 palette = 3=#b28500

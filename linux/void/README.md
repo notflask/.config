@@ -1,184 +1,239 @@
-# Void Linux – Gigabyte G5 KF (MangoWC)
+# void · mango
 
-Dieselben Apps und Einstellungen wie unter NixOS (`linux/nix`), aber auf
-**Void Linux** (glibc, runit statt systemd) und mit **MangoWC** als
-Fenstermanager.
+**Void Linux + MangoWC** auf dem Gigabyte G5 KF. Minimal, schnell, fürs Spielen
+gebaut. Die Farben kommen aus dem Wallpaper.
 
-- Laptop: Intel i5-12500H (Iris Xe) + NVIDIA RTX 4060 Laptop, eDP-1 1080p@144 Hz
-- Externer Monitor: LG UltraGear 2K, 1440p@180 Hz (DP-2)
-- Desktop: **MangoWC**: wie dwm (Tags 1–9, Layouts zum Umschalten), dazu ein
-  Scroll-Layout wie Niri. Login über **ly** mit Schwarzem-Loch-Animation wie unter NixOS
-- Stil: **anders als unter NixOS, ganz minimal**: eckige Fenster mit 1px-Rahmen,
-  keine Effekte, keine Animationen, schmale Textleiste oben, großes Void-Logo
-  in fastfetch. Das Wallpaper ist die einzige Deko, und die Farben kommen wie
-  gehabt daraus (matugen), hell oder dunkel
-- Kernel: `linux-mainline` (neuester, wie bei Arch). Der normale `linux`
-  bleibt als Rückfall im Boot-Menü
+<p align="center">
+  <img src="screenshots/desktop-dark.webp" alt="Desktop dunkel: Textleiste oben, fastfetch mit Void-Logo, cmatrix und btop vor einem nebligen Wallpaper" width="100%">
+</p>
 
-> **Stand:** Diese Konfiguration ist auf echter Hardware noch nicht
-> gestartet worden. Geprüft wurde sie in einem Void-chroot: Alle Pakete
-> lösen sich in den offiziellen Repos auf, und die MangoWC-Config besteht
-> `mango -p`. Alle Skripte bestehen shellcheck, die eigenen Rezepte `xlint`.
-> Beim ersten Start also dabeibleiben und `~/.local/state/mango.log` im Auge behalten.
+Dieselben Apps und Einstellungen wie das NixOS-Setup in [`linux/nix`](../nix),
+nur auf Void (runit statt systemd) und mit einem anderen Stil: eckige Fenster,
+1px-Rahmen, keine Effekte, eine schmale Textleiste. Das Wallpaper ist die
+einzige Deko.
 
-## Warum MangoWC?
-
-| | |
+|  |  |
 |---|---|
-| **Wie dwm, aber Wayland** | MangoWC ist ein Fork von dwl („dwm für Wayland“): Tags statt Arbeitsflächen, mehrere Tags gleichzeitig ansehen, Layouts per Taste |
-| **Wie Niri** | Das Standard-Layout ist `scroller`: Neue Fenster kommen rechts daneben, man scrollt durch |
-| **Gaming** | Tearing für Spiele (`allow_tearing`, CS2 wie unter Hyprland), VRR nur im Vollbild, explizite Synchronisation (`syncobj`), Direct Scanout, Maus bleibt im Spiel. Ohne Effekte bleibt die GPU ganz fürs Spiel |
-| **In Void** | Offizielles Paket `mangowc`. Hyprland gibt es bei Void nicht, niri schon (bleibt aber außen vor) |
+| **Fenstermanager** | [MangoWC](https://github.com/mangowm/mango): wie dwm (Tags, Layouts), dazu Scrollen wie Niri |
+| **Login** | ly mit Schwarzem-Loch-Animation |
+| **Leiste** | Text statt Symbole: Tags `I II III`, Fenstertitel, `us · vpn · vol 40% · Mo. 12.10. 11:40` |
+| **Terminal** | Ghostty mit fastfetch (großes Void-Logo), cmatrix, btop |
+| **Farben** | matugen: Rahmen, Leiste, Terminal, Rofi, Benachrichtigungen, Sperrbildschirm, Firefox, Discord, Spotify folgen dem Wallpaper. Hell oder dunkel |
+| **Kernel** | `linux-mainline` (neuester), der normale `linux` bleibt als Rückfall |
+| **Hardware** | i5-12500H + RTX 4060 Laptop, eDP-1 1080p@144 Hz, LG 1440p@180 Hz (DP-2) |
 
-NVIDIA: MangoWC baut wie Sway/SwayFX auf wlroots auf. Dass Sway NVIDIA als
-„unsupported“ bezeichnet, ist eine Haltung der Sway-Entwickler, keine
-technische Sperre: Mit dem 595er-Treiber (offene Module, GBM, explizite
-Synchronisation) läuft wlroots auf NVIDIA. MangoWC verweigert den Start nicht.
+## So sieht es aus
 
-```
-linux/void/
-├── README.md
-├── setup.sh            # einrichten bzw. auf den Stand im Repo bringen (wie nixos-rebuild)
-├── update.sh           # Befehl `update`: Pull, neue Versionen, setup.sh, Flatpak
-├── update-sources.sh   # neue Versionen von Claude Desktop, ATAS X, HaruNeko, TradingView, Warp
-├── packages.txt        # Pakete aus den Void-Repos (nach NixOS-Modulen sortiert)
-├── srcpkgs/            # eigene xbps-src-Rezepte (alles, was Void nicht hat)
-├── sv/                 # runit-Dienste: VPN, scx, Control Center, Leistung
-├── sbin/               # root-Hilfsprogramme: Firewall, Kill-Switch, Sperre, Split-Tunneling
-├── bin/                # Befehle: mango-session, vpn, novpn, scratch-term, screenshot …
-├── etc/                # wird nach /etc kopiert (sysctl, udev, ly, sudoers, Firefox …)
-└── usr/                # wird nach /usr kopiert (Firefox-Vorgaben, Standby-Hook)
-```
+<table>
+  <tr>
+    <td width="50%"><img src="screenshots/desktop-light.webp" alt="Desktop hell: dieselben Fenster in hellen Farben vor grauem Nebel"></td>
+    <td width="50%"><img src="screenshots/launcher-dark.webp" alt="Starter (Rofi) als eckiger Kasten und eine Benachrichtigung oben rechts"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>hell: <code>theme -m light</code>, die Farben kommen aus demselben Wallpaper</sub></td>
+    <td align="center"><sub>Starter (<code>super + space</code>) und Benachrichtigung</sub></td>
+  </tr>
+</table>
 
-Gemeinsam mit NixOS (`linux/.config`): nvim, Ghostty, matugen, Rofi, mako …,
-dazu `linux/nix/scripts/wm.sh` (der Befehl `wm` kann jetzt Niri, Hyprland und
-MangoWC) und `vpn-split.sh`. Nur für Void (der minimale Stil):
-
-| Datei | |
-|---|---|
-| `mango/config.conf` | MangoWC: eckig, 1px, keine Effekte/Animationen |
-| `quickshell/minibar/` | Textleiste oben: Tags (I II III …), Layout, Fenstertitel; rechts Tray, Tastatur, VPN, Lautstärke, Akku, Uhr |
-| `rofi/flat.rasi` | Starter und Ausschalt-Menü (`power-menu`) als eckiger Kasten |
-| `matugen/templates/mako-flat.ini` | Benachrichtigungen flach (→ `mako/config-flat`) |
-| `matugen/templates/gtklock.css` | Sperrbildschirm: Uhr auf dem Wallpaper, eckiges Passwortfeld |
-| `matugen/templates/fastfetch-void.jsonc` | großes Void-Logo, Logo und Beschriftungen in der Akzentfarbe (→ `fastfetch/void.jsonc`) |
-| `matugen/templates/ghostty-theme` | Ghostty (`term`, Super+T) in den Farben des Wallpapers, deckend, ohne Blur (→ `ghostty/themes/matugen`) |
-| `swayidle/config` | Auto-Sperre wie hypridle.conf |
-
-Die Leiste in `quickshell/minibar`: Tag anklicken wechselt, Mausrad blättert;
-„vpn“ grün/gelb/rot, Klick verbindet bzw. trennt, „VPN AUS“ heißt Internet ohne
-VPN; Lautstärke: Mausrad ändert, Klick stumm, Rechtsklick pavucontrol; Tray:
-Linksklick App, Rechtsklick Menü.
-
-Dazu passend: ly und die Textkonsole in den Farben von Vague (wie unter NixOS),
-Rofi überall im flachen Stil (Starter, Zwischenablage, Ausschalt-Menü,
-Tastenkürzel).
-
-Für den Look wie in den Videos: Terminals mit `fastfetch`, `cmatrix -b` oder
-`tty-clock -c` über ein stimmungsvolles Foto als Wallpaper (Waypaper). Die Farben
-von Rahmen, Leiste und Menüs ziehen beim Wechsel mit.
+<sub>Die Screenshots stammen aus einer Testumgebung ohne GPU: Sway mit Software-Rendering und denselben Rahmen, Abständen und Farben wie MangoWC, die Leiste mit Beispiel-Tags. Deshalb zeigt fastfetch „vm“, Sway und eine Xeon-CPU. Die Wallpaper sind erzeugter Nebel. Die Farben hat matugen genau so daraus berechnet wie `theme.sh` auf dem Laptop.</sub>
 
 ## Installation
 
-1. **Void installieren**: ISO `void-live-x86_64-*-base.iso` (**glibc**, nicht
-   musl; NVIDIA und Steam laufen nur mit glibc). Im Installer
-   (`sudo void-installer`): Benutzer `flask` mit Gruppe `wheel`, Bootloader
-   GRUB (EFI), Netzwerk per DHCP bzw. WLAN. Plattenverschlüsselung kann
-   der Installer nicht selbst. Wer sie will, richtet LUKS vorher von Hand ein
-   (Void-Handbuch „Full Disk Encryption“).
-2. Nach dem ersten Start als `flask`:
-   ```sh
-   sudo xbps-install -Su xbps git
-   git clone https://github.com/notflask/.config ~/dotfiles
-   cd ~/dotfiles && git checkout void-mango
-   sudo linux/void/setup.sh
-   ```
-   Das dauert: Über 900 Pakete, dazu baut `xbps-src` Discord, Spotify, die
-   MS-Schriften und die eigenen Pakete (`srcpkgs/`).
-3. Neu starten. ly (auf tty2) fragt nach dem Passwort und startet MangoWC.
-   WLAN danach mit `nmtui` verbinden (NetworkManager ersetzt dhcpcd/wpa_supplicant).
-4. Einmal nach dem ersten Login:
-   - **VPN**: `vpn import ~/Downloads/xyz.conf Name`
-   - **Discord**: einmal starten (lädt die App nach), dann `sudo ~/dotfiles/linux/void/setup.sh custom` → Vencord
-   - **Spotify**: einmal starten und anmelden, dann `spicetify-setup`
-   - **Roblox**: `flatpak install --user flathub org.vinegarhq.Sober`, dann `sober-setup`
+**1. Void installieren**
 
-Einzelne Schritte: `sudo setup.sh system` (nur /etc und Befehle),
-`setup.sh services`, `setup.sh user` (Dotfiles, pipx, Claude Code) usw. Siehe `setup.sh`.
+ISO `void-live-x86_64-*-base.iso` mit **glibc** (nicht musl, NVIDIA und Steam
+laufen nur mit glibc). Im Installer (`sudo void-installer`):
+
+- Benutzer `flask`, Gruppe `wheel`
+- Bootloader GRUB (EFI)
+- Netzwerk per DHCP bzw. WLAN
+
+Plattenverschlüsselung richtet der Installer nicht selbst ein. Wer sie will,
+macht LUKS vorher von Hand (Void-Handbuch, „Full Disk Encryption“).
+
+**2. Repo holen und einrichten**
+
+Nach dem ersten Start als `flask`:
+
+```sh
+sudo xbps-install -Su xbps git
+git clone https://github.com/notflask/.config ~/dotfiles
+cd ~/dotfiles && git checkout void-mango
+sudo linux/void/setup.sh
+```
+
+Das dauert eine Weile: über 900 Pakete aus den Void-Repos, dazu baut
+`xbps-src` die Pakete, die Void nicht hat (Claude Desktop, ATAS X, ly,
+Discord, Spotify …).
+
+**3. Neu starten**
+
+ly fragt nach dem Passwort und startet MangoWC. WLAN danach mit `nmtui`
+verbinden (NetworkManager ersetzt dhcpcd/wpa_supplicant).
+
+**4. Einmal einrichten**
+
+| Was | Wie |
+|---|---|
+| Wallpaper | Waypaper öffnen und ein dunkles, stimmungsvolles Foto wählen. Die Farben ziehen überall mit |
+| VPN | `vpn import ~/Downloads/xyz.conf Name` |
+| Discord | einmal starten (lädt die App nach), dann `sudo ~/dotfiles/linux/void/setup.sh custom`, das installiert Vencord |
+| Spotify | einmal starten und anmelden, dann `spicetify-setup` |
+| Roblox | `flatpak install --user flathub org.vinegarhq.Sober`, dann `sober-setup` |
 
 ## Alltag
 
-Ein `rebuild` wie unter NixOS gibt es auf Void nicht. Void aktualisiert man
-eigentlich einfach mit `xbps-install -Su`. Das reicht aber nicht für alles hier:
-Die eigenen Pakete (srcpkgs) baut `xbps-src` neu, und die Configs aus dem Repo
-landen per setup.sh in /etc. Deshalb gibt es zwei Befehle mit klaren Namen:
+Void aktualisiert man normal mit `xbps-install -Su`. Hier kommen zwei Dinge
+dazu: Die eigenen Pakete baut `xbps-src` neu, und die Configs aus dem Repo
+landen per `setup.sh` in `/etc`. Deshalb gibt es drei Befehle:
 
 | Befehl | |
 |---|---|
-| `update` | alles aktualisieren: Void-Pakete, eigene Pakete, Configs, Flatpak, Spicetify |
-| `apply` | nur die Configs aus dem Repo anwenden (/etc, Befehle, Dienste, Dotfiles), ohne Pakete zu bauen |
-| `sudo xbps-install -Su` | nur die Void-Pakete aktualisieren, der normale Void-Weg |
-| `theme`, `theme -m light` | Farben neu erzeugen / hell–dunkel |
-| `vpn status`, `vpn up`, `vpn unlock` … | wie unter NixOS |
-| `novpn BEFEHL` | Programm am VPN vorbei (Steam: `novpn gaming-mode %command%`) |
-| `gaming-mode %command%` | Steam-Startoption, wie unter NixOS (GameMode mit Lüfterkurve, `etc/gamemode.ini`) |
-| `nvidia-offload BEFEHL`, `gpu-info` | Programm auf der RTX 4060 / welcher Anschluss an welcher GPU |
+| `update` | alles: Void-Pakete, eigene Pakete, Configs, Flatpak, Spicetify |
+| `apply` | nur die Configs aus dem Repo anwenden, ohne Pakete zu bauen |
+| `sudo xbps-install -Su` | nur die Void-Pakete |
+
+Und sonst:
+
+| Befehl | |
+|---|---|
+| `theme`, `theme -m light`, `theme -T` | Farben neu erzeugen, hell, umschalten |
+| `vpn status · up · down · lock · unlock` | VPN mit Kill-Switch |
+| `novpn BEFEHL`, `vpn-split` | am VPN vorbei (Steam: `novpn gaming-mode %command%`) |
+| `gaming-mode %command%` | Steam-Startoption: GameMode, MangoHud, Lüfterkurve |
+| `nvidia-offload BEFEHL`, `gpu-info` | Programm auf der RTX 4060, welcher Anschluss an welcher GPU |
 | `sudo sv status /var/service/*` | Dienste (statt `systemctl status`) |
 | `sudo svlogtail` | Systemlog (statt `journalctl`) |
-| `wm hotkeys` (Super+Shift+/) | alle Tastenkürzel |
 
-## Tastenkürzel (wie Niri)
+## Tastenkürzel
+
+Wie in Niri, damit die Finger nichts umlernen müssen. Alle zeigt `super + shift + /`.
 
 | Taste | |
 |---|---|
-| Super+T, Super+` | Ghostty, Wegwerf-Terminal |
-| Super+Leertaste / Super+D | Rofi |
-| Super+Q | Fenster schließen |
-| Super+←/→/↑/↓, Super+H/J/K/L | Fokus (oben/unten wechselt am Rand den Tag) |
-| Super+Strg+Pfeile | Fenster verschieben |
-| Super+1…9, Super+Strg+1…9 | Tag ansehen / Fenster auf Tag |
-| Super+Alt+1…9 | Tag *zusätzlich* ansehen (dwm) |
-| Super+N | Layout weiter: scroller → tile → fair → dwindle → monocle |
-| Super+E / Super+W | alle gleich groß (fair) / Tabs (monocle) |
-| Super+R, Super+−/= | Breite durchschalten / ändern |
-| Super+F, Super+Shift+F | maximieren, Vollbild |
-| Super+V, Super+C | schweben, zentrieren |
-| Super+O | Übersicht |
-| Alt+Tab | Fensterwechsel mit Vorschau |
-| Super+Shift+S, Druck | Screenshot mit Zeichnen / direkt |
-| Super+Strg+V | Zwischenablage-Verlauf |
-| Super+Shift+L, Super+Shift+E | sperren, Ausschalt-Menü (Rofi) |
-| Super+Shift+C | MangoWC-Config neu laden |
+| `super + t` · <code>super + `</code> | Terminal · Wegwerf-Terminal (nochmal drücken schließt) |
+| `super + space` · `super + d` | Starter |
+| `super + q` | Fenster schließen |
+| `super + ←→↑↓` · `super + h j k l` | Fokus (oben/unten wechselt am Rand den Tag) |
+| `super + ctrl + ←→↑↓` | Fenster verschieben |
+| `super + 1…9` · `super + ctrl + 1…9` | Tag ansehen · Fenster auf Tag |
+| `super + alt + 1…9` | Tag zusätzlich ansehen (dwm) |
+| `super + n` | Layout: scroller → tile → fair → dwindle → monocle |
+| `super + e` · `super + w` | alle Fenster gleich groß · Tabs |
+| `super + r` · `super + − / =` | Breite durchschalten · ändern |
+| `super + f` · `super + shift + f` | maximieren · Vollbild |
+| `super + v` · `super + c` | schweben · zentrieren |
+| `super + o` | Übersicht |
+| `alt + tab` | Fensterwechsel mit Vorschau |
+| `super + shift + s` · `print` | Screenshot mit Zeichnen · direkt |
+| `super + ctrl + v` | Zwischenablage-Verlauf |
+| `super + shift + l` · `super + shift + e` | sperren · Ausschalt-Menü |
+| `super + shift + c` | MangoWC-Config neu laden |
+| `alt + shift` | Tastaturbelegung wechseln: us → ru → ua → de |
 
-## Was anders ist als unter NixOS
+## Die Leiste
+
+```
+ I  II [III] IV   [S]  fastfetch — ~                 us · vpn · vol 40% · bat 87% · Mo. 12.10. 11:40
+```
+
+- **Tags** in römischen Ziffern. Nur belegte und der aktuelle sind zu sehen.
+  Klick wechselt dorthin, das Mausrad blättert
+- **`[S]`** ist das Layout (S scroller, T tile, F fair, DW dwindle, M monocle), dahinter der Fenstertitel
+- **Tastaturbelegung** klein: `us`, `de`, `ru`, `ua`
+- **`vpn`**: grün verbunden, gelb verbindet, rot getrennt. **`vpn aus`** heißt
+  Internet ohne VPN. Klick verbindet bzw. trennt
+- **`vol`**: Mausrad ändert, Klick schaltet stumm, Rechtsklick öffnet pavucontrol
+- **Tray** (Discord, Telegram, Control Center): Linksklick App, Rechtsklick Menü
+
+## Stil und Farben
+
+Alles richtet sich nach dem Wallpaper. Wechselt man es in Waypaper, erzeugt
+matugen die Farben neu (`theme.sh`), und alles färbt sich sofort um:
+
+| | |
+|---|---|
+| Fenster | eckig, 1px-Rahmen in der Akzentfarbe, kein Blur, keine Schatten, keine Animationen |
+| Leiste | deckend, Text in JetBrains Mono |
+| Terminal | Ghostty (`term`) mit der Fläche und dem Cursor aus dem Wallpaper |
+| fastfetch | großes Void-Logo und Beschriftungen in der Akzentfarbe |
+| Rofi | Starter, Ausschalt-Menü, Zwischenablage, Tastenkürzel: eckige Kästen |
+| Benachrichtigungen, Sperrbildschirm | flach, 1px-Rahmen, Uhr direkt auf dem Wallpaper |
+| ly und Textkonsole | Farben von Vague, wie unter NixOS |
+| Apps | GTK (adw-gtk3) und Qt/KDE (Dolphin, Okular …) in den Farben von matugen |
+
+Für den Look aus dem ersten Bild: zwei, drei Terminals mit `fastfetch`,
+`cmatrix -b` oder `btop` schweben lassen (`super + v`) über einem
+stimmungsvollen Foto.
+
+## Gaming
+
+| | |
+|---|---|
+| Steam, GE-Proton, Lutris, Sober | wie unter NixOS |
+| Tearing | CS2 darf tearen (kleinste Latenz), sonst nur im Vollbild, wenn das Spiel es will |
+| VRR | auf dem LG nur für Spiele im Vollbild |
+| Direct Scanout | ohne Effekte geht jedes Bild direkt an den Monitor |
+| GameMode | renice 5 (Discord-Stream ruckelt nicht), Lüfter drehen früh hoch |
+| System | scx_lavd, NTSYNC, Split-Lock-Bremse aus, `preempt=full`, Watchdogs aus, zram, BBR |
+| Leistungsgrenzen | CPU 65 W Dauerleistung, GPU-Mindesttakt, Energieprofil „Leistung“ |
+| Aufnahme | GPU Screen Recorder, `alt + z` wie ShadowPlay |
+
+**Gegenüber NixOS mit Hyprland** (erwartet, nicht gemessen): FPS etwa gleich
+(gleicher Treiber, gleiche Tweaks), der Desktop fühlt sich schneller an (keine
+Animationen), das System ist etwas schlanker (runit, weniger Dienste). Messen
+mit MangoHud: dasselbe Spiel an derselben Stelle, FPS und 1%-Lows vergleichen.
+
+## Anders als unter NixOS
 
 | NixOS | Void |
 |---|---|
 | Niri / Hyprland | MangoWC |
-| ly mit Schwarzem Loch | ly mit Schwarzem Loch (eigenes Paket, Zig 0.17 nur zum Bauen) |
 | Glas-Look, Windows-Taskleiste unten | minimal: eckig, 1px, Textleiste oben |
-| hyprlock / hypridle | gtklock (Farben von matugen, Wallpaper als Hintergrund) / swayidle, gleiche Zeiten |
-| systemd-Dienste | runit (`sv/`), Sitzungsprogramme in `wm autostart` |
-| systemd-Slice `novpn.slice` | eigene cgroup `/sys/fs/cgroup/novpn` (`novpn-join` per sudo) |
-| Polkit-Regel fürs VPN | sudo-Regeln für `sv up/down` (`etc/sudoers.d/g5`) |
-| NixOS-Firewall | `g5-firewall` (gleiche offenen Ports) |
-| Rollback auf ältere Generationen | **gibt es nicht**. Nur der zweite Kernel im Boot-Menü (Erweiterte Optionen) |
+| hyprlock / hypridle | gtklock / swayidle, gleiche Zeiten |
+| systemd | runit (`sv/`), Programme der Sitzung in `wm autostart` |
+| Rollback auf ältere Generationen | **gibt es nicht**, nur den zweiten Kernel im Boot-Menü |
 | Pakete aus nixpkgs | Void-Repos + `srcpkgs/` (xbps-src) + pipx/cargo |
+| VPN-Fenster mit Split-Tunneling | `vpn-split` und `novpn` im Terminal |
+| Startmenü, Fenster-Vorschau | Rofi, Alt+Tab von MangoWC |
 
-Nicht übernommen bzw. anders:
-- **VPN-Fenster der Taskleiste** (Split-Tunneling per Klick): Die Textleiste zeigt
-  nur den Zustand und verbindet/trennt per Klick. Apps und Ziele am VPN vorbei
-  gehen über `vpn-split` und `novpn` im Terminal
-- **Startmenü und Fenster-Vorschau** der Taskleiste: Rofi (Super+Space) und Alt+Tab von MangoWC
-- **Antigravity CLI** (`agy`): kein Void-Paket und keine bekannte Linux-Quelle. Bei Bedarf von Hand installieren
-- **Hyprland-Übersicht** (hyprtasking) und **Niris Dynamic Cast**: MangoWC hat eine eigene Übersicht (Super+O). Beim Teilen wählt man den Bildschirm im Dialog von xdg-desktop-portal-wlr
+Nicht übernommen: **Antigravity CLI** (`agy`), dafür gibt es kein Void-Paket.
+
+## Aufbau
+
+```
+linux/void/
+├── setup.sh            einrichten bzw. auf den Stand im Repo bringen
+├── update.sh           Befehl `update`
+├── update-sources.sh   neue Versionen von Claude Desktop, ATAS X, HaruNeko, TradingView, Warp
+├── packages.txt        Pakete aus den Void-Repos (nach NixOS-Modulen sortiert)
+├── srcpkgs/            eigene xbps-src-Rezepte: ly, Claude Desktop, ATAS X, Schriften …
+├── sv/                 runit-Dienste: VPN, scx, Control Center, Leistung
+├── sbin/               root-Helfer: Firewall, Kill-Switch, Sperre, Split-Tunneling
+├── bin/                Befehle: term, apply, vpn, novpn, power-menu, mango-session …
+├── etc/                nach /etc: sysctl, udev, ly, sudoers, Firefox, Schriften …
+├── usr/                nach /usr: Firefox-Vorgaben, Standby-Hook
+└── screenshots/
+```
+
+Die Configs in `linux/.config`, die nur Void nutzt: `mango/`,
+`quickshell/minibar/` (Leiste), `rofi/flat.rasi`, `ghostty/void.ghostty`,
+`gtklock/`, `swayidle/` und die matugen-Vorlagen `mango-colors.conf`,
+`ghostty-theme`, `fastfetch-void.jsonc`, `mako-flat.ini`, `gtklock.css`.
+Gemeinsam mit NixOS: nvim, matugen, `wm.sh` (kann Niri, Hyprland und MangoWC)
+und `vpn-split.sh`.
 
 ## Wenn etwas nicht geht
 
-- **Schwarzer Bildschirm nach dem Login**: `~/.local/state/mango.log` lesen.
-  In `bin/mango-session` testweise `WLR_DRM_DEVICES` auf nur
-  `/dev/dri/nvidia-dgpu` setzen, bei Cursor-Problemen `export WLR_NO_HARDWARE_CURSORS=1`
-- **Tearing klappt nicht**: in `mango-session` `export WLR_DRM_NO_ATOMIC=1` (laut MangoWC-Doku bei manchen GPUs nötig)
-- **Kein Ton**: `pgrep -a pipewire`, sonst neu anmelden. Die Links liegen unter `/etc/pipewire/pipewire.conf.d`
-- **Paket baut nicht** (neue Upstream-Version): `linux/void/update-sources.sh NAME`, dann `sudo setup.sh custom`
-- **Neuer Kernel startet nicht**: im GRUB-Menü „Erweiterte Optionen“ → den `linux`-Kernel (6.x) wählen
+| Problem | |
+|---|---|
+| Schwarzer Bildschirm nach dem Login | `~/.local/state/mango.log` lesen. In `bin/mango-session` testweise `WLR_DRM_DEVICES=/dev/dri/nvidia-dgpu`, bei Cursor-Fehlern `WLR_NO_HARDWARE_CURSORS=1` |
+| Tearing klappt nicht | in `mango-session` `export WLR_DRM_NO_ATOMIC=1` |
+| Kein Ton | `pgrep -a pipewire`, sonst neu anmelden |
+| Paket baut nicht (neue Version upstream) | `linux/void/update-sources.sh NAME`, dann `sudo setup.sh custom` |
+| Neuer Kernel startet nicht | GRUB, „Erweiterte Optionen“, den `linux`-Kernel wählen |
+
+> **Stand:** auf echter Hardware noch nicht gestartet. Geprüft in einem
+> Void-chroot: Alle Pakete lösen sich auf, die MangoWC-Config besteht `mango -p`,
+> alle Skripte bestehen shellcheck und die Rezepte `xlint`. ly, Claude
+> Desktop, ATAS X und das Control Center bauen bzw. starten.

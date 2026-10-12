@@ -7,7 +7,7 @@ import Quickshell.Services.UPower
 import Quickshell.Widgets
 
 // Rechte Seite, nur Text mit „·“ dazwischen:
-//   Tray · US · vpn · vol 40% · bat 87% · Mo 12.10. 11:40
+//   Tray · us · vpn · vol 40% · bat 87% · Mo. 12.10. 11:40
 Row {
     id: root
 
@@ -71,22 +71,22 @@ Row {
         visible: SystemTray.items.values.length > 0
     }
 
-    // ── Tastaturlayout (Alt+Shift wechselt) ────────────────────────────
+    // ── Tastaturlayout klein (us, de, ru, ua – Alt+Shift wechselt) ─────
     Label {
         height: parent.height
         text: {
             const name = Mango.layout;
             const known = {
-                "English (US)": "US",
-                "English": "US",
-                "German": "DE",
-                "Russian": "RU",
-                "Ukrainian": "UA"
+                "English (US)": "us",
+                "English": "us",
+                "German": "de",
+                "Russian": "ru",
+                "Ukrainian": "ua"
             };
             for (const k in known)
                 if (name.startsWith(k))
                     return known[k];
-            return name.slice(0, 2).toUpperCase();
+            return name.slice(0, 2).toLowerCase();
         }
     }
 
@@ -100,7 +100,7 @@ Row {
         readonly property string script: Quickshell.shellDir + "/../taskbar/scripts/vpn.sh"
 
         height: parent.height
-        text: state === "open" ? "VPN AUS" : "vpn"
+        text: state === "open" ? "vpn aus" : "vpn"
         color: state === "on" ? Theme.ok : state === "pending" ? Theme.warn : Theme.error
         font.bold: state === "open"
 
