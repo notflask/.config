@@ -40,7 +40,6 @@ games-util/gamemode
 games-util/mangohud
 gui-wm/gamescope
 games-util/lutris
-app-emulation/wine-vanilla
 sys-apps/flatpak
 app-admin/ananicy-cpp
 app-emulation/qemu

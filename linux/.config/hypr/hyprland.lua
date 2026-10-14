@@ -347,11 +347,11 @@ hl.window_rule({
     rounding = 0,
 })
 
--- Ghostty und Warp: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund).
+-- Ghostty: Liquid-Glass-Terminal (Blur hinter dem transparenten Hintergrund).
 -- In Hyprland ist Blur global, deshalb: alle anderen Fenster ohne Blur
 hl.window_rule({
     name = "blur-only-ghostty",
-    match = { class = "negative:com\\.mitchellh\\.ghostty|com\\.flask\\.scratchpad|dev\\.warp\\.Warp" },
+    match = { class = "negative:com\\.mitchellh\\.ghostty|com\\.flask\\.scratchpad" },
     no_blur = true,
 })
 

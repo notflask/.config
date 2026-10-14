@@ -18,7 +18,7 @@ USERNAME=${USERNAME:-flask}
 HOSTNAME_G5=${HOSTNAME_G5:-g5}
 TZ_G5=${TZ_G5:-Europe/Berlin}
 LOCALE_G5=${LOCALE_G5:-de_DE.UTF-8}
-KERNEL_PKG=${KERNEL_PKG:-sys-kernel/gentoo-kernel}
+KERNEL_PKG=${KERNEL_PKG:-sys-kernel/gentoo-kernel-bin}
 target=/mnt/gentoo
 state=/var/lib/g5-configure
 profile=default/linux/amd64/23.0/desktop/systemd
@@ -155,7 +155,7 @@ do_portage() {
   [ "$jobs" -ge 1 ] || jobs=1
   mkdir -p /etc/portage/{package.use,package.accept_keywords,package.license,package.mask,binrepos.conf,sets,repos.conf}
   [ -f /etc/portage/make.conf.stage3 ] || cp /etc/portage/make.conf /etc/portage/make.conf.stage3
-  sed -e "s/@MAKEOPTS@/-j$jobs -l$threads/" -e "s/@THREADS@/$threads/" -e "s/@CPU_FLAGS@//" \
+  sed -e "s/@MAKEOPTS@/-j$jobs -l$threads/" -e "s/@THREADS@/$threads/" \
     "$here/portage/make.conf" >/etc/portage/make.conf
   rm -f /etc/portage/package.use/* 2>/dev/null || true
   cp "$here"/portage/package.use/* /etc/portage/package.use/
@@ -166,10 +166,6 @@ do_portage() {
   rm -f /etc/portage/binrepos.conf/*
   cp "$here/portage/binrepos.conf/gentoo.conf" /etc/portage/binrepos.conf/
   getuto || warn "getuto fehlgeschlagen – Binärpakete evtl. ohne Signaturprüfung nicht nutzbar"
-  emerge --ask=n --oneshot --getbinpkg app-portage/cpuid2cpuflags
-  local flags
-  flags=$(cpuid2cpuflags | cut -d: -f2- | sed 's/^ *//')
-  sed -i "s/^CPU_FLAGS_X86=.*/CPU_FLAGS_X86=\"$flags\"/" /etc/portage/make.conf
 }
 
 do_locale() {
@@ -213,9 +209,8 @@ do_boot() {
   sub=$(findmnt -no OPTIONS / | grep -oE 'subvol=[^,]+' | head -1 | sed 's|subvol=/|subvol=|') || true
   local rootargs="root=UUID=$root_uuid rw"
   [ "$(findmnt -no FSTYPE /)" = btrfs ] && rootargs="$rootargs rootfstype=btrfs ${sub:+rootflags=$sub}"
-  mkdir -p /etc/kernel/config.d /etc/dracut.conf.d
+  mkdir -p /etc/kernel /etc/dracut.conf.d
   sed -e "s|@ROOT@|$rootargs|" -e "s|@VT@|$vt_colors|" "$here/files/etc/kernel/cmdline.tpl" >/etc/kernel/cmdline
-  cp "$here/files/etc/kernel/config.d/g5.config" /etc/kernel/config.d/
   cp "$here/files/etc/dracut.conf.d/g5.conf" /etc/dracut.conf.d/
   install -D -m644 "$here/files/etc/plymouth/plymouthd.conf" /etc/plymouth/plymouthd.conf
   plymouth-set-default-theme bgrt 2>/dev/null || plymouth-set-default-theme spinner || true

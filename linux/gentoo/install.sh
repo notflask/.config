@@ -208,20 +208,6 @@ EOF
     fi
   fi
 
-  step "Warp Terminal"
-  if [ ! -x /opt/warp-terminal/warp ] || [ "${G5_UPDATE:-0}" = 1 ]; then
-    if fetch "https://app.warp.dev/download?package=pacman" "$tmp/warp.pkg.tar.zst" &&
-      mkdir -p "$tmp/warp" && tar --zstd -xf "$tmp/warp.pkg.tar.zst" -C "$tmp/warp" 2>/dev/null; then
-      sdo rm -rf /opt/warp-terminal
-      sdo cp -a "$tmp/warp/opt/warpdotdev/warp-terminal" /opt/warp-terminal 2>/dev/null || sdo cp -a "$tmp/warp/opt/"* /opt/warp-terminal
-      sdo cp -a "$tmp/warp/usr/share/." /usr/local/share/ 2>/dev/null || true
-      u=$(find /opt/warp-terminal -maxdepth 1 -type f -name 'warp*' -perm -u+x | head -1)
-      [ -n "$u" ] && sdo ln -sfn "$u" /usr/local/bin/warp-terminal
-    else
-      warn "Warp nicht geladen"; FAILED+=(warp-terminal)
-    fi
-  fi
-
   step "TradingView (Snap-Paket entpackt)"
   u=$(curl -fsSL -H 'Snap-Device-Series: 16' 'https://api.snapcraft.io/v2/snaps/info/tradingview?fields=download,version' |
     jq -r '[."channel-map"[] | select(.channel.name=="stable" and .channel.architecture=="amd64")][0] | "\(.version) \(.download.url)"' 2>/dev/null) || u=""
@@ -340,9 +326,7 @@ do_user() {
     fi
     ln -sfn "$repo/linux/.config/$name" "$dst"
   done
-  mkdir -p "$home/.local/share/warp-terminal" "$home/.config/warp-terminal" "$home/.config/Vencord/themes"
-  ln -sfn "$repo/linux/.local/share/warp-terminal/themes" "$home/.local/share/warp-terminal/themes"
-  [ -e "$home/.config/warp-terminal/settings.toml" ] || cp "$repo/linux/.config/warp-terminal/settings.toml" "$home/.config/warp-terminal/"
+  mkdir -p "$home/.config/Vencord/themes"
   xdg-user-dirs-update || true
   mkdir -p "$home/Wallpapers"
   cp -n "$here"/wallpapers/* "$home/Wallpapers/" 2>/dev/null || true
@@ -355,7 +339,6 @@ export LIBVA_DRIVER_NAME=nvidia
 export NVD_BACKEND=direct
 export MOZ_DISABLE_RDD_SANDBOX=1
 export ELECTRON_OZONE_PLATFORM_HINT=auto
-export WARP_ENABLE_WAYLAND=1
 export QT_QPA_PLATFORM="wayland;xcb"
 export QT_QPA_PLATFORMTHEME=kde
 export XCURSOR_THEME=macOS
