@@ -31,6 +31,7 @@ Ohne Gentoo-Paket, von `extras` direkt vom Hersteller: Claude Desktop (.deb), Tr
 
 ## Alltag
 
+- Logs: `~/.local/state/g5-install.log`, `/var/log/g5-configure.log`; Fehler und Warnungen stehen gesammelt am Ende jedes Laufs.
 - `update` – Overlays syncen, `@world` mit Snapshot davor/danach (`emerge-snap`), Plugins, Extras, Spicetify, Flatpak.
 - `style minimal|glass`, `theme`, `vpn`, `novpn`, `gaming-mode` wie unter Arch.
 - Kernel-Optionen: `/etc/kernel/config.d/g5.config`, Kommandozeile: `/etc/kernel/cmdline`, danach `emerge --config sys-kernel/gentoo-kernel`.

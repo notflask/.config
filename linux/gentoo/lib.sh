@@ -1,9 +1,22 @@
 # shellcheck shell=bash
 FAILED=()
+WARNINGS=()
 step() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 info() { printf '    %s\n' "$*"; }
-warn() { printf '\033[1;33m    %s\033[0m\n' "$*" >&2; }
-die() { printf '\033[1;31m!!! %s\033[0m\n' "$*" >&2; exit 1; }
+warn() { WARNINGS+=("$*"); printf '\033[1;33m    %s\033[0m\n' "$*" >&2; }
+die() {
+  printf '\033[1;31m!!! %s\033[0m\n' "$*" >&2
+  report
+  exit 1
+}
+
+# Alles zusätzlich in eine Logdatei schreiben: start_log DATEI
+start_log() {
+  LOGFILE=$1
+  mkdir -p "$(dirname "$LOGFILE")"
+  exec > >(tee -a "$LOGFILE") 2>&1
+  printf '\n===== %s %s =====\n' "$(date '+%F %T')" "$0 $*"
+}
 have() { command -v "$1" >/dev/null 2>&1; }
 list() { sed 's/#.*//' "$1" | tr -s ' \t' '\n' | grep -v '^$'; }
 
@@ -50,7 +63,16 @@ emerge_try() {
 }
 
 report() {
+  local w f
+  [ ${#WARNINGS[@]} -gt 0 ] || [ ${#FAILED[@]} -gt 0 ] || { printf '\n\033[1;32m==> Keine Fehler.\033[0m\n'; return 0; }
+  printf '\n\033[1;31m==================== Zusammenfassung ====================\033[0m\n'
+  for w in "${WARNINGS[@]}"; do printf '\033[1;33m  ! %s\033[0m\n' "$w"; done
   if [ ${#FAILED[@]} -gt 0 ]; then
-    warn "Nicht installiert/gebaut: ${FAILED[*]}"
+    printf '\033[1;31m  Nicht installiert/gebaut: %s\033[0m\n' "${FAILED[*]}"
+    for f in /var/tmp/portage/*/*/temp/build.log; do
+      [ -f "$f" ] && [ "$f" -nt "${LOGFILE:-/}" ] && printf '  Build-Log: %s\n' "$f"
+    done
   fi
+  [ -n "${LOGFILE:-}" ] && printf '  Komplettes Log: %s\n' "$LOGFILE"
+  return 0
 }

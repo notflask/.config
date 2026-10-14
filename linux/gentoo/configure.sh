@@ -130,8 +130,11 @@ enter_chroot() {
 
 finish_live() {
   step "Aushängen"
+  cp -f /tmp/g5-configure-live.log "$target/var/log/" 2>/dev/null || true
   sync
   umount -R "$target" 2>/dev/null || umount -lR "$target" || true
+  report
+  info "Logs im neuen System: /var/log/g5-configure.log, /var/log/g5-configure-live.log"
   step "Fertig. Neu starten (Stick ziehen), als $USERNAME anmelden, dann:"
   info "nmtui   (falls WLAN)"
   info "\$HOME/dotfiles/linux/gentoo/install.sh"
@@ -322,6 +325,7 @@ do_snapper() {
 
 chroot_main() {
   [ -e /etc/gentoo-release ] || die "--chroot nur im Ziel-System"
+  start_log /var/log/g5-configure.log
   set +u; source /etc/profile; set -u
   run portage
   run locale
@@ -340,6 +344,7 @@ chroot_main() {
 
 # ════════════════════════════ Start ════════════════════════════
 
+[ "${1:-}" = --chroot ] || [ "$(id -u)" -ne 0 ] || start_log /tmp/g5-configure-live.log
 case ${1:-} in
   --chroot) chroot_main ;;
   --mounted)

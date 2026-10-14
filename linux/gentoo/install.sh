@@ -408,6 +408,7 @@ do_network() {
 }
 
 all=(repos packages system extras plugins services user network)
+start_log "$HOME/.local/state/g5-install.log"
 check
 [ $# -gt 0 ] || set -- "${all[@]}"
 for s in "$@"; do
