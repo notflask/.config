@@ -201,20 +201,6 @@ EOF
     fi
   fi
 
-  step "Cowork: UEFI-Firmware und virtiofsd unter Debian-Pfaden"
-  sdo install -d /usr/share/OVMF
-  local n f
-  for n in CODE VARS; do
-    f=/usr/share/edk2/OvmfX64/OVMF_${n}_4M
-    if [ -f "$f.qcow2" ] && { [ ! -f "/usr/share/OVMF/OVMF_${n}_4M.fd" ] || [ "$f.qcow2" -nt "/usr/share/OVMF/OVMF_${n}_4M.fd" ]; }; then
-      sdo qemu-img convert -O raw "$f.qcow2" "/usr/share/OVMF/OVMF_${n}_4M.fd" || warn "OVMF_$n nicht umgewandelt"
-    elif [ -f "$f.fd" ]; then
-      sdo ln -sfn "$f.fd" "/usr/share/OVMF/OVMF_${n}_4M.fd"
-    fi
-  done
-  [ -x /usr/libexec/virtiofsd ] && [ ! -e /usr/bin/virtiofsd ] && sdo ln -s /usr/libexec/virtiofsd /usr/bin/virtiofsd
-  [ -f /usr/share/OVMF/OVMF_CODE_4M.fd ] || warn "Cowork: OVMF-Firmware fehlt (sys-firmware/edk2-bin)"
-
   step "TradingView (Snap-Paket entpackt)"
   u=$(curl -fsSL -H 'Snap-Device-Series: 16' 'https://api.snapcraft.io/v2/snaps/info/tradingview?fields=download,version' |
     jq -r '[."channel-map"[] | select(.channel.name=="stable" and .channel.architecture=="amd64")][0] | "\(.version) \(.download.url)"' 2>/dev/null) || u=""

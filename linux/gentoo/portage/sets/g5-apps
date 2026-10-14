@@ -39,15 +39,10 @@ games-util/steam-launcher
 games-util/gamemode
 games-util/mangohud
 gui-wm/gamescope
-games-util/lutris
 sys-apps/flatpak
 app-admin/ananicy-cpp
-app-emulation/qemu
-app-emulation/virtiofsd
-sys-firmware/edk2-bin
 sys-fs/squashfs-tools
 app-arch/cabextract
 sys-apps/bubblewrap
-net-misc/socat
 dev-util/desktop-file-utils
 dev-util/gtk-update-icon-cache
