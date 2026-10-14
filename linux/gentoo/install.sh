@@ -4,12 +4,13 @@
 #
 #   ~/dotfiles/linux/gentoo/install.sh             alles
 #   ~/dotfiles/linux/gentoo/install.sh SCHRITT ... repos packages system extras plugins services user network
-set -euo pipefail
+set -Eeuo pipefail
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 repo=$(cd "$here/../.." && pwd)
 # shellcheck source=lib.sh
 . "$here/lib.sh"
+trap 'die "Fehler in ${BASH_SOURCE[0]##*/} Zeile $LINENO: $BASH_COMMAND"' ERR
 home=$HOME
 SUDO=sudo
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/bin:$PATH"

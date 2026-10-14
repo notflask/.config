@@ -7,12 +7,13 @@
 #   sudo ./configure.sh --resume         nach Abbruch weitermachen (Platte bleibt)
 #
 # Danach: neu starten, als flask anmelden, ~/dotfiles/linux/gentoo/install.sh
-set -euo pipefail
+set -Eeuo pipefail
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 repo=$(cd "$here/../.." && pwd)
 # shellcheck source=lib.sh
 . "$here/lib.sh"
+trap 'die "Fehler in ${BASH_SOURCE[0]##*/} Zeile $LINENO: $BASH_COMMAND"' ERR
 
 USERNAME=${USERNAME:-flask}
 HOSTNAME_G5=${HOSTNAME_G5:-g5}
@@ -114,7 +115,7 @@ enter_chroot() {
     rm -rf "$target/home/$USERNAME/dotfiles"
     cp -a "$repo" "$target/home/$USERNAME/dotfiles"
   fi
-  cp --dereference /etc/resolv.conf "$target/etc/"
+  cp --dereference --remove-destination /etc/resolv.conf "$target/etc/resolv.conf"
   local m
   findmnt -n "$target/proc" >/dev/null || mount --types proc /proc "$target/proc"
   for m in sys dev; do
@@ -131,6 +132,7 @@ enter_chroot() {
 finish_live() {
   step "Aushängen"
   cp -f /tmp/g5-configure-live.log "$target/var/log/" 2>/dev/null || true
+  ln -sf ../run/systemd/resolve/stub-resolv.conf "$target/etc/resolv.conf"
   sync
   umount -R "$target" 2>/dev/null || umount -lR "$target" || true
   report
@@ -253,10 +255,12 @@ do_tuning() {
   install -m755 "$here"/files/libexec/* /usr/local/libexec/
   install -m755 "$here/files/sleep/g5-tuning" /usr/lib/systemd/system-sleep/g5-tuning
   touch /var/lib/vpn-bypass/domains
+  install -d /etc/sudoers.d
   chmod 440 /etc/sudoers.d/g5
   visudo -cq -f /etc/sudoers.d/g5 2>/dev/null || rm -f /etc/sudoers.d/g5
   echo '%wheel ALL=(ALL:ALL) ALL' >/etc/sudoers.d/00-wheel
   chmod 440 /etc/sudoers.d/00-wheel
+  install -d /etc/security/limits.d /etc/sudoers.d
   printf '@audio - rtprio 95\n@audio - memlock unlimited\n' >/etc/security/limits.d/90-g5-audio.conf
 }
 
