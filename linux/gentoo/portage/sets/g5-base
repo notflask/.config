@@ -35,7 +35,6 @@ sys-process/nvtop
 net-misc/networkmanager
 net-firewall/iptables
 net-vpn/wireguard-tools
-net-dns/openresolv
 sys-apps/ethtool
 net-wireless/bluez
 sys-power/power-profiles-daemon

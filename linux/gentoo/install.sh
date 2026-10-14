@@ -314,7 +314,8 @@ do_services() {
   for s in polkit-agent swayidle cameractrlsd flatpak-nvidia-sync matugen-first-run; do
     sdo ln -sfn "/etc/systemd/user/$s.service" "/etc/systemd/user/graphical-session.target.wants/$s.service"
   done
-  sdo systemctl disable systemd-networkd.service systemd-networkd.socket systemd-resolved.service >/dev/null 2>&1 || true
+  sdo systemctl disable systemd-networkd.service systemd-networkd.socket >/dev/null 2>&1 || true
+  sdo systemctl enable systemd-resolved.service >/dev/null 2>&1 || true
 }
 
 # ── user ──
@@ -398,12 +399,11 @@ EOF
 
 # ── network ──
 do_network() {
-  step "NetworkManager + openresolv"
-  [ -L /etc/resolv.conf ] && sdo rm -f /etc/resolv.conf
-  sdo systemctl stop systemd-resolved.service >/dev/null 2>&1 || true
+  step "NetworkManager + systemd-resolved"
+  sdo systemctl enable --now systemd-resolved.service || true
+  sdo ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
   sdo systemctl restart NetworkManager.service || true
   sleep 5
-  sdo resolvconf -u || true
   curl -fsS --max-time 10 -o /dev/null https://distfiles.gentoo.org/ && info "Netz ok" || warn "kein Netz – nmtui bzw. Neustart"
 }
 

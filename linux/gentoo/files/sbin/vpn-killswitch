@@ -21,6 +21,11 @@ done
 # verteilt ja Adressen) und hängen jedes Mal ~1 s, bis sie auf IPv4
 # ausweichen. Deshalb IPv6 außer LAN auf eine unreachable-Route legen –
 # connect() scheitert sofort.
+# DNS nur durch den Tunnel (systemd-resolved): wg0 bekommt alle Domains
+if [ "$action" = on ] && command -v resolvectl >/dev/null; then
+  resolvectl domain "$dev" '~.' 2>/dev/null || true
+  resolvectl default-route "$dev" yes 2>/dev/null || true
+fi
 if [ "$action" = off ]; then
   ip -6 rule del not fwmark "$mark" table "$mark" 2>/dev/null || true
   ip -6 rule del table main suppress_prefixlength 0 2>/dev/null || true

@@ -304,10 +304,12 @@ do_services() {
   systemctl preset-all --preset-mode=enable-only >/dev/null 2>&1 || true
   local s
   for s in NetworkManager bluetooth power-profiles-daemon upower fstrim.timer systemd-timesyncd systemd-boot-update \
-    nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info; do
+    systemd-resolved nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info; do
     systemctl enable "$s" >/dev/null 2>&1 && info "an: $s" || info "übersprungen: $s"
   done
-  systemctl disable systemd-networkd systemd-resolved >/dev/null 2>&1 || true
+  systemctl disable systemd-networkd >/dev/null 2>&1 || true
+  systemctl enable systemd-resolved >/dev/null 2>&1 || true
+  ln -sf ../run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 }
 
 do_snapper() {
