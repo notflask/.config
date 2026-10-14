@@ -195,17 +195,25 @@ do_extras() {
 exec /usr/lib/claude-desktop/claude-desktop "$@"
 EOF
       sdo chmod 755 /usr/local/bin/claude-desktop
-      sdo install -d /usr/share/OVMF
-      for n in CODE VARS; do
-        f=$(ls /usr/share/edk2/OvmfX64/OVMF_$n.fd /usr/share/edk2-ovmf/OVMF_$n.fd /usr/share/qemu/edk2-x86_64-code.fd 2>/dev/null | head -1) || true
-        [ -n "$f" ] && sdo ln -sfn "$f" "/usr/share/OVMF/OVMF_${n}_4M.fd"
-      done
-      [ -x /usr/libexec/virtiofsd ] && [ ! -e /usr/bin/virtiofsd ] && sdo ln -s /usr/libexec/virtiofsd /usr/bin/virtiofsd
       echo "$v" | sdo tee /var/lib/g5-claude-desktop.ver >/dev/null
     else
       warn "Claude Desktop nicht installiert"; FAILED+=(claude-desktop)
     fi
   fi
+
+  step "Cowork: UEFI-Firmware und virtiofsd unter Debian-Pfaden"
+  sdo install -d /usr/share/OVMF
+  local n f
+  for n in CODE VARS; do
+    f=/usr/share/edk2/OvmfX64/OVMF_${n}_4M
+    if [ -f "$f.qcow2" ] && { [ ! -f "/usr/share/OVMF/OVMF_${n}_4M.fd" ] || [ "$f.qcow2" -nt "/usr/share/OVMF/OVMF_${n}_4M.fd" ]; }; then
+      sdo qemu-img convert -O raw "$f.qcow2" "/usr/share/OVMF/OVMF_${n}_4M.fd" || warn "OVMF_$n nicht umgewandelt"
+    elif [ -f "$f.fd" ]; then
+      sdo ln -sfn "$f.fd" "/usr/share/OVMF/OVMF_${n}_4M.fd"
+    fi
+  done
+  [ -x /usr/libexec/virtiofsd ] && [ ! -e /usr/bin/virtiofsd ] && sdo ln -s /usr/libexec/virtiofsd /usr/bin/virtiofsd
+  [ -f /usr/share/OVMF/OVMF_CODE_4M.fd ] || warn "Cowork: OVMF-Firmware fehlt (sys-firmware/edk2-bin)"
 
   step "TradingView (Snap-Paket entpackt)"
   u=$(curl -fsSL -H 'Snap-Device-Series: 16' 'https://api.snapcraft.io/v2/snaps/info/tradingview?fields=download,version' |
@@ -215,7 +223,7 @@ EOF
     if fetch "$u" "$tmp/tv.snap" && unsquashfs -q -n -d "$tmp/tv" "$tmp/tv.snap" >/dev/null; then
       sdo rm -rf /opt/tradingview
       sdo cp -a "$tmp/tv" /opt/tradingview
-      sdo ln -sfn /opt/tradingview/tradingview /usr/local/bin/tradingview
+      printf '#!/bin/sh\nexec /opt/tradingview/tradingview "$@"\n' | sdo install -m755 /dev/stdin /usr/local/bin/tradingview
       sed -e 's|^Exec=.*|Exec=/usr/local/bin/tradingview %U|' -e 's|^Icon=.*|Icon=/opt/tradingview/meta/gui/icon.png|' \
         "$tmp"/tv/meta/gui/tradingview.desktop 2>/dev/null | sdo install -Dm644 /dev/stdin /usr/local/share/applications/tradingview.desktop || true
       echo "$v" | sdo tee /var/lib/g5-tradingview.ver >/dev/null

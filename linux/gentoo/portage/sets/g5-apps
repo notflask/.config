@@ -47,3 +47,7 @@ app-emulation/virtiofsd
 sys-firmware/edk2-bin
 sys-fs/squashfs-tools
 app-arch/cabextract
+sys-apps/bubblewrap
+net-misc/socat
+dev-util/desktop-file-utils
+dev-util/gtk-update-icon-cache
