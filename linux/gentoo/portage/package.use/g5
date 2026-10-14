@@ -2,14 +2,13 @@
 sys-apps/systemd boot kernel-install
 sys-apps/systemd-utils boot kernel-install
 sys-kernel/installkernel systemd systemd-boot dracut
-sys-kernel/gentoo-kernel-bin -initramfs
 
 x11-drivers/nvidia-drivers wayland persistenced powerd abi_x86_32
 media-video/pipewire sound-server pipewire-alsa
 media-video/ffmpeg vulkan nvenc vaapi
 www-client/firefox-bin l10n_de
 
-gui-wm/hyprland systemd uwsm X -hyprpm
+gui-wm/hyprland systemd uwsm X -hyprpm -dbus-session
 gui-libs/xdg-desktop-portal-hyprland systemd
 x11-misc/rofi wayland
 gui-apps/mako systemd
@@ -22,4 +21,3 @@ net-im/discord wayland appindicator
 app-backup/snapper systemd
 dev-python/pyside svg
 dev-util/claude-code cpu_flags_x86_avx cpu_flags_x86_avx2
-sys-kernel/gentoo-kernel -initramfs

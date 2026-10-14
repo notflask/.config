@@ -145,7 +145,7 @@ run() { done_step "$1" && { info "$1: schon erledigt"; return 0; }; "do_$1"; mar
 
 do_portage() {
   step "Portage: Repository, Profil, make.conf, Binhost"
-  source /etc/profile
+  set +u; source /etc/profile; set -u
   emerge-webrsync -q || emerge-webrsync
   eselect profile set "$profile" || die "Profil $profile fehlt"
   local threads ram jobs
@@ -178,7 +178,8 @@ do_locale() {
   echo KEYMAP=us >/etc/vconsole.conf
   echo "$HOSTNAME_G5" >/etc/hostname
   printf '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 %s\n' "$HOSTNAME_G5" >/etc/hosts
-  env-update >/dev/null && source /etc/profile
+  env-update >/dev/null
+  set +u; source /etc/profile; set -u
 }
 
 do_repos() {
@@ -293,7 +294,7 @@ do_services() {
   systemctl preset-all --preset-mode=enable-only >/dev/null 2>&1 || true
   local s
   for s in NetworkManager bluetooth power-profiles-daemon upower fstrim.timer systemd-timesyncd systemd-boot-update \
-    nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info g5-scx; do
+    nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info; do
     systemctl enable "$s" >/dev/null 2>&1 && info "an: $s" || info "übersprungen: $s"
   done
   systemctl disable systemd-networkd systemd-resolved >/dev/null 2>&1 || true

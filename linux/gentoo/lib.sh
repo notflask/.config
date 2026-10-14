@@ -39,7 +39,7 @@ emerge_try() {
   ${SUDO:-} emerge --ask=n --noreplace --keep-going=y "$@" && return 0
   warn "emerge fehlgeschlagen – zweiter Versuch mit --autounmask"
   ${SUDO:-} emerge --ask=n --noreplace --keep-going=y --autounmask=y --autounmask-write=y --autounmask-continue=y "$@" && return 0
-  ${SUDO:-} dispatch-conf </dev/null >/dev/null 2>&1 || true
+  ${SUDO:-} etc-update --quiet --automode -5 >/dev/null 2>&1 || true
   ${SUDO:-} emerge --ask=n --noreplace --keep-going=y "$@" && return 0
   local p
   for p in "$@"; do

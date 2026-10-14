@@ -34,14 +34,12 @@ Ohne Gentoo-Paket, von `extras` direkt vom Hersteller: Claude Desktop (.deb), Tr
 - `update` – Overlays syncen, `@world` mit Snapshot davor/danach (`emerge-snap`), Plugins, Extras, Spicetify, Flatpak.
 - `style minimal|glass`, `theme`, `vpn`, `novpn`, `gaming-mode` wie unter Arch.
 - Kernel-Optionen: `/etc/kernel/config.d/g5.config`, Kommandozeile: `/etc/kernel/cmdline`, danach `emerge --config sys-kernel/gentoo-kernel`.
-- `sched` – sched_ext-Scheduler: `sched status`, `sched off`, `sched on`, `sched bpfland`. Standard: scx_lavd `--performance`.
-  Absturzschutz: Endet ein Start mit aktivem scx nicht sauber (Hänger, Absturz, Stromausfall), bootet das nächste Mal ohne scx (`sched status` zeigt warum). Stürzt nur der Scheduler ab, übernimmt sofort der Kernel-Scheduler; nach 3 Abstürzen in 10 min bleibt er aus. Notbremse bei Hänger: **Alt+Druck+S**.
 
 ## Unterschiede zu Arch
 
 | Arch | Gentoo |
 |---|---|
-| linux-zen | `gentoo-kernel` (stabil, lokal gebaut, 1000 Hz) + `preempt=full` + scx_lavd; NVIDIA wird bei jedem Kernel-Update automatisch neu gebaut |
+| linux-zen | `gentoo-kernel` (stabil, lokal gebaut, 1000 Hz) + `preempt=full`; NVIDIA wird bei jedem Kernel-Update automatisch neu gebaut |
 | Limine + limine-snapper-sync | systemd-boot (installkernel); Snapshots per `snapper`, nicht im Boot-Menü |
 | mkinitcpio | dracut |
 | paru / AUR | Portage + Binhost, GURU, hyproverlay, steam-overlay |
