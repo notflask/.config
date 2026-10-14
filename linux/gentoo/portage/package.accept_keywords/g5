@@ -15,4 +15,13 @@ x11-misc/rofi ~amd64
 media-libs/lsp-plugins ~amd64
 gui-libs/egl-wayland2 ~amd64
 dev-util/google-antigravity-cli ~amd64
-sys-firmware/edk2-bin ~amd64
+media-libs/nvidia-vaapi-driver ~amd64
+gui-wm/gamescope ~amd64
+games-util/lutris ~amd64
+dev-python/pypresence ~amd64
+dev-python/moddb ~amd64
+dev-cpp/sdbus-c++ ~amd64
+dev-libs/libdwarf ~amd64
+dev-cpp/cpptrace ~amd64
+dev-python/imageio ~amd64
+dev-python/imageio-ffmpeg ~amd64

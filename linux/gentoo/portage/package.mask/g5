@@ -1,3 +1,5 @@
 >=x11-drivers/nvidia-drivers-600
 # systemd-Profil: systemd-utils würde systemd blockieren
 sys-apps/systemd-utils
+# Hyprland 0.56 braucht glaze 7
+>=dev-cpp/glaze-8
