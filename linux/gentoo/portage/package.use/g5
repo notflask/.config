@@ -22,3 +22,4 @@ net-im/discord wayland appindicator
 app-backup/snapper systemd
 dev-python/pyside svg
 dev-util/claude-code cpu_flags_x86_avx cpu_flags_x86_avx2
+sys-kernel/gentoo-kernel -initramfs

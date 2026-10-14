@@ -13,9 +13,9 @@ sudo ./dotfiles/linux/gentoo/configure.sh /dev/nvme0n1   # Platte LÖSCHEN
 
 - Eigene Partitionen / Dual-Boot: Root nach `/mnt/gentoo`, ESP nach `/mnt/gentoo/efi`, dann `configure.sh --mounted`.
 - Abbruch (Netz, Build-Fehler): `configure.sh --resume` macht beim letzten Schritt weiter.
-- Variablen: `USERNAME`, `HOSTNAME_G5`, `TZ_G5`, `LOCALE_G5`, `KERNEL_PKG` (Standard `sys-kernel/gentoo-kernel-bin`).
+- Variablen: `USERNAME`, `HOSTNAME_G5`, `TZ_G5`, `LOCALE_G5`, `KERNEL_PKG` (Standard `sys-kernel/gentoo-kernel`; `gentoo-kernel-bin` = vorgebaut, 300 Hz).
 
-Es legt 1 GiB EFI + btrfs (`@ @home @snapshots @var_log @var_tmp`, zstd) an, lädt und prüft Stage3 *desktop/systemd*, richtet Binhost (x86-64-v3), Overlays (hyproverlay, GURU, steam-overlay), systemd-boot, dracut, Plymouth (bgrt), Kernel mit (gentoo-kernel-bin, vorgebaut), NVIDIA 595 (open), Snapper, Tuning (`files/etc`) und den Benutzer ein.
+Es legt 1 GiB EFI + btrfs (`@ @home @snapshots @var_log @var_tmp`, zstd) an, lädt und prüft Stage3 *desktop/systemd*, richtet Binhost (x86-64-v3), Overlays (hyproverlay, GURU, steam-overlay), systemd-boot, dracut, Plymouth (bgrt), Kernel mit (gentoo-kernel, 1000 Hz über `/etc/kernel/config.d/g5.config`), NVIDIA 595 (open), Snapper, Tuning (`files/etc`) und den Benutzer ein.
 
 ## 2. Desktop und Programme
 
@@ -33,13 +33,15 @@ Ohne Gentoo-Paket, von `extras` direkt vom Hersteller: Claude Desktop (.deb), Tr
 
 - `update` – Overlays syncen, `@world` mit Snapshot davor/danach (`emerge-snap`), Plugins, Extras, Spicetify, Flatpak.
 - `style minimal|glass`, `theme`, `vpn`, `novpn`, `gaming-mode` wie unter Arch.
-- Kernel-Kommandozeile: `/etc/kernel/cmdline`, danach `emerge --config sys-kernel/gentoo-kernel-bin`.
+- Kernel-Optionen: `/etc/kernel/config.d/g5.config`, Kommandozeile: `/etc/kernel/cmdline`, danach `emerge --config sys-kernel/gentoo-kernel`.
+- `sched` – sched_ext-Scheduler: `sched status`, `sched off`, `sched on`, `sched bpfland`. Standard: scx_lavd `--performance`.
+  Absturzschutz: Endet ein Start mit aktivem scx nicht sauber (Hänger, Absturz, Stromausfall), bootet das nächste Mal ohne scx (`sched status` zeigt warum). Stürzt nur der Scheduler ab, übernimmt sofort der Kernel-Scheduler; nach 3 Abstürzen in 10 min bleibt er aus. Notbremse bei Hänger: **Alt+Druck+S**.
 
 ## Unterschiede zu Arch
 
 | Arch | Gentoo |
 |---|---|
-| linux-zen | `gentoo-kernel-bin` (vorgebaut, stabil) + `preempt=full`; NVIDIA wird bei jedem Kernel-Update automatisch neu gebaut |
+| linux-zen | `gentoo-kernel` (stabil, lokal gebaut, 1000 Hz) + `preempt=full` + scx_lavd; NVIDIA wird bei jedem Kernel-Update automatisch neu gebaut |
 | Limine + limine-snapper-sync | systemd-boot (installkernel); Snapshots per `snapper`, nicht im Boot-Menü |
 | mkinitcpio | dracut |
 | paru / AUR | Portage + Binhost, GURU, hyproverlay, steam-overlay |

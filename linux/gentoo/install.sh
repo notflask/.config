@@ -59,7 +59,7 @@ do_system() {
   local etc_tmp
   etc_tmp=$(mktemp -d)
   cp -a "$here/files/etc/." "$etc_tmp/"
-  rm -f "$etc_tmp/kernel/cmdline.tpl"
+  rm -f "$etc_tmp/kernel/cmdline.tpl" "$etc_tmp/g5/scx.conf"
   overlay "$etc_tmp" /etc
   rm -rf "$etc_tmp"
   overlay "$here/files/opt" /opt
@@ -70,6 +70,7 @@ do_system() {
   sdo install -m 755 "$here"/files/libexec/* /usr/local/libexec/
   sdo install -m 755 "$here/files/sleep/g5-tuning" /usr/lib/systemd/system-sleep/g5-tuning
   sdo touch /var/lib/vpn-bypass/domains
+  [ -e /etc/g5/scx.conf ] || sdo install -Dm644 "$here/files/etc/g5/scx.conf" /etc/g5/scx.conf
 
   local c
   for c in "$here"/files/bin/*; do sdo ln -sfn "$c" "/usr/local/bin/$(basename "$c")"; done
@@ -294,7 +295,7 @@ do_services() {
   local s
   for s in NetworkManager bluetooth power-profiles-daemon upower fstrim.timer systemd-timesyncd systemd-boot-update \
     nvidia-persistenced nvidia-powerd g5-firewall vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info \
-    gigabyte-control-center g5-tuning ananicy-cpp snapper-cleanup.timer; do
+    gigabyte-control-center g5-tuning g5-scx ananicy-cpp snapper-cleanup.timer; do
     sdo systemctl enable "$s" >/dev/null 2>&1 && info "an: $s" || info "übersprungen: $s"
   done
   if [ -e /usr/lib/systemd/system/ly@.service ] || [ -e /lib/systemd/system/ly@.service ]; then

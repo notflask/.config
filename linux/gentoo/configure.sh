@@ -18,7 +18,7 @@ USERNAME=${USERNAME:-flask}
 HOSTNAME_G5=${HOSTNAME_G5:-g5}
 TZ_G5=${TZ_G5:-Europe/Berlin}
 LOCALE_G5=${LOCALE_G5:-de_DE.UTF-8}
-KERNEL_PKG=${KERNEL_PKG:-sys-kernel/gentoo-kernel-bin}
+KERNEL_PKG=${KERNEL_PKG:-sys-kernel/gentoo-kernel}
 target=/mnt/gentoo
 state=/var/lib/g5-configure
 profile=default/linux/amd64/23.0/desktop/systemd
@@ -209,7 +209,8 @@ do_boot() {
   sub=$(findmnt -no OPTIONS / | grep -oE 'subvol=[^,]+' | head -1 | sed 's|subvol=/|subvol=|') || true
   local rootargs="root=UUID=$root_uuid rw"
   [ "$(findmnt -no FSTYPE /)" = btrfs ] && rootargs="$rootargs rootfstype=btrfs ${sub:+rootflags=$sub}"
-  mkdir -p /etc/kernel /etc/dracut.conf.d
+  mkdir -p /etc/kernel/config.d /etc/dracut.conf.d
+  cp "$here/files/etc/kernel/config.d/g5.config" /etc/kernel/config.d/
   sed -e "s|@ROOT@|$rootargs|" -e "s|@VT@|$vt_colors|" "$here/files/etc/kernel/cmdline.tpl" >/etc/kernel/cmdline
   cp "$here/files/etc/dracut.conf.d/g5.conf" /etc/dracut.conf.d/
   install -D -m644 "$here/files/etc/plymouth/plymouthd.conf" /etc/plymouth/plymouthd.conf
@@ -292,7 +293,7 @@ do_services() {
   systemctl preset-all --preset-mode=enable-only >/dev/null 2>&1 || true
   local s
   for s in NetworkManager bluetooth power-profiles-daemon upower fstrim.timer systemd-timesyncd systemd-boot-update \
-    nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info; do
+    nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info g5-scx; do
     systemctl enable "$s" >/dev/null 2>&1 && info "an: $s" || info "übersprungen: $s"
   done
   systemctl disable systemd-networkd systemd-resolved >/dev/null 2>&1 || true

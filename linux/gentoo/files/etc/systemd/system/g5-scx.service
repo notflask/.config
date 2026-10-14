@@ -1,0 +1,15 @@
+[Unit]
+Description=sched_ext-Scheduler (Absturzschutz, /etc/g5/scx.conf)
+After=multi-user.target
+StartLimitIntervalSec=600
+StartLimitBurst=3
+
+[Service]
+ExecStart=/usr/local/sbin/g5-scx start
+ExecStopPost=/usr/local/sbin/g5-scx stopped
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=5
+
+[Install]
+WantedBy=graphical.target

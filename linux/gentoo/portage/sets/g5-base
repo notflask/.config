@@ -44,3 +44,4 @@ sys-fs/udisks
 sys-apps/fwupd
 media-libs/libmtp
 app-laptop/tuxedo-drivers
+sys-kernel/scx
