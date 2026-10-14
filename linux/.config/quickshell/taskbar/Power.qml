@@ -5,8 +5,8 @@ import Quickshell
 import Quickshell.Io
 
 // Ein/Aus: Befehle für das Ausschalt-Menü (PowerMenu.qml) und die
-// Ein/Aus-Ansicht im Startmenü. loginctl statt systemctl: geht mit systemd
-// (Arch) und mit elogind . Öffnen per Knopf in der Leiste oder von
+// Ein/Aus-Ansicht im Startmenü. systemctl statt loginctl: loginctl kennt
+// suspend/reboot/poweroff nicht. Öffnen per Knopf in der Leiste oder von
 // außen (Super+Shift+E in niri/config.kdl, bzw. hypr/hyprland.lua):
 //   qs -c taskbar ipc call power toggle
 Singleton {
@@ -35,21 +35,21 @@ Singleton {
             glyph: "\u{F0904}",
             label: "Standby",
             key: Qt.Key_S,
-            cmd: ["loginctl", "suspend"]
+            cmd: ["systemctl", "suspend"]
         },
         {
             id: "reboot",
             glyph: "\u{F0709}",
             label: "Neu starten",
             key: Qt.Key_R,
-            cmd: ["loginctl", "reboot"]
+            cmd: ["systemctl", "reboot"]
         },
         {
             id: "shutdown",
             glyph: "\u{F0425}",
             label: "Ausschalten",
             key: Qt.Key_P,
-            cmd: ["loginctl", "poweroff"]
+            cmd: ["systemctl", "poweroff"]
         }
     ]
 

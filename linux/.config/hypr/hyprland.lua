@@ -280,7 +280,9 @@ end)
 -- auf den anderen Monitor.
 hl.window_rule({
     name = "games-confine-pointer",
-    match = { class = "steam_app_.*|cs2|dota2|gamescope" },
+    -- gamescope nicht: es sperrt den Zeiger selbst (--grab-cursor), die
+    -- zusätzliche Regel stört dabei die Menü-Klicks
+    match = { class = "steam_app_.*|cs2|dota2" },
     confine_pointer = true,
 })
 
@@ -312,10 +314,33 @@ hl.window_rule({
     no_screen_share = true,
 })
 
+-- Pop-ups und Dialoge schweben statt zu kacheln.
+-- Firefox: Erweiterungs-Popups (Bitwarden) und Meldungen wie „Firefox läuft bereits"
+hl.window_rule({
+    name = "firefox-extension-popup",
+    match = { class = ".*firefox", title = "Extension:.*|.*Bitwarden.*" },
+    float = true,
+})
+
+-- Steam: alles außer dem Hauptfenster (Freundesliste, Chats, Einstellungen, Dialoge)
+hl.window_rule({
+    name = "steam-subwindows",
+    match = { class = "steam", title = "negative:Steam" },
+    float = true,
+})
+
+-- KDE-Meldungen (kdialog, Polkit-Abfrage, Portal-Dialoge)
+hl.window_rule({
+    name = "kde-dialogs",
+    match = { class = "kdialog|org\\.kde\\.kdialog|org\\.kde\\.polkit-kde-authentication-agent-1|xdg-desktop-portal-.*" },
+    float = true,
+    center = true,
+})
+
 -- abgerundete Fenster wie in macOS (Tahoe): rounding = 20 oben
 
 -- Spiele ohne Rundung – sonst muss Hyprland jedes Bild neu zeichnen statt
--- es direkt an den Monitor zu geben (Direct Scanout, render unten)
+-- es direkt an den Monitor zu geben (Direct Scanout, render unten – derzeit aus)
 hl.window_rule({
     name = "games-no-rounding",
     match = { class = "steam_app_.*|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
@@ -920,8 +945,10 @@ hl.config({
         no_break_fs_vrr = 1,
     },
     render = {
-        -- Spiele im Vollbild direkt an den Monitor (Direct Scanout) wie Niri
-        direct_scanout = 2,
+        -- Direct Scanout aus: mit gamescope (--stretch) schaltete Hyprland
+        -- ständig zwischen Scanout und Komposition um (hunderte Modesets
+        -- pro Sekunde auf DP-2) und der Bildschirm blieb im Spiel schwarz
+        direct_scanout = 0,
     },
     misc = {
         -- keine Hyprland-Logos/Standardbilder, Hintergrund macht awww

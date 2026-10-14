@@ -1,10 +1,9 @@
 # Erzeugt von matugen (templates/ghostty-theme) – hier nichts ändern.
-# Ghostty unter Hyprland (Befehl `term`): Fläche, Schrift,
+# Ghostty (`term` und config.ghostty): Fläche, Schrift,
 # Cursor und Auswahl aus dem Wallpaper, deckend und ohne Blur (minimaler
-# Stil). Die Terminalfarben 1–15 bleiben fest, damit Programme lesbar
+# Stil; config.ghostty setzt die Glas-Deckkraft darüber). Die Terminalfarben 1–15 bleiben fest, damit Programme lesbar
 # bleiben: dunkel wie Vague (TTY), hell wie Solarized Osaka Light.
 # Farbe 0 („schwarz“, z. B. Hintergrund von cmatrix) ist die Fläche selbst.
-# Im Glas-Stil gilt weiter das Thema aus config.ghostty.
 background = {{colors.surface.default.hex}}
 foreground = {{colors.on_surface.default.hex}}
 cursor-color = {{colors.primary.default.hex}}

@@ -4,14 +4,14 @@
 # Spiele, Anrufe. Zeiten in Sekunden. Nach Änderungen: pkill swayidle, dann
 # `swayidle -w &` (oder neu anmelden).
 
-# 5 min: interner Bildschirm dunkler
-timeout 300 'brightnessctl --class=backlight -s set 10%' resume 'brightnessctl --class=backlight -r'
+# 40 min: interner Bildschirm dunkler
+timeout 2400 'brightnessctl --class=backlight -s set 10%' resume 'brightnessctl --class=backlight -r'
 
-# 10 min: sperren
-timeout 600 'loginctl lock-session'
+# 45 min: sperren
+timeout 2700 'loginctl lock-session'
 
-# 11 min: Bildschirme aus (Maus oder Taste weckt sie)
-timeout 660 'wm screens off' resume 'wm screens on'
+# 46 min: Bildschirme aus (Maus oder Taste weckt sie)
+timeout 2760 'wm screens off' resume 'wm screens on'
 
 # loginctl lock-session (auch vom Standby) → Sperrbildschirm
 lock 'wm lock'

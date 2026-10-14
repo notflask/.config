@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- gtklock-Anordnung (Arch, `wm lock` übergibt sie mit -x). Alle IDs
-     und Signale wie in gtklocks eigener gtklock.ui, nur neu angeordnet:
-     ganzflächige Abdunklung, darin mittig Datum, große dünne Uhr, ein kurzer
-     Strich in der Akzentfarbe und das Passwortfeld mit angesetztem Knopf.
-     Aussehen in style.css (matugen, templates/gtklock.css). -->
+<!-- gtklock-Anordnung wie Liquid Glass (iOS): Datum und große Uhr oben mittig,
+     unten mittig das Passwortfeld als Glas-Pill mit rundem Knopf. Alle IDs und
+     Signale wie in gtklocks eigener gtklock.ui. Aussehen in style.css (matugen,
+     templates/gtklock.css). -->
 <interface>
   <object class="GtkBox" id="window-box">
     <property name="name">window-box</property>
@@ -14,14 +13,17 @@
       <object class="GtkBox" id="center-box">
         <property name="name">center-box</property>
         <property name="orientation">vertical</property>
-        <property name="halign">center</property>
-        <property name="valign">center</property>
+        <property name="halign">fill</property>
+        <property name="valign">fill</property>
         <property name="vexpand">1</property>
         <property name="spacing">0</property>
         <child>
           <object class="GtkBox" id="info-box">
             <property name="name">info-box</property>
             <property name="halign">center</property>
+            <property name="valign">start</property>
+            <property name="vexpand">1</property>
+            <property name="margin-top">96</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox" id="time-box">
@@ -42,14 +44,6 @@
                 </child>
               </object>
             </child>
-            <child>
-              <object class="GtkBox" id="accent-bar">
-                <property name="name">accent-bar</property>
-                <property name="halign">center</property>
-                <property name="width-request">56</property>
-                <property name="height-request">2</property>
-              </object>
-            </child>
           </object>
         </child>
         <child>
@@ -57,11 +51,14 @@
             <property name="transition-type">crossfade</property>
             <property name="transition-duration">250</property>
             <property name="reveal-child">0</property>
+            <property name="valign">end</property>
+            <property name="margin-bottom">96</property>
             <child>
               <object class="GtkGrid" id="body-grid">
                 <property name="name">body-grid</property>
                 <property name="halign">center</property>
                 <property name="row-spacing">10</property>
+                <property name="column-spacing">12</property>
                 <child>
                   <object class="GtkEntry" id="input-field">
                     <property name="name">input-field</property>

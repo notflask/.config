@@ -1,99 +1,99 @@
 /* Erzeugt von matugen (templates/gtklock.css) – hier nichts ändern.
-   gtklock (minimaler Stil, Anordnung in layout.ui): das Bild
-   unter einer Abdunklung in der Flächenfarbe, darüber gesperrtes Datum in
-   der Akzentfarbe, große dünne Uhr, kurzer Akzentstrich und ein eckiges
-   Passwortfeld mit angesetztem Knopf – alles mit 1px-Kanten, ohne Rundung. */
+   gtklock (Liquid-Glass-Anordnung wie auf dem iPhone, layout.ui): Datum und
+   große Uhr oben mittig, unten ein gläserner Passwort-Pill mit rundem Knopf.
+   Das Wallpaper bleibt sichtbar, nur oben und unten sanft abgedunkelt. */
 window {
   background-size: cover;
   background-position: center;
-  background-color: #121413;
+  background-color: #151311;
 }
 
-/* Ganzflächig: zur Mitte hin klarer, zu den Rändern dichter */
+/* Verlauf: oben und unten dichter, damit Uhr und Feld lesbar bleiben */
 #window-box {
-  background-image: radial-gradient(ellipse at center,
-      alpha(#121413, 0.45) 0%,
-      alpha(#121413, 0.88) 100%);
-  color: #e3e2e1;
+  background-image: linear-gradient(to bottom,
+      alpha(#151311, 0.55) 0%,
+      alpha(#151311, 0.12) 38%,
+      alpha(#151311, 0.12) 62%,
+      alpha(#151311, 0.60) 100%);
+  color: #e8e1dd;
 }
 
 #date-label {
-  font-family: "JetBrains Mono";
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 6px;
-  color: #b8cbc4;
+  font-family: "Inter", "Cantarell", sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: alpha(#e8e1dd, 0.82);
+  text-shadow: 0 1px 12px alpha(#000000, 0.35);
 }
 
 #clock-label {
-  font-family: "JetBrains Mono";
-  font-size: 156px;
-  font-weight: 100;
-  letter-spacing: -6px;
-  color: #e3e2e1;
-  margin-top: -12px;
+  font-family: "Inter", "Cantarell", sans-serif;
+  font-size: 150px;
+  font-weight: 700;
+  letter-spacing: -4px;
+  color: alpha(#e8e1dd, 0.92);
+  text-shadow: 0 2px 28px alpha(#000000, 0.30);
+  margin-top: -8px;
 }
 
-#accent-bar {
-  background-color: #b8cbc4;
-  margin: 4px 0 44px;
-}
-
+/* Glas-Pill: halbtransparent, heller Rand oben wie eine Lichtkante */
 entry {
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 0;
-  border: 1px solid #464746;
-  border-right-width: 0;
-  background-color: alpha(#1f201f, 0.72);
-  color: #e3e2e1;
-  caret-color: #b8cbc4;
-  font-family: "JetBrains Mono";
-  font-size: 15px;
+  min-height: 52px;
+  min-width: 280px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid alpha(#e8e1dd, 0.22);
+  border-top-color: alpha(#e8e1dd, 0.40);
+  background-color: alpha(#373432, 0.38);
+  color: #e8e1dd;
+  caret-color: #e8e1dd;
+  font-family: "Inter", "Cantarell", sans-serif;
+  font-size: 16px;
   letter-spacing: 3px;
-  box-shadow: none;
+  box-shadow: 0 8px 32px alpha(#000000, 0.25), inset 0 1px 0 alpha(#e8e1dd, 0.12);
   transition: border-color 200ms, background-color 200ms;
 }
 
 entry:focus {
-  border-color: #b8cbc4;
-  background-color: alpha(#292a29, 0.85);
+  border-color: alpha(#e8e1dd, 0.45);
+  background-color: alpha(#373432, 0.55);
 }
 
 entry image {
-  color: #c7c6c5;
+  color: #cbc5c1;
 }
 
-/* Platzhalter */
 entry placeholder,
 entry text placeholder {
-  color: #c7c6c5;
+  color: alpha(#e8e1dd, 0.6);
   letter-spacing: 1px;
 }
 
+/* Runder Glasknopf neben dem Feld */
 #unlock-button {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 52px;
+  min-height: 52px;
   padding: 0;
-  border-radius: 0;
-  border: 1px solid #b8cbc4;
+  border-radius: 999px;
+  border: 1px solid alpha(#e8e1dd, 0.22);
+  border-top-color: alpha(#e8e1dd, 0.40);
   background-image: none;
-  background-color: #b8cbc4;
-  color: #23342f;
-  font-family: "JetBrains Mono";
-  font-size: 18px;
-  box-shadow: none;
+  background-color: alpha(#373432, 0.38);
+  color: #e8e1dd;
+  font-size: 20px;
+  box-shadow: 0 8px 32px alpha(#000000, 0.25);
   text-shadow: none;
   transition: background-color 200ms;
 }
 
 #unlock-button:hover {
-  background-color: #b8cbc4;
+  background-color: alpha(#373432, 0.60);
 }
 
 #unlock-button:active {
-  background-color: #3a4a45;
-  color: #d4e7e0;
+  background-color: alpha(#d8c3ab, 0.70);
+  color: #3b2e1d;
 }
 
 #error-label,

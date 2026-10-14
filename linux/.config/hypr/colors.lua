@@ -1,16 +1,16 @@
 -- Erzeugt von matugen (templates/hyprland-colors.lua) – hier nichts ändern.
 -- Wird von hyprland.lua geladen (require("colors")).
 return {
-    primary = "#b8cbc4",
-    on_primary = "#23342f",
-    secondary = "#bfc9c4",
-    tertiary = "#b1ccc4",
-    surface = "#121413",
-    surface_container = "#1f201f",
-    surface_container_high = "#292a29",
-    on_surface = "#e3e2e1",
-    on_surface_variant = "#c7c6c5",
-    outline = "#91918f",
+    primary = "#d8c3ab",
+    on_primary = "#3b2e1d",
+    secondary = "#d3c4b4",
+    tertiary = "#dec2a1",
+    surface = "#151311",
+    surface_container = "#221f1d",
+    surface_container_high = "#2c2927",
+    on_surface = "#e8e1dd",
+    on_surface_variant = "#cbc5c1",
+    outline = "#95908c",
     error = "#ffb4ab",
     -- Glaskante inaktiver Fenster (hell auf dunkel bzw. dunkel auf hell)
     rim = "#ffffff26",

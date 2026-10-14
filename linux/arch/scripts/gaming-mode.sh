@@ -18,6 +18,9 @@ Optionen (vor dem Befehl):
   --no-hud          ohne MangoHud-Overlay
   --stretch WxH     in WxH rendern und per gamescope auf den ganzen
                     Monitor strecken, z. B. --stretch 1920x1440
+  --grab-cursor     Zeiger bei --stretch immer im Relativmodus halten (Kamera
+                    in Deadlock), dafür reagieren Menüs oft nicht auf Klicks
+  --sdl             gamescope mit SDL- statt Wayland-Backend (anderes Zeigerverhalten)
   --output WxH      Monitorauflösung für --stretch (Standard: 2560x1440)
   --refresh HZ      Bildwiederholrate für --stretch (Standard: 177)
   -h, --help        diese Hilfe
@@ -39,6 +42,8 @@ parse_res() {
 }
 
 hud=1
+grab=0
+sdl=0
 stretch=""
 output="2560x1440"
 # knapp unter den 179,959 Hz des LG: mit VRR folgt der Monitor dann jedem
@@ -49,6 +54,14 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --no-hud)
       hud=0
+      shift
+      ;;
+    --sdl)
+      sdl=1
+      shift
+      ;;
+    --grab-cursor)
+      grab=1
       shift
       ;;
     --stretch | --output)
@@ -110,10 +123,16 @@ cmd=(gamemoderun)
 
 if [ -n "$stretch" ]; then
   parse_res "$stretch"
-  cmd+=(gamescope -w "$res_w" -h "$res_h")
+  cmd+=(gamescope)
+  [ "$sdl" -eq 1 ] && cmd+=(--backend sdl)
+  cmd+=(-w "$res_w" -h "$res_h")
   parse_res "$output"
   # -r: ohne feste Rate meldet gamescope dem Spiel unter Niri nur 60 Hz
-  cmd+=(-W "$res_w" -H "$res_h" -r "$refresh" -S stretch -f --force-grab-cursor --)
+  cmd+=(-W "$res_w" -H "$res_h" -r "$refresh" -S stretch -f)
+  # --force-grab-cursor hält den Zeiger immer im Relativmodus: Kamera
+  # klappt, aber Menüs reagieren nicht auf Hover und Klick – daher optional
+  [ "$grab" -eq 1 ] && cmd+=(--force-grab-cursor)
+  cmd+=(--)
 fi
 
 # MangoHud als Layer im Spiel – auch unter gamescope: --mangoapp bekommt

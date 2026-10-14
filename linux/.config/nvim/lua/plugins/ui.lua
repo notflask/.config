@@ -1,15 +1,10 @@
--- Farbschema: im minimalen Stil `matugen` (colors/matugen.lua, aus dem Wallpaper
--- erzeugt von theme.sh – wie Ghostty über `term`), sonst Solarized Osaka
--- passend zu Ghostty im Glas-Stil. Hell/Dunkel folgt 'background': Neovim
--- fragt das Terminal nach seinem Hintergrund und setzt 'background' (auch
--- später, wenn das System per theme.sh umschaltet).
--- Stil aus ~/.config/g5/style (Befehl `style minimal|glass`, Vorgabe minimal)
-local function on_minimal()
-  local ok, lines = pcall(vim.fn.readfile, vim.fn.expand("~/.config/g5/style"))
-  return not (ok and lines[1] == "glass")
-end
+-- Farbschema: Systemfarben `matugen` (colors/matugen.lua, aus dem Wallpaper
+-- erzeugt von theme.sh – wie Ghostty), in beiden Stilen. Solarized Osaka nur
+-- als Rückfall, solange matugen die Datei noch nicht erzeugt hat. Hell/Dunkel
+-- folgt 'background': Neovim fragt das Terminal nach seinem Hintergrund und
+-- setzt 'background' (auch später, wenn das System per theme.sh umschaltet).
 local colors_dir = vim.fn.stdpath("config") .. "/colors"
-local matugen = on_minimal() and vim.uv.fs_stat(colors_dir .. "/matugen.lua") ~= nil
+local matugen = vim.uv.fs_stat(colors_dir .. "/matugen.lua") ~= nil
 
 -- Systemfarben live übernehmen: schreibt matugen (theme.sh) die Datei neu,
 -- lädt jede laufende Instanz das Schema neu (kurz gesammelt, da matugen in

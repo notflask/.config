@@ -55,21 +55,24 @@ PopupWindow {
         }
     }
 
-    // Knopf als Text in eckigen Klammern, wie in einer TUI
-    component Action: Label {
+    // Knopf als Text in eckigen Klammern, wie in einer TUI. Aufbau wie die
+    // Zeilen in TrayMenu.qml (Fläche mit Text und MouseArea darin): dort
+    // klappt das Hover, mit dem Text selbst als Knopf nicht.
+    component Action: Rectangle {
         id: action
 
+        property string label
         signal activated
 
-        height: Theme.size + 10
-        color: area.containsMouse ? Theme.onAccent : Theme.fg
-        text: "[ " + label + " ]"
-        property string label
+        implicitWidth: caption.implicitWidth + 16
+        implicitHeight: Theme.size + 10
+        color: area.containsMouse ? Theme.accent : "transparent"
 
-        Rectangle {
-            anchors.fill: parent
-            z: -1
-            color: area.containsMouse ? Theme.accent : "transparent"
+        Label {
+            id: caption
+            anchors.centerIn: parent
+            color: area.containsMouse ? Theme.onAccent : Theme.fg
+            text: "[ " + action.label + " ]"
         }
 
         MouseArea {

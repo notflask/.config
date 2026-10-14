@@ -201,28 +201,33 @@ Popup {
             rowSpacing: 8
             columnSpacing: 8
 
+            // fester Index als Modell: ein Array-Literal würde mit jeder
+            // Datenrate neu gebaut und die Kacheln jede Sekunde ersetzen
             Repeater {
-                model: [
-                    {
-                        label: "Server",
-                        value: Vpn.endpoint.replace(/:\d+$/, "") || "–"
-                    },
-                    {
-                        label: "Handshake",
-                        value: panel.ago(Vpn.handshake)
-                    },
-                    {
-                        label: "↓ Empfangen",
-                        value: panel.bytes(Vpn.rxRate) + "/s · " + panel.bytes(Vpn.rx)
-                    },
-                    {
-                        label: "↑ Gesendet",
-                        value: panel.bytes(Vpn.txRate) + "/s · " + panel.bytes(Vpn.tx)
-                    }
-                ]
+                model: 4
 
                 delegate: Rectangle {
-                    required property var modelData
+                    id: cell
+
+                    required property int index
+                    readonly property var info: [
+                        {
+                            label: "Server",
+                            value: Vpn.endpoint.replace(/:\d+$/, "") || "–"
+                        },
+                        {
+                            label: "Handshake",
+                            value: panel.ago(Vpn.handshake)
+                        },
+                        {
+                            label: "↓ Empfangen",
+                            value: panel.bytes(Vpn.rxRate) + "/s · " + panel.bytes(Vpn.rx)
+                        },
+                        {
+                            label: "↑ Gesendet",
+                            value: panel.bytes(Vpn.txRate) + "/s · " + panel.bytes(Vpn.tx)
+                        }
+                    ][index]
 
                     width: (340 - 8) / 2
                     height: 48
@@ -237,12 +242,12 @@ Popup {
                         spacing: 2
 
                         Label {
-                            text: modelData.label
+                            text: cell.info.label
                             font.pixelSize: 11
                             color: Theme.textDim
                         }
                         Label {
-                            text: modelData.value
+                            text: cell.info.value
                             font.pixelSize: 13
                         }
                     }
@@ -351,11 +356,13 @@ Popup {
                                 anchors.centerIn: parent
                                 text: modelData.label
                                 font.pixelSize: 12
-                                color: panel.tab === modelData.id ? Theme.text : Theme.textDim
+                                color: panel.tab === modelData.id || tabMouse.containsMouse ? Theme.text : Theme.textDim
                             }
 
                             MouseArea {
+                                id: tabMouse
                                 anchors.fill: parent
+                                hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     panel.tab = modelData.id;

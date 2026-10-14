@@ -231,11 +231,30 @@ Row {
             visible: false
         }
 
-        // Klick außerhalb (nicht auf die Leiste) schließt das Fenster
+        // Klick außerhalb (nicht auf die Leiste) schließt das Fenster. Erst
+        // kurz nach dem Öffnen aktivieren (wie beim Tray-Menü): Beim Öffnen
+        // existiert die Fläche des Fensters noch nicht, die Sperre ließe
+        // sonst keine Maus (Hover, Klicks) ins Fenster.
         HyprlandFocusGrab {
+            id: vpnGrab
             windows: [vpnPanel, root.bar]
-            active: vpnPanel.visible
             onCleared: vpnPanel.visible = false
+        }
+
+        Timer {
+            id: vpnGrabLater
+            interval: 50
+            onTriggered: vpnGrab.active = vpnPanel.visible
+        }
+
+        Connections {
+            target: vpnPanel
+            function onVisibleChanged() {
+                if (vpnPanel.visible)
+                    vpnGrabLater.restart();
+                else
+                    vpnGrab.active = false;
+            }
         }
     }
 
@@ -269,7 +288,7 @@ Row {
             onWheel: w => {
                 if (!volume.sink || !volume.sink.audio)
                     return;
-                const v = volume.level + (w.angleDelta.y > 0 ? 0.05 : -0.05);
+                const v = volume.level + (w.angleDelta.y > 0 ? 0.01 : -0.01);
                 volume.sink.audio.volume = Math.max(0, Math.min(1, v));
             }
         }

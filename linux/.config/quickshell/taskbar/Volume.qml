@@ -37,7 +37,7 @@ Tile {
         else
             popup.open(root);
     }
-    onWheel: w => setVolume(volume + (w.angleDelta.y > 0 ? 0.05 : -0.05))
+    onWheel: w => setVolume(volume + (w.angleDelta.y > 0 ? 0.01 : -0.01))
 
     PwObjectTracker {
         objects: [root.sink]
@@ -138,7 +138,7 @@ Tile {
                         }
                         onPressed: m => apply(m.x)
                         onPositionChanged: m => apply(m.x)
-                        onWheel: w => root.setVolume(root.volume + (w.angleDelta.y > 0 ? 0.05 : -0.05))
+                        onWheel: w => root.setVolume(root.volume + (w.angleDelta.y > 0 ? 0.01 : -0.01))
                     }
                 }
 
