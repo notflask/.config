@@ -1,0 +1,64 @@
+# USE-Flags für das G5 (linux/gentoo/portage/package.use/g5)
+
+# ── Boot: systemd-boot + dracut + Plymouth ──
+sys-apps/systemd boot kernel-install cryptsetup
+sys-apps/systemd-utils boot kernel-install
+sys-kernel/installkernel systemd systemd-boot dracut
+sys-boot/plymouth systemd drm gtk pango udev
+sys-kernel/gentoo-kernel -initramfs
+sys-kernel/gentoo-kernel-bin -initramfs
+
+# ── NVIDIA (595er, offene Kernel-Module sind dort immer an) ──
+x11-drivers/nvidia-drivers wayland persistenced powerd tools abi_x86_32 -static-libs
+media-libs/mesa vulkan wayland X vaapi
+media-libs/libva X wayland
+media-libs/libva-intel-media-driver X
+media-video/ffmpeg vaapi vulkan nvenc vdpau opus x264 x265 dav1d svt-av1
+gui-libs/egl-wayland abi_x86_32
+gui-libs/egl-wayland2 abi_x86_32
+gui-libs/egl-gbm abi_x86_32
+gui-libs/egl-x11 abi_x86_32
+
+# ── Audio ──
+media-video/pipewire sound-server pipewire-alsa jack-sdk bluetooth dbus extra gsettings lv2
+media-video/wireplumber lua
+
+# ── Netz, VPN, Firewall ──
+net-misc/networkmanager resolvconf iptables wifi bluetooth policykit -dhcpcd
+net-firewall/iptables nftables conntrack
+net-vpn/wireguard-tools wg-quick
+
+# ── Desktop (Hyprland, Quickshell, Rofi, KDE-Apps ohne Plasma) ──
+gui-wm/hyprland systemd uwsm X -hyprpm
+gui-libs/xdg-desktop-portal-hyprland systemd
+gui-apps/quickshell wayland layer-shell session-lock toplevel-management hyprland screencopy tray pipewire mpris pam policykit upower notifications bluetooth networkmanager jemalloc sockets -X -i3 -greetd
+x11-misc/rofi wayland drun -windowmode
+gui-apps/mako icons systemd
+dev-qt/qtbase dbus vulkan wayland X icu
+dev-qt/qtmultimedia pipewire vaapi
+kde-plasma/breeze -X
+kde-apps/okular pdf epub
+kde-apps/gwenview raw
+games-util/mangohud wayland X video_cards_nvidia -xnvctrl
+gui-wm/gamescope pipewire wsi-layer sdl libei
+app-admin/ananicy-cpp systemd bpf clang
+media-video/gpu-screen-recorder systemd filecaps
+app-misc/brightnessctl systemd udev
+x11-terms/ghostty wayland X
+app-editors/neovim lua_single_target_luajit
+media-fonts/nerdfonts jetbrainsmono nerdfontssymbolsonly
+media-fonts/noto cjk
+net-im/discord wayland seccomp appindicator
+net-im/telegram-desktop wayland X screencast jemalloc
+media-sound/spotify libnotify pulseaudio
+media-video/vlc wayland X vaapi pulseaudio
+app-emulation/qemu spice virgl vhost-net vhost-user-fs usb vnc gtk opengl
+app-emulation/wine-vanilla abi_x86_32 abi_x86_64 wayland X vulkan gstreamer nls -mono -gecko
+sys-apps/flatpak X
+app-backup/snapper systemd pam xattr
+sys-apps/zram-generator man
+dev-lang/rust-bin rustfmt clippy rust-src
+dev-lang/rust rustfmt clippy rust-src
+net-libs/nodejs npm corepack
+dev-python/pyside gui widgets network svg -designer -3d -charts -datavisualization -multimedia -positioning -sensors -serialport -webchannel -webengine -websockets -xml -help -quick -quick3d -quickcontrols2 -sql -testlib
+x11-base/xwayland libei

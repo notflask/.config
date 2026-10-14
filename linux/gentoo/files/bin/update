@@ -1,0 +1,10 @@
+#!/bin/sh
+# Alles aktualisieren: Repos, @world (Snapshot davor/danach), Module, Plugins, Spicetify, Flatpaks
+set -e
+sudo emaint sync -a
+sudo emerge-snap -uDNv --ask=n @world "$@"
+sudo emerge --ask=n @preserved-rebuild || true
+sudo emerge --ask=n --depclean || true
+G5_UPDATE=1 "$HOME/dotfiles/linux/gentoo/install.sh" plugins extras
+command -v spicetify-setup >/dev/null && spicetify-setup 2>/dev/null || true
+flatpak update -y 2>/dev/null || true

@@ -1,5 +1,5 @@
 # Ghostty im minimalen Stil – lädt nur der Befehl `term`
-# (arch/files/bin/term) statt config.ghostty, ohne
+# (gentoo/files/bin/term) statt config.ghostty, ohne
 # `language` und `freetype-load-flags = no-light` aus der Arch-Config noch
 # nicht kennt (sonst Fehlerdialog bei jedem Start). Dazu der minimale Stil:
 # Farben aus dem Wallpaper (themes/matugen von matugen), deckend, ohne Blur.

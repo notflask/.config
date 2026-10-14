@@ -1,5 +1,5 @@
 -- Typst für Mathe-Notizen: tinymist (LSP) und typstyle (Formatter) kommen aus
--- pacman, nicht von Mason. Den Rest (Treesitter, Browser-Vorschau <leader>cp,
+-- Portage, nicht von Mason. Den Rest (Treesitter, Browser-Vorschau <leader>cp,
 -- Formatieren) bringt das LazyVim-Extra lang.typst (lazyvim.json).
 --
 -- Ablauf: Notiz.typ speichern → tinymist schreibt Notiz.pdf daneben → Sioyek

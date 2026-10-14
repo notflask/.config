@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Spotify mit Spicetify einrichten:
+# Spotifys eigenes Layout, Farben von matugen, Songtexte in den Theme-Farben
+# und die Minecraft-Schrift. Nach Spotify-Updates erneut ausführen (macht
+# `update` automatisch). Spotify muss einmal gestartet worden sein.
+set -euo pipefail
+cfg=$HOME/.config/spicetify
+spotify=/opt/spotify/spotify-client
+colors=${XDG_CACHE_HOME:-$HOME/.cache}/matugen/spicetify-colors.css
+
+[ -f "$HOME/.config/spotify/prefs" ] || {
+  echo "spicetify-setup: Spotify einmal starten und anmelden, dann nochmal" >&2
+  exit 1
+}
+
+spicetify config spotify_path "$spotify" prefs_path "$HOME/.config/spotify/prefs" >/dev/null
+
+# Theme „matugen“: Farben kommen aus der Datei von matugen (Symlink unten),
+# color.ini braucht Spicetify trotzdem
+mkdir -p "$cfg/Themes/matugen" "$cfg/Extensions"
+printf '[Base]\ntext = ffffff\nmain = 000000\n' >"$cfg/Themes/matugen/color.ini"
+cat >"$cfg/Themes/matugen/user.css" <<'CSS'
+/* Songtexte immer in den matugen-Farben statt einer Farbe pro Lied */
+:root,
+[style*="--lyrics-color"] {
+  --lyrics-color-background: var(--spice-main) !important;
+  --lyrics-color-active: var(--spice-text) !important;
+  --lyrics-color-passed: var(--spice-subtext) !important;
+  --lyrics-color-inactive: rgba(var(--spice-rgb-subtext), 0.5) !important;
+  --lyrics-color-messaging: var(--spice-subtext) !important;
+}
+/* Minecraft-Schrift überall (font-minecraft) */
+:root {
+  --encore-body-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+  --encore-title-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+  --encore-variable-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+}
+*:not([class*="spoticon"]) {
+  font-family: "Minecraftia", "Monocraft", sans-serif !important;
+}
+CSS
+# Neue Farben nach einem Hintergrundwechsel sofort übernehmen
+cat >"$cfg/Extensions/matugen-colors.js" <<'JS'
+(function matugenColors() {
+  const link = document.querySelector("link.userCSS[href='colors.css']");
+  if (!link) return setTimeout(matugenColors, 300);
+  const style = document.createElement("style");
+  link.after(style);
+  let last;
+  setInterval(async () => {
+    if (document.hidden) return;
+    try {
+      const res = await fetch("colors.css", { cache: "no-store" });
+      if (!res.ok) return;
+      const css = await res.text();
+      if (last !== undefined && css !== last) style.textContent = css;
+      last = css;
+    } catch {}
+  }, 2000);
+})();
+JS
+
+spicetify config current_theme matugen color_scheme Base extensions matugen-colors.js >/dev/null
+spicetify backup apply >/dev/null 2>&1 || spicetify apply >/dev/null
+# colors.css von matugen statt der festen Datei aus color.ini
+ln -sf "$colors" "$spotify/Apps/xpui/colors.css"
+echo "Spicetify eingerichtet."

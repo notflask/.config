@@ -1,0 +1,7 @@
+post_pkg_postinst() {
+  case ${CATEGORY}/${PN} in
+    media-sound/spotify) chmod a+wr /opt/spotify/spotify-client; chmod -R a+wr /opt/spotify/spotify-client/Apps ;;
+    net-im/discord) [ -x /usr/local/sbin/vencord-patch ] && /usr/local/sbin/vencord-patch ;;
+  esac
+  return 0
+}
