@@ -35,6 +35,9 @@ do_repos() {
   sdo install -d /etc/portage/sets /etc/portage/repos.conf
   sdo cp "$here"/portage/sets/* /etc/portage/sets/
   sdo cp "$here/portage/repos.conf" /etc/portage/repos.conf/g5.conf
+  sdo install -d /etc/portage/patches
+  sdo cp -r "$here/files/etc/portage/patches/." /etc/portage/patches/
+  sdo install -m644 "$here/files/etc/portage/bashrc" /etc/portage/bashrc
   sdo emaint sync -a || warn "Sync nicht vollständig"
 }
 
