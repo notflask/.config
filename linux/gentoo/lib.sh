@@ -5,6 +5,7 @@ step() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 info() { printf '    %s\n' "$*"; }
 warn() { WARNINGS+=("$*"); printf '\033[1;33m    %s\033[0m\n' "$*" >&2; }
 die() {
+  WARNINGS+=("ABBRUCH: $*")
   printf '\033[1;31m!!! %s\033[0m\n' "$*" >&2
   report
   exit 1

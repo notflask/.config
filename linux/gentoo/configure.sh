@@ -146,6 +146,17 @@ done_step() { [ -e "$state/$1" ]; }
 mark() { mkdir -p "$state"; touch "$state/$1"; }
 run() { done_step "$1" && { info "$1: schon erledigt"; return 0; }; "do_$1"; mark "$1"; }
 
+# bei jedem Lauf (auch --resume): Portage-Dateien aus dem Repo; Steam-32-Bit erst in install.sh
+portage_files() {
+  mkdir -p /etc/portage/{package.use,package.accept_keywords,package.license,package.mask,sets}
+  cp "$here/portage/package.use/g5" /etc/portage/package.use/g5
+  rm -f /etc/portage/package.use/steam
+  cp "$here"/portage/package.accept_keywords/* /etc/portage/package.accept_keywords/
+  cp "$here"/portage/package.license/* /etc/portage/package.license/
+  cp "$here"/portage/package.mask/* /etc/portage/package.mask/
+  cp "$here"/portage/sets/* /etc/portage/sets/
+}
+
 do_portage() {
   step "Portage: Repository, Profil, make.conf, Binhost"
   set +u; source /etc/profile; set -u
@@ -160,12 +171,7 @@ do_portage() {
   [ -f /etc/portage/make.conf.stage3 ] || cp /etc/portage/make.conf /etc/portage/make.conf.stage3
   sed -e "s/@MAKEOPTS@/-j$jobs -l$threads/" -e "s/@THREADS@/$threads/" \
     "$here/portage/make.conf" >/etc/portage/make.conf
-  rm -f /etc/portage/package.use/* 2>/dev/null || true
-  cp "$here"/portage/package.use/* /etc/portage/package.use/
-  cp "$here"/portage/package.accept_keywords/* /etc/portage/package.accept_keywords/
-  cp "$here"/portage/package.license/* /etc/portage/package.license/
-  cp "$here"/portage/package.mask/* /etc/portage/package.mask/
-  cp "$here"/portage/sets/* /etc/portage/sets/
+  portage_files
   rm -f /etc/portage/binrepos.conf/*
   cp "$here/portage/binrepos.conf/gentoo.conf" /etc/portage/binrepos.conf/
   getuto || warn "getuto fehlgeschlagen – Binärpakete evtl. ohne Signaturprüfung nicht nutzbar"
@@ -327,6 +333,7 @@ chroot_main() {
   [ -e /etc/gentoo-release ] || die "--chroot nur im Ziel-System"
   start_log /var/log/g5-configure.log
   set +u; source /etc/profile; set -u
+  done_step portage && portage_files
   run portage
   run locale
   run repos

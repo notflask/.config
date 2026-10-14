@@ -3,7 +3,7 @@ sys-apps/systemd boot kernel-install
 sys-apps/systemd-utils boot kernel-install
 sys-kernel/installkernel systemd systemd-boot dracut
 
-x11-drivers/nvidia-drivers wayland persistenced powerd abi_x86_32
+x11-drivers/nvidia-drivers wayland persistenced powerd
 media-video/pipewire sound-server pipewire-alsa
 media-video/ffmpeg vulkan nvenc vaapi
 www-client/firefox-bin l10n_de
@@ -21,3 +21,6 @@ net-im/discord wayland appindicator
 app-backup/snapper systemd
 dev-python/pyside svg
 dev-util/claude-code cpu_flags_x86_avx cpu_flags_x86_avx2
+
+# binhost baut ncurses ohne gpm; verhindert Kreis gpm <-> ncurses
+sys-libs/ncurses -gpm
