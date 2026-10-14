@@ -1,6 +1,5 @@
 # Nur Nötiges – jede Abweichung vom Binhost bedeutet Bauen aus dem Quelltext
 sys-apps/systemd boot kernel-install
-sys-apps/systemd-utils boot kernel-install
 sys-kernel/installkernel systemd systemd-boot dracut
 
 x11-drivers/nvidia-drivers wayland persistenced powerd

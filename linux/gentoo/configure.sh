@@ -203,6 +203,7 @@ do_repos() {
 
 do_world() {
   step "System aktualisieren (Profil desktop/systemd, meist Binärpakete)"
+  emerge --ask=n --oneshot --update --newuse sys-apps/systemd || die "systemd (mit systemd-boot) fehlgeschlagen"
   emerge --ask=n -uDN @world || emerge --ask=n -uDN --keep-going=y @world || die "@world fehlgeschlagen – Ausgabe prüfen, dann --resume"
 }
 
