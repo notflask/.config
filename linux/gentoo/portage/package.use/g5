@@ -1,0 +1,38 @@
+# Nur Nötiges – jede Abweichung vom Binhost bedeutet Bauen aus dem Quelltext
+sys-apps/systemd boot kernel-install
+sys-kernel/installkernel systemd systemd-boot dracut
+
+x11-drivers/nvidia-drivers wayland persistenced powerd
+media-video/pipewire sound-server pipewire-alsa
+media-video/ffmpeg vulkan nvenc vaapi opus vpx
+www-client/firefox-bin l10n_de
+
+gui-wm/hyprland systemd uwsm X -hyprpm -dbus-session
+gui-libs/xdg-desktop-portal-hyprland systemd
+x11-misc/rofi wayland
+gui-apps/mako systemd
+games-util/mangohud wayland video_cards_nvidia
+app-admin/ananicy-cpp systemd
+media-video/gpu-screen-recorder systemd filecaps
+app-misc/brightnessctl systemd udev
+media-fonts/nerdfonts jetbrainsmono nerdfontssymbolsonly
+net-im/discord wayland appindicator
+app-backup/snapper systemd
+dev-python/pyside svg
+dev-util/claude-code cpu_flags_x86_avx cpu_flags_x86_avx2
+
+# binhost baut ncurses ohne gpm; verhindert Kreis gpm <-> ncurses
+sys-libs/ncurses -gpm
+dev-cpp/cpptrace unwind
+sys-libs/zlib minizip
+
+# Kernel ohne Debug-Infos: halbe Bauzeit, kleinere Module
+sys-kernel/gentoo-kernel -debug
+# GameMode auch für 32-Bit-Prozesse (Steam, ältere Proton-Teile)
+games-util/gamemode abi_x86_32
+# calibre (pyqt6-webengine) braucht QtQuick und WebChannel in PyQt6
+dev-python/pyqt6 quick webchannel
+# QtWebEngine wie das Binärpaket des Binhost – sonst ~4 h Bauen aus dem Quelltext
+dev-qt/qtwebengine bindist -pulseaudio -screencast
+# TradingView kommt als Snap (xz-komprimiertes squashfs)
+sys-fs/squashfs-tools lzma

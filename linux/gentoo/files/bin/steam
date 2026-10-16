@@ -1,0 +1,7 @@
+#!/bin/sh
+# Steam mit niedrigster normaler Platten-Priorität – wie Windows Hintergrund-I/O
+# drosselt: Downloads und Shader-Caches (bis 150 MB/s) bremsen sonst alle
+# anderen Programme aus (Firefox hängt). "idle" statt "best-effort 7" ließ
+# Steams eigenes Fenster hängen, solange es selbst lud. Wirkt nur mit BFQ
+# (etc/udev/rules.d/90-g5.rules). gaming-mode setzt Spiele zurück auf normal.
+exec ionice -c 2 -n 7 /usr/bin/steam "$@"

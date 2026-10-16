@@ -1,0 +1,3 @@
+#!/bin/sh
+# Abmelden aus der laufenden Sitzung (Ausschalt-Menü, quickshell/taskbar/Power.qml)
+exec wm logout

@@ -7,7 +7,7 @@ import Quickshell.Io
 
 // Hyprland oder Niri. Niri hat kein Quickshell-Modul: Arbeitsflächen und
 // Tastaturlayout kommen aus `niri msg -j event-stream` (schickt zuerst den
-// ganzen Stand, dann Änderungen).
+// ganzen Stand, dann Änderungen, eine JSON-Zeile pro Ereignis).
 Singleton {
     id: root
 

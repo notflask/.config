@@ -12,7 +12,7 @@ return {
     }
   },
   {
-    -- NixOS: clangd can't find the std headers on its own, it has to ask the nix gcc wrapper
+    -- clangd findet die Standard-Header über den Compiler (query-driver)
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
@@ -25,7 +25,7 @@ return {
             "--completion-style=detailed",
             "--function-arg-placeholders",
             "--fallback-style=llvm",
-            "--query-driver=/run/current-system/sw/bin/*,/etc/profiles/per-user/*/bin/*,/home/*/.nix-profile/bin/*,/nix/store/**/bin/*",
+            "--query-driver=/usr/bin/*gcc*,/usr/bin/*g++*,/usr/bin/clang*",
           },
           -- clangd parses `gcc -v` output and only understands English
           cmd_env = { LC_ALL = "C" },
@@ -37,7 +37,7 @@ return {
     "lervag/vimtex",
     lazy = false,
     init = function()
-	vim.g.vimtex_view_general_viewer = "sioyek"
+	vim.g.vimtex_view_general_viewer = "mizu"
     end
   }
 }

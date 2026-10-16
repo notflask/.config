@@ -1,0 +1,2 @@
+#!/bin/sh
+command -v eix-update >/dev/null && eix-update -q || true

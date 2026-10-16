@@ -1,0 +1,16 @@
+[Unit]
+Description=Hetzner-Schlüssel in den ssh-agent laden
+After=ssh-agent.service
+Requires=ssh-agent.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
+# ssh-add kann den Schlüssel nur unbeaufsichtigt laden, wenn er keine
+# Passphrase hat. Ein Fehler (z. B. Passphrase gesetzt) darf den Start
+# nicht abbrechen – deshalb das "-" vor ExecStart.
+ExecStart=-/usr/bin/ssh-add %h/.ssh/id_hetzner
+
+[Install]
+WantedBy=default.target

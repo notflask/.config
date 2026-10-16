@@ -1,0 +1,3 @@
+sys-kernel/gentoo-kernel kernel-fast.conf
+x11-drivers/nvidia-drivers kernel-fast.conf
+app-laptop/tuxedo-drivers kernel-fast.conf

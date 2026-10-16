@@ -1,0 +1,6 @@
+#!/bin/sh
+# Terminal im minimalen Stil (Super+T, Wegwerf-Terminal, Menüs): Ghostty
+# nur mit ~/.config/ghostty/minimal.ghostty – Farben des Wallpapers, deckend,
+# ohne Blur. Im Glas-Stil startet Ghostty direkt mit config.ghostty.
+exec ghostty --config-default-files=false \
+  --config-file="${XDG_CONFIG_HOME:-$HOME/.config}/ghostty/minimal.ghostty" "$@"

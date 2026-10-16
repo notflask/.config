@@ -1,0 +1,461 @@
+#!/usr/bin/env bash
+# g5 – zentrale Einstellungen (config/g5.json im Repo), Profile, einmalige
+# Einrichtungen und ein Gesundheits-Check. Doku: linux/gentoo/config/CONFIG.md
+#
+#   g5 config [show|edit|get KEY|set KEY WERT|validate|path]
+#   g5 profile [list|use NAME|reset|show|export DATEI|import DATEI [NAME]]
+#   g5 apply [all|desktop|performance|gaming|vpn|apps]
+#   g5 setup sober|spicetify|vencord|nvidia-flatpak|all
+#   g5 doctor              prüft das ganze System
+#
+# Zur Laufzeit kostet das nichts: `g5 apply` schreibt die fertigen Werte
+# einmal nach ~/.cache/g5/config.json und /etc/g5/g5.json; Dienste und
+# Skripte lesen nur diese Datei.
+set -euo pipefail
+
+self=$(readlink -f "${BASH_SOURCE[0]}")
+gentoo=$(cd "$(dirname "$self")/../.." && pwd)
+cfg_dir=$gentoo/config
+base=$cfg_dir/g5.json
+schema=$cfg_dir/g5.schema.json
+profiles=$cfg_dir/profiles
+state=${XDG_CONFIG_HOME:-$HOME/.config}/g5
+cache=${XDG_CACHE_HOME:-$HOME/.cache}/g5
+effective=$cache/config.json
+sys_cfg=/etc/g5/g5.json
+
+die() { echo "g5: $*" >&2; exit 1; }
+ok() { printf '\033[32m✓\033[0m %s\n' "$*"; }
+bad() { printf '\033[31m✗\033[0m %s\n' "$*"; problems=$((problems + 1)); }
+note() { printf '\033[33m!\033[0m %s\n' "$*"; }
+as_root() { if [ "$(id -u)" -eq 0 ]; then "$@"; else sudo "$@"; fi; }
+
+active_profile() { cat "$state/profile" 2>/dev/null || true; }
+
+# Basis + aktives Profil (Objekte werden zusammengeführt, Listen ersetzt)
+merged() {
+  local p
+  p=$(active_profile)
+  if [ -n "$p" ] && [ -f "$profiles/$p.json" ]; then
+    jq -s '.[0] * .[1] | del(."$schema")' "$base" "$profiles/$p.json"
+  else
+    jq 'del(."$schema")' "$base"
+  fi
+}
+
+# KEY "a.b.c" → jq-Pfad
+path_of() { jq -cn --arg k "$1" '$k | split(".") | map(if test("^[0-9]+$") then tonumber else . end)'; }
+
+get() { merged | jq -r --argjson p "$(path_of "$1")" 'getpath($p) | if type == "array" then join(" ") elif . == null then "" else . end'; }
+
+# Prüft gegen g5.schema.json (Teilmenge von JSON Schema, ohne Zusatzpakete)
+validate() {
+  python3 - "$1" "$schema" <<'PY'
+import json, re, sys
+data = json.load(open(sys.argv[1])); schema = json.load(open(sys.argv[2]))
+errors = []
+def check(v, s, path):
+    t = s.get("type")
+    types = {"object": dict, "array": list, "string": str, "boolean": bool, "number": (int, float)}
+    if t == "integer":
+        if not (isinstance(v, int) and not isinstance(v, bool)): errors.append(f"{path}: integer expected"); return
+    elif t and not isinstance(v, types[t]) or (t in ("number",) and isinstance(v, bool)):
+        errors.append(f"{path}: {t} expected"); return
+    if "enum" in s and v not in s["enum"]: errors.append(f"{path}: must be one of {s['enum']}, not {v!r}")
+    if "pattern" in s and isinstance(v, str) and not re.search(s["pattern"], v): errors.append(f"{path}: {v!r} has the wrong format")
+    if "minimum" in s and isinstance(v, (int, float)) and v < s["minimum"]: errors.append(f"{path}: at least {s['minimum']}")
+    if "maximum" in s and isinstance(v, (int, float)) and v > s["maximum"]: errors.append(f"{path}: at most {s['maximum']}")
+    if isinstance(v, dict):
+        props = s.get("properties", {})
+        for k in s.get("required", []):
+            if k not in v: errors.append(f"{path}.{k}: missing")
+        for k, x in v.items():
+            if k in props: check(x, props[k], f"{path}.{k}")
+            elif s.get("additionalProperties") is False: errors.append(f"{path}.{k}: unknown option")
+    if isinstance(v, list):
+        if len(v) < s.get("minItems", 0): errors.append(f"{path}: at least {s['minItems']} entries")
+        for i, x in enumerate(v): check(x, s.get("items", {}), f"{path}[{i}]")
+check(data, schema, "g5")
+for e in errors: print("  " + e, file=sys.stderr)
+sys.exit(1 if errors else 0)
+PY
+}
+
+# fertige Werte schreiben (Benutzer + System)
+write_effective() {
+  local tmp
+  mkdir -p "$cache"
+  tmp=$(mktemp)
+  merged >"$tmp"
+  validate "$tmp" || { rm -f "$tmp"; die "Konfiguration ungültig – nichts übernommen"; }
+  mv "$tmp" "$effective"
+  if ! cmp -s "$effective" "$sys_cfg" 2>/dev/null; then
+    as_root install -D -m 644 "$effective" "$sys_cfg"
+  fi
+}
+
+# ── apply ──────────────────────────────────────────────────────────────
+apply_desktop() {
+  local style shell hypr=$state/hypr.lua
+  mkdir -p "$state"
+  # Hyprland liest diese Datei (hypr/hyprland.lua) – Monitore, Tastatur,
+  # Cursor, Terminal, Screenshot
+  jq -r '
+    def q: tojson;
+    "-- erzeugt von `g5 apply` aus config/g5.json – hier nichts ändern",
+    "return {",
+    "    monitors = {",
+    (.monitors[] | "        { output = \(.name|q), mode = \(.mode|q), position = \((.position // "auto")|q), scale = \(.scale // 1), vrr = \(.vrr // 0) },"),
+    "    },",
+    "    kb_layout = \(.desktop.keyboard_layouts | join(",") | q),",
+    "    cursor_theme = \(.desktop.cursor.theme|q),",
+    "    cursor_size = \(.desktop.cursor.size),",
+    "    terminal = \(.desktop.terminal|q),",
+    "    screenshot = \(.desktop.screenshot|q),",
+    "}"' "$effective" >"$hypr.tmp" && mv "$hypr.tmp" "$hypr"
+
+  # Cursor auch für Apps (UWSM-Umgebung)
+  local env=${XDG_CONFIG_HOME:-$HOME/.config}/uwsm/env
+  if [ -f "$env" ]; then
+    sed -i -e "s|^export XCURSOR_THEME=.*|export XCURSOR_THEME=$(get desktop.cursor.theme)|" \
+      -e "s|^export XCURSOR_SIZE=.*|export XCURSOR_SIZE=$(get desktop.cursor.size)|" "$env"
+  fi
+  gsettings set org.gnome.desktop.interface cursor-theme "$(get desktop.cursor.theme)" 2>/dev/null || true
+  gsettings set org.gnome.desktop.interface cursor-size "$(get desktop.cursor.size)" 2>/dev/null || true
+
+  style=$(get desktop.style)
+  [ "$(style 2>/dev/null)" = "$style" ] || style "$style" >/dev/null
+  shell=$(command -v "$(get desktop.shell)" || true)
+  if [ -n "$shell" ] && [ "$(getent passwd "$USER" | cut -d: -f7)" != "$shell" ]; then
+    as_root chsh -s "$shell" "$USER"
+  fi
+  if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    hyprctl reload >/dev/null 2>&1 || true
+    hyprctl setcursor "$(get desktop.cursor.theme)" "$(get desktop.cursor.size)" >/dev/null 2>&1 || true
+  fi
+  echo "desktop: Stil $style, $(get monitors.0.name) …, Layouts $(get desktop.keyboard_layouts)"
+}
+
+apply_performance() {
+  as_root systemctl restart g5-tuning.service
+  echo "performance: $(get performance.power_profile), PL1 $(get performance.cpu_pl1_watts) W, GPU ab $(get performance.gpu_min_clock_mhz) MHz"
+}
+
+apply_gaming() {
+  local curve renice tmp
+  curve=$(get gaming.fan_curve)
+  renice=$(get gaming.renice)
+  tmp=$(mktemp)
+  {
+    echo "; erzeugt von \`g5 apply\` aus config/g5.json (gaming) – hier nichts ändern"
+    echo "[general]"
+    echo "; renice $renice: höher verdrängt den Encoder von Discord (Stream ruckelt)"
+    echo "renice=$renice"
+    echo "softrealtime=off"
+    echo "inhibit_screensaver=1"
+    echo
+    echo "[gpu]"
+    echo "apply_gpu_optimisations=0"
+    if [ -n "$curve" ]; then
+      echo
+      echo "[custom]"
+      echo "; Lüfter früh hochdrehen, damit CPU und GPU ihre Takte halten"
+      echo "start=/usr/bin/gbcc fan curve $curve"
+      echo "end=/usr/bin/gbcc fan auto"
+    fi
+  } >"$tmp"
+  cmp -s "$tmp" /etc/gamemode.ini || as_root install -m 644 "$tmp" /etc/gamemode.ini
+  rm -f "$tmp"
+  echo "gaming: renice $renice, Lüfter ${curve:-auto}"
+}
+
+apply_vpn() {
+  vpn sync
+  echo "vpn: Autostart $(get vpn.autostart), Sperre ohne Tunnel $(get vpn.lock_without_tunnel)"
+}
+
+apply_apps() {
+  local app
+  for app in $(get apps.flatpaks); do
+    flatpak info --user "$app" >/dev/null 2>&1 ||
+      flatpak install --user -y --noninteractive flathub "$app" || note "Flatpak $app nicht installiert"
+  done
+  echo "apps: Flatpaks $(get apps.flatpaks)"
+}
+
+apply() {
+  write_effective
+  local what=${1:-all}
+  case $what in
+    all) apply_desktop; apply_performance; apply_gaming; apply_vpn; apply_apps ;;
+    desktop | performance | gaming | vpn | apps) "apply_$what" ;;
+    *) die "apply all|desktop|performance|gaming|vpn|apps" ;;
+  esac
+}
+
+# ── setup: einmalige Einrichtungen ───────────────────────────────────
+setup_sober() {
+  local app=org.vinegarhq.Sober ext=org.freedesktop.Platform.VulkanLayer.MangoHud branch
+  flatpak info --user "$app" >/dev/null 2>&1 || die "Sober ist nicht installiert (g5 apply apps)"
+  # Zweig der MangoHud-Erweiterung = Freedesktop-Basis von Sobers Runtime
+  branch=$(flatpak info --user -m "$app" | sed -n 's/^runtime=org\.gnome\.Platform\/[^/]*\/\([0-9]*\)$/\1/p')
+  case $branch in 4[0-9]) branch=24.08 ;; 5[0-9]) branch=25.08 ;; *) branch=25.08 ;; esac
+  flatpak info --user "$ext//$branch" >/dev/null 2>&1 ||
+    flatpak install --user -y --noninteractive flathub "$ext//$branch" || note "MangoHud-Erweiterung $branch fehlt"
+  # Roblox läuft über OpenGL – die Vulkan-Ebene greift nicht, deshalb wie das
+  # mangohud-Skript per LD_PRELOAD ($LIB wählt der Linker)
+  # shellcheck disable=SC2016
+  flatpak override --user "$app" \
+    --env=MANGOHUD=1 \
+    --env='LD_PRELOAD=/usr/lib/extensions/vulkan/MangoHud/$LIB/libMangoHud_shim.so' \
+    --env=__GL_SHADER_DISK_CACHE=1 \
+    --env=__GL_SHADER_DISK_CACHE_SIZE=4294967296 \
+    --env=__GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1 \
+    --filesystem=xdg-run/app/com.discordapp.Discord:create \
+    --filesystem=xdg-run/discord-ipc-0
+  # Die Sandbox sieht ~/.config nicht → Kopie der MangoHud-Config
+  if [ -f "$HOME/.config/MangoHud/MangoHud.conf" ]; then
+    mkdir -p "$HOME/.var/app/$app/config/MangoHud"
+    cp -f "$HOME/.config/MangoHud/MangoHud.conf" "$HOME/.var/app/$app/config/MangoHud/"
+  fi
+  echo "sober: MangoHud (Shift_R+F12), Shader-Cache, Discord-RPC"
+}
+
+setup_spicetify() {
+  local cfg=$HOME/.config/spicetify spotify=/opt/spotify/spotify-client
+  local colors=${XDG_CACHE_HOME:-$HOME/.cache}/matugen/spicetify-colors.css
+  command -v spicetify >/dev/null || die "spicetify fehlt (install.sh extras)"
+  [ -f "$HOME/.config/spotify/prefs" ] || die "Spotify einmal starten und anmelden, dann nochmal"
+  spicetify config spotify_path "$spotify" prefs_path "$HOME/.config/spotify/prefs" >/dev/null
+  # Theme „matugen“: Farben aus der Datei von matugen (Symlink unten)
+  mkdir -p "$cfg/Themes/matugen" "$cfg/Extensions"
+  printf '[Base]\ntext = ffffff\nmain = 000000\n' >"$cfg/Themes/matugen/color.ini"
+  cat >"$cfg/Themes/matugen/user.css" <<'CSS'
+/* Songtexte immer in den matugen-Farben statt einer Farbe pro Lied */
+:root,
+[style*="--lyrics-color"] {
+  --lyrics-color-background: var(--spice-main) !important;
+  --lyrics-color-active: var(--spice-text) !important;
+  --lyrics-color-passed: var(--spice-subtext) !important;
+  --lyrics-color-inactive: rgba(var(--spice-rgb-subtext), 0.5) !important;
+  --lyrics-color-messaging: var(--spice-subtext) !important;
+}
+/* Minecraft-Schrift überall */
+:root {
+  --encore-body-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+  --encore-title-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+  --encore-variable-font-stack: "Minecraftia", "Monocraft", sans-serif !important;
+}
+*:not([class*="spoticon"]) {
+  font-family: "Minecraftia", "Monocraft", sans-serif !important;
+}
+CSS
+  # neue Farben nach einem Hintergrundwechsel sofort übernehmen
+  cat >"$cfg/Extensions/matugen-colors.js" <<'JS'
+(function matugenColors() {
+  const link = document.querySelector("link.userCSS[href='colors.css']");
+  if (!link) return setTimeout(matugenColors, 300);
+  const style = document.createElement("style");
+  link.after(style);
+  let last;
+  setInterval(async () => {
+    if (document.hidden) return;
+    try {
+      const res = await fetch("colors.css", { cache: "no-store" });
+      if (!res.ok) return;
+      const css = await res.text();
+      if (last !== undefined && css !== last) style.textContent = css;
+      last = css;
+    } catch {}
+  }, 2000);
+})();
+JS
+  spicetify config current_theme matugen color_scheme Base extensions matugen-colors.js >/dev/null
+  spicetify backup apply >/dev/null 2>&1 || spicetify apply >/dev/null
+  ln -sf "$colors" "$spotify/Apps/xpui/colors.css"
+  echo "spicetify: Theme matugen angewendet"
+}
+
+# Vencord in Discord (/opt/discord) – nach jedem Discord-Update auch
+# automatisch (/etc/portage/bashrc)
+setup_vencord() {
+  local version=v1.4.2 sha256=52642c8521a866ad241c10337144a4f513672c54b9c86a8169954785054c815d
+  local cli=/var/cache/VencordInstallerCli-$version
+  [ -d /opt/discord ] || { echo "vencord: Discord nicht installiert"; return 0; }
+  [ -e /opt/discord/resources/_app.asar ] && { echo "vencord: schon eingebaut"; return 0; }
+  if [ "$(id -u)" -ne 0 ]; then exec sudo "$self" setup vencord; fi
+  if [ ! -x "$cli" ]; then
+    curl -fsSL -o "$cli.part" "https://github.com/Vendicated/VencordInstaller/releases/download/$version/VencordInstallerCli-Linux"
+    echo "$sha256  $cli.part" | sha256sum -c --quiet || { rm -f "$cli.part"; die "Vencord: Prüfsumme falsch"; }
+    install -m 755 "$cli.part" "$cli" && rm -f "$cli.part"
+  fi
+  (cd /tmp && "$cli" -install -location /opt/discord) && echo "vencord: eingebaut"
+}
+
+# Flatpak-Apps (Sober) brauchen org.freedesktop.Platform.GL.nvidia-<Version>
+# genau passend zum Treiber. Startet automatisch nach jedem Bau von
+# nvidia-drivers (/etc/portage/bashrc) – mit der neuen Version, die nach dem
+# Neustart läuft; alte Erweiterungen außer der laufenden fliegen raus.
+setup_nvidia_flatpak() {
+  local want=${1:-} running ext keep old
+  running=$(cat /sys/module/nvidia/version 2>/dev/null || true)
+  [ -n "$want" ] || want=$running
+  [ -n "$want" ] || { echo "nvidia-flatpak: kein NVIDIA-Treiber"; return 0; }
+  for v in $want ${running:-}; do
+    ext=org.freedesktop.Platform.GL.nvidia-${v//./-}
+    flatpak info --user "$ext//1.4" >/dev/null 2>&1 ||
+      flatpak install --user -y --noninteractive flathub "$ext//1.4" || note "$ext noch nicht auf Flathub"
+  done
+  keep=" org.freedesktop.Platform.GL.nvidia-${want//./-} org.freedesktop.Platform.GL.nvidia-${running//./-} "
+  flatpak list --user --runtime --columns=application | grep '^org\.freedesktop\.Platform\.GL\.nvidia-' | sort -u |
+    while read -r old; do
+      case $keep in *" $old "*) ;; *) flatpak uninstall --user -y --noninteractive "$old//1.4" || true ;; esac
+    done
+  echo "nvidia-flatpak: $want"
+}
+
+setup() {
+  case ${1:-} in
+    sober | spicetify | vencord) "setup_$1" ;;
+    nvidia-flatpak) setup_nvidia_flatpak "${2:-}" ;;
+    all)
+      setup_nvidia_flatpak || true
+      setup_sober || true
+      setup_vencord || true
+      setup_spicetify || true
+      ;;
+    *) die "setup sober|spicetify|vencord|nvidia-flatpak [VERSION]|all" ;;
+  esac
+}
+
+# ── doctor ─────────────────────────────────────────────────────────────
+doctor() {
+  problems=0
+  local f u v want hz
+  echo "── System"
+  f=$(systemctl --failed --no-legend --plain | awk '{print $1}' | paste -sd' ')
+  [ -z "$f" ] && ok "keine fehlgeschlagenen Systemdienste" || bad "fehlgeschlagen: $f"
+  f=$(systemctl --user --failed --no-legend --plain | awk '{print $1}' | paste -sd' ')
+  [ -z "$f" ] && ok "keine fehlgeschlagenen Benutzerdienste" || bad "fehlgeschlagen (Benutzer): $f"
+  if grep -qE '^\s*auth.*pam_unix\.so' /etc/pam.d/system-auth && ! grep -qE 'nulltok|pam_permit\.so' /etc/pam.d/system-auth; then
+    ok "PAM system-auth sauber (faillock: $(sed -n 's/^deny *= *//p' /etc/security/faillock.conf 2>/dev/null || echo 3) Versuche)"
+  else
+    bad "PAM system-auth ungewöhnlich – siehe /etc/pam.d/system-auth"
+  fi
+  ls /etc/pam.d/._cfg* /etc/portage/*/._cfg* >/dev/null 2>&1 && note "offene Config-Updates: sudo dispatch-conf" || ok "keine offenen Config-Updates"
+
+  echo "── Kernel"
+  hz=$(zcat /proc/config.gz 2>/dev/null | sed -n 's/^CONFIG_HZ=//p')
+  [ "$hz" = 1000 ] && ok "Kernel $(uname -r), 1000 Hz" || note "Kernel $(uname -r) mit ${hz:-?} Hz (1000 erst nach Neustart in den lokal gebauten Kernel)"
+  grep -q 'preempt=full' /proc/cmdline && ok "preempt=full" || bad "preempt=full fehlt in /etc/kernel/cmdline"
+  [ -c /dev/ntsync ] && ok "NTSYNC für Proton" || bad "/dev/ntsync fehlt"
+  [ "$(sysctl -n kernel.split_lock_mitigate)" = 0 ] && ok "Split-Lock-Bremse aus" || bad "split_lock_mitigate an"
+  v=$(qlist -Iv sys-kernel/gentoo-kernel 2>/dev/null | sort -V | tail -1)
+  [ -n "$v" ] && case $(uname -r) in "${v#sys-kernel/gentoo-kernel-}"*) ok "laufender Kernel = neuester installierter" ;; *) note "neuerer Kernel installiert (${v##*-}) – neu starten" ;; esac
+
+  echo "── Leistung"
+  systemctl is-active --quiet g5-tuning && ok "g5-tuning gelaufen" || bad "g5-tuning nicht gelaufen (journalctl -b -u g5-tuning; Ordnungs-Kreis? sudo systemctl reenable --now g5-tuning)"
+  want=$(get performance.power_profile 2>/dev/null || echo performance)
+  [ "$(powerprofilesctl get 2>/dev/null)" = "$want" ] && ok "Energieprofil $want" || bad "Energieprofil $(powerprofilesctl get 2>/dev/null) statt $want (g5 apply performance)"
+  v=$(($(cat /sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw 2>/dev/null || echo 0) / 1000000))
+  want=$(get performance.cpu_pl1_watts 2>/dev/null || echo 65)
+  [ "$v" = "$want" ] && ok "CPU PL1 $v W" || bad "CPU PL1 $v W statt $want W"
+  systemctl is-active --quiet ananicy-cpp && ok "ananicy-cpp läuft" || bad "ananicy-cpp läuft nicht"
+  [ "$(cat /sys/block/nvme0n1/queue/scheduler 2>/dev/null | grep -o '\[[a-z-]*\]')" = "[bfq]" ] && ok "NVMe mit BFQ (ionice wirkt)" || note "NVMe-Scheduler nicht BFQ"
+  swapon --show=NAME --noheadings | grep -q zram && ok "zram-Swap aktiv" || bad "kein zram-Swap"
+
+  echo "── Grafik"
+  if nvidia-smi >/dev/null 2>&1; then
+    ok "NVIDIA $(nvidia-smi --query-gpu=driver_version --format=csv,noheader)"
+    grep -q 'nvidia-drm.modeset=1' /proc/cmdline && ok "nvidia-drm modeset" || bad "nvidia-drm.modeset=1 fehlt in /etc/kernel/cmdline"
+  else
+    bad "nvidia-smi geht nicht (Treiber nicht geladen?)"
+  fi
+  v=$(cat /sys/module/nvidia/version 2>/dev/null || true)
+  [ -z "$v" ] || flatpak info --user "org.freedesktop.Platform.GL.nvidia-${v//./-}//1.4" >/dev/null 2>&1 &&
+    ok "Flatpak-NVIDIA passt zum Treiber" || bad "Flatpak-NVIDIA $v fehlt (g5 setup nvidia-flatpak)"
+
+  echo "── Audio"
+  pactl info >/dev/null 2>&1 && ok "PipeWire/Pulse: $(pactl get-default-sink)" || bad "kein Pulse-Server (systemctl --user status pipewire-pulse)"
+  systemctl --user is-active --quiet wireplumber && ok "WirePlumber läuft" || bad "WirePlumber läuft nicht"
+
+  echo "── Spiele"
+  command -v gamemoderun >/dev/null && ok "GameMode installiert" || bad "GameMode fehlt"
+  [ -e /usr/lib/libgamemodeauto.so.0 ] && ok "GameMode 32-Bit" || note "GameMode ohne 32-Bit (abi_x86_32)"
+  id -nG | grep -qw gamemode && ok "in Gruppe gamemode" || bad "nicht in Gruppe gamemode"
+  u=$(ls -d "$HOME"/.steam/root/compatibilitytools.d/GE-Proton* 2>/dev/null | grep -v aarch64 | sort -V | tail -1 || true)
+  [ -n "$u" ] && ok "GE-Proton: ${u##*/}" || note "kein GE-Proton (x86_64)"
+  ls -d "$HOME"/.steam/root/compatibilitytools.d/*aarch64* >/dev/null 2>&1 && bad "ARM-Build von GE-Proton liegt herum (läuft hier nicht)"
+
+  echo "── Netz"
+  systemctl is-active --quiet g5-firewall && ok "Firewall an" || bad "Firewall aus"
+  getent ahosts distfiles.gentoo.org >/dev/null 2>&1 && ok "DNS geht" || bad "DNS geht nicht"
+  vpn status 2>/dev/null | head -1 | sed 's/^/  /'
+
+  echo "── Konfiguration"
+  validate "$base" && ok "config/g5.json gültig (Profil: $(active_profile || true))" || bad "config/g5.json ungültig"
+  [ -f "$effective" ] && cmp -s "$effective" <(merged) && ok "angewendet" || note "Änderungen nicht angewendet: g5 apply"
+
+  echo
+  [ "$problems" -eq 0 ] && echo "Alles in Ordnung." || echo "$problems Problem(e)."
+  return "$((problems > 0))"
+}
+
+# ── Befehle ────────────────────────────────────────────────────────────
+cmd=${1:-help}
+[ $# -gt 0 ] && shift
+case $cmd in
+  config)
+    case ${1:-show} in
+      show) merged ;;
+      path) echo "$base" ;;
+      edit) "${EDITOR:-nvim}" "$base" && validate "$base" && echo "Gültig. Übernehmen: g5 apply" ;;
+      get) get "${2:?KEY, z. B. gaming.stretch}" ;;
+      set)
+        key=${2:?KEY} val=${3?WERT}
+        jq -e . >/dev/null 2>&1 <<<"$val" || val=$(jq -Rn --arg v "$val" '$v')
+        tmp=$(mktemp)
+        jq --indent 2 --argjson p "$(path_of "$key")" --argjson v "$val" 'setpath($p; $v)' "$base" >"$tmp"
+        validate "$tmp" || { rm -f "$tmp"; die "ungültig – nichts geändert"; }
+        mv "$tmp" "$base"
+        echo "$key = $(jq -c --argjson p "$(path_of "$key")" 'getpath($p)' "$base")  (übernehmen: g5 apply)"
+        ;;
+      validate) validate "$base" && echo "g5.json ist gültig" ;;
+      *) die "config show|edit|get KEY|set KEY WERT|validate|path" ;;
+    esac
+    ;;
+  profile)
+    case ${1:-list} in
+      list)
+        cur=$(active_profile)
+        for p in "$profiles"/*.json; do
+          n=$(basename "$p" .json)
+          [ "$n" = "$cur" ] && echo "* $n" || echo "  $n"
+        done
+        [ -n "$cur" ] || echo "(aktiv: nur g5.json)"
+        ;;
+      use)
+        n=${2:?Profilname}
+        [ -f "$profiles/$n.json" ] || die "kein Profil $n (g5 profile list)"
+        mkdir -p "$state" && echo "$n" >"$state/profile"
+        apply all
+        ;;
+      reset) rm -f "$state/profile"; apply all ;;
+      show) n=${2:-$(active_profile)}; [ -n "$n" ] && cat "$profiles/$n.json" || echo "kein Profil aktiv" ;;
+      export) merged >"${2:?Zieldatei}"; echo "gespeichert: $2" ;;
+      import)
+        src=${2:?Datei} n=${3:-$(basename "$2" .json)}
+        validate "$src" || die "$src ist ungültig"
+        install -m 644 "$src" "$profiles/$n.json"
+        echo "Profil $n importiert – aktivieren: g5 profile use $n"
+        ;;
+      *) die "profile list|use NAME|reset|show [NAME]|export DATEI|import DATEI [NAME]" ;;
+    esac
+    ;;
+  apply) apply "$@" ;;
+  setup) setup "$@" ;;
+  doctor) doctor ;;
+  get) get "${1:?KEY}" ;; # kurz für Skripte
+  -h | --help | help) sed -n '2,13s/^# \{0,1\}//p' "$self" ;;
+  *) die "unbekannt: $cmd (g5 help)" ;;
+esac

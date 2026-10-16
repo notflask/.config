@@ -1,0 +1,14 @@
+[Unit]
+Description=Firewall für eingehende Verbindungen (wie networking.firewall)
+DefaultDependencies=no
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/g5-firewall on
+ExecStop=/usr/local/sbin/g5-firewall off
+
+[Install]
+WantedBy=multi-user.target

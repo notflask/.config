@@ -1,0 +1,3 @@
+#!/bin/sh
+# Bildschirme aus/an (swayidle, hypridle)
+exec wm screens "${1:?on oder off}"

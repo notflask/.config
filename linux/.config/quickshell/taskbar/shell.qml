@@ -25,6 +25,9 @@ ShellRoot {
     // Ausschalt-Menü (Power.qml)
     PowerMenu {}
 
+    // Emoji-Auswahl (Super+., ../shared/EmojiPicker.qml)
+    EmojiPicker {}
+
     // Alt+Tab, nur Hyprland (Niri hat es eingebaut)
     LazyLoader {
         active: Compositor.hyprland

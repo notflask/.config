@@ -1,0 +1,112 @@
+/* Erzeugt von matugen (templates/gtklock.css) – hier nichts ändern.
+   gtklock (Liquid-Glass-Anordnung wie auf dem iPhone, layout.ui): Datum und
+   große Uhr oben mittig, unten ein gläserner Passwort-Pill mit rundem Knopf.
+   Das Wallpaper bleibt sichtbar, nur oben und unten sanft abgedunkelt. */
+window {
+  background-size: cover;
+  background-position: center;
+  background-color: {{colors.surface.default.hex}};
+}
+
+/* Verlauf: oben und unten dichter, damit Uhr und Feld lesbar bleiben */
+#window-box {
+  background-image: linear-gradient(to bottom,
+      alpha({{colors.surface.default.hex}}, 0.55) 0%,
+      alpha({{colors.surface.default.hex}}, 0.12) 38%,
+      alpha({{colors.surface.default.hex}}, 0.12) 62%,
+      alpha({{colors.surface.default.hex}}, 0.60) 100%);
+  color: {{colors.on_surface.default.hex}};
+}
+
+#date-label {
+  font-family: "Inter", "Cantarell", sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: alpha({{colors.on_surface.default.hex}}, 0.82);
+  text-shadow: 0 1px 12px alpha(#000000, 0.35);
+}
+
+#clock-label {
+  font-family: "Inter", "Cantarell", sans-serif;
+  font-size: 150px;
+  font-weight: 700;
+  letter-spacing: -4px;
+  color: alpha({{colors.on_surface.default.hex}}, 0.92);
+  text-shadow: 0 2px 28px alpha(#000000, 0.30);
+  margin-top: -8px;
+}
+
+/* Glas-Pill: halbtransparent, heller Rand oben wie eine Lichtkante */
+entry {
+  min-height: 52px;
+  min-width: 280px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid alpha({{colors.on_surface.default.hex}}, 0.22);
+  border-top-color: alpha({{colors.on_surface.default.hex}}, 0.40);
+  background-color: alpha({{colors.surface_container_highest.default.hex}}, 0.38);
+  color: {{colors.on_surface.default.hex}};
+  caret-color: {{colors.on_surface.default.hex}};
+  font-family: "Inter", "Cantarell", sans-serif;
+  font-size: 16px;
+  letter-spacing: 3px;
+  box-shadow: 0 8px 32px alpha(#000000, 0.25), inset 0 1px 0 alpha({{colors.on_surface.default.hex}}, 0.12);
+  transition: border-color 200ms, background-color 200ms;
+}
+
+entry:focus {
+  border-color: alpha({{colors.on_surface.default.hex}}, 0.45);
+  background-color: alpha({{colors.surface_container_highest.default.hex}}, 0.55);
+}
+
+entry image {
+  color: {{colors.on_surface_variant.default.hex}};
+}
+
+entry placeholder,
+entry text placeholder {
+  color: alpha({{colors.on_surface.default.hex}}, 0.6);
+  letter-spacing: 1px;
+}
+
+/* Runder Glasknopf neben dem Feld */
+#unlock-button {
+  min-width: 52px;
+  min-height: 52px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid alpha({{colors.on_surface.default.hex}}, 0.22);
+  border-top-color: alpha({{colors.on_surface.default.hex}}, 0.40);
+  background-image: none;
+  background-color: alpha({{colors.surface_container_highest.default.hex}}, 0.38);
+  color: {{colors.on_surface.default.hex}};
+  font-size: 20px;
+  box-shadow: 0 8px 32px alpha(#000000, 0.25);
+  text-shadow: none;
+  transition: background-color 200ms;
+}
+
+#unlock-button:hover {
+  background-color: alpha({{colors.surface_container_highest.default.hex}}, 0.60);
+}
+
+#unlock-button:active {
+  background-color: alpha({{colors.primary.default.hex}}, 0.70);
+  color: {{colors.on_primary.default.hex}};
+}
+
+#error-label,
+#warning-label {
+  font-family: "JetBrains Mono";
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+#error-label {
+  color: {{colors.error.default.hex}};
+}
+
+#warning-label {
+  color: <* if {{ is_dark_mode }} *>#f0c674<* else *>#9a6700<* endif *>;
+}

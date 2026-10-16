@@ -1,0 +1,9 @@
+[Unit]
+Description=Split-Tunneling: Ziele alle 10 min neu auflösen
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=10min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+if command -v snapper >/dev/null && snapper -c root list >/dev/null 2>&1; then
+  n=$(snapper -c root create -t pre -p -c number -d "emerge $*")
+  rc=0; emerge "$@" || rc=$?
+  snapper -c root create -t post --pre-number "$n" -c number -d "emerge $*"
+  exit $rc
+fi
+exec emerge "$@"

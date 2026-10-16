@@ -1,0 +1,8 @@
+[Unit]
+Description=Webcam-Einstellungen wiederherstellen (cameractrls)
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/cameractrlsd
+Restart=on-failure

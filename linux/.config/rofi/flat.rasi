@@ -1,0 +1,80 @@
+// Starter im minimalen Stil (Super+Space): eckiger Kasten mit
+// 1px Rahmen in der Akzentfarbe, nur Text. Farben: colors.rasi (matugen).
+// Unter Niri/Hyprland bleibt spotlight.rasi.
+@import "colors.rasi"
+
+configuration {
+    show-icons: false;
+    drun-display-format: "{name}";
+}
+
+* {
+    font: "JetBrains Mono 12";
+    background-color: transparent;
+    text-color: @fg;
+}
+
+window {
+    width: 560px;
+    location: center;
+    anchor: center;
+    background-color: @bg;
+    border: 1px;
+    border-color: @border-c;
+    border-radius: 0;
+    padding: 0;
+}
+
+mainbox {
+    children: [ inputbar, listview ];
+    spacing: 0;
+}
+
+inputbar {
+    children: [ prompt, entry ];
+    padding: 10px 12px;
+    spacing: 10px;
+    border: 0 0 1px 0;
+    border-color: @divider;
+}
+
+prompt {
+    text-color: @accent;
+}
+
+entry {
+    placeholder: "";
+    cursor-color: @accent;
+}
+
+listview {
+    lines: 10;
+    fixed-height: false;
+    scrollbar: false;
+    padding: 6px 0;
+}
+
+element {
+    padding: 4px 12px;
+    text-color: @fg-dim;
+}
+
+element selected {
+    background-color: @border-c;
+    text-color: @bg;
+}
+
+element-text {
+    text-color: inherit;
+    highlight: bold;
+}
+
+message {
+    padding: 6px 12px;
+    border: 0 0 1px 0;
+    border-color: @divider;
+}
+
+textbox {
+    text-color: @fg-faint;
+}

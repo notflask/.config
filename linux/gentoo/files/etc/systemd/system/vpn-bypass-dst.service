@@ -1,0 +1,8 @@
+[Unit]
+Description=Split-Tunneling: Ziele auflösen
+Requires=vpn-bypass.service
+After=vpn-bypass.service network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/g5-vpn bypass-dst

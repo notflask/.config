@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Status des WireGuard-Tunnels wg0 für die Taskleiste (Vpn.qml, siehe vpn.nix).
+# Status des WireGuard-Tunnels wg0 für die Taskleiste (Vpn.qml).
 #   vpn.sh          Zustand ausgeben: on | pending | off | open, danach
 #                   Details als SCHLÜSSEL=WERT (name, endpoint, handshake,
 #                   rx, tx, lock) für das VPN-Fenster (VpnPanel.qml)
 #   vpn.sh toggle   verbinden/trennen
 #   vpn.sh lock | unlock   Internet ohne VPN sperren / freigeben
-# Ohne Passwort dank Polkit-Regel in vpn.nix.
+# Ohne Passwort über die Polkit-Regel (gentoo/files/etc/polkit-1/rules.d/50-g5-vpn.rules).
 #
 # on = verbunden (grün), pending = verbindet / keine Antwort vom Server
 # (orange), off = getrennt, Fehler oder nicht eingerichtet (rot),
@@ -14,36 +14,44 @@
 iface=wg0
 service=wg-quick-$iface
 
+svc_start() { systemctl start "$1"; }
+svc_stop() { systemctl stop "$1"; }
+svc_active() { systemctl is-active --quiet "$1"; }
+svc_state() { systemctl is-active "$1" 2>/dev/null; }
+configured() { [ -e /etc/wireguard/$iface.conf ]; }
+name_file=/etc/wireguard/$iface.name
+
 case ${1:-} in
   toggle)
-    if systemctl is-active --quiet "$service"; then
-      systemctl stop "$service"
+    if svc_active "$service"; then
+      svc_stop "$service"
     else
-      systemctl start "$service"
+      svc_start "$service"
     fi
     exit
     ;;
-  lock) exec systemctl start vpn-lock ;;
-  unlock) exec systemctl stop vpn-lock ;;
+  lock) svc_start vpn-lock; exit ;;
+  unlock) svc_stop vpn-lock; exit ;;
 esac
 
 endpoint="" handshake=0 rx=0 tx=0
 details() {
-  echo "name=$(cat /etc/wireguard/$iface.name 2>/dev/null)"
+  echo "name=$(cat "$name_file" 2>/dev/null)"
+  configured && echo setup=yes || echo setup=no
   echo "endpoint=$endpoint"
   echo "handshake=$handshake"
   echo "rx=$rx"
   echo "tx=$tx"
-  systemctl is-active --quiet vpn-lock && echo lock=on || echo lock=off
+  svc_active vpn-lock && echo lock=on || echo lock=off
 }
 trap details EXIT
 
-if [ ! -e /etc/wireguard/$iface.conf ]; then
+if ! configured; then
   echo off
   exit
 fi
 
-state=$(systemctl is-active "$service" 2>/dev/null)
+state=$(svc_state "$service")
 case $state in
   activating | deactivating)
     echo pending
@@ -70,7 +78,7 @@ if [ -d /sys/class/net/$iface ]; then
   else
     [ "$(cat /sys/class/net/$iface/statistics/rx_bytes)" -gt 0 ] && echo on || echo pending
   fi
-elif [ "$state" != failed ] && ! systemctl is-active --quiet vpn-lock; then
+elif [ "$state" != failed ] && ! svc_active vpn-lock; then
   echo open
 else
   echo off

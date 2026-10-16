@@ -1,0 +1,39 @@
+#!/bin/sh
+# Firewall für eingehende Verbindungen –
+# (networking.firewall): alles verwerfen außer Antworten, Ping, IPv6-
+# Nachbarschaft und den Ports, die Apps brauchen.
+# Eigene Kette g5-input, damit Kill-Switch und Sperre unberührt bleiben.
+# Läuft beim Booten (g5-firewall.service).
+set -eu
+# -w: auf die xtables-Sperre warten – beim Booten laufen mehrere Regel-Dienste
+# gleichzeitig, ohne -w scheiterte einer davon ("Can't lock /run/xtables.lock")
+iptables() { command iptables -w 10 "$@"; }
+ip6tables() { command ip6tables -w 10 "$@"; }
+chain=g5-input
+for ipt in iptables ip6tables; do
+  while "$ipt" -D INPUT -j $chain 2>/dev/null; do :; done
+  "$ipt" -F $chain 2>/dev/null || true
+  "$ipt" -X $chain 2>/dev/null || true
+  [ "${1:-on}" = on ] || continue
+
+  "$ipt" -N $chain
+  "$ipt" -A $chain -i lo -j ACCEPT
+  "$ipt" -A $chain -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+  "$ipt" -A $chain -m conntrack --ctstate INVALID -j DROP
+  # Spotify Connect / Geräte im LAN finden
+  "$ipt" -A $chain -p tcp --dport 57621 -j ACCEPT
+  "$ipt" -A $chain -p udp --dport 5353 -j ACCEPT
+  # Steam: Spiele im LAN übertragen (localNetworkGameTransfers)
+  "$ipt" -A $chain -p tcp --dport 27040 -j ACCEPT
+  "$ipt" -A $chain -p udp --dport 27031:27036 -j ACCEPT
+done
+if [ "${1:-on}" = on ]; then
+  iptables -A $chain -p icmp --icmp-type echo-request -j ACCEPT
+  # IPv6 braucht ICMPv6 (Nachbarn, Router), DHCPv6-Antworten vom Router
+  ip6tables -A $chain -p ipv6-icmp -j ACCEPT
+  ip6tables -A $chain -p udp --sport 547 --dport 546 -s fe80::/10 -j ACCEPT
+  for ipt in iptables ip6tables; do
+    "$ipt" -A $chain -j DROP
+    "$ipt" -I INPUT -j $chain
+  done
+fi

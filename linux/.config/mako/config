@@ -23,9 +23,9 @@ anchor=top-right
 background-color=#15131173
 text-color=#e8e1dd
 border-color=#ffffff30
-progress-color=over #544433
+progress-color=over #534432
 
-format=<b>%s</b>\n<span color="#ccc5c2">%b</span>
+format=<b>%s</b>\n<span color="#cbc5c1">%b</span>
 
 [urgency=low]
 border-color=#ffffff18

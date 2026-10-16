@@ -1,0 +1,14 @@
+[Unit]
+Description=Split-Tunneling: Ketten anlegen
+DefaultDependencies=no
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/g5-vpn bypass on
+ExecStop=/usr/local/sbin/g5-vpn bypass off
+
+[Install]
+WantedBy=multi-user.target

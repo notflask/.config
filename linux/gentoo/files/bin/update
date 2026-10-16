@@ -1,0 +1,17 @@
+#!/bin/sh
+# Alles aktualisieren: Repos, Spotify-Overlay, @world (Snapshot davor/danach),
+# Module, Plugins, Extras, Flatpaks, Spicetify – danach `g5 doctor`.
+set -e
+sudo emaint sync -a
+# Spotify-Overlay auf den aktuellen Build bringen, bevor @world läuft
+"$HOME/dotfiles/linux/gentoo/install.sh" spotify
+sudo emerge-snap -uDNv --ask=n @world "$@"
+sudo emerge --ask=n @preserved-rebuild || true
+sudo emerge --ask=n --depclean || true
+G5_UPDATE=1 "$HOME/dotfiles/linux/gentoo/install.sh" plugins extras
+flatpak update --user -y --noninteractive 2>/dev/null || true
+g5 setup nvidia-flatpak || true
+[ "$(g5 get apps.spicetify)" = false ] || g5 setup spicetify 2>/dev/null || true
+# offene Config-Updates nennen statt still liegen zu lassen
+find /etc -name '._cfg*' 2>/dev/null | grep -q . && echo "Config-Updates offen: sudo dispatch-conf" || true
+g5 doctor || true

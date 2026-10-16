@@ -1,0 +1,10 @@
+#!/bin/sh
+# Druck: Bereich wählen → Clipboard + ~/Screenshots (wie Niris Screenshot)
+dir="$HOME/Screenshots"
+mkdir -p "$dir"
+file="$dir/Screenshot from $(date '+%Y-%m-%d %H-%M-%S').png"
+geom=$(slurp -d -b '#1e1e2e66' -c '#cba6f7' -w 2) || exit 0
+# -l 1: schwache PNG-Kompression, Clipboard und Meldung sind sofort da
+grim -l 1 -g "$geom" "$file"
+wl-copy --type image/png <"$file"
+notify-send -a Screenshot -i "$file" "Screenshot kopiert" "${file##*/}"

@@ -2,13 +2,16 @@
 * {
     glass:     #2c292780;
     fg:        #e8e1dde6;
-    fg-dim:    #ccc5c2cc;
-    fg-faint:  #ccc5c280;
+    fg-dim:    #cbc5c1cc;
+    fg-faint:  #cbc5c180;
     selection: #e8e1dd29;
     // Suchkapsel: leicht abgesetzte Fläche auf dem Glas
     pill:      #ffffff17;
     // Akzent aus dem Hintergrundbild (Textcursor)
-    accent:    #dac2ac;
+    accent:    #d8c3ab;
     rim:       #ffffff40;
+    // flat.rasi: deckende Fläche und Rahmen
+    bg:        #151311;
+    border-c:  #d8c3ab;
     divider:   #ffffff1f;
 }

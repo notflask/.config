@@ -22,6 +22,25 @@ output_path = "~/.config/quickshell/taskbar/glass.css"
 input_path  = "~/.config/matugen/templates/mako.ini"
 output_path = "~/.config/mako/config"
 
+# Ghostty und fastfetch in den Farben des Wallpapers 
+[templates.ghostty]
+input_path  = "~/.config/matugen/templates/ghostty-theme"
+output_path = "~/.config/ghostty/themes/matugen"
+
+# Neovim: Farbschema `matugen` (plugins/ui.lua)
+[templates.nvim]
+input_path  = "~/.config/matugen/templates/nvim-colors.lua"
+output_path = "~/.config/nvim/colors/matugen.lua"
+
+[templates.fastfetch-minimal]
+input_path  = "~/.config/matugen/templates/fastfetch-minimal.jsonc"
+output_path = "~/.config/fastfetch/minimal.jsonc"
+
+# mako im minimalen Stil 
+[templates.mako-flat]
+input_path  = "~/.config/matugen/templates/mako-flat.ini"
+output_path = "~/.config/mako/config-flat"
+
 [templates.rofi]
 input_path  = "~/.config/matugen/templates/rofi-colors.rasi"
 output_path = "~/.config/rofi/colors.rasi"
@@ -58,7 +77,7 @@ input_path  = "~/.config/matugen/templates/firefox-userchrome.css"
 output_path = "~/.cache/matugen/firefox-userChrome.css"
 
 # Spotify (Spicetify): Spotify liest die Datei über einen Symlink im
-# Paket (apps.nix) und lädt sie bei Änderungen selbst neu
+# Paket und lädt sie bei Änderungen selbst neu
 [templates.spicetify]
 input_path  = "~/.config/matugen/templates/spicetify-colors.css"
 output_path = "~/.cache/matugen/spicetify-colors.css"
@@ -68,7 +87,18 @@ output_path = "~/.cache/matugen/spicetify-colors.css"
 input_path  = "~/.config/matugen/templates/hyprlock-colors.conf"
 output_path = "~/.config/hypr/hyprlock-colors.conf"
 
+# gtklock (Sperrbildschirm unter Arch, `wm lock`)
+[templates.gtklock]
+input_path  = "~/.config/matugen/templates/gtklock.css"
+output_path = "~/.config/gtklock/style.css"
+
 # Discord (Vencord): theme.sh trägt die Datei selbst unter „aktive Themes“ ein
 [templates.vencord]
 input_path  = "~/.config/matugen/templates/vencord.theme.css"
 output_path = "~/.config/Vencord/themes/matugen.theme.css"
+
+# Telegram Desktop: Palette; theme.sh packt sie mit dem Chat-Hintergrund zu
+# ~/.cache/matugen/matugen.tdesktop-theme und bietet sie Telegram an
+[templates.telegram]
+input_path  = "~/.config/matugen/templates/telegram.tdesktop-theme"
+output_path = "~/.cache/matugen/telegram/colors.tdesktop-theme"

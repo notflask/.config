@@ -1,0 +1,19 @@
+# swayidle – Auto-Sperre (Hyprland), dieselben Zeiten wie
+# hypr/hypridle.conf. Start: `wm autostart` (swayidle -w).
+# Pausiert, solange eine App das Sperren verhindert: Videos (Firefox, VLC),
+# Spiele, Anrufe. Zeiten in Sekunden. Nach Änderungen: pkill swayidle, dann
+# `swayidle -w &` (oder neu anmelden).
+
+# 40 min: interner Bildschirm dunkler
+timeout 2400 'brightnessctl --class=backlight -s set 10%' resume 'brightnessctl --class=backlight -r'
+
+# 45 min: sperren
+timeout 2700 'loginctl lock-session'
+
+# 46 min: Bildschirme aus (Maus oder Taste weckt sie)
+timeout 2760 'wm screens off' resume 'wm screens on'
+
+# loginctl lock-session (auch vom Standby) → Sperrbildschirm
+lock 'wm lock'
+before-sleep 'loginctl lock-session'
+after-resume 'wm screens on'

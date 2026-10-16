@@ -6,7 +6,7 @@ import Quickshell.Widgets
 // VPN-Fenster über dem VPN-Knopf (wie die Mullvad-App): verbinden/trennen,
 // Server und Datenrate, Sperre ohne VPN und Split-Tunneling – Apps, die
 // immer am VPN vorbei starten, und Ziele (Domains/IPs) für alle Programme.
-// Daten und Befehle: Vpn.qml, scripts/vpn.sh und `vpn-split` (vpn.nix).
+// Daten und Befehle: Vpn.qml, scripts/vpn.sh und `vpn`.
 Popup {
     id: panel
 
@@ -64,7 +64,7 @@ Popup {
                 return;
             Vpn.split("add", matches[0].id);
         } else {
-            // dieselbe Prüfung wie vpn-bypass-edit
+            // dieselbe Prüfung wie g5-vpn domain
             const ok = /^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$/i.test(text) || /^\d{1,3}(\.\d{1,3}){3}(\/\d{1,2})?$/.test(text);
             if (!ok) {
                 error = "Nur Domain (beispiel.de) oder IPv4 (1.2.3.4, 10.0.0.0/8)";
@@ -201,28 +201,33 @@ Popup {
             rowSpacing: 8
             columnSpacing: 8
 
+            // fester Index als Modell: ein Array-Literal würde mit jeder
+            // Datenrate neu gebaut und die Kacheln jede Sekunde ersetzen
             Repeater {
-                model: [
-                    {
-                        label: "Server",
-                        value: Vpn.endpoint.replace(/:\d+$/, "") || "–"
-                    },
-                    {
-                        label: "Handshake",
-                        value: panel.ago(Vpn.handshake)
-                    },
-                    {
-                        label: "↓ Empfangen",
-                        value: panel.bytes(Vpn.rxRate) + "/s · " + panel.bytes(Vpn.rx)
-                    },
-                    {
-                        label: "↑ Gesendet",
-                        value: panel.bytes(Vpn.txRate) + "/s · " + panel.bytes(Vpn.tx)
-                    }
-                ]
+                model: 4
 
                 delegate: Rectangle {
-                    required property var modelData
+                    id: cell
+
+                    required property int index
+                    readonly property var info: [
+                        {
+                            label: "Server",
+                            value: Vpn.endpoint.replace(/:\d+$/, "") || "–"
+                        },
+                        {
+                            label: "Handshake",
+                            value: panel.ago(Vpn.handshake)
+                        },
+                        {
+                            label: "↓ Empfangen",
+                            value: panel.bytes(Vpn.rxRate) + "/s · " + panel.bytes(Vpn.rx)
+                        },
+                        {
+                            label: "↑ Gesendet",
+                            value: panel.bytes(Vpn.txRate) + "/s · " + panel.bytes(Vpn.tx)
+                        }
+                    ][index]
 
                     width: (340 - 8) / 2
                     height: 48
@@ -237,12 +242,12 @@ Popup {
                         spacing: 2
 
                         Label {
-                            text: modelData.label
+                            text: cell.info.label
                             font.pixelSize: 11
                             color: Theme.textDim
                         }
                         Label {
-                            text: modelData.value
+                            text: cell.info.value
                             font.pixelSize: 13
                         }
                     }
@@ -351,11 +356,13 @@ Popup {
                                 anchors.centerIn: parent
                                 text: modelData.label
                                 font.pixelSize: 12
-                                color: panel.tab === modelData.id ? Theme.text : Theme.textDim
+                                color: panel.tab === modelData.id || tabMouse.containsMouse ? Theme.text : Theme.textDim
                             }
 
                             MouseArea {
+                                id: tabMouse
                                 anchors.fill: parent
+                                hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     panel.tab = modelData.id;
@@ -409,11 +416,11 @@ Popup {
 
                     required property string modelData
                     readonly property var entry: panel.tab === "apps" ? DesktopEntries.byId(modelData) : null
-                    // läuft gerade am VPN vorbei (vpn-split running nennt Programmnamen)
+                    // läuft gerade am VPN vorbei (vpn running nennt Programmnamen)
                     readonly property bool active: {
                         if (!entry || !entry.command || entry.command.length === 0)
                             return false;
-                        const exe = entry.command[entry.command[0] === "novpn" ? 1 : 0] || "";
+                        const exe = entry.command[entry.command[0] === "vpn" && entry.command[1] === "run" ? 2 : 0] || "";
                         return Vpn.splitRunning.includes(exe.split("/").pop());
                     }
 

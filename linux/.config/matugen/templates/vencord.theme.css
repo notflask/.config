@@ -14,12 +14,12 @@
 
 body {
     /* font options */
-    --font: 'Fira Code'; /* change to '' for default discord font */
-    --code-font: 'Fira Code'; /* change to '' for default discord font */
+    --font: 'Minecraftia', 'Monocraft'; /* Minecraft-Schrift, Monocraft für Kyrillisch */
+    --code-font: 'Monocraft'; /* change to '' for default discord font */
     font-weight: 400; /* normal text font weight. DOES NOT AFFECT BOLD TEXT */
 
     /* sizes */
-    --gap: 12px; /* spacing between panels */
+    --gap: 8px; /* spacing between panels */
     --divider-thickness: 4px; /* thickness of unread messages divider and highlighted message borders */
     --border-thickness: 1px; /* thickness of borders around main panels. DOES NOT AFFECT OTHER BORDERS */
 
@@ -161,19 +161,11 @@ body {
     --text-4: {{colors.outline.default.hex}};
     --text-5: {{colors.outline_variant.default.hex}};
 
-    /* Flächen */
-    /* Dunkel: pechschwarz statt der Hintergrundbild-Flächen */
-<* if {{ is_dark_mode }} *>
-    --bg-1: #151515;
-    --bg-2: #0b0b0b;
-    --bg-3: #000000;
-    --bg-4: #000000;
-<* else *>
+    /* Flächen: dieselben wie Leiste, Terminal und Neovim */
     --bg-1: {{colors.surface_container_highest.default.hex}};
     --bg-2: {{colors.surface_container_high.default.hex}};
     --bg-3: {{colors.surface_container_low.default.hex}};
     --bg-4: {{colors.surface.default.hex}};
-<* endif *>
     --hover: {{colors.on_surface.default.rgba | set_alpha: 0.06}};
     --active: {{colors.on_surface.default.rgba | set_alpha: 0.10}};
     --active-2: {{colors.on_surface.default.rgba | set_alpha: 0.14}};
@@ -195,9 +187,10 @@ body {
     --offline: {{colors.outline.default.hex}};
 
     /* Ränder */
-    --border-light: var(--hover);
-    --border: var(--active);
-    --border-hover: var(--active);
+    /* 1px-Kanten wie die Linie unter der Leiste */
+    --border-light: {{colors.outline_variant.default.hex}};
+    --border: {{colors.outline_variant.default.hex}};
+    --border-hover: {{colors.primary.default.hex}};
     --button-border: {{colors.outline_variant.default.hex}};
 
     /* Grundfarben, die midnight an einigen Stellen direkt nutzt */
@@ -224,11 +217,34 @@ nav[class*="guilds_"] {
     display: none !important;
 }
 
-/* Fira Code überall, auch wo midnight --font nicht greift */
+/* Minecraft-Schrift überall, auch wo midnight --font nicht greift
+   (Minecraftia hat kein Kyrillisch – Monocraft springt ein) */
 body,
 button,
 input,
 select,
 textarea {
-    font-family: 'Fira Code', monospace !important;
+    font-family: 'Minecraftia', 'Monocraft', monospace !important;
+}
+
+code,
+pre,
+[class*="codeBlock"],
+[class*="markup"] code {
+    font-family: 'Monocraft', monospace !important;
+}
+
+/* Eckig wie die Leiste (minibar): keine Rundungen, nur 1px-Kanten.
+   Avatare und Status-Punkte behalten ihre Form. */
+*:not(img):not(svg):not(rect):not(circle):not([class*="avatar"]):not([class*="Avatar"]):not([class*="status"]):not([class*="dot"]) {
+    border-radius: 0 !important;
+}
+
+/* Hervorhebungen als 1px-Linie in der Akzentfarbe statt Fläche */
+[class*="menu_"],
+[class*="popout_"],
+[class*="autocomplete_"],
+[role="dialog"] {
+    border: 1px solid var(--accent-2) !important;
+    box-shadow: none !important;
 }

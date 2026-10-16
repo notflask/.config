@@ -1,0 +1,8 @@
+// VPN an/aus und Sperre aus der Taskleiste ohne Passwort
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.systemd1.manage-units" &&
+        ["wg-quick-wg0.service", "vpn-lock.service"].indexOf(action.lookup("unit")) >= 0 &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

@@ -1,0 +1,77 @@
+{
+  "$schema": "./g5.schema.json",
+  "system": {
+    "user": "flask",
+    "hostname": "g5",
+    "timezone": "Europe/Berlin",
+    "locale": "de_DE.UTF-8",
+    "kernel": "sys-kernel/gentoo-kernel"
+  },
+  "desktop": {
+    "style": "minimal",
+    "terminal": "ghostty",
+    "shell": "fish",
+    "launcher": "rofi",
+    "screenshot": "opal",
+    "cursor": {
+      "theme": "macOS",
+      "size": 24
+    },
+    "keyboard_layouts": [
+      "us",
+      "ru",
+      "ua",
+      "de"
+    ]
+  },
+  "monitors": [
+    {
+      "name": "eDP-1",
+      "mode": "1920x1080@144.003",
+      "position": "0x0",
+      "scale": 1,
+      "vrr": 0
+    },
+    {
+      "name": "DP-2",
+      "mode": "2560x1440@179.959",
+      "position": "1920x0",
+      "scale": 1,
+      "vrr": 3
+    }
+  ],
+  "performance": {
+    "power_profile": "performance",
+    "cpu_pl1_watts": 65,
+    "cpu_dynamic_boost": true,
+    "gpu_min_clock_mhz": 1500,
+    "gpu_max_clock_mhz": 3105
+  },
+  "gaming": {
+    "monitor": "DP-2",
+    "stretch": "",
+    "refresh": 0,
+    "hud": true,
+    "cursor": "grab",
+    "grab_keyboard": false,
+    "fan_curve": "50:25,60:40,70:60,78:80,85:100",
+    "renice": 5
+  },
+  "vpn": {
+    "interface": "wg0",
+    "autostart": true,
+    "lock_without_tunnel": false,
+    "bypass_apps": [],
+    "bypass_domains": []
+  },
+  "apps": {
+    "flatpaks": [
+      "org.vinegarhq.Sober"
+    ],
+    "spicetify": true,
+    "vencord": true,
+    "claude_desktop": true,
+    "tradingview": true,
+    "ge_proton": true
+  }
+}

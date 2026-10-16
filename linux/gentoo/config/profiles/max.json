@@ -1,0 +1,11 @@
+{
+  "performance": {
+    "power_profile": "performance",
+    "cpu_pl1_watts": 80,
+    "cpu_dynamic_boost": true,
+    "gpu_min_clock_mhz": 1500
+  },
+  "gaming": {
+    "fan_curve": "40:30,55:50,65:70,75:90,80:100"
+  }
+}

@@ -1,0 +1,8 @@
+[Unit]
+Description=Farben aus dem Hintergrundbild erzeugen (einmalig)
+After=graphical-session.target
+ConditionPathExists=!%h/.local/state/matugen-theme-v2.done
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/matugen/theme.sh

@@ -1,0 +1,9 @@
+[Unit]
+Description=WireGuard-Status für die Taskleiste
+
+[Service]
+ExecStart=/usr/local/sbin/g5-vpn peer-info
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
