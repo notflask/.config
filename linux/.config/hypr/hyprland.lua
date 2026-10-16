@@ -348,6 +348,41 @@ hl.window_rule({
     float = true,
 })
 
+-- Nur Hyprland: Firefox öffnet Erweiterungs-Popups als „Mozilla Firefox“ und
+-- setzt „Extension: (…)“ erst danach – die Regel oben prüft float nur beim
+-- Öffnen. Daher beim Titelwechsel, aber nur bei gerade geöffneten Fenstern
+-- (≤ 5 s), damit ein normales Fenster nicht plötzlich schwebt.
+local firefox_opened = {}
+
+hl.on("window.open", function(w)
+    if w.class:match("firefox") then
+        firefox_opened[w.address] = os.time()
+    end
+end)
+
+hl.on("window.close", function(w)
+    firefox_opened[w.address] = nil
+end)
+
+hl.on("window.title", function(w)
+    local opened = firefox_opened[w.address]
+    if not opened or w.floating or os.time() - opened > 5 or not w.title:match("^Extension: ") then
+        return
+    end
+    firefox_opened[w.address] = nil
+    hl.dispatch(hl.dsp.window.float({ action = "enable", window = w }))
+    hl.dispatch(hl.dsp.window.center({ window = w }))
+end)
+
+-- Dialoge ohne Eltern-Fenster (die mit Eltern schweben ohnehin): Datei-
+-- auswahl, Eigenschaften, Firefox-Bibliothek (Downloads/Verlauf)
+hl.window_rule({
+    name = "dialog-titles",
+    match = { title = "Open File|Open Files|Save File|Save As|Select Folder|Datei öffnen|Dateien öffnen|Datei speichern|Speichern unter|Ordner auswählen|Properties|Eigenschaften|Library|Bibliothek" },
+    float = true,
+    center = true,
+})
+
 -- Steam: alles außer dem Hauptfenster (Freundesliste, Chats, Einstellungen, Dialoge)
 hl.window_rule({
     name = "steam-subwindows",
