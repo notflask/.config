@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-# Split-Tunneling für den Benutzer (Apps und Ziele), Pfade für Arch
-set -euo pipefail
-bypass_file=/var/lib/vpn-bypass/domains
-bypass_edit=/usr/local/sbin/vpn-bypass-edit
-here=$(dirname "$(readlink -f "$0")")
-# shellcheck source=../../scripts/vpn-split.sh
-. "$here/../../scripts/vpn-split.sh"

@@ -3,7 +3,7 @@
 # Als normaler Benutzer starten (nicht root). Jeder Schritt darf beliebig oft laufen.
 #
 #   ~/dotfiles/linux/gentoo/install.sh             alles
-#   ~/dotfiles/linux/gentoo/install.sh SCHRITT ... repos packages system extras plugins services user network
+#   ~/dotfiles/linux/gentoo/install.sh SCHRITT ... repos packages system extras plugins services user network spotify
 set -Eeuo pipefail
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -15,13 +15,15 @@ home=$HOME
 SUDO=sudo
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:/opt/bin:$PATH"
 sdo() { sudo "$@"; }
+# Wert aus config/g5.json (Profil eingerechnet), z. B. cfg apps.tradingview
+cfg() { "$here/files/bin/g5" get "$1" 2>/dev/null || true; }
 
 check() {
   [ "$(id -u)" -ne 0 ] || die "als normaler Benutzer starten (nicht root, nicht sudo)"
   [ -e /etc/gentoo-release ] || die "das ist kein Gentoo"
   [ "$repo" = "$home/dotfiles" ] || warn "Repo liegt in $repo statt $home/dotfiles – Links zeigen dorthin"
   curl -fsS --max-time 15 -o /dev/null https://distfiles.gentoo.org/ || die "kein Internet (nmtui)"
-  sudo -v
+  sudo -n true 2>/dev/null || sudo -v
   (while kill -0 $$ 2>/dev/null; do sudo -n true 2>/dev/null; sleep 50; done) &
 }
 
@@ -32,6 +34,11 @@ do_repos() {
   sdo cp "$here"/portage/package.accept_keywords/* /etc/portage/package.accept_keywords/
   sdo cp "$here"/portage/package.license/* /etc/portage/package.license/
   sdo cp "$here"/portage/package.mask/* /etc/portage/package.mask/
+  sdo install -d /etc/portage/env /etc/portage/package.env /var/cache/ccache
+  sdo cp "$here"/portage/env/* /etc/portage/env/
+  sdo cp "$here"/portage/package.env/* /etc/portage/package.env/
+  printf 'max_size = 5G\ncompression = true\n' | sdo tee /var/cache/ccache/ccache.conf >/dev/null
+  sdo chown -R portage:portage /var/cache/ccache
   sdo install -d /etc/portage/sets /etc/portage/repos.conf
   sdo cp "$here"/portage/sets/* /etc/portage/sets/
   sdo cp "$here/portage/repos.conf" /etc/portage/repos.conf/g5.conf
@@ -44,6 +51,7 @@ do_repos() {
 # ── packages ──
 do_packages() {
   local set pkgs
+  spotify_overlay
   for set in g5-base g5-desktop g5-apps; do
     step "Pakete: @$set"
     mapfile -t pkgs < <(list "$here/portage/sets/$set")
@@ -52,6 +60,14 @@ do_packages() {
   step "System auf Stand"
   sdo emerge --ask=n -uDN --keep-going=y @world || warn "@world nicht vollständig"
   sdo emerge --ask=n @preserved-rebuild || true
+}
+
+# ── spotify ──
+do_spotify() {
+  spotify_overlay
+  step "Spotify installieren"
+  emerge_try media-sound/spotify
+  info "Spotify einmal starten und anmelden, dann: g5 setup spicetify"
 }
 
 # ── system ──
@@ -70,21 +86,27 @@ do_system() {
   overlay "$here/files/opt" /opt
   sdo chmod 440 /etc/sudoers.d/g5
   sdo visudo -cq -f /etc/sudoers.d/g5 || { sdo rm -f /etc/sudoers.d/g5; warn "sudoers.d/g5 fehlerhaft – entfernt"; }
-  sdo install -d /usr/local/sbin /usr/local/libexec /usr/local/bin /var/lib/vpn-bypass /etc/wireguard /usr/lib/systemd/system-sleep
+  sdo install -d /usr/local/sbin /usr/local/libexec /usr/local/bin /var/lib/vpn-bypass /etc/wireguard /etc/g5 /usr/lib/systemd/system-sleep
+  # frühere Einzelskripte (heute g5-vpn, vpn, g5) entfernen
+  sdo rm -f /usr/local/sbin/{novpn-join,vpn-bypass,vpn-bypass-dst,vpn-bypass-edit,vpn-killswitch,vpn-lock,vencord-patch} \
+    /usr/local/libexec/vpn-peer-info /usr/local/bin/sober-setup /etc/systemd/user/flatpak-nvidia-sync.service \
+    /etc/systemd/user/graphical-session.target.wants/flatpak-nvidia-sync.service
   sdo install -m 755 "$here"/files/sbin/* /usr/local/sbin/
   sdo install -m 755 "$here"/files/libexec/* /usr/local/libexec/
   sdo install -m 755 "$here/files/sleep/g5-tuning" /usr/lib/systemd/system-sleep/g5-tuning
   sdo touch /var/lib/vpn-bypass/domains
 
   local c
+  # Links ins Repo, deren Ziel es nicht mehr gibt (umbenannte Skripte), weg
+  find /usr/local/bin -maxdepth 1 -type l -lname "$repo/*" ! -exec test -e {} \; -print0 2>/dev/null | xargs -0r sudo rm -f
   for c in "$here"/files/bin/*; do sdo ln -sfn "$c" "/usr/local/bin/$(basename "$c")"; done
   sdo ln -sfn "$here/scripts/wm.sh" /usr/local/bin/wm
   sdo ln -sfn "$here/scripts/gaming-mode.sh" /usr/local/bin/gaming-mode
-  sdo ln -sfn "$here/scripts/flatpak-nvidia-sync.sh" /usr/local/bin/flatpak-nvidia-sync
   sdo ln -sfn "$repo/linux/.config/matugen/theme.sh" /usr/local/bin/theme
   sdo ln -sfn "$here/scripts/gpu-info.sh" /usr/local/bin/gpu-info
-  printf '#!/bin/sh\nexec bash %s "$@"\n' "$here/scripts/sober-setup.sh" | sdo tee /usr/local/bin/sober-setup >/dev/null
-  sdo chmod 755 /usr/local/bin/sober-setup
+  # fertige Konfiguration für Systemdienste (g5-tuning), bevor sie starten
+  "$here/files/bin/g5" config validate >/dev/null || warn "config/g5.json ungültig – g5 config validate"
+  [ -e /etc/g5/g5.json ] || "$here/files/bin/g5" config show | sdo install -m 644 /dev/stdin /etc/g5/g5.json
 
   step "Login: ly"
   if [ -f /etc/ly/config.ini ]; then
@@ -166,7 +188,7 @@ do_system() {
   step "Kernel-Einstellungen sofort anwenden"
   sdo sysctl --quiet --system || true
   sdo udevadm control --reload && sdo udevadm trigger --subsystem-match=drm || true
-  sdo /usr/local/sbin/vencord-patch || true
+  [ "$(cfg apps.vencord)" = false ] || sdo "$here/files/bin/g5" setup vencord || true
   [ -d /opt/spotify/spotify-client ] && { sdo chmod a+wr /opt/spotify/spotify-client; sdo chmod -R a+wr /opt/spotify/spotify-client/Apps; } || true
 }
 
@@ -176,8 +198,9 @@ do_extras() {
   tmp=$(mktemp -d)
 
   step "Claude Desktop (.deb von Anthropic)"
-  local apt=https://downloads.claude.ai/claude-desktop/apt/stable line
-  line=$(curl -fsSL "$apt/dists/stable/main/binary-amd64/Packages" | awk -v RS= -F '\n' '{
+  local apt=https://downloads.claude.ai/claude-desktop/apt/stable line=""
+  [ "$(cfg apps.claude_desktop)" = false ] && info "aus (apps.claude_desktop)" ||
+    line=$(curl -fsSL "$apt/dists/stable/main/binary-amd64/Packages" | awk -v RS= -F '\n' '{
       p = v = f = s = ""
       for (i = 1; i <= NF; i++) {
         if ($i ~ /^Package: /) p = substr($i, 10)
@@ -206,7 +229,9 @@ EOF
   fi
 
   step "TradingView (Snap-Paket entpackt)"
-  u=$(curl -fsSL -H 'Snap-Device-Series: 16' 'https://api.snapcraft.io/v2/snaps/info/tradingview?fields=download,version' |
+  u=""
+  [ "$(cfg apps.tradingview)" = false ] && info "aus (apps.tradingview)" ||
+    u=$(curl -fsSL -H 'Snap-Device-Series: 16' 'https://api.snapcraft.io/v2/snaps/info/tradingview?fields=download,version' |
     jq -r '[."channel-map"[] | select(.channel.name=="stable" and .channel.architecture=="amd64")][0] | "\(.version) \(.download.url)"' 2>/dev/null) || u=""
   v=${u%% *}; u=${u#* }
   if [ -n "$v" ] && [ "$(cat /var/lib/g5-tradingview.ver 2>/dev/null)" != "$v" ]; then
@@ -224,16 +249,23 @@ EOF
 
   step "GE-Proton"
   local ct=$home/.steam/root/compatibilitytools.d
-  u=$(gh_asset GloriousEggroll/proton-ge-custom 'x86_64\.tar\.gz$|[0-9]\.tar\.gz$') || u=""
+  # Nur x86_64: seit GE-Proton 11 gibt es auch -aarch64.tar.gz, das die
+  # alte Regex ([0-9]\.tar\.gz) wegen der 4 in "aarch64" mitnahm
+  rm -rf "$ct"/GE-Proton*-aarch64
+  u=""
+  [ "$(cfg apps.ge_proton)" = false ] ||
+    u=$(curl -fsSL https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest |
+      jq -r '.assets[].browser_download_url | select(test("GE-Proton[0-9-]+(-x86_64)?\\.tar\\.gz$"))' | head -1) || u=""
   if [ -n "$u" ]; then
-    v=$(basename "$u" .tar.gz); v=${v%-x86_64}
+    v=$(basename "$u" .tar.gz)
     if [ ! -d "$ct/$v" ]; then
       mkdir -p "$ct" && fetch "$u" "$tmp/ge.tgz" && tar -xzf "$tmp/ge.tgz" -C "$ct" || warn "GE-Proton nicht geladen"
     fi
   fi
 
   step "Spicetify"
-  u=$(gh_asset spicetify/cli 'linux-amd64\.tar\.gz$') || u=""
+  u=""
+  [ "$(cfg apps.spicetify)" = false ] || u=$(gh_asset spicetify/cli 'linux-amd64\.tar\.gz$') || u=""
   if [ -n "$u" ]; then
     mkdir -p "$home/.spicetify" && fetch "$u" "$tmp/sp.tgz" && tar -xzf "$tmp/sp.tgz" -C "$home/.spicetify" &&
       ln -sfn "$home/.spicetify/spicetify" "$home/.local/bin/spicetify" || warn "Spicetify nicht geladen"
@@ -290,7 +322,7 @@ do_services() {
   step "systemd-Dienste"
   local s
   for s in NetworkManager bluetooth power-profiles-daemon upower fstrim.timer systemd-timesyncd systemd-boot-update \
-    nvidia-persistenced nvidia-powerd g5-firewall vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info \
+    nvidia-persistenced nvidia-powerd g5-firewall vpn-bypass vpn-bypass-dst.timer vpn-peer-info \
     gigabyte-control-center g5-tuning ananicy-cpp snapper-cleanup.timer; do
     sdo systemctl enable "$s" >/dev/null 2>&1 && info "an: $s" || info "übersprungen: $s"
   done
@@ -301,15 +333,27 @@ do_services() {
     warn "ly-Dienst nicht gefunden"
   fi
   sdo install -d /etc/systemd/user/graphical-session.target.wants
-  for s in polkit-agent swayidle cameractrlsd flatpak-nvidia-sync matugen-first-run; do
+  for s in polkit-agent swayidle cameractrlsd matugen-first-run; do
     sdo ln -sfn "/etc/systemd/user/$s.service" "/etc/systemd/user/graphical-session.target.wants/$s.service"
   done
+  step "PipeWire"
+  # Die PipeWire-Benutzerdienste sind standardmäßig deaktiviert (siehe
+  # Nachricht des pipewire-ebuild). Ohne sie gibt es kein Audio: pavucontrol
+  # findet keinen Pulse-Server, EasyEffects startet nicht.
+  sdo systemctl --global enable pipewire.socket pipewire-pulse.socket >/dev/null 2>&1 &&
+    info "an: pipewire, pipewire-pulse" || info "übersprungen: pipewire"
+  sdo systemctl --global --force enable wireplumber.service >/dev/null 2>&1 &&
+    info "an: wireplumber" || info "übersprungen: wireplumber"
+  # ssh-agent als Benutzerdienst; ssh-add-hetzner.service lädt den Schlüssel
+  # (Units in files/etc/systemd/user/, Socket in $XDG_RUNTIME_DIR)
+  sdo systemctl --global enable ssh-agent.service ssh-add-hetzner.service >/dev/null 2>&1 &&
+    info "an: ssh-agent" || info "übersprungen: ssh-agent"
   sdo systemctl disable systemd-networkd.service systemd-networkd.socket >/dev/null 2>&1 || true
   sdo systemctl enable systemd-resolved.service >/dev/null 2>&1 || true
 }
 
 # ── user ──
-linked=(nvim tmux ghostty quickshell rofi mako matugen waypaper hypr MangoHud sioyek gtklock swayidle)
+linked=(nvim tmux ghostty quickshell rofi mako matugen waypaper hypr MangoHud gtklock swayidle)
 mizu_rev=426e89a4d05c038feaab4a2855351da8b6a4f5fa
 opal_rev=abd7ace2de249e5539e5c49c712ae1a82e158595
 
@@ -341,6 +385,7 @@ export QT_QPA_PLATFORM="wayland;xcb"
 export QT_QPA_PLATFORMTHEME=kde
 export XCURSOR_THEME=macOS
 export XCURSOR_SIZE=24
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 EOF
   cat >"$home/.config/uwsm/env-hyprland" <<'EOF'
 export AQ_DRM_DEVICES=/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu
@@ -380,11 +425,22 @@ EOF
       echo "$opal_rev" >"$home/.cache/opal.rev" || { warn "opal nicht gebaut"; FAILED+=(opal); }
   fi
 
-  step "Flatpak (Sober), Split-Tunneling, Spicetify"
+  step "Doppelte Autostarts aus (Polkit-Agent läuft als Dienst polkit-agent)"
+  mkdir -p "$home/.config/autostart"
+  for d in polkit-gnome-authentication-agent-1 gnome-keyring-ssh; do
+    printf '[Desktop Entry]\nType=Application\nName=%s\nHidden=true\n' "$d" >"$home/.config/autostart/$d.desktop"
+  done
+
+  step "Einstellungen aus config/g5.json anwenden (g5 apply)"
   flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
-  flatpak list --user --app 2>/dev/null | grep -q Sober || flatpak install --user -y flathub org.vinegarhq.Sober || warn "Sober nicht installiert"
-  vpn-split sync || true
-  have spotify && have spicetify && { spicetify-setup || warn "Spotify einmal starten und anmelden, dann spicetify-setup"; }
+  "$here/files/bin/g5" apply || warn "g5 apply fehlgeschlagen"
+
+  step "Einrichtungen: Flatpak-NVIDIA, Sober, Spicetify"
+  "$here/files/bin/g5" setup nvidia-flatpak || warn "Flatpak-NVIDIA nicht eingerichtet"
+  flatpak info --user org.vinegarhq.Sober >/dev/null 2>&1 && { "$here/files/bin/g5" setup sober || warn "Sober nicht eingerichtet"; }
+  if [ "$(cfg apps.spicetify)" != false ] && have spotify && have spicetify; then
+    "$here/files/bin/g5" setup spicetify || warn "Spotify einmal starten und anmelden, dann: g5 setup spicetify"
+  fi
 }
 
 # ── network ──
@@ -403,7 +459,7 @@ check
 [ $# -gt 0 ] || set -- "${all[@]}"
 for s in "$@"; do
   case $s in
-    repos | packages | system | extras | plugins | services | user | network) "do_$s" ;;
+    repos | packages | system | extras | plugins | services | user | network | spotify) "do_$s" ;;
     *) die "unbekannter Schritt: $s (${all[*]})" ;;
   esac
 done

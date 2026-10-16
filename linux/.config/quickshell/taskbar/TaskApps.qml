@@ -110,16 +110,17 @@ Row {
 
     // Startmenü (rofi/start.sh)
     Tile {
+        id: startTile
         anchors.verticalCenter: parent.verticalCenter
         implicitHeight: 29
         padding: 10
         background: hovered || start.shown ? Theme.hover : "transparent"
         onClicked: start.shown ? start.close() : start.openCentered()
 
-        Glyph {
-            text: ""
-            color: Theme.primary
-            font.pixelSize: 20
+        // Gentoo-Logo aus Glas (GentooLogo.qml)
+        GentooLogo {
+            size: 21
+            active: startTile.hovered || start.shown
         }
     }
 

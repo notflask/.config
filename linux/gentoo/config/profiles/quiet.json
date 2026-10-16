@@ -1,0 +1,10 @@
+{
+  "performance": {
+    "power_profile": "balanced",
+    "cpu_pl1_watts": 45,
+    "gpu_min_clock_mhz": 0
+  },
+  "gaming": {
+    "fan_curve": ""
+  }
+}

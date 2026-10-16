@@ -25,3 +25,14 @@ dev-util/claude-code cpu_flags_x86_avx cpu_flags_x86_avx2
 sys-libs/ncurses -gpm
 dev-cpp/cpptrace unwind
 sys-libs/zlib minizip
+
+# Kernel ohne Debug-Infos: halbe Bauzeit, kleinere Module
+sys-kernel/gentoo-kernel -debug
+# GameMode auch für 32-Bit-Prozesse (Steam, ältere Proton-Teile)
+games-util/gamemode abi_x86_32
+# calibre (pyqt6-webengine) braucht QtQuick und WebChannel in PyQt6
+dev-python/pyqt6 quick webchannel
+# QtWebEngine wie das Binärpaket des Binhost – sonst ~4 h Bauen aus dem Quelltext
+dev-qt/qtwebengine bindist -pulseaudio -screencast
+# TradingView kommt als Snap (xz-komprimiertes squashfs)
+sys-fs/squashfs-tools lzma

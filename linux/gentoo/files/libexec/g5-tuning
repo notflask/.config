@@ -1,28 +1,40 @@
 #!/bin/sh
-# Leistungs-Einstellungen als einmaliger systemd-Dienst
-#. Nach dem Standby startet sie
-# sleep/g5-tuning neu.
+# Leistungs-Einstellungen als einmaliger systemd-Dienst (g5-tuning.service).
+# Werte aus /etc/g5/g5.json (performance, `g5 apply` schreibt sie aus
+# config/g5.json im Repo). Nach dem Standby startet sleep/g5-tuning ihn neu.
+cfg=/etc/g5/g5.json
+val() { jq -r "(.performance.$1) // empty" "$cfg" 2>/dev/null; }
+profile=$(val power_profile); profile=${profile:-performance}
+pl1=$(val cpu_pl1_watts); pl1=${pl1:-65}
+boost=$(val cpu_dynamic_boost); boost=${boost:-true}
+gmin=$(val gpu_min_clock_mhz); gmin=${gmin:-1500}
+gmax=$(val gpu_max_clock_mhz); gmax=${gmax:-3105}
 
-# Energieprofil „Leistung“ (power-profiles-daemon braucht einen Moment)
+# Energieprofil (power-profiles-daemon braucht beim Booten einen Moment)
 for _ in $(seq 30); do
-  powerprofilesctl set performance 2>/dev/null &&
-    [ "$(powerprofilesctl get)" = performance ] && break
+  powerprofilesctl set "$profile" 2>/dev/null &&
+    [ "$(powerprofilesctl get)" = "$profile" ] && break
   sleep 0.5
 done
 
 # CPU taktet nach Warten auf Daten sofort hoch
-echo 1 >/sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost 2>/dev/null
+[ "$boost" = true ] && b=1 || b=0
+echo $b >/sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost 2>/dev/null
 
-# Dauerleistung (PL1) auf 65 W: der Firmware-Modus „Leistung“ erlaubt 90 W,
-# damit lief der i5-12500H mit Spiel + Stream ständig ins Thermal-Throttling.
-# Erst nach dem Control Center setzen, das PL1 neu schreibt.
+# Dauerleistung (PL1): der Firmware-Modus „Leistung“ erlaubt 90 W, damit lief
+# der i5-12500H mit Spiel + Stream ständig ins Thermal-Throttling. Erst nach
+# dem Control Center setzen, das PL1 neu schreibt.
 systemctl is-active --quiet gigabyte-control-center && sleep 2
-echo 65000000 >/sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw
+echo $((pl1 * 1000000)) >/sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw
 
-# Mindesttakt für die RTX 4060: Animationen sind sofort flüssig (kostet
-# ~10–15 W im Leerlauf). Zurücksetzen: sudo nvidia-smi -rgc
+# Mindesttakt der RTX 4060: Animationen sofort flüssig (~10–15 W im Leerlauf).
+# 0 = Treiber entscheidet
 if command -v nvidia-smi >/dev/null; then
   nvidia-smi -pm 1 >/dev/null
-  nvidia-smi --lock-gpu-clocks=1500,3105 >/dev/null
+  if [ "$gmin" -gt 0 ]; then
+    nvidia-smi --lock-gpu-clocks="$gmin,$gmax" >/dev/null
+  else
+    nvidia-smi --reset-gpu-clocks >/dev/null
+  fi
 fi
 exit 0

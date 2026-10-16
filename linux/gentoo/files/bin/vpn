@@ -1,63 +1,204 @@
 #!/usr/bin/env bash
-# WireGuard-VPN (wg-quick) mit Kill-Switch.
-# Die Config mit den Schlüsseln liegt nur lokal in /etc/wireguard/wg0.conf.
+# vpn – WireGuard-VPN (wg-quick) mit Kill-Switch und Split-Tunneling.
+# Ein Befehl für alles; root-Teile erledigt /usr/local/sbin/g5-vpn.
 #
-#   vpn import DATEI.conf [NAME]  Config übernehmen und verbinden; NAME
-#                           (Standard: Dateiname) ist der Profilname
-#   vpn name NAME           Profilnamen nachträglich setzen
-#   vpn up | down           verbinden / trennen
-#   vpn status              Verbindung und Kill-Switch anzeigen
-#   vpn unlock | lock       Internet ohne VPN freigeben / wieder sperren
+#   vpn [status]                 Verbindung, Kill-Switch, Sperre
+#   vpn up | down                verbinden / trennen (Kill-Switch nur, solange verbunden)
+#   vpn import DATEI.conf [NAME] Config übernehmen (Schlüssel bleiben in /etc/wireguard) und verbinden
+#   vpn name NAME                Profilnamen setzen (Taskleiste)
+#   vpn lock | unlock            Internet ohne Tunnel sperren / bis zum Neustart freigeben
 #
-# Sperre (Dienst vpn-lock): Ohne Tunnel gibt es kein Internet, auch nicht
-# beim Booten oder nach `vpn down`. Erreichbar bleiben nur LAN/Router.
-# `vpn unlock` hebt sie bis zum nächsten Neustart auf.
-# Split-Tunneling: novpn, vpn-split (siehe dort) oder das VPN-Fenster in der
-# Taskleiste.
+#   vpn run BEFEHL [ARG…]        BEFEHL samt Kindern am VPN vorbei starten
+#                                (Steam: vpn run gaming-mode %command%)
+#   vpn app add|remove ID        App (Desktop-ID, z. B. firefox) immer am VPN vorbei
+#   vpn apps                     diese Apps zeigen
+#   vpn running                  Programme, die gerade am VPN vorbei laufen
+#   vpn domain add|remove ZIEL   Domain/IPv4-Netz für alle Programme am VPN vorbei
+#   vpn domains                  diese Ziele zeigen
+#   vpn sync                     Einstellungen aus config/g5.json (vpn.*) anwenden
+#
+# Apps und Ziele stehen in config/g5.json (vpn.bypass_apps / bypass_domains)
+# und bleiben so über Neuinstallationen erhalten. Für jede App liegt eine
+# Kopie ihres Starters in ~/.local/share/applications mit `vpn run` vor
+# Exec – Startmenü, Rofi und xdg-open starten sie dann am VPN vorbei.
 set -euo pipefail
 iface=wg0
 conf=/etc/wireguard/$iface.conf
 name_file=/etc/wireguard/$iface.name
 service=wg-quick-$iface
+helper=/usr/local/sbin/g5-vpn
+domains_file=/var/lib/vpn-bypass/domains
+apps_list=${XDG_CONFIG_HOME:-$HOME/.config}/vpn-split/apps # liest die Taskleiste
+apps_dir=${XDG_DATA_HOME:-$HOME/.local/share}/applications
+marker=X-Vpn-Split=true
+
+die() { echo "vpn: $*" >&2; exit 1; }
+cfg() { g5 config path; }
+
+# Liste in config/g5.json ändern: list_edit add|remove KEY WERT
+list_edit() {
+  local file tmp
+  file=$(cfg)
+  tmp=$(mktemp)
+  jq --indent 2 --arg k "$2" --arg v "$3" --arg op "$1" \
+    '.vpn[$k] = ((.vpn[$k] // []) | if $op == "add" then (. + [$v] | unique) else map(select(. != $v)) end)' \
+    "$file" >"$tmp" && mv "$tmp" "$file"
+}
+list_get() { jq -r --arg k "$1" '.vpn[$k] // [] | .[]' "$(cfg)"; }
+
+# ── Apps am VPN vorbei ────────────────────────────────────────────────
+# Starter des Systems (nicht unsere eigene Kopie)
+source_of() {
+  local dir dirs
+  IFS=: read -ra dirs <<<"${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+  for dir in "${dirs[@]}"; do
+    [ -f "$dir/applications/$1.desktop" ] && ! grep -qx "$marker" "$dir/applications/$1.desktop" &&
+      echo "$dir/applications/$1.desktop" && return
+  done
+  return 1
+}
+
+generate() {
+  local id=$1 src out=$apps_dir/$1.desktop
+  if [ -f "$out" ] && ! grep -qx "$marker" "$out"; then
+    echo "vpn: $out ist ein eigener Starter, bleibt unverändert" >&2
+    return 1
+  fi
+  src=$(source_of "$id") || { echo "vpn: kein Starter für $id gefunden" >&2; return 1; }
+  mkdir -p "$apps_dir"
+  # D-Bus-Aktivierung umgeht Exec, deshalb raus
+  sed -e '/^DBusActivatable=/d' \
+    -e 's/^Exec=\(vpn run \|novpn \)*/Exec=vpn run /' \
+    -e "0,/^\[Desktop Entry\]/s//[Desktop Entry]\n$marker/" \
+    "$src" >"$out.tmp"
+  mv "$out.tmp" "$out"
+}
+
+sync_apps() {
+  local file id
+  mkdir -p "${apps_list%/*}"
+  list_get bypass_apps >"$apps_list"
+  for file in "$apps_dir"/*.desktop; do
+    [ -f "$file" ] && grep -qx "$marker" "$file" || continue
+    id=$(basename "$file" .desktop)
+    grep -qxF -- "$id" "$apps_list" || rm -f "$file"
+  done
+  while read -r id; do generate "$id" || true; done <"$apps_list"
+}
+
+sync_domains() {
+  list_get bypass_domains | sudo -n "$helper" domain sync ||
+    echo "vpn: Ziele nicht übernommen (sudo-Regel /etc/sudoers.d/g5 fehlt?)" >&2
+}
+
+# Dienste nach vpn.autostart / vpn.lock_without_tunnel
+sync_services() {
+  local auto lock
+  auto=$(jq -r '.vpn.autostart // false' "$(cfg)")
+  lock=$(jq -r '.vpn.lock_without_tunnel // false' "$(cfg)")
+  [ "$auto" = true ] && want_auto=enabled || want_auto=disabled
+  [ "$lock" = true ] && want_lock=enabled || want_lock=disabled
+  if [ "$(systemctl is-enabled $service 2>/dev/null)" != "$want_auto" ] ||
+    [ "$(systemctl is-enabled vpn-lock 2>/dev/null)" != "$want_lock" ]; then
+    if [ "$auto" = true ]; then
+      sudo systemctl enable $service >/dev/null 2>&1 || true
+    else
+      sudo systemctl disable $service >/dev/null 2>&1 || true
+    fi
+    if [ "$lock" = true ]; then
+      sudo systemctl enable --now vpn-lock >/dev/null 2>&1 || true
+    else
+      sudo systemctl disable --now vpn-lock >/dev/null 2>&1 || true
+    fi
+  fi
+}
+
+running() {
+  exe_of() {
+    local exe
+    IFS= read -r -d '' exe <"/proc/$1/cmdline" 2>/dev/null || [ -n "${exe:-}" ] || return 0
+    exe=${exe##*/}
+    exe=${exe#.}
+    echo "${exe%-wrapped}"
+  }
+  [ -r /sys/fs/cgroup/novpn/cgroup.procs ] || return 0
+  # Programme, deren Elternprozess nicht selbst darin läuft, eigene zuerst
+  local pids pid ppid
+  mapfile -t pids </sys/fs/cgroup/novpn/cgroup.procs
+  for pid in "${pids[@]}"; do
+    [ -O "/proc/$pid" ] || continue
+    read -r _ _ _ ppid _ <"/proc/$pid/stat" 2>/dev/null || continue
+    case " ${pids[*]} " in *" $ppid "*) continue ;; esac
+    exe_of "$pid"
+  done | sort -u
+}
+
+status() {
+  if systemctl is-active --quiet $service; then
+    echo "VPN: verbunden ($(cat $name_file 2>/dev/null || echo $iface)), Kill-Switch aktiv"
+    # Endpoint/Handshake ohne root (g5-vpn peer-info)
+    sed 's/^/  /' /run/$iface-peer-info 2>/dev/null || true
+  elif systemctl is-active --quiet vpn-lock; then
+    echo "VPN: getrennt, Internet gesperrt (vpn unlock gibt es frei)"
+  elif [ -e $conf ]; then
+    echo "VPN: getrennt, normales Internet (vpn up verbindet)"
+  else
+    echo "VPN: nicht eingerichtet (vpn import DATEI.conf)"
+  fi
+}
 
 case ${1:-status} in
+  status) status ;;
+  up) sudo systemctl start $service && status ;;
+  down) sudo systemctl stop $service && status ;;
+  lock) sudo systemctl start vpn-lock ;;
+  unlock) sudo systemctl stop vpn-lock ;;
   import)
     src=${2:?Pfad zur WireGuard-.conf angeben}
     name=${3:-$(basename "$src" .conf)}
     tmp=$(mktemp)
     trap 'rm -f "$tmp"' EXIT
-    # Eigene Up/Down-Hooks der Datei entfernen – den Kill-Switch schaltet
-    # der systemd-Dienst, damit immer die aktuelle Version läuft.
-    # sudo cat, damit auch `vpn import /etc/wireguard/wg0.conf` geht.
-    sudo cat "$src" | awk '
-      /^[[:space:]]*(PreUp|PostUp|PreDown|PostDown)[[:space:]]*=/ { next }
-      { print }
-    ' >"$tmp"
-    sudo install -D -m 600 -o root -g root "$tmp" "$conf"
-    echo "$name" | sudo install -m 644 /dev/stdin "$name_file"
+    # Up/Down-Hooks der Datei raus – den Kill-Switch schaltet der Dienst
+    sudo cat "$src" | awk '!/^[[:space:]]*(PreUp|PostUp|PreDown|PostDown)[[:space:]]*=/' >"$tmp"
+    grep -q '^\[Peer\]' "$tmp" && grep -q '^PrivateKey' "$tmp" || die "$src ist keine WireGuard-Config"
+    # MTU fest auf 1280 (auch wenn die Datei 1420 vorgibt): 1420 ist zu groß für manche Strecken, TLS-Handshakes
+    # hängen dann ~3 s bis tcp_mtu_probing greift (Geode/gh laufen in Timeouts)
+    sed -i -e '/^[[:space:]]*MTU[[:space:]]*=/Id' -e '/^\[Interface\]/a MTU = 1280' "$tmp"
+    sudo install -D -m 600 -o root -g root "$tmp" $conf
+    echo "$name" | sudo install -m 644 /dev/stdin $name_file
     echo "Gespeichert in $conf (Profil: $name)"
-    # Sperre jetzt auch setzen (ohne Config war sie aus)
-    sudo systemctl restart vpn-lock "$service"
+    sudo systemctl restart $service && status
     ;;
-  name)
-    echo "${2:?Profilnamen angeben}" | sudo install -m 644 /dev/stdin "$name_file"
+  name) echo "${2:?Profilnamen angeben}" | sudo install -m 644 /dev/stdin $name_file ;;
+  run)
+    shift
+    [ $# -gt 0 ] || die "vpn run BEFEHL [ARG…]"
+    sudo -n "$helper" join $$ 2>/dev/null || echo "vpn: Regel nicht gesetzt, $1 läuft durchs VPN" >&2
+    exec "$@"
     ;;
-  up) sudo systemctl start "$service" ;;
-  down) sudo systemctl stop "$service" ;;
-  lock) sudo systemctl start vpn-lock ;;
-  unlock) sudo systemctl stop vpn-lock ;;
-  status)
-    if [ -e "/run/vpn/$service.up" ]; then
-      echo "VPN: verbunden (Kill-Switch aktiv)"
-      sudo wg show "$iface" | sed -n '/latest handshake\|transfer\|endpoint/p'
-    elif [ -e /run/vpn/vpn-lock.up ]; then
-      echo "VPN: getrennt, Internet gesperrt (vpn unlock zum Freigeben)"
-    else
-      echo "VPN: getrennt, Internet OFFEN (vpn lock zum Sperren)"
-    fi
+  apps) list_get bypass_apps ;;
+  app)
+    action=${2:-} id=${3:-}
+    id=${id%.desktop}
+    case $action in
+      add) [ -n "$id" ] || die "vpn app add DESKTOP-ID"; generate "$id"; list_edit add bypass_apps "$id"; sync_apps ;;
+      remove) [ -n "$id" ] || die "vpn app remove DESKTOP-ID"; list_edit remove bypass_apps "$id"; sync_apps ;;
+      *) die "vpn app add|remove DESKTOP-ID" ;;
+    esac
     ;;
-  *)
-    echo "vpn import DATEI [NAME] | name NAME | up | down | lock | unlock | status" >&2
-    exit 2
+  running) running ;;
+  domains) grep -v '^[[:space:]]*\(#\|$\)' $domains_file 2>/dev/null || true ;;
+  domain)
+    action=${2:-} target=${3:-}
+    case $action in
+      add | remove)
+        sudo -n "$helper" domain "$action" "$target" || die "ungültiges Ziel oder sudo-Regel fehlt"
+        list_edit "$action" bypass_domains "${target,,}"
+        ;;
+      *) die "vpn domain add|remove ZIEL" ;;
+    esac
     ;;
+  sync) sync_apps; sync_domains; sync_services ;;
+  -h | --help | help) sed -n '2,24s/^# \{0,1\}//p' "$0" ;;
+  *) die "unbekannt: $1 (vpn help)" ;;
 esac

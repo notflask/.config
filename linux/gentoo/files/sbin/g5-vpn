@@ -1,0 +1,195 @@
+#!/bin/bash
+# g5-vpn – alles, was beim VPN root braucht, in einem Skript. Aufgerufen von
+# den systemd-Diensten und (per sudo ohne Passwort, nur `join` und `domain`)
+# vom Benutzerbefehl `vpn`.
+#
+#   g5-vpn killswitch on|off IFACE   Kill-Switch (wg-quick-wg0.service)
+#   g5-vpn lock on|off               ohne Tunnel kein Internet (vpn-lock.service)
+#   g5-vpn bypass on|off             Ketten fürs Split-Tunneling (vpn-bypass.service)
+#   g5-vpn bypass-dst                Ziele neu auflösen (vpn-bypass-dst.timer, alle 10 min)
+#   g5-vpn domain add|remove ZIEL    Ziel am VPN vorbei (sudo, aus `vpn domain`)
+#   g5-vpn domain sync               Liste von stdin übernehmen (sudo, aus `vpn sync`)
+#   g5-vpn join PID                  Prozess am VPN vorbei (sudo, aus `vpn run`)
+#   g5-vpn peer-info                 Endpoint/Handshake für die Taskleiste (vpn-peer-info.service)
+#
+# Split-Tunneling: Pakete am VPN vorbei bekommen die Markierung der
+# verschlüsselten WireGuard-Pakete (fwmark). Dann nimmt die Routing-Regel von
+# wg-quick die normale Route, Kill-Switch und Sperre lassen sie durch;
+# MASQUERADE setzt die richtige Absenderadresse. connmark hält die
+# Verbindung, auch wenn sich die Adressliste ändert.
+set -euo pipefail
+iface=wg0
+mark=51820 # setzt wg-quick für Table = auto
+connmark=0x10000/0x10000
+cgroup=/sys/fs/cgroup/novpn
+domains_file=/var/lib/vpn-bypass/domains
+
+# -w: auf die xtables-Sperre warten (mehrere Dienste beim Booten gleichzeitig)
+iptables() { command iptables -w 10 "$@"; }
+ip6tables() { command ip6tables -w 10 "$@"; }
+
+valid_target() {
+  [[ $1 =~ ^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$ || $1 =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?$ ]]
+}
+
+killswitch() {
+  local action=$1 dev=$2 op ipt
+  case $action in on) op=-I ;; off) op=-D ;; *) exit 2 ;; esac
+  for ipt in iptables ip6tables; do
+    "$ipt" "$op" OUTPUT ! -o "$dev" -m mark ! --mark "$mark" \
+      -m addrtype ! --dst-type LOCAL -j REJECT 2>/dev/null || [ "$action" = off ]
+  done
+  if [ "$action" = on ]; then
+    # DNS nur durch den Tunnel (systemd-resolved): wg0 bekommt alle Domains
+    resolvectl domain "$dev" '~.' 2>/dev/null || true
+    resolvectl default-route "$dev" yes 2>/dev/null || true
+    # Hat der Tunnel kein IPv6, hängen Programme sonst je ~1 s, bis sie auf
+    # IPv4 ausweichen → IPv6 außer LAN sofort unerreichbar
+    if [ -z "$(ip -6 -o addr show dev "$dev" scope global)" ]; then
+      ip -6 route replace unreachable default table "$mark"
+      if [ -z "$(ip -6 rule show table "$mark")" ]; then
+        ip -6 rule add not fwmark "$mark" table "$mark"
+        ip -6 rule add table main suppress_prefixlength 0
+      fi
+    fi
+  else
+    ip -6 rule del not fwmark "$mark" table "$mark" 2>/dev/null || true
+    ip -6 rule del table main suppress_prefixlength 0 2>/dev/null || true
+    ip -6 route flush table "$mark" 2>/dev/null || true
+  fi
+}
+
+lock() {
+  local chain=vpn-lock ipt net
+  for ipt in iptables ip6tables; do
+    while "$ipt" -D OUTPUT -j $chain 2>/dev/null; do :; done
+    "$ipt" -F $chain 2>/dev/null || true
+    "$ipt" -X $chain 2>/dev/null || true
+  done
+  [ "$1" = on ] || return 0
+  # erlaubt: Loopback, Tunnel, WireGuard selbst (fwmark), LAN (DHCP, Router)
+  for ipt in iptables ip6tables; do
+    "$ipt" -N $chain
+    "$ipt" -A $chain -o lo -j RETURN
+    "$ipt" -A $chain -o $iface -j RETURN
+    "$ipt" -A $chain -m mark --mark $mark -j RETURN
+  done
+  for net in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16 224.0.0.0/4 255.255.255.255; do
+    iptables -A $chain -d $net -j RETURN
+  done
+  for net in fe80::/10 fc00::/7 ff00::/8; do
+    ip6tables -A $chain -d $net -j RETURN
+  done
+  for ipt in iptables ip6tables; do
+    "$ipt" -A $chain -j REJECT
+    "$ipt" -I OUTPUT -j $chain
+  done
+}
+
+bypass() {
+  local ipt chain
+  for ipt in iptables ip6tables; do
+    while "$ipt" -t mangle -D OUTPUT -j novpn 2>/dev/null; do :; done
+    while "$ipt" -t nat -D POSTROUTING ! -o $iface -m connmark --mark $connmark -j MASQUERADE 2>/dev/null; do :; done
+    for chain in novpn novpn-app novpn-dst novpn-mark; do "$ipt" -t mangle -F $chain 2>/dev/null || true; done
+    for chain in novpn novpn-app novpn-dst novpn-mark; do "$ipt" -t mangle -X $chain 2>/dev/null || true; done
+  done
+  [ "$1" = on ] || return 0
+  # gemeinsame cgroup für alle Programme unter `vpn run`
+  mkdir -p $cgroup
+  for ipt in iptables ip6tables; do
+    for chain in novpn novpn-app novpn-dst novpn-mark; do "$ipt" -t mangle -N $chain; done
+    "$ipt" -t mangle -A novpn-mark -j MARK --set-mark $mark
+    "$ipt" -t mangle -A novpn-mark -j CONNMARK --set-xmark $connmark
+    "$ipt" -t mangle -A novpn -o lo -j RETURN
+    "$ipt" -t mangle -A novpn -m mark --mark $mark -j RETURN
+    "$ipt" -t mangle -A novpn -m connmark --mark $connmark -j MARK --set-mark $mark
+    "$ipt" -t mangle -A novpn -m mark --mark $mark -j RETURN
+    "$ipt" -t mangle -A novpn -j novpn-app
+    "$ipt" -t mangle -A novpn -j novpn-dst
+    "$ipt" -t mangle -A OUTPUT -j novpn
+    "$ipt" -t mangle -A novpn-app -m cgroup --path novpn -j novpn-mark
+    "$ipt" -t nat -A POSTROUTING ! -o $iface -m connmark --mark $connmark -j MASQUERADE
+  done
+}
+
+# Domains (nur IPv4) und IPv4-Netze aus der Liste → Kette novpn-dst
+bypass_dst() {
+  local hosts=() addrs=() host addr
+  [ -f $domains_file ] && mapfile -t hosts < <(grep -v '^[[:space:]]*\(#\|$\)' $domains_file || true)
+  for host in "${hosts[@]}"; do
+    if [[ $host =~ ^[0-9./]+$ ]]; then
+      addrs+=("$host")
+    else
+      while read -r addr; do addrs+=("$addr"); done < <(getent ahostsv4 "$host" | awk '{ print $1 }' | sort -u)
+    fi
+  done
+  iptables -t mangle -F novpn-dst 2>/dev/null || return 0 # Ketten noch nicht da
+  for addr in "${addrs[@]}"; do
+    iptables -t mangle -A novpn-dst -d "$addr" -j novpn-mark
+  done
+}
+
+domain() {
+  local action=${1:-} target t list=()
+  install -d -m 755 "${domains_file%/*}"
+  touch $domains_file && chmod 644 $domains_file
+  case $action in
+    add | remove)
+      target=${2:-}
+      target=${target,,}
+      valid_target "$target" || { echo "g5-vpn: ungültiges Ziel: $target" >&2; exit 2; }
+      if [ "$action" = add ]; then
+        grep -qxF -- "$target" $domains_file || echo "$target" >>$domains_file
+      else
+        grep -vxF -- "$target" $domains_file >$domains_file.tmp || true
+        mv $domains_file.tmp $domains_file
+      fi
+      ;;
+    sync)
+      while IFS= read -r t; do
+        t=${t,,}
+        [ -n "$t" ] || continue
+        valid_target "$t" && list+=("$t") || echo "g5-vpn: übersprungen: $t" >&2
+      done
+      printf '%s\n' "${list[@]}" >$domains_file.tmp
+      mv $domains_file.tmp $domains_file
+      ;;
+    *) exit 2 ;;
+  esac
+  bypass_dst
+}
+
+join() {
+  local uid=${SUDO_UID:?nur über sudo aufrufen} pid=${1:-}
+  [[ $pid =~ ^[0-9]+$ ]] || { echo "g5-vpn join PID" >&2; exit 2; }
+  [ "$(stat -c %u "/proc/$pid")" = "$uid" ] || { echo "g5-vpn: $pid gehört nicht dir" >&2; exit 1; }
+  echo "$pid" >$cgroup/cgroup.procs
+}
+
+# wg show braucht root – Werte alle 5 s in eine lesbare Datei
+peer_info() {
+  local file=/run/$iface-peer-info
+  while :; do
+    if ip link show $iface >/dev/null 2>&1; then
+      {
+        wg show $iface endpoints | awk 'NR==1 {print "endpoint=" $2}'
+        wg show $iface latest-handshakes | awk 'NR==1 {print "handshake=" $2}'
+      } >$file.tmp && mv $file.tmp $file
+    else
+      rm -f $file
+    fi
+    sleep 5
+  done
+}
+
+case ${1:-} in
+  killswitch) killswitch "${2:-}" "${3:-$iface}" ;;
+  lock) lock "${2:-}" ;;
+  bypass) bypass "${2:-}" ;;
+  bypass-dst) bypass_dst ;;
+  domain) shift; domain "$@" ;;
+  join) join "${2:-}" ;;
+  peer-info) peer_info ;;
+  *) sed -n '2,13s/^# \{0,1\}//p' "$0" >&2; exit 2 ;;
+esac

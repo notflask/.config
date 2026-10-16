@@ -43,3 +43,4 @@ sys-fs/udisks
 sys-apps/fwupd
 media-libs/libmtp
 app-laptop/tuxedo-drivers
+dev-util/ccache

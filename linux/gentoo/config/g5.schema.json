@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "G5 system configuration",
+  "description": "Central configuration for the Gentoo install on the G5. Docs: CONFIG.md. Apply with `g5 apply`.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "system": {
+      "type": "object",
+      "description": "Used once by configure.sh when installing the base system.",
+      "additionalProperties": false,
+      "properties": {
+        "user": { "type": "string", "pattern": "^[a-z_][a-z0-9_-]*$", "description": "Login name." },
+        "hostname": { "type": "string", "description": "Host name." },
+        "timezone": { "type": "string", "description": "Zone from /usr/share/zoneinfo, e.g. Europe/Berlin." },
+        "locale": { "type": "string", "description": "System language, e.g. de_DE.UTF-8 or en_US.UTF-8." },
+        "kernel": { "enum": ["sys-kernel/gentoo-kernel", "sys-kernel/gentoo-kernel-bin"], "description": "gentoo-kernel = built locally with config.d/g5.config (1000 Hz, -march=native); -bin = prebuilt, 300 Hz." }
+      }
+    },
+    "desktop": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "style": { "enum": ["minimal", "glass"], "description": "minimal = flat, top text bar, no blur/animations (fastest). glass = Liquid Glass taskbar, blur, rounded corners." },
+        "terminal": { "enum": ["ghostty"], "description": "Terminal for Super+T." },
+        "shell": { "enum": ["fish", "bash", "zsh"], "description": "Login shell (chsh on apply)." },
+        "launcher": { "enum": ["rofi"], "description": "App launcher for Super+D / Super+Space." },
+        "screenshot": { "enum": ["opal", "grim"], "description": "opal = region + annotate; grim = plain region screenshot (Print, Super+Shift+S)." },
+        "cursor": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "theme": { "type": "string", "description": "Folder name in /usr/share/icons." },
+            "size": { "type": "integer", "minimum": 16, "maximum": 96 }
+          }
+        },
+        "keyboard_layouts": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "XKB layouts, Alt+Shift cycles through them." }
+      }
+    },
+    "monitors": {
+      "type": "array",
+      "description": "Hyprland outputs. Names: `hyprctl monitors`.",
+      "items": {
+        "type": "object",
+        "required": ["name", "mode"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "mode": { "type": "string", "pattern": "^([0-9]+x[0-9]+(@[0-9.]+)?|preferred|highrr|highres)$" },
+          "position": { "type": "string", "pattern": "^(-?[0-9]+x-?[0-9]+|auto)$" },
+          "scale": { "type": "number", "minimum": 0.5, "maximum": 3 },
+          "vrr": { "enum": [0, 1, 2, 3], "description": "0 off, 1 always, 2 fullscreen only, 3 fullscreen games only (content=game)." }
+        }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "description": "Applied at boot and after resume by g5-tuning.service.",
+      "additionalProperties": false,
+      "properties": {
+        "power_profile": { "enum": ["performance", "balanced", "power-saver"] },
+        "cpu_pl1_watts": { "type": "integer", "minimum": 15, "maximum": 115, "description": "Sustained CPU power limit (RAPL PL1). 65 avoids thermal throttling under game + stream." },
+        "cpu_dynamic_boost": { "type": "boolean", "description": "intel_pstate hwp_dynamic_boost: clock up instantly after I/O waits." },
+        "gpu_min_clock_mhz": { "type": "integer", "minimum": 0, "maximum": 3105, "description": "Lowest RTX 4060 core clock. 1500 = always smooth desktop (+10-15 W idle), 0 = driver default." },
+        "gpu_max_clock_mhz": { "type": "integer", "minimum": 300, "maximum": 3105 }
+      }
+    },
+    "gaming": {
+      "type": "object",
+      "description": "Defaults for `gaming-mode`; every value can be overridden per game with an option.",
+      "additionalProperties": false,
+      "properties": {
+        "monitor": { "type": "string", "description": "Output the game opens on." },
+        "stretch": { "type": "string", "pattern": "^([0-9]+x[0-9]+)?$", "description": "Default stretched render size, e.g. 1920x1440. Empty = native." },
+        "refresh": { "type": "integer", "minimum": 0, "description": "Refresh rate for stretched games. 0 = monitor rate minus 3 Hz (frame pacing with VRR)." },
+        "hud": { "type": "boolean", "description": "MangoHud overlay (Shift_R+F12 toggles in game)." },
+        "cursor": { "enum": ["grab", "confine", "free"], "description": "grab = gamescope locks the mouse: camera and menus work, cursor never leaves (recommended); confine = cursor kept in the window by Hyprland, but the camera stops at the window edge in shooters; free = no restriction." },
+        "grab_keyboard": { "type": "boolean", "description": "Game gets ALL keys incl. Super (no accidental workspace switch). Super+G inside gamescope toggles." },
+        "fan_curve": { "type": "string", "pattern": "^([0-9]+:[0-9]+(,[0-9]+:[0-9]+)*)?$", "description": "gbcc fan curve TEMP:PERCENT while a game runs; empty = leave fans on auto." },
+        "renice": { "type": "integer", "minimum": 0, "maximum": 20, "description": "GameMode priority boost (higher starves Discord's stream encoder)." }
+      }
+    },
+    "vpn": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "interface": { "type": "string" },
+        "autostart": { "type": "boolean", "description": "Connect the tunnel at boot." },
+        "lock_without_tunnel": { "type": "boolean", "description": "Block all internet whenever the tunnel is down (except LAN)." },
+        "bypass_apps": { "type": "array", "items": { "type": "string" }, "description": "Desktop IDs that always start outside the VPN (`vpn app add ID`)." },
+        "bypass_domains": { "type": "array", "items": { "type": "string" }, "description": "Domains/IPv4 nets every program reaches outside the VPN (`vpn domain add X`)." }
+      }
+    },
+    "apps": {
+      "type": "object",
+      "description": "Extras installed by install.sh / update.",
+      "additionalProperties": false,
+      "properties": {
+        "flatpaks": { "type": "array", "items": { "type": "string" } },
+        "spicetify": { "type": "boolean" },
+        "vencord": { "type": "boolean" },
+        "claude_desktop": { "type": "boolean" },
+        "tradingview": { "type": "boolean" },
+        "ge_proton": { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -65,9 +65,11 @@ Singleton {
         again.restart();
     }
 
-    // vpn-split add|remove|domain-add|domain-remove ARG, danach neu einlesen
+    // add|remove|domain-add|domain-remove ARG → `vpn app …` / `vpn domain …`
+    // (speichert auch in config/g5.json), danach neu einlesen
     function split(action, arg) {
-        splitCmd.queue.push(["vpn-split", action, arg]);
+        const cmd = action.startsWith("domain-") ? ["vpn", "domain", action.slice(7), arg] : ["vpn", "app", action, arg];
+        splitCmd.queue.push(cmd);
         if (!splitCmd.running)
             splitCmd.next();
     }
@@ -145,7 +147,7 @@ Singleton {
 
     Process {
         id: runningPoll
-        command: ["vpn-split", "running"]
+        command: ["vpn", "running"]
         stdout: StdioCollector {
             id: runningOut
             onStreamFinished: root.splitRunning = root.lines(runningOut.text)
@@ -172,7 +174,7 @@ Singleton {
     }
 
     // Starter der Apps nach Updates neu erzeugen (Pfade in Exec ändern sich)
-    Component.onCompleted: Quickshell.execDetached(["vpn-split", "sync"])
+    Component.onCompleted: Quickshell.execDetached(["vpn", "sync"])
 
     // nach dem Klick: Polkit-Abfrage und Verbindungsaufbau abwarten
     Timer {

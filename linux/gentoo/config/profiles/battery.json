@@ -1,0 +1,11 @@
+{
+  "performance": {
+    "power_profile": "power-saver",
+    "cpu_pl1_watts": 25,
+    "cpu_dynamic_boost": false,
+    "gpu_min_clock_mhz": 0
+  },
+  "gaming": {
+    "fan_curve": ""
+  }
+}

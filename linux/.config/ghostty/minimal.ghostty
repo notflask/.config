@@ -6,7 +6,7 @@
 theme = matugen
 font-family = "JetBrains Mono"
 font-family = "Apple Color Emoji"
-font-size = 16
+font-size = 14
 gtk-titlebar = false
 window-padding-x = 10
 window-padding-y = 10

@@ -25,7 +25,6 @@ dev-python/pyside
 app-text/typst
 app-text/tinymist
 app-text/typstyle
-app-text/sioyek
 www-client/firefox-bin
 net-im/discord
 net-im/telegram-desktop
@@ -46,3 +45,4 @@ app-arch/cabextract
 sys-apps/bubblewrap
 dev-util/desktop-file-utils
 dev-util/gtk-update-icon-cache
+app-text/calibre

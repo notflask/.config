@@ -15,11 +15,16 @@ repo=$(cd "$here/../.." && pwd)
 . "$here/lib.sh"
 trap 'die "Fehler in ${BASH_SOURCE[0]##*/} Zeile $LINENO: $BASH_COMMAND"' ERR
 
-USERNAME=${USERNAME:-flask}
-HOSTNAME_G5=${HOSTNAME_G5:-g5}
-TZ_G5=${TZ_G5:-Europe/Berlin}
-LOCALE_G5=${LOCALE_G5:-de_DE.UTF-8}
-KERNEL_PKG=${KERNEL_PKG:-sys-kernel/gentoo-kernel}
+# Werte aus config/g5.json (system.*); Umgebungsvariablen haben Vorrang
+g5cfg() {
+  command -v python3 >/dev/null || return 0
+  python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("system",{}).get(sys.argv[2],""))' "$here/config/g5.json" "$1" 2>/dev/null || true
+}
+USERNAME=${USERNAME:-$(g5cfg user)}; USERNAME=${USERNAME:-flask}
+HOSTNAME_G5=${HOSTNAME_G5:-$(g5cfg hostname)}; HOSTNAME_G5=${HOSTNAME_G5:-g5}
+TZ_G5=${TZ_G5:-$(g5cfg timezone)}; TZ_G5=${TZ_G5:-Europe/Berlin}
+LOCALE_G5=${LOCALE_G5:-$(g5cfg locale)}; LOCALE_G5=${LOCALE_G5:-de_DE.UTF-8}
+KERNEL_PKG=${KERNEL_PKG:-$(g5cfg kernel)}; KERNEL_PKG=${KERNEL_PKG:-sys-kernel/gentoo-kernel}
 target=/mnt/gentoo
 state=/var/lib/g5-configure
 profile=default/linux/amd64/23.0/desktop/systemd
@@ -157,6 +162,10 @@ portage_files() {
   cp "$here"/portage/package.license/* /etc/portage/package.license/
   cp "$here"/portage/package.mask/* /etc/portage/package.mask/
   cp "$here"/portage/sets/* /etc/portage/sets/
+  mkdir -p /etc/portage/env /etc/portage/package.env /var/cache/ccache
+  cp "$here"/portage/env/* /etc/portage/env/
+  cp "$here"/portage/package.env/* /etc/portage/package.env/
+  printf 'max_size = 5G\ncompression = true\n' >/var/cache/ccache/ccache.conf
 }
 
 do_portage() {
@@ -201,6 +210,7 @@ do_repos() {
   for r in hyproverlay guru steam-overlay; do
     emaint sync -r "$r" || warn "Sync von $r fehlgeschlagen"
   done
+  spotify_overlay
 }
 
 do_world() {
@@ -232,7 +242,8 @@ do_boot() {
 
 do_kernel() {
   step "Kernel ($KERNEL_PKG), Firmware, Microcode, NVIDIA"
-  emerge_try sys-kernel/linux-firmware sys-firmware/intel-microcode sys-firmware/sof-firmware
+  # ccache vor dem Kernel: package.env/g5 baut Kernel und Module damit
+  emerge_try dev-util/ccache sys-kernel/linux-firmware sys-firmware/intel-microcode sys-firmware/sof-firmware
   emerge --ask=n --noreplace "$KERNEL_PKG" || die "Kernel-Build fehlgeschlagen"
   eselect kernel set 1 2>/dev/null || true
   emerge_try x11-drivers/nvidia-drivers app-laptop/tuxedo-drivers
@@ -250,7 +261,8 @@ do_tuning() {
   step "Leistungs-Tweaks und Systemdateien"
   SUDO="" overlay "$here/files/etc" /etc
   rm -f /etc/kernel/cmdline.tpl
-  install -d /usr/local/sbin /usr/local/libexec /usr/lib/systemd/system-sleep /var/lib/vpn-bypass /etc/wireguard
+  install -d /usr/local/sbin /usr/local/libexec /usr/lib/systemd/system-sleep /var/lib/vpn-bypass /etc/wireguard /etc/g5
+  command -v python3 >/dev/null && python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); d.pop("$schema",None); json.dump(d,open("/etc/g5/g5.json","w"),indent=2)' "$here/config/g5.json" || true
   install -m755 "$here"/files/sbin/* /usr/local/sbin/
   install -m755 "$here"/files/libexec/* /usr/local/libexec/
   install -m755 "$here/files/sleep/g5-tuning" /usr/lib/systemd/system-sleep/g5-tuning
@@ -308,8 +320,10 @@ do_services() {
   systemctl preset-all --preset-mode=enable-only >/dev/null 2>&1 || true
   local s
   for s in NetworkManager bluetooth power-profiles-daemon upower fstrim.timer systemd-timesyncd systemd-boot-update \
-    systemd-resolved nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-lock vpn-peer-info; do
-    systemctl enable "$s" >/dev/null 2>&1 && info "an: $s" || info "übersprungen: $s"
+    systemd-resolved nvidia-persistenced nvidia-powerd g5-firewall g5-tuning vpn-bypass vpn-bypass-dst.timer vpn-peer-info; do
+    # reenable statt enable: entfernt Links aus einem alten [Install]-Abschnitt
+    # (z. B. g5-tuning früher an multi-user.target → Ordnungs-Kreis beim Booten)
+    systemctl reenable "$s" >/dev/null 2>&1 && info "an: $s" || info "übersprungen: $s"
   done
   systemctl disable systemd-networkd >/dev/null 2>&1 || true
   systemctl enable systemd-resolved >/dev/null 2>&1 || true

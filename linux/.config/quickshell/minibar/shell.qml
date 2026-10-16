@@ -20,4 +20,9 @@ ShellRoot {
     }
 
     AltTab {}
+
+    // Emoji-Auswahl (Super+., ../shared/EmojiPicker.qml), flach wie die Leiste
+    EmojiPicker {
+        flat: true
+    }
 }

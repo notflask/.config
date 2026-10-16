@@ -21,6 +21,16 @@ local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#11
 --   minimal  eckig und flach, schmale Textleiste (quickshell/minibar), Aussehen in minimal.lua
 --   glass    Liquid Glass: abgerundet, Blur, Taskleiste (quickshell/taskbar), hyprtasking
 local minimal = true
+
+-- Werte aus config/g5.json im Repo (`g5 apply` erzeugt ~/.config/g5/hypr.lua):
+-- Monitore, Tastatur-Layouts, Cursor, Terminal, Screenshot-Werkzeug
+local g5 = {}
+do
+    local ok_g5, t = pcall(dofile, (os.getenv("HOME") or "") .. "/.config/g5/hypr.lua")
+    if ok_g5 and type(t) == "table" then
+        g5 = t
+    end
+end
 do
     local f = io.open((os.getenv("HOME") or "") .. "/.config/g5/style")
     if f then
@@ -34,7 +44,7 @@ end
 
 hl.config({
     input = {
-        kb_layout = "us,ru,ua,de",
+        kb_layout = g5.kb_layout or "us,ru,ua,de",
         -- Niri: grp:alt_shift_toggle. Hyprland führt die Sprache aber pro
         -- Gerät (die Semitek-Tastatur sind zwei), dann zeigt die Taskleiste Falsches –
         -- deshalb schaltet Alt+Shift hier alle Geräte gemeinsam um (binds)
@@ -55,11 +65,15 @@ hl.config({
 
 -- ── output ──────────────────────────────────────────────────
 
-hl.monitor({ output = "eDP-1", mode = "1920x1080@144.003", position = "0x0", scale = 1, transform = 0 })
-
 -- VRR (FreeSync/G-Sync) nur für Fenster mit passender window-rule (Spiele):
 -- vrr = 3 heißt „nur im Vollbild für Fenster mit content = game“
-hl.monitor({ output = "DP-2", mode = "2560x1440@179.959", position = "1920x0", scale = 1, vrr = 3 })
+local monitors = g5.monitors or {
+    { output = "eDP-1", mode = "1920x1080@144.003", position = "0x0", scale = 1, vrr = 0 },
+    { output = "DP-2", mode = "2560x1440@179.959", position = "1920x0", scale = 1, vrr = 3 },
+}
+for _, m in ipairs(monitors) do
+    hl.monitor({ output = m.output, mode = m.mode, position = m.position, scale = m.scale, vrr = m.vrr, transform = 0 })
+end
 
 
 -- ── layout ──────────────────────────────────────────────────
@@ -146,8 +160,8 @@ hl.config({
 
 -- ── cursor ──────────────────────────────────────────────────
 
-hl.env("XCURSOR_THEME", "macOS")
-hl.env("XCURSOR_SIZE", "24")
+hl.env("XCURSOR_THEME", g5.cursor_theme or "macOS")
+hl.env("XCURSOR_SIZE", tostring(g5.cursor_size or 24))
 hl.config({
     cursor = {
         -- Niri springt mit dem Mauszeiger nicht zum fokussierten Fenster
@@ -236,7 +250,7 @@ hl.window_rule({
 -- Spiele: VRR auf dem LG (CS2, Steam-Spiele, gamescope, Roblox über Sober)
 hl.window_rule({
     name = "games-vrr",
-    match = { class = "steam_app_.*|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
+    match = { class = "steam_app_.*|.*\\.exe|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
     content = "game",
 })
 
@@ -251,7 +265,8 @@ hl.window_rule({
 local game_classes = { cs2 = true, dota2 = true, gamescope = true, ["org.vinegarhq.Sober"] = true }
 
 hl.on("window.open", function(w)
-    if not (game_classes[w.class] or w.class:match("^steam_app_")) then
+    -- .exe: Proton mit Wayland-Treiber (gaming-mode --wayland) heißt nach dem Programm
+    if not (game_classes[w.class] or w.class:match("^steam_app_") or w.class:match("%.exe$")) then
         return
     end
     local own = w.workspace
@@ -282,7 +297,18 @@ hl.window_rule({
     name = "games-confine-pointer",
     -- gamescope nicht: es sperrt den Zeiger selbst (--grab-cursor), die
     -- zusätzliche Regel stört dabei die Menü-Klicks
-    match = { class = "steam_app_.*|cs2|dota2" },
+    match = { class = "steam_app_.*|.*\\.exe|cs2|dota2" },
+    confine_pointer = true,
+})
+
+-- gamescope (gaming-mode --stretch): gaming-mode markiert das Fenster mit dem
+-- Tag g5-confine (Standard „--cursor confine“). Dann bleibt der Zeiger im
+-- Spiel, auch wenn das Spiel ihn in Menüs zeigt – vorher rutschte er auf den
+-- Laptop-Bildschirm, ein Klick dort holte die andere Arbeitsfläche. Bei
+-- --cursor grab sperrt gamescope selbst, das Tag fehlt dann absichtlich.
+hl.window_rule({
+    name = "games-confine-tagged",
+    match = { tag = "g5-confine" },
     confine_pointer = true,
 })
 
@@ -343,7 +369,7 @@ hl.window_rule({
 -- es direkt an den Monitor zu geben (Direct Scanout, render unten – derzeit aus)
 hl.window_rule({
     name = "games-no-rounding",
-    match = { class = "steam_app_.*|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
+    match = { class = "steam_app_.*|.*\\.exe|cs2|dota2|gamescope|org\\.vinegarhq\\.Sober" },
     rounding = 0,
 })
 
@@ -380,7 +406,7 @@ hl.window_rule({
 -- (steam_app_1808500, beide über Proton)
 hl.window_rule({
     name = "games-tearing",
-    match = { class = "^(cs2|dota2|steam_app_1422450|steam_app_1808500)$" },
+    match = { class = "^(cs2|dota2|steam_app_1422450|steam_app_1808500|deadlock\\.exe|PioneerGame\\.exe)$" },
     immediate = true,
 })
 
@@ -422,6 +448,8 @@ hl.layer_rule({ name = "opal", match = { namespace = "^opal$" }, no_anim = true 
 
 -- Alt+Tab (quickshell/taskbar/AltTab.qml): Glas wie Rofi, sofort da
 hl.layer_rule({ name = "alttab", match = { namespace = "alttab" }, blur = true, ignore_alpha = 0.1, no_anim = true })
+-- Emoji-Auswahl (Super+., quickshell/shared/EmojiPicker.qml): Glas, sofort da
+hl.layer_rule({ name = "emoji", match = { namespace = "^emoji$" }, blur = true, ignore_alpha = 0.1, no_anim = true })
 
 -- Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
 -- und geht wie Spotlight leicht wachsend auf
@@ -679,7 +707,8 @@ end
 bind(key("SHIFT + slash"), hl.dsp.exec_cmd("hypr-keybinds"), title("Show Important Hotkeys"))
 
 -- minimal: `term` lädt nur ghostty/minimal.ghostty (deckend, Farben des Wallpapers)
-bind(key("T"), hl.dsp.exec_cmd(minimal and "term" or "ghostty"), title("Open a Terminal: ghostty"))
+local terminal = g5.terminal or "ghostty"
+bind(key("T"), hl.dsp.exec_cmd((minimal and terminal == "ghostty") and "term" or terminal), title("Open a Terminal: " .. terminal))
 -- Wegwerf-Terminal: auf/zu, beim Schließen wird alles darin beendet
 bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal", { repeating = false }))
 -- minimal: flacher Rofi-Stil (rofi/flat.rasi), sonst Spotlight-Glas
@@ -833,7 +862,10 @@ bind(key("bracketleft"), consume_or_expel("left"), title("Consume or Expel Windo
 bind(key("bracketright"), consume_or_expel("right"), title("Consume or Expel Window Right"))
 
 bind(key("comma"), hl.dsp.window.move({ into_or_create_group = "right" }))
-bind(key("period"), hl.dsp.window.move({ out_of_group = "right" }))
+-- Super+. ist die Emoji-Auswahl (wie Windows) – Fenster aus der Gruppe lösen
+-- deshalb mit Super+Shift+,
+bind(key("SHIFT + comma"), hl.dsp.window.move({ out_of_group = "right" }))
+bind(key("period"), hl.dsp.global("quickshell:emoji"), title("Emoji Picker", { repeating = false }))
 
 bind(key("R"), switch_preset(1), title("Switch Preset Column Widths"))
 bind(key("SHIFT + R"), switch_preset(-1))
@@ -873,9 +905,11 @@ bind(key("W"), hl.dsp.group.toggle())
 
 -- opal (github:notflask/opal): Bereich wählen → zeichnen → Enter kopiert
 -- und speichert nach ~/Screenshots
-bind(key("SHIFT + S"), hl.dsp.exec_cmd("opal region"))
+-- desktop.screenshot = "grim": schlichte Bereichsaufnahme (bin/screenshot)
+local opal = (g5.screenshot or "opal") == "opal"
+bind(key("SHIFT + S"), hl.dsp.exec_cmd(opal and "opal region" or "screenshot-edit"))
 -- Ohne Zeichnen: Bereich → Clipboard + Datei beim Loslassen
-bind("Print", hl.dsp.exec_cmd("opal region --no-edit"), title("Take a Screenshot"))
+bind("Print", hl.dsp.exec_cmd(opal and "opal region --no-edit" or "screenshot"), title("Take a Screenshot"))
 
 -- GPU Screen Recorder: dieselben Tasten wie seine eigenen. gsr-global-hotkeys
 -- bräuchte Lesezugriff auf /dev/input (ohne setcap) – stattdessen

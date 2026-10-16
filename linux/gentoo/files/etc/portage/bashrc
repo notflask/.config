@@ -1,7 +1,29 @@
+# shellcheck shell=bash
+# Nach dem Installieren bestimmter Pakete die passende Einrichtung starten.
+# Per systemd-run außerhalb von Portage (eigener Dienst, Netz, als Benutzer),
+# damit nichts davon den emerge-Lauf aufhält oder an der Sandbox scheitert.
+g5_user() { getent passwd 1000 | cut -d: -f1; }
+g5_run_as_user() {
+  local u; u=$(g5_user)
+  [ -n "$u" ] && command -v systemd-run >/dev/null || return 0
+  systemd-run --quiet --no-block --collect --uid="$u" --setenv=HOME="/home/$u" \
+    --setenv=PATH=/usr/local/bin:/usr/bin:/bin --setenv=XDG_RUNTIME_DIR="/run/user/$(id -u "$u")" \
+    /usr/local/bin/g5 setup "$@" || true
+}
 post_pkg_postinst() {
   case ${CATEGORY}/${PN} in
-    media-sound/spotify) chmod a+wr /opt/spotify/spotify-client; chmod -R a+wr /opt/spotify/spotify-client/Apps ;;
-    net-im/discord) [ -x /usr/local/sbin/vencord-patch ] && /usr/local/sbin/vencord-patch ;;
+    media-sound/spotify)
+      chmod a+wr /opt/spotify/spotify-client
+      chmod -R a+wr /opt/spotify/spotify-client/Apps
+      g5_run_as_user spicetify
+      ;;
+    net-im/discord)
+      command -v systemd-run >/dev/null && systemd-run --quiet --no-block --collect /usr/local/bin/g5 setup vencord || true
+      ;;
+    x11-drivers/nvidia-drivers)
+      # Flatpak-Erweiterung für den neuen Treiber gleich mitinstallieren
+      g5_run_as_user nvidia-flatpak "${PV}"
+      ;;
   esac
   return 0
 }

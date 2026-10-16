@@ -1,5 +1,8 @@
 [Unit]
 Description=Leistungs-Einstellungen (Energieprofil, CPU-Limit, GPU-Mindesttakt)
+# power-profiles-daemon startet erst nach multi-user.target – deshalb hängt
+# dieser Dienst an graphical.target (mit multi-user.target gäbe es einen
+# Kreis, und systemd würde ihn beim Booten stillschweigend auslassen)
 After=power-profiles-daemon.service gigabyte-control-center.service nvidia-persistenced.service
 Wants=power-profiles-daemon.service
 
@@ -9,4 +12,4 @@ RemainAfterExit=yes
 ExecStart=/usr/local/libexec/g5-tuning
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target

@@ -3,8 +3,12 @@
 # (networking.firewall): alles verwerfen außer Antworten, Ping, IPv6-
 # Nachbarschaft und den Ports, die Apps brauchen.
 # Eigene Kette g5-input, damit Kill-Switch und Sperre unberührt bleiben.
-# Läuft beim Booten (core-services/90-g5.sh) und bei setup.sh.
+# Läuft beim Booten (g5-firewall.service).
 set -eu
+# -w: auf die xtables-Sperre warten – beim Booten laufen mehrere Regel-Dienste
+# gleichzeitig, ohne -w scheiterte einer davon ("Can't lock /run/xtables.lock")
+iptables() { command iptables -w 10 "$@"; }
+ip6tables() { command ip6tables -w 10 "$@"; }
 chain=g5-input
 for ipt in iptables ip6tables; do
   while "$ipt" -D INPUT -j $chain 2>/dev/null; do :; done
