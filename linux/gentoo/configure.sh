@@ -237,7 +237,12 @@ do_boot() {
   sed -e "s|@ROOT@|$rootargs|" -e "s|@VT@|$vt_colors|" "$here/files/etc/kernel/cmdline.tpl" >/etc/kernel/cmdline
   cp "$here/files/etc/dracut.conf.d/g5.conf" /etc/dracut.conf.d/
   install -D -m644 "$here/files/etc/plymouth/plymouthd.conf" /etc/plymouth/plymouthd.conf
-  plymouth-set-default-theme bgrt 2>/dev/null || plymouth-set-default-theme spinner || true
+  # g5 = bgrt mit Gentoo-Logo; braucht die Spinner-Bilder im eigenen ImageDir
+  local pt=/usr/share/plymouth/themes
+  mkdir -p "$pt/g5"
+  cp "$pt"/spinner/*.png "$pt/g5/"
+  install -m644 "$here"/files/usr/share/plymouth/themes/g5/{g5.plymouth,watermark.png} "$pt/g5/"
+  plymouth-set-default-theme g5 2>/dev/null || plymouth-set-default-theme bgrt 2>/dev/null || plymouth-set-default-theme spinner || true
 }
 
 do_kernel() {
