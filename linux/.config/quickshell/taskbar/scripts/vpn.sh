@@ -5,7 +5,7 @@
 #                   rx, tx, lock) für das VPN-Fenster (VpnPanel.qml)
 #   vpn.sh toggle   verbinden/trennen
 #   vpn.sh lock | unlock   Internet ohne VPN sperren / freigeben
-# Ohne Passwort über die Polkit-Regel (gentoo/files/etc/polkit-1/rules.d/50-g5-vpn.rules).
+# Ohne Passwort über die Polkit-Regel (gentoo/files/etc/polkit-1/rules.d/50-vpn.rules).
 #
 # on = verbunden (grün), pending = verbindet / keine Antwort vom Server
 # (orange), off = getrennt, Fehler oder nicht eingerichtet (rot),

@@ -104,6 +104,7 @@ Every key can be overridden per game with a launch option (`gaming-mode --help`)
 | `fan_curve` | `50:25,…` | `gbcc` fan curve (TEMP:PERCENT) while a game runs; empty = auto |
 | `renice` | `5` | GameMode priority boost. Higher values starve Discord's stream encoder. |
 | `governor` | `powersave` | CPU governor while a game runs. `powersave`: idle cores clock down, busy cores still boost to full turbo (intel_pstate), so the package stays cooler. `performance` (GameMode's default) keeps every core clocked up, which on this laptop ran the CPU at 100 °C in Geometry Dash. |
+| `watchdog` | `false` | end the whole game once its main window closes and only leftovers stay open (e.g. Geode's console in Geometry Dash), so Steam sees it as stopped. Not with `stretch`. `--watchdog` / `--no-watchdog` per game. |
 
 ### `vpn`
 

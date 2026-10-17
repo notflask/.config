@@ -87,9 +87,9 @@ do_system() {
   sdo chmod 440 /etc/sudoers.d/g5
   sdo visudo -cq -f /etc/sudoers.d/g5 || { sdo rm -f /etc/sudoers.d/g5; warn "sudoers.d/g5 fehlerhaft – entfernt"; }
   sdo install -d /usr/local/sbin /usr/local/libexec /usr/local/bin /var/lib/vpn-bypass /etc/wireguard /etc/g5 /usr/lib/systemd/system-sleep
-  # frühere Einzelskripte (heute g5-vpn, vpn, g5) entfernen
-  sdo rm -f /usr/local/sbin/{novpn-join,vpn-bypass,vpn-bypass-dst,vpn-bypass-edit,vpn-killswitch,vpn-lock,vencord-patch} \
-    /usr/local/libexec/vpn-peer-info /usr/local/bin/sober-setup /etc/systemd/user/flatpak-nvidia-sync.service \
+  # frühere Einzelskripte (heute vpn-helper, vpn, g5) entfernen
+  sdo rm -f /usr/local/sbin/{g5-vpn,novpn-join,vpn-bypass,vpn-bypass-dst,vpn-bypass-edit,vpn-killswitch,vpn-lock,vencord-patch} \
+    /usr/local/libexec/vpn-peer-info /etc/polkit-1/rules.d/50-g5-vpn.rules /usr/local/bin/sober-setup /etc/systemd/user/flatpak-nvidia-sync.service \
     /etc/systemd/user/graphical-session.target.wants/flatpak-nvidia-sync.service
   sdo install -m 755 "$here"/files/sbin/* /usr/local/sbin/
   sdo install -m 755 "$here"/files/libexec/* /usr/local/libexec/

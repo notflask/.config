@@ -2,7 +2,7 @@
 Description=WireGuard-Status für die Taskleiste
 
 [Service]
-ExecStart=/usr/local/sbin/g5-vpn peer-info
+ExecStart=/usr/local/sbin/vpn-helper peer-info
 Restart=always
 
 [Install]

@@ -7,8 +7,8 @@ Wants=network-pre.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/local/sbin/g5-vpn bypass on
-ExecStop=/usr/local/sbin/g5-vpn bypass off
+ExecStart=/usr/local/sbin/vpn-helper bypass on
+ExecStop=/usr/local/sbin/vpn-helper bypass off
 
 [Install]
 WantedBy=multi-user.target

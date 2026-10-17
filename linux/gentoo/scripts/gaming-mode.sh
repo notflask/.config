@@ -36,6 +36,10 @@ Optionen (vor dem Befehl; Standard aus config/g5.json → gaming):
   --sdl               gamescope mit SDL- statt Wayland-Backend
   --filter F          Skalierfilter: linear (Standard), nearest, fsr, nis
   --no-hud | --hud    MangoHud aus/an (im Spiel: Shift rechts + F12)
+  --watchdog          Spiel ganz beenden, sobald sein Hauptfenster zu ist und
+                      nur Reste bleiben (z. B. Geodes Konsole bei Geometry Dash)
+                      – sonst gilt es für Steam weiter als laufend. Mit
+                      --stretch abgeschaltet (mit Warnung)
   --dry-run           nur zeigen, was gestartet würde
   -h, --help          diese Hilfe
 
@@ -48,9 +52,9 @@ die() { echo "gaming-mode: $1" >&2; exit 1; }
 # ── Standardwerte aus der Konfiguration (eine jq-Abfrage) ───────────
 cfg=${XDG_CACHE_HOME:-$HOME/.cache}/g5/config.json
 [ -r "$cfg" ] || cfg=/etc/g5/g5.json
-monitor=DP-2 stretch="" refresh=0 hud=true cursor=grab grab_keys=false
+monitor=DP-2 stretch="" refresh=0 hud=true cursor=grab grab_keys=false watchdog=false
 if [ -r "$cfg" ] && command -v jq >/dev/null; then
-  eval "$(jq -r '.gaming // {} | @sh "monitor=\(.monitor // "DP-2") stretch=\(.stretch // "") refresh=\(.refresh // 0) hud=\(.hud // true) cursor=\(.cursor // "grab") grab_keys=\(.grab_keys // false)"' "$cfg")"
+  eval "$(jq -r '.gaming // {} | @sh "monitor=\(.monitor // "DP-2") stretch=\(.stretch // "") refresh=\(.refresh // 0) hud=\(.hud // true) cursor=\(.cursor // "grab") grab_keys=\(.grab_keyboard // false) watchdog=\(.watchdog // false)"' "$cfg")"
 fi
 sdl=0 filter=linear dry=0 wayland=0
 
@@ -68,6 +72,8 @@ while [ $# -gt 0 ]; do
     --filter) case ${2:-} in linear | nearest | fsr | nis) filter=$2 ;; *) die "--filter linear|nearest|fsr|nis" ;; esac; shift 2 ;;
     --no-hud) hud=false; shift ;;
     --hud) hud=true; shift ;;
+    --watchdog) watchdog=true; shift ;;
+    --no-watchdog) watchdog=false; shift ;;
     --dry-run) dry=1; shift ;;
     --output) shift 2 ;; # alte Option: Monitorgröße kommt jetzt von Hyprland
     -h | --help) usage; exit 0 ;;
@@ -78,6 +84,13 @@ while [ $# -gt 0 ]; do
 done
 [ $# -gt 0 ] || { usage >&2; exit 1; }
 [ -z "$stretch" ] || [[ $stretch =~ ^[0-9]+x[0-9]+$ ]] || die "Ungültige Auflösung '$stretch' (Format: 1920x1440)"
+# gamescope verdeckt die Fenster des Spiels – der Wächter sähe nichts
+warn=""
+if [ "$watchdog" = true ] && [ -n "$stretch" ]; then
+  warn="--watchdog geht nicht mit --stretch – Wächter aus"
+  echo "gaming-mode: $warn" >&2
+  watchdog=false
+fi
 
 log_dir=${XDG_STATE_HOME:-$HOME/.local/state}/g5
 mkdir -p "$log_dir"
@@ -150,7 +163,8 @@ if [ "$dry" = 1 ]; then
 fi
 
 {
-  echo "== $(date '+%F %T')  monitor=$monitor ${out_w}x${out_h}@${out_hz} stretch=${stretch:-nein} wayland=$wayland refresh=$refresh cursor=$cursor hud=$hud"
+  echo "== $(date '+%F %T')  monitor=$monitor ${out_w}x${out_h}@${out_hz} stretch=${stretch:-nein} wayland=$wayland refresh=$refresh cursor=$cursor hud=$hud watchdog=$watchdog"
+  [ -z "$warn" ] || echo "gaming-mode: $warn"
   printf '%q ' "${cmd[@]}"; echo
 } >"$log"
 
@@ -261,6 +275,81 @@ if [ "$hypr" = 1 ] && [ -n "$stretch" ]; then
     done
   ) </dev/null >/dev/null 2>&1 &
   disown
+fi
+
+# Wächter (--watchdog): das größte Fenster aus dem Prozessbaum des Spiels
+# ist das Hauptfenster, sein Prozess der Spielprozess. Zählt wird der
+# Prozess, nicht das Fenster: ein Vollbildwechsel baut das Fenster neu (gleiche
+# PID), Geodes Konsole gehört Wines conhost (andere PID) – und kann gekachelt
+# so groß sein wie das Spiel. Hat der Spielprozess 5 s lang kein Fenster mehr,
+# bleibt nur Kleinkram übrig: dann den ganzen Baum beenden, damit Steam das
+# Spiel als geschlossen sieht. Steams reaper sammelt verwaiste Wine-Prozesse
+# ein, also liegt alles unter dieser PID.
+# Nicht für Spiele mit Launcher: schließt der Launcher und braucht das Spiel
+# länger als 5 s bis zum ersten Fenster, wäre es weg.
+if [ "$watchdog" = true ] && [ "$hypr" = 1 ]; then
+  pid=$$
+  (
+    # kein set -e hier: ein kill auf eine schon beendete PID oder eine leere
+    # Abfrage darf den Wächter nicht still beenden
+    set +e
+    me=$BASHPID
+    # alle Nachfahren von $pid samt $pid, ohne diesen Wächter
+    tree() {
+      ps -e -o pid=,ppid= | awk -v root="$pid" -v self="$me" '
+        { kids[$2] = kids[$2] " " $1 }
+        END {
+          n = split(root, q, " ")
+          for (i = 1; i <= n; i++) {
+            if (q[i] == self) continue
+            print q[i]
+            m = split(kids[q[i]], c, " ")
+            for (j = 1; j <= m; j++) q[++n] = c[j]
+          }
+        }'
+    }
+    main_pid="" main_area=0 gone=0
+    while kill -0 "$pid" 2>/dev/null; do
+      sleep 1
+      # hyprctl/jq gescheitert (Hyprland hakt, startet neu): Runde auslassen,
+      # nie als „Fenster zu“ werten – sonst stirbt ein laufendes Spiel
+      clients=$(hyprctl clients -j 2>/dev/null) || continue
+      wins=$(jq -er --argjson pids "[$(tree | paste -sd,)]" \
+        'if type == "array" then .[] | select(.mapped and (.pid as $p | $pids | index($p))) | "\(.pid) \(.size[0] * .size[1] | floor)" else error end' \
+        <<<"$clients") || [ $? = 4 ] || continue
+      big_pid="" big_area=0 alive=0 area=0
+      while read -r p ar; do
+        [ -n "$p" ] || continue
+        [ "$ar" -gt "$big_area" ] && big_pid=$p big_area=$ar
+        [ "$p" = "$main_pid" ] && alive=1 && [ "$ar" -gt "$area" ] && area=$ar
+      done <<<"$wins"
+      if [ "$alive" = 1 ]; then
+        gone=0 main_area=$area
+        # Spiel öffnet sein großes Fenster nach einem kleineren (Konsole,
+        # Startbild) – solange der alte Prozess noch Fenster hat, wechseln
+        [ "$big_pid" != "$main_pid" ] && [ "$big_area" -gt "$main_area" ] || continue
+      fi
+      if [ -z "$main_pid" ] || [ "$alive" = 1 ]; then
+        [ -n "$big_pid" ] || continue
+        main_pid=$big_pid main_area=$big_area
+        echo "gaming-mode: Wächter – Spielprozess $main_pid ($(ps -o comm= -p "$main_pid"), ${main_area} px)" >>"$log"
+        continue
+      fi
+      gone=$((gone + 1))
+      [ $gone -ge 5 ] || continue
+      echo "gaming-mode: Wächter – Hauptfenster zu, beende Reste:$(tree | paste -sd' ')" >>"$log"
+      kill -TERM $(tree) 2>/dev/null
+      for _ in $(seq 10); do
+        sleep 0.5
+        kill -0 "$pid" 2>/dev/null || exit 0
+      done
+      kill -KILL $(tree) 2>/dev/null
+      exit 0
+    done
+  ) </dev/null >/dev/null 2>&1 &
+  disown
+elif [ "$watchdog" = true ]; then
+  echo "gaming-mode: --watchdog nur unter Hyprland" >>"$log"
 fi
 
 exec "${cmd[@]}" 2>> >(tail -c 200000 >>"$log")
