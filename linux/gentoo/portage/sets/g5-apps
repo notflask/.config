@@ -1,4 +1,5 @@
 app-editors/neovim
+app-editors/emacs
 x11-terms/ghostty
 app-misc/tmux
 app-shells/fzf

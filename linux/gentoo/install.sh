@@ -353,7 +353,7 @@ do_services() {
 }
 
 # ── user ──
-linked=(fish nvim tmux ghostty quickshell rofi mako matugen waypaper hypr MangoHud gtklock swayidle)
+linked=(fish nvim emacs tmux ghostty quickshell rofi mako matugen waypaper hypr MangoHud gtklock swayidle)
 mizu_rev=426e89a4d05c038feaab4a2855351da8b6a4f5fa
 opal_rev=abd7ace2de249e5539e5c49c712ae1a82e158595
 

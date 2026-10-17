@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
 #  und Niri, Hyprland, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
-#  Firefox (Pywalfox), Spotify und Discord anpassen.
+#  Firefox (Pywalfox), Thunderbird, Spotify und Discord anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD
@@ -200,6 +200,43 @@ ff_profile=$(ls -d "$HOME"/.config/mozilla/firefox/*.default* 2>/dev/null | head
 if [ -n "$ff_profile" ] && [ -f "$cache/matugen/firefox-userChrome.css" ]; then
   mkdir -p "$ff_profile/chrome"
   cp -f "$cache/matugen/firefox-userChrome.css" "$ff_profile/chrome/userChrome.css"
+fi
+# Benachrichtigungen: Ghostty schickt sein Symbol nur als Namen; mako sucht
+# zuerst in ~/.cache/matugen/icons (icon-path in mako-flat.ini). Dort liegt
+# eine Kopie in zwei Tönen aus matugen (Graustufen → ink … paper).
+if [ -f "$cache/matugen/icon-colors.sh" ]; then
+  . "$cache/matugen/icon-colors.sh"
+  # in allen Größen, die die App mitbringt (mako nimmt die passendste)
+  for src in /usr/share/icons/hicolor/*/apps/com.mitchellh.ghostty.png; do
+    [ -f "$src" ] || continue
+    dst="$cache/matugen/icons/${src#/usr/share/icons/hicolor/}"
+    mkdir -p "${dst%/*}"
+    # Farbe aus den Graustufen, Transparenz vom Original
+    magick "$src" \( -clone 0 -alpha off -colorspace gray +level-colors "$ink,$paper" \) \
+      \( -clone 0 -alpha extract \) -delete 0 -compose CopyOpacity -composite \
+      "$dst" 2>/dev/null || true
+  done
+fi
+
+# fish/Tide: Prompt-Farben als Universal-Variablen setzen; offene Shells
+# übernehmen sie sofort (fish/conf.d/matugen-tide.fish)
+[ -f "$cache/matugen/tide-colors.fish" ] && command -v fish >/dev/null &&
+  { fish "$cache/matugen/tide-colors.fish" || true; }
+
+# Thunderbird: userChrome.css in jedes Profil (~/.config/thunderbird, alt
+# ~/.thunderbird) kopieren und Benutzer-Stylesheets per user.js erlauben.
+# Thunderbird liest die Datei nur beim Start.
+tb_css="$cache/matugen/thunderbird-userChrome.css"
+tb_pref='user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);'
+if [ -f "$tb_css" ]; then
+  for tb_profile in "$config"/thunderbird/*/ "$HOME"/.thunderbird/*/; do
+    [ -f "$tb_profile/prefs.js" ] || continue
+    mkdir -p "$tb_profile/chrome"
+    cp -f "$tb_css" "$tb_profile/chrome/userChrome.css"
+    [ -f "$cache/matugen/thunderbird-userContent.css" ] &&
+      cp -f "$cache/matugen/thunderbird-userContent.css" "$tb_profile/chrome/userContent.css"
+    grep -qsF "$tb_pref" "$tb_profile/user.js" || echo "$tb_pref" >>"$tb_profile/user.js"
+  done
 fi
 # Der Socket liegt in $TMPDIR (Standard /tmp); unter Waypaper/Niri kann TMPDIR
 # abweichen, dann findet pywalfox den Daemon nicht. Fehler landen im Log.

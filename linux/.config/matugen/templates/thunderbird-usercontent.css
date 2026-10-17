@@ -1,0 +1,23 @@
+/* Erzeugt von matugen (templates/thunderbird-usercontent.css) – hier nichts ändern.
+   Hintergrund der Nachrichten im Dunkelmodus (Thunderbirds „Dark Reader“,
+   Schalter rechts im Nachrichtenkopf): statt Grau die Fläche von matugen.
+   Thunderbird entfernt dabei helle Hintergründe der Mail; farbige Blöcke
+   und Bilder bleiben. Im hellen Modus bleiben Mails, wie sie sind. */
+<* if {{ is_dark_mode }} *>
+@media (prefers-color-scheme: dark) and -moz-pref("mail.dark-reader.enabled") {
+  :root,
+  body {
+    background-color: {{colors.surface.default.hex}} !important;
+  }
+  body {
+    color: {{colors.on_surface.default.hex}};
+  }
+  a:link {
+    color: {{colors.primary.default.hex}};
+  }
+  ::selection {
+    background-color: {{colors.primary_container.default.hex}} !important;
+    color: {{colors.on_primary_container.default.hex}} !important;
+  }
+}
+<* endif *>
