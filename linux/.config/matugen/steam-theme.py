@@ -88,6 +88,11 @@ def neutral(L):
     return f"var(--m-{ANCHORS[-1][1]})"
 
 
+def light_theme():
+    """Helle Farben von matugen (surface hell)?"""
+    return "surface" in PALETTE and srgb_to_oklab(*hex_rgb(PALETTE["surface"])[0])[0] > 0.6
+
+
 def recolor(rgb, alpha, prop, flat=False):
     if flat and rgb in ((255, 255, 255), (0, 0, 0)):
         # Hoher Kontrast (schwarz/weiß) sanfter: Kanten wie in Discord,
@@ -108,6 +113,10 @@ def recolor(rgb, alpha, prop, flat=False):
     elif BLUE_HUE[0] <= hue <= BLUE_HUE[1]:
         textish = prop in TEXT_PROPS or prop.startswith("border") or prop.startswith("outline")
         new = "var(--m-primary)" if textish else "var(--m-primary-container)"
+    elif prop in TEXT_PROPS and L > 0.6 and light_theme():
+        # Helle Farben (Grün im Spiel, Rot …) als Schrift auf hellen Flächen
+        # kaum lesbar: zur Schriftfarbe hin abdunkeln, Farbton bleibt
+        new = f"color-mix(in oklab, rgb{rgb} 45%, var(--m-on-surface))"
     else:
         return None  # andere Farben (Grün, Rot …) bleiben
     if alpha >= 0.999:
@@ -136,7 +145,7 @@ def resolve(expr, palette):
     if m:
         expr, alpha = m.group(1), float(m.group(2)) / 100
     names = re.findall(r"var\(--m-([a-z-]+)\)", expr)
-    if not names or any(n not in palette for n in names):
+    if "rgb(" in expr or not names or any(n not in palette for n in names):
         return None
     p = re.search(r" (\d+)%,", expr)
     t = int(p.group(1)) / 100 if p and len(names) == 2 else 1.0
@@ -298,6 +307,24 @@ def split_decls(body):
     return out
 
 
+# Monocraft ist eine Pixelschrift: ein Pixel = 1/9 em. Nur bei 9, 18, 27 …
+# px liegen die Pixel auf ganzen Bildschirmpixeln, sonst werden Striche
+# ungleich dick (13px: mal 1, mal 2 Pixel). Darum Steams Größen einrasten.
+PX_RE = re.compile(r"([\d.]+)px")
+
+
+def snap_size(value):
+    m = PX_RE.fullmatch(re.sub(r"\s*!important\s*$", "", value.strip()))
+    if not m:
+        return None
+    px = float(m.group(1))
+    if px <= 10.5:
+        return 9
+    if px <= 22.5:
+        return 18
+    return round(px / 9) * 9
+
+
 SKIP_AT = ("@keyframes", "@-webkit-keyframes", "@font-face", "@page", "@property")
 # Farbthemen der Bildschirmtastatur (Big Picture): Tausende Regeln, nicht nötig
 SKIP_SELECTOR = re.compile(r"KeyTheme_|\.Spectrum\b")
@@ -324,6 +351,10 @@ def convert(css, flat=False):
         if SKIP_SELECTOR.search(head):
             continue
         decls = []
+        size = None
+        for d in split_decls(body):
+            if ":" in d and d.split(":", 1)[0].strip().lower() == "font-size":
+                size = snap_size(d.split(":", 1)[1])
         for d in split_decls(body):
             if ":" not in d:
                 continue
@@ -332,6 +363,14 @@ def convert(css, flat=False):
             if prop.startswith(("transition", "animation", "will-change")):
                 continue
             value = re.sub(r"\s*!important\s*$", "", value.strip())
+            if prop == "font-size" and size:
+                decls.append(f"font-size:{size}px!important")
+                continue
+            if prop == "line-height" and size:
+                m = PX_RE.fullmatch(value)
+                if m and float(m.group(1)) < size + 2:
+                    decls.append(f"line-height:{size + 2}px!important")
+                    continue
             new = recolor_value(prop, value, flat)
             if new and prop == "background" and COLOR_RE.fullmatch(value):
                 # nur eine Farbe: als background-color, sonst setzt die
@@ -357,7 +396,47 @@ def flatten(css):
                 out.append(f"{head}{{{inner}}}")
     return "".join(out)
 
+def library_list():
+    """Bibliothek-Liste: nicht installierte Spiele deutlich blasser.
+    Steam nimmt dafür ein helles Grau (#cbced8 statt #fff) – nach der
+    Umsetzung liegt das bei hellen Farben fast auf on_surface, beide Arten
+    sähen gleich aus. Die gehashten Klassen stehen nur in Steams JS
+    (Modul mit Container, Uninstalled, Installed …)."""
+    m = None
+    for js in sorted((steam / "steamui").glob("*.js")):
+        m = re.search(r'\{Container:"([\w-]+)",HoverOverlay:"([\w-]+)",Uninstalled:"([\w-]+)",'
+                      r'Selected:"([\w-]+)"', js.read_text(errors="replace"))
+        if m:
+            break
+    if not m:
+        return ""
+    item, hover, uninstalled, selected = (f".{c}" for c in m.groups())
+    u = f"{item}{uninstalled}"
+    return (f"{u}{{color:var(--m-outline)!important}}\n"
+            f"{u}:hover,{u}{hover},{u}{selected},{selected} {u}"
+            f"{{color:var(--m-on-surface-variant)!important}}\n")
+
+
 # ── Theme schreiben ──────────────────────────────────────────
+
+def install_fonts():
+    """Monocraft nach ~/.local/share/fonts. Steams Browser läuft in
+    pressure-vessel; der bindet /usr/local/share/fonts zwar ein, seine
+    fontconfig kennt aber nur /usr/share/fonts und ~/.local/share/fonts –
+    sonst zeigt Steam statt Monocraft die Ersatzschrift (DejaVu Sans Mono)."""
+    target = Path(os.environ.get("XDG_DATA_HOME", home / ".local/share")) / "fonts/Monocraft"
+    # Ohne Light/ExtraLight: Steams dünne Schrift (100–300) nimmt sonst
+    # Monocrafts Haarlinien-Schnitte, die bei kleinen Größen zerfallen
+    for old in target.glob("Monocraft-*Light*.ttf"):
+        old.unlink()
+    for src in sorted(Path("/usr/local/share/fonts").rglob("Monocraft*.ttf")):
+        if "Light" in src.name:
+            continue
+        dst = target / src.name
+        if not dst.exists() or dst.stat().st_size != src.stat().st_size:
+            target.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src, dst)
+
 
 def main():
     if not steam.is_dir():
@@ -369,6 +448,7 @@ def main():
     theme.mkdir(parents=True, exist_ok=True)
     first_time = not (theme / "skin.json").exists()
 
+    install_fonts()
     for name in ("skin.json", "base.css"):
         shutil.copyfile(here / "steam" / name, theme / name)
     if colors.exists():
@@ -391,6 +471,7 @@ def main():
         # danach, damit sie gewinnen
         for name, css in texts:
             out.append(f"/* {name}: flach */\n{flatten(css)}\n")
+        out.append(f"/* Bibliothek */\n{library_list()}")
         tmp = theme / "recolor.css.tmp"
         tmp.write_text("".join(out))
         tmp.replace(theme / "recolor.css")
