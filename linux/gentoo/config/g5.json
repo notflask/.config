@@ -55,7 +55,8 @@
     "cursor": "grab",
     "grab_keyboard": false,
     "fan_curve": "50:25,60:40,70:60,78:80,85:100",
-    "renice": 5
+    "renice": 5,
+    "governor": "powersave"
   },
   "vpn": {
     "interface": "wg0",
