@@ -142,9 +142,10 @@ apply_performance() {
 }
 
 apply_gaming() {
-  local curve renice tmp
+  local curve renice gov tmp
   curve=$(get gaming.fan_curve)
   renice=$(get gaming.renice)
+  gov=$(get gaming.governor)
   tmp=$(mktemp)
   {
     echo "; erzeugt von \`g5 apply\` aus config/g5.json (gaming) – hier nichts ändern"
@@ -152,6 +153,9 @@ apply_gaming() {
     echo "; renice $renice: höher verdrängt den Encoder von Discord (Stream ruckelt)"
     echo "renice=$renice"
     echo "softrealtime=off"
+    echo "; powersave: ruhende Kerne takten herunter, belastete boosten trotzdem voll"
+    echo "; (intel_pstate); GameModes Standard performance hält alle hoch (CPU 100 °C)"
+    echo "desiredgov=$gov"
     echo "inhibit_screensaver=1"
     echo
     echo "[gpu]"
@@ -166,7 +170,7 @@ apply_gaming() {
   } >"$tmp"
   cmp -s "$tmp" /etc/gamemode.ini || as_root install -m 644 "$tmp" /etc/gamemode.ini
   rm -f "$tmp"
-  echo "gaming: renice $renice, Lüfter ${curve:-auto}"
+  echo "gaming: renice $renice, $gov, Lüfter ${curve:-auto}"
 }
 
 apply_vpn() {

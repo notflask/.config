@@ -103,6 +103,7 @@ Every key can be overridden per game with a launch option (`gaming-mode --help`)
 | `grab_keyboard` | `false` | the game gets every key, including Super. Super+G inside gamescope toggles it. |
 | `fan_curve` | `50:25,…` | `gbcc` fan curve (TEMP:PERCENT) while a game runs; empty = auto |
 | `renice` | `5` | GameMode priority boost. Higher values starve Discord's stream encoder. |
+| `governor` | `powersave` | CPU governor while a game runs. `powersave`: idle cores clock down, busy cores still boost to full turbo (intel_pstate), so the package stays cooler. `performance` (GameMode's default) keeps every core clocked up, which on this laptop ran the CPU at 100 °C in Geometry Dash. |
 
 ### `vpn`
 
