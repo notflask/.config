@@ -4,27 +4,27 @@
 # Stil; config.ghostty setzt die Glas-Deckkraft darüber). Die Terminalfarben 1–15 bleiben fest, damit Programme lesbar
 # bleiben: dunkel wie Vague (TTY), hell wie Solarized Osaka Light.
 # Farbe 0 („schwarz“, z. B. Hintergrund von cmatrix) ist die Fläche selbst.
-background = #151311
-foreground = #e8e1dd
-cursor-color = #d8c3ab
-cursor-text = #3b2e1d
-selection-background = #534432
-selection-foreground = #f5dfc6
+background = #fff8f4
+foreground = #1d1b19
+cursor-color = #6c5c48
+cursor-text = #ffffff
+selection-background = #f5dfc6
+selection-foreground = #251a0a
 background-opacity = 1
-palette = 0=#151311
-palette = 1=#d8647e
-palette = 2=#7fa563
-palette = 3=#f3be7c
-palette = 4=#6e94b2
-palette = 5=#bb9dbd
-palette = 6=#aeaed1
-palette = 7=#cdcdcd
-palette = 8=#606079
-palette = 9=#e08398
-palette = 10=#99b782
-palette = 11=#f5cb96
-palette = 12=#8ba9c1
-palette = 13=#c9b1ca
-palette = 14=#bebeda
-palette = 15=#d7d7d7
+palette = 0=#fff8f4
+palette = 1=#db302d
+palette = 2=#849900
+palette = 3=#b28500
+palette = 4=#268bd3
+palette = 5=#d23681
+palette = 6=#29a298
+palette = 7=#002c38
+palette = 8=#93a1a1
+palette = 9=#b7211f
+palette = 10=#586600
+palette = 11=#664c00
+palette = 12=#1a6397
+palette = 13=#af2668
+palette = 14=#1a6265
+palette = 15=#001419
 

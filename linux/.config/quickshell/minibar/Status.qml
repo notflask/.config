@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
@@ -41,10 +42,22 @@ Row {
                 width: 14
                 height: parent.height
 
+                // Symbole einfarbig in der Schriftfarbe: viele Tray-Symbole
+                // (Steam …) sind weiß und verschwinden sonst auf hellem Grund.
+                // Einfärben nach Helligkeit: weiße Symbole werden genau Theme.fg.
                 IconImage {
+                    id: trayIcon
                     anchors.centerIn: parent
                     implicitSize: 14
                     source: entry.modelData.icon
+                    visible: false
+                }
+
+                MultiEffect {
+                    anchors.fill: trayIcon
+                    source: trayIcon
+                    colorization: 1
+                    colorizationColor: Theme.fg
                 }
 
                 MouseArea {

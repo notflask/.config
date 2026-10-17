@@ -76,6 +76,38 @@ output_path = "~/.cache/wal/colors.json"
 input_path  = "~/.config/matugen/templates/firefox-userchrome.css"
 output_path = "~/.cache/matugen/firefox-userChrome.css"
 
+# Thunderbird: userChrome.css (theme.sh kopiert sie ins Profil, wirkt nach
+# dem nächsten Start von Thunderbird)
+[templates.thunderbird-userchrome]
+input_path  = "~/.config/matugen/templates/thunderbird-userchrome.css"
+output_path = "~/.cache/matugen/thunderbird-userChrome.css"
+
+# Thunderbird: Hintergrund der Nachrichten (userContent.css)
+[templates.thunderbird-usercontent]
+input_path  = "~/.config/matugen/templates/thunderbird-usercontent.css"
+output_path = "~/.cache/matugen/thunderbird-userContent.css"
+
+# Emacs: Theme `matugen` (init.el lädt es bei Änderungen selbst neu)
+[templates.emacs]
+input_path  = "~/.config/matugen/templates/emacs-theme.el"
+output_path = "~/.config/emacs/themes/matugen-theme.el"
+
+# fish-Prompt (Tide): theme.sh führt die Datei aus (Universal-Variablen)
+[templates.tide]
+input_path  = "~/.config/matugen/templates/tide-colors.fish"
+output_path = "~/.cache/matugen/tide-colors.fish"
+
+# Zwei Farbtöne für umgefärbte Symbole in Benachrichtigungen (theme.sh)
+[templates.icon-colors]
+input_path  = "~/.config/matugen/templates/icon-colors.sh"
+output_path = "~/.cache/matugen/icon-colors.sh"
+
+# Claude Code: eigenes Theme (in /theme „matugen“, Einstellung
+# "theme": "custom:matugen"); Claude Code lädt die Datei selbst neu
+[templates.claude-code]
+input_path  = "~/.config/matugen/templates/claude-code-theme.json"
+output_path = "~/.claude/themes/matugen.json"
+
 # Spotify (Spicetify): Spotify liest die Datei über einen Symlink im
 # Paket und lädt sie bei Änderungen selbst neu
 [templates.spicetify]

@@ -28,3 +28,4 @@ app-shells/fish ~amd64
 app-shells/zoxide ~amd64
 # duf gibt es nur als ~amd64
 sys-fs/duf ~amd64
+media-fonts/iosevka ~amd64
