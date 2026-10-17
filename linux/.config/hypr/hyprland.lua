@@ -744,6 +744,8 @@ bind(key("SHIFT + slash"), hl.dsp.exec_cmd("hypr-keybinds"), title("Show Importa
 -- minimal: `term` lädt nur ghostty/minimal.ghostty (deckend, Farben des Wallpapers)
 local terminal = g5.terminal or "ghostty"
 bind(key("T"), hl.dsp.exec_cmd((minimal and terminal == "ghostty") and "term" or terminal), title("Open a Terminal: " .. terminal))
+-- Emacs-Fenster vom Daemon (emacs.service); läuft keiner, startet emacsclient ihn
+bind(key("N"), hl.dsp.exec_cmd("emacsclient -c -a ''"), title("Open Emacs"))
 -- Wegwerf-Terminal: auf/zu, beim Schließen wird alles darin beendet
 bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal", { repeating = false }))
 -- minimal: flacher Rofi-Stil (rofi/flat.rasi), sonst Spotlight-Glas
