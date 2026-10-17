@@ -235,8 +235,9 @@ pre,
 }
 
 /* Eckig wie die Leiste (minibar): keine Rundungen, nur 1px-Kanten.
-   Avatare und Status-Punkte behalten ihre Form. */
-*:not(img):not(svg):not(rect):not(circle):not([class*="avatar"]):not([class*="Avatar"]):not([class*="status"]):not([class*="dot"]) {
+   Avatare, Status-Punkte und der Sprech-Ring im Anruf (sonst eckiger
+   grüner Rahmen um das Profilbild) behalten ihre Form. */
+*:not(img):not(svg):not(rect):not(circle):not([class*="avatar"]):not([class*="Avatar"]):not([class*="status"]):not([class*="dot"]):not([class*="peaking"]):not([class*="ring"]):not([class*="Ring"]):not([class*="voice"]):not([class*="Voice"]) {
     border-radius: 0 !important;
 }
 
