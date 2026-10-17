@@ -8,9 +8,9 @@ Wants=network-pre.target
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/usr/local/sbin/g5-vpn lock on
+ExecStart=/usr/local/sbin/vpn-helper lock on
 ExecStartPost=/bin/sh -c 'mkdir -p /run/vpn && touch /run/vpn/vpn-lock.up'
-ExecStop=/usr/local/sbin/g5-vpn lock off
+ExecStop=/usr/local/sbin/vpn-helper lock off
 ExecStopPost=/bin/rm -f /run/vpn/vpn-lock.up
 
 [Install]

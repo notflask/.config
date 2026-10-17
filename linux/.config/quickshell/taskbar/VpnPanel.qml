@@ -64,7 +64,7 @@ Popup {
                 return;
             Vpn.split("add", matches[0].id);
         } else {
-            // dieselbe Prüfung wie g5-vpn domain
+            // dieselbe Prüfung wie vpn-helper domain
             const ok = /^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?$/i.test(text) || /^\d{1,3}(\.\d{1,3}){3}(\/\d{1,2})?$/.test(text);
             if (!ok) {
                 error = "Nur Domain (beispiel.de) oder IPv4 (1.2.3.4, 10.0.0.0/8)";

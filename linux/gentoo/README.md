@@ -36,7 +36,7 @@ Ohne Gentoo-Paket, von `extras` direkt vom Hersteller: Claude Desktop (.deb), Tr
 - Logs: `~/.local/state/g5-install.log`, `/var/log/g5-configure.log`; Fehler und Warnungen stehen gesammelt am Ende jedes Laufs.
 - `update` – Overlays syncen, `@world` mit Snapshot davor/danach (`emerge-snap`), Plugins, Extras, Spicetify, Flatpak.
 - `g5` – zentrale Einstellungen in `config/g5.json` (Stil, Monitore, Leistung, Spiele, VPN, Apps), Profile (`g5 profile use quiet|max|battery`), `g5 setup …` und `g5 doctor` (prüft das ganze System). Doku: [config/CONFIG.md](config/CONFIG.md).
-- `vpn` – alles zum VPN: `vpn up|down|status|import`, `vpn run BEFEHL` (am VPN vorbei, früher `novpn`), `vpn app add|remove`, `vpn domain add|remove` (früher `vpn-split`).
+- `vpn` – alles zum VPN: `vpn up|down|status|import`, `vpn bypass BEFEHL` (am VPN vorbei, früher `novpn`), `vpn app add|remove`, `vpn domain add|remove` (früher `vpn-split`).
 - `gaming-mode [--stretch WxH] %command%` – Spiel mit GameMode, MangoHud, RTX 4060; gestreckt per gamescope, Zeiger bleibt im Spiel (`gaming-mode --help`).
 - `style minimal|glass`, `theme` wie unter Arch. Emoji-Auswahl: Super+. (Fenster aus Gruppe lösen jetzt Super+Shift+,).
 - Kernel-Optionen: `/etc/kernel/config.d/g5.config`, Kommandozeile: `/etc/kernel/cmdline`, danach `emerge --config sys-kernel/gentoo-kernel`.

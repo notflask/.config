@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # vpn – WireGuard-VPN (wg-quick) mit Kill-Switch und Split-Tunneling.
-# Ein Befehl für alles; root-Teile erledigt /usr/local/sbin/g5-vpn.
+# Ein Befehl für alles; root-Teile erledigt /usr/local/sbin/vpn-helper.
 #
 #   vpn [status]                 Verbindung, Kill-Switch, Sperre
 #   vpn up | down                verbinden / trennen (Kill-Switch nur, solange verbunden)
@@ -8,8 +8,8 @@
 #   vpn name NAME                Profilnamen setzen (Taskleiste)
 #   vpn lock | unlock            Internet ohne Tunnel sperren / bis zum Neustart freigeben
 #
-#   vpn run BEFEHL [ARG…]        BEFEHL samt Kindern am VPN vorbei starten
-#                                (Steam: vpn run gaming-mode %command%)
+#   vpn bypass BEFEHL [ARG…]     BEFEHL samt Kindern am VPN vorbei starten
+#                                (Steam: vpn bypass gaming-mode %command%)
 #   vpn app add|remove ID        App (Desktop-ID, z. B. firefox) immer am VPN vorbei
 #   vpn apps                     diese Apps zeigen
 #   vpn running                  Programme, die gerade am VPN vorbei laufen
@@ -19,14 +19,14 @@
 #
 # Apps und Ziele stehen in config/g5.json (vpn.bypass_apps / bypass_domains)
 # und bleiben so über Neuinstallationen erhalten. Für jede App liegt eine
-# Kopie ihres Starters in ~/.local/share/applications mit `vpn run` vor
+# Kopie ihres Starters in ~/.local/share/applications mit `vpn bypass` vor
 # Exec – Startmenü, Rofi und xdg-open starten sie dann am VPN vorbei.
 set -euo pipefail
 iface=wg0
 conf=/etc/wireguard/$iface.conf
 name_file=/etc/wireguard/$iface.name
 service=wg-quick-$iface
-helper=/usr/local/sbin/g5-vpn
+helper=/usr/local/sbin/vpn-helper
 domains_file=/var/lib/vpn-bypass/domains
 apps_list=${XDG_CONFIG_HOME:-$HOME/.config}/vpn-split/apps # liest die Taskleiste
 apps_dir=${XDG_DATA_HOME:-$HOME/.local/share}/applications
@@ -68,7 +68,7 @@ generate() {
   mkdir -p "$apps_dir"
   # D-Bus-Aktivierung umgeht Exec, deshalb raus
   sed -e '/^DBusActivatable=/d' \
-    -e 's/^Exec=\(vpn run \|novpn \)*/Exec=vpn run /' \
+    -e 's/^Exec=\(vpn bypass \|vpn run \|novpn \)*/Exec=vpn bypass /' \
     -e "0,/^\[Desktop Entry\]/s//[Desktop Entry]\n$marker/" \
     "$src" >"$out.tmp"
   mv "$out.tmp" "$out"
@@ -136,7 +136,7 @@ running() {
 status() {
   if systemctl is-active --quiet $service; then
     echo "VPN: verbunden ($(cat $name_file 2>/dev/null || echo $iface)), Kill-Switch aktiv"
-    # Endpoint/Handshake ohne root (g5-vpn peer-info)
+    # Endpoint/Handshake ohne root (vpn-helper peer-info)
     sed 's/^/  /' /run/$iface-peer-info 2>/dev/null || true
   elif systemctl is-active --quiet vpn-lock; then
     echo "VPN: getrennt, Internet gesperrt (vpn unlock gibt es frei)"
@@ -170,9 +170,9 @@ case ${1:-status} in
     sudo systemctl restart $service && status
     ;;
   name) echo "${2:?Profilnamen angeben}" | sudo install -m 644 /dev/stdin $name_file ;;
-  run)
+  bypass | run) # run: alter Name, für bestehende Steam-Startoptionen
     shift
-    [ $# -gt 0 ] || die "vpn run BEFEHL [ARG…]"
+    [ $# -gt 0 ] || die "vpn bypass BEFEHL [ARG…]"
     sudo -n "$helper" join $$ 2>/dev/null || echo "vpn: Regel nicht gesetzt, $1 läuft durchs VPN" >&2
     exec "$@"
     ;;

@@ -1,16 +1,16 @@
 #!/bin/bash
-# g5-vpn – alles, was beim VPN root braucht, in einem Skript. Aufgerufen von
+# vpn-helper – alles, was beim VPN root braucht, in einem Skript. Aufgerufen von
 # den systemd-Diensten und (per sudo ohne Passwort, nur `join` und `domain`)
 # vom Benutzerbefehl `vpn`.
 #
-#   g5-vpn killswitch on|off IFACE   Kill-Switch (wg-quick-wg0.service)
-#   g5-vpn lock on|off               ohne Tunnel kein Internet (vpn-lock.service)
-#   g5-vpn bypass on|off             Ketten fürs Split-Tunneling (vpn-bypass.service)
-#   g5-vpn bypass-dst                Ziele neu auflösen (vpn-bypass-dst.timer, alle 10 min)
-#   g5-vpn domain add|remove ZIEL    Ziel am VPN vorbei (sudo, aus `vpn domain`)
-#   g5-vpn domain sync               Liste von stdin übernehmen (sudo, aus `vpn sync`)
-#   g5-vpn join PID                  Prozess am VPN vorbei (sudo, aus `vpn run`)
-#   g5-vpn peer-info                 Endpoint/Handshake für die Taskleiste (vpn-peer-info.service)
+#   vpn-helper killswitch on|off IFACE   Kill-Switch (wg-quick-wg0.service)
+#   vpn-helper lock on|off               ohne Tunnel kein Internet (vpn-lock.service)
+#   vpn-helper bypass on|off             Ketten fürs Split-Tunneling (vpn-bypass.service)
+#   vpn-helper bypass-dst                Ziele neu auflösen (vpn-bypass-dst.timer, alle 10 min)
+#   vpn-helper domain add|remove ZIEL    Ziel am VPN vorbei (sudo, aus `vpn domain`)
+#   vpn-helper domain sync               Liste von stdin übernehmen (sudo, aus `vpn sync`)
+#   vpn-helper join PID                  Prozess am VPN vorbei (sudo, aus `vpn bypass`)
+#   vpn-helper peer-info                 Endpoint/Handshake für die Taskleiste (vpn-peer-info.service)
 #
 # Split-Tunneling: Pakete am VPN vorbei bekommen die Markierung der
 # verschlüsselten WireGuard-Pakete (fwmark). Dann nimmt die Routing-Regel von
@@ -95,7 +95,7 @@ bypass() {
     for chain in novpn novpn-app novpn-dst novpn-mark; do "$ipt" -t mangle -X $chain 2>/dev/null || true; done
   done
   [ "$1" = on ] || return 0
-  # gemeinsame cgroup für alle Programme unter `vpn run`
+  # gemeinsame cgroup für alle Programme unter `vpn bypass`
   mkdir -p $cgroup
   for ipt in iptables ip6tables; do
     for chain in novpn novpn-app novpn-dst novpn-mark; do "$ipt" -t mangle -N $chain; done
@@ -138,7 +138,7 @@ domain() {
     add | remove)
       target=${2:-}
       target=${target,,}
-      valid_target "$target" || { echo "g5-vpn: ungültiges Ziel: $target" >&2; exit 2; }
+      valid_target "$target" || { echo "vpn-helper: ungültiges Ziel: $target" >&2; exit 2; }
       if [ "$action" = add ]; then
         grep -qxF -- "$target" $domains_file || echo "$target" >>$domains_file
       else
@@ -150,7 +150,7 @@ domain() {
       while IFS= read -r t; do
         t=${t,,}
         [ -n "$t" ] || continue
-        valid_target "$t" && list+=("$t") || echo "g5-vpn: übersprungen: $t" >&2
+        valid_target "$t" && list+=("$t") || echo "vpn-helper: übersprungen: $t" >&2
       done
       printf '%s\n' "${list[@]}" >$domains_file.tmp
       mv $domains_file.tmp $domains_file
@@ -162,8 +162,8 @@ domain() {
 
 join() {
   local uid=${SUDO_UID:?nur über sudo aufrufen} pid=${1:-}
-  [[ $pid =~ ^[0-9]+$ ]] || { echo "g5-vpn join PID" >&2; exit 2; }
-  [ "$(stat -c %u "/proc/$pid")" = "$uid" ] || { echo "g5-vpn: $pid gehört nicht dir" >&2; exit 1; }
+  [[ $pid =~ ^[0-9]+$ ]] || { echo "vpn-helper join PID" >&2; exit 2; }
+  [ "$(stat -c %u "/proc/$pid")" = "$uid" ] || { echo "vpn-helper: $pid gehört nicht dir" >&2; exit 1; }
   echo "$pid" >$cgroup/cgroup.procs
 }
 

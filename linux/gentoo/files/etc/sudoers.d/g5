@@ -1,5 +1,5 @@
-# VPN ohne Passwort: verbinden/trennen, Sperre, Split-Tunneling (g5-vpn prüft
+# VPN ohne Passwort: verbinden/trennen, Sperre, Split-Tunneling (vpn-helper prüft
 # Ziel bzw. PID selbst; join nur für eigene Prozesse)
 %wheel ALL=(root) NOPASSWD: /usr/bin/systemctl start wg-quick-wg0, /usr/bin/systemctl stop wg-quick-wg0, /usr/bin/systemctl restart wg-quick-wg0
 %wheel ALL=(root) NOPASSWD: /usr/bin/systemctl start vpn-lock, /usr/bin/systemctl stop vpn-lock
-%wheel ALL=(root) NOPASSWD: /usr/local/sbin/g5-vpn join *, /usr/local/sbin/g5-vpn domain *
+%wheel ALL=(root) NOPASSWD: /usr/local/sbin/vpn-helper join *, /usr/local/sbin/vpn-helper domain *
