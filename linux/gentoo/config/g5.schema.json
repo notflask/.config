@@ -79,7 +79,8 @@
         "grab_keyboard": { "type": "boolean", "description": "Game gets ALL keys incl. Super (no accidental workspace switch). Super+G inside gamescope toggles." },
         "fan_curve": { "type": "string", "pattern": "^([0-9]+:[0-9]+(,[0-9]+:[0-9]+)*)?$", "description": "gbcc fan curve TEMP:PERCENT while a game runs; empty = leave fans on auto." },
         "renice": { "type": "integer", "minimum": 0, "maximum": 20, "description": "GameMode priority boost (higher starves Discord's stream encoder)." },
-        "governor": { "type": "string", "enum": ["powersave", "performance"], "description": "CPU governor GameMode sets while a game runs. powersave: idle cores clock down, busy cores still boost (cooler). performance: all cores stay clocked up (GameMode default, hotter)." }
+        "governor": { "type": "string", "enum": ["powersave", "performance"], "description": "CPU governor GameMode sets while a game runs. powersave: idle cores clock down, busy cores still boost (cooler). performance: all cores stay clocked up (GameMode default, hotter)." },
+        "watchdog": { "type": "boolean", "description": "End the whole game once its main window closes and only leftovers stay open (e.g. Geode's console). Not with stretch." }
       }
     },
     "vpn": {
