@@ -2,14 +2,22 @@
 # Discord (mit Vencord) auf der richtigen GPU –: Hyprland rendert
 # auf der NVIDIA und kann Bildpuffer der Iris Xe nicht importieren (Fenster
 # bliebe schwarz); der Bildschirm-Stream kommt als DMA-BUF der NVIDIA. Discord
-# zeichnet daher auf der NVIDIA und kodiert per NVENC. VA-API auf der Iris Xe.
+# zeichnet daher auf der NVIDIA. VA-API auf der Iris Xe.
+#
+# Fest iHD, nicht die nvidia aus der Sitzung (uwsm/env): mit nvidia findet
+# Discords Encoder auf der Iris Xe kein H.264 und kodiert VP8 auf der CPU.
+# Eingehende Videos dekodiert Chromium per ffmpeg auf der CPU (~10 % eines
+# Kerns); VA-API auf der NVIDIA (nvidia-vaapi-driver, VaapiOnNvidiaGPUs,
+# --ignore-gpu-blocklist) scheiterte trotzdem (ElectronVideoDecoder
+# status 5).
 export LIBVA_DRIVER_NAME=iHD
 # Kein NVENC: Discords Video-Encoder (nvidia: cuda für die Kamera, nvidia:
 # vulkan für den Stream, H.265) stürzt alle paar Stunden ab (SIGSEGV in
 # VideoEncoderQueue, Discord lädt neu). Seit 2026 hat Discord keinen Schalter
-# mehr dafür (getHardwareEncoding() ist fest true). Ohne CUDA und ohne
-# NVIDIA-Vulkan kodiert Discord H.264 per VA-API auf der Iris Xe (Kamera und
-# Stream); gezeichnet wird weiter auf der NVIDIA (EGL, nicht betroffen).
+# mehr dafür (getHardwareEncoding() ist fest true). Beide NVIDIA-Wege
+# brauchen CUDA (ohne: "Cuda(NoDevice)"). Ohne CUDA und ohne NVIDIA-Vulkan
+# kodiert Discord H.264 per VA-API auf der Iris Xe (Kamera und Stream);
+# gezeichnet wird weiter auf der NVIDIA (EGL, nicht betroffen).
 # Stürzt auch das ab: LIBVA_DRIVER_NAME=none, dann OpenH264 auf der CPU.
 export CUDA_VISIBLE_DEVICES=
 export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json

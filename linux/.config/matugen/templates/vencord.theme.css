@@ -238,8 +238,10 @@ pre,
    Avatare, Status-Punkte und der Sprech-Ring im Anruf (sonst eckiger
    grüner Rahmen um das Profilbild) behalten ihre Form. Im Anruf zeichnet
    Discord den Ring als Schatten auf einem eigenen Element (border_…) neben
-   dem Profilbild (voiceAvatar_…) – daher alles in diesem Rahmen rund. */
-*:not([class*="wrapper_"]:has(> [class*="voiceAvatar"]) > *):not(img):not(svg):not(rect):not(circle):not([class*="avatar"]):not([class*="Avatar"]):not([class*="status"]):not([class*="dot"]):not([class*="peaking"]):not([class*="ring"]):not([class*="Ring"]):not([class*="voice"]):not([class*="Voice"]) {
+   der Profilbild-Maske, beide in callAvatarMaskContainer_… – daher alles
+   in diesem Rahmen rund. Kein :has() hier: auf * zwingt es Chromium bei
+   jedem Klassenwechsel (Sprech-Anzeige) zum Neuberechnen der Stile. */
+*:not([class*="callAvatarMaskContainer_"] > *):not(img):not(svg):not(rect):not(circle):not([class*="avatar"]):not([class*="Avatar"]):not([class*="status"]):not([class*="dot"]):not([class*="peaking"]):not([class*="ring"]):not([class*="Ring"]):not([class*="voice"]):not([class*="Voice"]) {
     border-radius: 0 !important;
 }
 
