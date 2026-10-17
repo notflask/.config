@@ -85,3 +85,16 @@ button.DialogButton[type="submit"] {
 ::-webkit-scrollbar-corner {
     background: transparent !important;
 }
+
+/* Symbole mit festem Weiß im SVG selbst (fill="#fff" …, nicht per CSS):
+   Kreuz im Stopp-Knopf, Glocke, Pfeile – sonst unsichtbar auf hellen Flächen */
+[fill="#fff" i],
+[fill="#ffffff" i],
+[fill="white" i] {
+    fill: var(--m-on-surface) !important;
+}
+[stroke="#fff" i],
+[stroke="#ffffff" i],
+[stroke="white" i] {
+    stroke: var(--m-on-surface) !important;
+}

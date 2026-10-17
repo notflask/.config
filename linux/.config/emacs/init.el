@@ -222,7 +222,8 @@
                ("at" . claude-code-ide-toggle)
                ("ap" . claude-code-ide-send-prompt)
                ("am" . claude-code-ide-insert-at-mentioned)
-               ("as" . claude-code-ide-stop)))
+               ("as" . claude-code-ide-stop)
+               ("ao" . my/opencode-toggle)))
     (evil-define-key '(normal visual motion) 'global
       (kbd (concat "<leader>" (car b))) (cdr b)))
   ;; K = Doku unter dem Cursor, ]d/[d = nächster/voriger Fehler
@@ -279,9 +280,14 @@
   (with-eval-after-load 'evil
     (evil-set-initial-state 'eat-mode 'emacs)))
 
-;; keine (relativen) Zeilennummern im Terminal
+;; keine (relativen) Zeilennummern im Terminal. Zeilen abschneiden statt
+;; umbrechen: ist ein Zeichen der Ersatzschrift breiter als die Zelle
+;; (Rahmen in opencode), ragt die Zeile über den Rand – umgebrochen gäbe
+;; das eine leere Zeile mit Pfeilen am Rand, quer durch das Bild.
 (dolist (hook '(eat-mode-hook ghostel-mode-hook))
-  (add-hook hook (lambda () (display-line-numbers-mode 0))))
+  (add-hook hook (lambda ()
+                   (display-line-numbers-mode 0)
+                   (setq-local truncate-lines t))))
 
 (use-package claude-code-ide
   :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
@@ -293,3 +299,32 @@
   :config
   ;; xref, imenu, tree-sitter und project.el als Werkzeuge für Claude
   (claude-code-ide-emacs-tools-setup))
+
+;; ========= opencode ====
+;; opencode (andere, auch kostenlose Modelle) im selben Terminal wie Claude,
+;; rechts unter dessen Fenster – ohne MCP und ediff, nur zum Fragen.
+;;   SPC a o  opencode im Projekt ein/aus (läuft im Hintergrund weiter)
+;; Der Emacs-Daemon hat ~/.opencode/bin nicht im PATH, daher der Rückfall.
+(defun my/opencode-toggle ()
+  "opencode im aktuellen Projekt rechts zeigen oder ausblenden."
+  (interactive)
+  (let* ((dir (if-let ((p (project-current))) (project-root p) default-directory))
+         (name (format "*opencode: %s*" (file-name-nondirectory (directory-file-name dir))))
+         (program (or (executable-find "opencode") (expand-file-name "~/.opencode/bin/opencode")))
+         (buf (get-buffer name))
+         (win (and buf (get-buffer-window buf))))
+    (if win
+        (delete-window win)
+      (unless (and buf (get-buffer-process buf))
+        (when buf (kill-buffer buf))
+        (setq buf (get-buffer-create name))
+        (with-current-buffer buf
+          (setq default-directory dir)
+          (if (eq my/claude-terminal 'ghostel)
+              (progn (require 'ghostel) (ghostel-exec buf program nil))
+            (require 'eat)
+            (eat-mode)
+            (eat-exec buf name program nil nil))))
+      (select-window
+       (display-buffer-in-side-window
+        buf '((side . right) (slot . 1) (window-width . 100)))))))
