@@ -175,9 +175,11 @@ if [ -f "$vc_settings" ] && command -v jq >/dev/null &&
     mv "$tmp" "$vc_settings" || rm -f "$tmp"
 fi
 # Telegram Desktop: Palette (matugen) + einfarbiger Chat-Hintergrund als
-# .tdesktop-theme (ZIP), flach wie Discord. Läuft Telegram, öffnet es die
-# Datei als Vorschau – ein Klick auf „Anwenden“ übernimmt sie (von außen geht
-# es nicht ohne).
+# .tdesktop-theme (ZIP), flach wie Discord. Von außen lässt sich das Theme
+# nicht anwenden: `Telegram -- Datei` öffnet inzwischen „Weiterleiten an …“
+# statt der Vorschau (bei jedem Wechsel, auch nach der Sonne). Darum nur die
+# Datei bauen; anwenden per Hand (Datei in „Gespeicherte Nachrichten“ ziehen
+# und dort anklicken).
 tg_dir="$cache/matugen/telegram"
 if [ -f "$tg_dir/colors.tdesktop-theme" ]; then
   tg_bg=$(sed -n 's/^windowBg: *\(#[0-9a-fA-F]*\);.*/\1/p' "$tg_dir/colors.tdesktop-theme")
@@ -189,9 +191,6 @@ with zipfile.ZipFile(sys.argv[1] + ".tmp", "w") as z:
     for f in sys.argv[2:]: z.write(f, f.rsplit("/", 1)[1])' \
       "$tg_theme" "$tg_dir/colors.tdesktop-theme" "$tg_dir/tiled.png" &&
     mv -f "$tg_theme.tmp" "$tg_theme"
-  if [ -f "$tg_theme" ] && pgrep -x Telegram >/dev/null; then
-    setsid -f Telegram -- "$tg_theme" >/dev/null 2>&1 </dev/null || true
-  fi
 fi
 # Steam (Millennium): Theme „matugen“ neu bauen; Steam übernimmt die Farben
 # beim nächsten Start

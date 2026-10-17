@@ -112,6 +112,9 @@ autostart() {
       awww query >/dev/null 2>&1 && break
       sleep 0.1
     done
+    # Hell/Dunkel nach der Sonne: nur den Modus merken und den Timer für den
+    # nächsten Wechsel stellen – waypaper färbt gleich danach damit ein
+    "$config/matugen/theme-sun.py" --no-apply || true
     # Gesetztes Bild fehlt (frische Installation): Nebel aus dem Repo nehmen
     # (setup.sh legt ihn nach ~/Wallpapers), das erzeugt auch die Farben
     wall=$(sed -n 's/^wallpaper *= *//p' "$config/waypaper/config.ini" 2>/dev/null | cut -d, -f1)
