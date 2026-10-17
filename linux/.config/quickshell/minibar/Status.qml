@@ -44,7 +44,10 @@ Row {
 
                 // Symbole einfarbig in der Schriftfarbe: viele Tray-Symbole
                 // (Steam …) sind weiß und verschwinden sonst auf hellem Grund.
-                // Einfärben nach Helligkeit: weiße Symbole werden genau Theme.fg.
+                // Erst ganz hell (brightness), dann einfärben: jedes Symbol wird
+                // genau Theme.fg, auch dunkle. Quickshell lädt Symbole nach Namen
+                // nicht neu, wenn theme.sh Papirus-Light/-Dark wechselt – so ist
+                // egal, welche Variante es noch hat.
                 IconImage {
                     id: trayIcon
                     anchors.centerIn: parent
@@ -56,6 +59,7 @@ Row {
                 MultiEffect {
                     anchors.fill: trayIcon
                     source: trayIcon
+                    brightness: 1
                     colorization: 1
                     colorizationColor: Theme.fg
                 }

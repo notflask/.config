@@ -217,7 +217,7 @@ Scope {
                         x: 8
                         y: root.previewHeight + 12
                         height: Theme.height - 6
-                        color: tile.selected ? Theme.onAccent : Theme.faint
+                        color: tile.selected ? Theme.accentFg : Theme.faint
                         text: tile.modelData.workspace ? tile.modelData.workspace.name : ""
                     }
                     Label {
@@ -227,7 +227,7 @@ Scope {
                         anchors.rightMargin: 8
                         y: ws.y
                         height: ws.height
-                        color: tile.selected ? Theme.onAccent : Theme.fg
+                        color: tile.selected ? Theme.accentFg : Theme.fg
                         font.bold: tile.selected
                         text: root.appName(tile.app) + (tile.modelData.title ? " · " + tile.modelData.title : "")
                     }

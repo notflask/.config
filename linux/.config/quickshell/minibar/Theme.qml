@@ -20,7 +20,7 @@ Singleton {
     readonly property color dim: get("on_surface_variant", "#c8c6c7")
     readonly property color faint: get("outline", "#95908c")
     readonly property color accent: get("primary", "#c3c6d6")
-    readonly property color onAccent: get("on_primary", "#2c2f3a")
+    readonly property color accentFg: get("on_primary", "#2c2f3a")
     readonly property color error: get("error", "#ffb4ab")
     readonly property color ok: "#8fd19e"
     readonly property color warn: "#f0c674"

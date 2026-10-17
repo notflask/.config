@@ -274,7 +274,7 @@ Row {
                                 anchors.centerIn: parent
                                 text: "\u{F0156}"
                                 font.pixelSize: 13
-                                color: close.containsMouse ? Theme.onError : Theme.text
+                                color: close.containsMouse ? Theme.errorFg : Theme.text
                             }
 
                             MouseArea {
