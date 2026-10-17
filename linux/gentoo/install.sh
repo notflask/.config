@@ -353,7 +353,7 @@ do_services() {
 }
 
 # ── user ──
-linked=(nvim tmux ghostty quickshell rofi mako matugen waypaper hypr MangoHud gtklock swayidle)
+linked=(fish nvim tmux ghostty quickshell rofi mako matugen waypaper hypr MangoHud gtklock swayidle)
 mizu_rev=426e89a4d05c038feaab4a2855351da8b6a4f5fa
 opal_rev=abd7ace2de249e5539e5c49c712ae1a82e158595
 
@@ -369,6 +369,11 @@ do_user() {
     ln -sfn "$repo/linux/.config/$name" "$dst"
   done
   mkdir -p "$home/.config/Vencord/themes"
+
+  step "Fish: fisher-Plugins, Tide-Einstellungen"
+  # fisher update installiert alles aus fish_plugins; danach Tide wie gespeichert
+  fish -c 'type -q fisher || curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
+    fisher update >/dev/null && source ~/.config/fish/tide.fish' || { warn "fisher/Tide nicht eingerichtet"; FAILED+=(fisher); }
   xdg-user-dirs-update || true
   mkdir -p "$home/Wallpapers"
   cp -n "$here"/wallpapers/* "$home/Wallpapers/" 2>/dev/null || true

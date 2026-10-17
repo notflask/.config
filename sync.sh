@@ -166,6 +166,22 @@ sync_tmux() {
     "tmux config"
 }
 
+sync_fish() {
+  echo "── Fish ──────────────────────────────────────"
+  sync_file \
+    "$HOME/.config/fish" \
+    "$DOTFILES/linux/.config/fish" \
+    "fish config"
+  # Tide speichert seine Einstellungen als Universal-Variablen (fish_variables ist nicht im Repo)
+  if command -v fish >/dev/null; then
+    {
+      echo '# Tide-Einstellungen (von sync.sh aus den Universal-Variablen erzeugt, install.sh spielt sie ein)'
+      fish -c 'for v in (set -Un | string match "tide_*"); echo set -U $v (string escape -- $$v); end'
+    } >"$DOTFILES/linux/.config/fish/tide.fish"
+    ok "tide Einstellungen"
+  fi
+}
+
 sync_aerospace() {
   echo "── AeroSpace ───────────────────────────────────"
   sync_file \
@@ -212,6 +228,7 @@ matugen) sync_matugen ;;
 quickshell) sync_quickshell ;;
 waypaper) sync_waypaper ;;
 tmux) sync_tmux ;;
+fish) sync_fish ;;
 niri) sync_niri ;;
 rofi) sync_rofi ;;
 ghostty) sync_ghostty ;;
@@ -226,6 +243,7 @@ all)
   sync_vscode
   sync_sioyek
   sync_tmux
+  sync_fish
   sync_niri
   sync_rofi
   sync_ghostty
@@ -234,7 +252,7 @@ all)
   ;;
 *)
   err "Unbekanntes Ziel: $TARGET"
-  echo "  Gültige Optionen: all | nvim | hypr | matugen | quickshell | waypaper | glazewm | vscode | sioyek | tmux | niri | rofi | ghostty | aerospace"
+  echo "  Gültige Optionen: all | nvim | hypr | matugen | quickshell | waypaper | glazewm | vscode | sioyek | tmux | fish | niri | rofi | ghostty | aerospace"
   exit 1
   ;;
 esac
