@@ -71,7 +71,7 @@ PopupWindow {
         Label {
             id: caption
             anchors.centerIn: parent
-            color: area.containsMouse ? Theme.onAccent : Theme.fg
+            color: area.containsMouse ? Theme.accentFg : Theme.fg
             text: "[ " + action.label + " ]"
         }
 

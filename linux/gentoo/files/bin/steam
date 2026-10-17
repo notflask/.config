@@ -4,4 +4,12 @@
 # anderen Programme aus (Firefox hängt). "idle" statt "best-effort 7" ließ
 # Steams eigenes Fenster hängen, solange es selbst lud. Wirkt nur mit BFQ
 # (etc/udev/rules.d/90-g5.rules). gaming-mode setzt Spiele zurück auf normal.
+# Theme für Millennium (matugen) an Steams aktuelle CSS anpassen – nur neu,
+# wenn Steam sich geändert hat (~/.config/matugen/steam-theme.py)
+"$HOME/.config/matugen/steam-theme.py" 2>/dev/null || true
+# Millennium: Wächter gegen das Hängen beim Beenden (steam-exit-watchdog),
+# nur wenn Steam nicht schon läuft (sonst gibt dieser Aufruf nur weiter)
+if [ -d /usr/lib/millennium ] && ! pgrep -f '^[^ ]*/ubuntu12_32/steam( |$)' >/dev/null; then
+  setsid -f "$(dirname "$(readlink -f "$0")")/steam-exit-watchdog" >/dev/null 2>&1 </dev/null
+fi
 exec ionice -c 2 -n 7 /usr/bin/steam "$@"

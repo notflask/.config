@@ -1,9 +1,15 @@
 # Erzeugt von matugen (templates/ghostty-theme) – hier nichts ändern.
 # Ghostty (`term` und config.ghostty): Fläche, Schrift,
 # Cursor und Auswahl aus dem Wallpaper, deckend und ohne Blur (minimaler
-# Stil; config.ghostty setzt die Glas-Deckkraft darüber). Die Terminalfarben 1–15 bleiben fest, damit Programme lesbar
-# bleiben: dunkel wie Vague (TTY), hell wie Solarized Osaka Light.
-# Farbe 0 („schwarz“, z. B. Hintergrund von cmatrix) ist die Fläche selbst.
+# Stil; config.ghostty setzt die Glas-Deckkraft darüber). Die Terminalfarben 1–7 und 9
+# bleiben fest, damit Programme lesbar bleiben: dunkel wie Vague (TTY), hell
+# wie Solarized Osaka Light.
+# Farbe 0 („schwarz“, z. B. Hintergrund von cmatrix) ist dunkel die Fläche
+# selbst, hell die Schrift (Claude Code schreibt Code im hellen ANSI-Theme in
+# Farbe 0).
+# 8 und 10–14 färben den Code in Claude Code (Theme dark-ansi/light-ansi)
+# wie Emacs: Kommentare outline; Strings, Zahlen tertiary; Schlüsselwörter,
+# Funktionen, Typen primary. Grün/Rot der Diffs setzt das Claude-Theme selbst.
 background = #fff8f4
 foreground = #1d1b19
 cursor-color = #6c5c48
@@ -11,7 +17,7 @@ cursor-text = #ffffff
 selection-background = #f5dfc6
 selection-foreground = #251a0a
 background-opacity = 1
-palette = 0=#fff8f4
+palette = 0=#1d1b19
 palette = 1=#db302d
 palette = 2=#849900
 palette = 3=#b28500
@@ -19,12 +25,12 @@ palette = 4=#268bd3
 palette = 5=#d23681
 palette = 6=#29a298
 palette = 7=#002c38
-palette = 8=#93a1a1
+palette = 8=#7b7673
 palette = 9=#b7211f
-palette = 10=#586600
-palette = 11=#664c00
-palette = 12=#1a6397
-palette = 13=#af2668
-palette = 14=#1a6265
+palette = 10=#705b40
+palette = 11=#6c5c48
+palette = 12=#705b40
+palette = 13=#6c5c48
+palette = 14=#6c5c48
 palette = 15=#001419
 

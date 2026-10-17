@@ -215,7 +215,14 @@
                ("ch" . ff-find-other-file)
                ("cc" . project-compile)
                ("cR" . recompile)
-               ("cd" . gdb)))
+               ("cd" . gdb)
+               ("aa" . claude-code-ide-menu)
+               ("ac" . claude-code-ide)
+               ("ar" . claude-code-ide-resume)
+               ("at" . claude-code-ide-toggle)
+               ("ap" . claude-code-ide-send-prompt)
+               ("am" . claude-code-ide-insert-at-mentioned)
+               ("as" . claude-code-ide-stop)))
     (evil-define-key '(normal visual motion) 'global
       (kbd (concat "<leader>" (car b))) (cdr b)))
   ;; K = Doku unter dem Cursor, ]d/[d = nächster/voriger Fehler
@@ -228,3 +235,61 @@
 
 ;; Doku im kleinen Fenster am Cursor statt unten im Echo-Bereich
 (use-package eldoc-box)
+
+;; ========= Claude Code ====
+;; claude-code-ide: Claude Code im Seitenfenster rechts, verbunden über MCP.
+;; Claude sieht die offene Datei und die Auswahl, zeigt Änderungen als
+;; ediff (vor dem Übernehmen noch bearbeitbar) und kann eglot/xref,
+;; imenu, tree-sitter und project.el nutzen.
+;;   SPC a a  Menü              SPC a c  neue Sitzung im Projekt
+;;   SPC a r  Sitzung fortsetzen  SPC a t  Fenster ein/aus
+;;   SPC a p  Prompt schicken     SPC a m  Auswahl an Claude
+;;   SPC a s  Sitzung beenden
+;; Im Claude-Fenster: M-RET neue Zeile, C-<escape> Abbrechen.
+
+;; Terminal: am besten ghostel (libghostty, flackert nicht), das braucht aber
+;; ein natives Modul. Gentoos Emacs ist ohne USE=dynamic-loading gebaut und
+;; kann keine Module laden (module-file-suffix ist nil) – dann eat, ein
+;; Terminal ganz in Elisp. Mit Modulen wird es automatisch ghostel.
+(defconst my/claude-terminal (if module-file-suffix 'ghostel 'eat))
+
+;; ghostel: Modul fertig gebaut von GitHub, in einen eigenen Ordner, damit
+;; Paket-Updates die geladene Datei nicht ersetzen. ghostel lädt es von selbst
+;; nur bei M-x ghostel; claude-code-ide startet es ohne diesen Weg, darum hier
+;; beim Laden: vorhandenes Modul laden, fehlendes einmal herunterladen.
+(use-package ghostel
+  :if (eq my/claude-terminal 'ghostel)
+  :custom
+  (ghostel-module-auto-install 'download)
+  (ghostel-module-directory (expand-file-name "ghostel/" user-emacs-directory))
+  :config
+  (ghostel--load-module t))
+
+;; evil im Terminal: Normal-Modus zum Scrollen/Kopieren, i/a tippt wieder
+(use-package evil-ghostel
+  :if (eq my/claude-terminal 'ghostel)
+  :after (ghostel evil)
+  :hook (ghostel-mode . evil-ghostel-mode))
+
+;; eat: alle Tasten gehen an Claude (evil im Emacs-Modus); C-z schaltet
+;; zum Normal-Modus (Scrollen, Kopieren) und zurück
+(use-package eat
+  :if (eq my/claude-terminal 'eat)
+  :config
+  (with-eval-after-load 'evil
+    (evil-set-initial-state 'eat-mode 'emacs)))
+
+;; keine (relativen) Zeilennummern im Terminal
+(dolist (hook '(eat-mode-hook ghostel-mode-hook))
+  (add-hook hook (lambda () (display-line-numbers-mode 0))))
+
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu)
+  :custom
+  (claude-code-ide-terminal-backend my/claude-terminal)
+  (claude-code-ide-show-backend-recommendation nil)
+  (claude-code-ide-diagnostics-backend 'flymake)
+  :config
+  ;; xref, imenu, tree-sitter und project.el als Werkzeuge für Claude
+  (claude-code-ide-emacs-tools-setup))

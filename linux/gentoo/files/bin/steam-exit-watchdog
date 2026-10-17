@@ -1,0 +1,56 @@
+#!/bin/sh
+# Steam mit Millennium hängt beim Beenden: die Oberfläche (steamwebhelper)
+# ist sofort zu, der Hauptprozess wartet aber ewig auf eine Sperre
+# (Millennium-Bug, github.com/SteamClientHomebrew/Millennium/issues/931).
+# Das hält auch das Herunterfahren auf.
+#
+# Der steam-Wrapper startet dieses Skript im Hintergrund. Es wartet auf den
+# Hauptprozess und beendet ihn erst, wenn
+#   1. Steam „Shutdown“ ins Log geschrieben hat (seit dem Start) und
+#   2. kein steamwebhelper mehr läuft, seit mindestens $grace Sekunden.
+# Dann ist alles gespeichert; Steam steht nur noch.
+#
+# Kann weg, sobald Millennium den Fehler behoben hat.
+
+grace=10
+
+# Nur ein Wächter gleichzeitig
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/steam-exit-watchdog.lock"
+flock -n 9 || exit 0
+log="$HOME/.local/share/Steam/logs/bootstrap_log.txt"
+main() { pgrep -f '^[^ ]*/ubuntu12_32/steam( |$)' | head -n1; }
+
+# Auf den Hauptprozess warten (Steam aktualisiert sich evtl. erst)
+i=0
+until pid=$(main) && [ -n "$pid" ]; do
+  i=$((i + 1))
+  [ $i -gt 300 ] && exit 0 # 10 Minuten: Steam kam nicht hoch
+  sleep 2
+done
+
+# Nur „Shutdown“-Zeilen ab jetzt zählen
+offset=$(stat -c %s "$log" 2>/dev/null || echo 0)
+
+gone=0
+while kill -0 "$pid" 2>/dev/null; do
+  sleep 2
+  size=$(stat -c %s "$log" 2>/dev/null || echo 0)
+  [ "$size" -lt "$offset" ] && offset=0 # Log neu angelegt
+  # (Steams Log hat Zeilenenden \r\n)
+  if ! tail -c +"$((offset + 1))" "$log" 2>/dev/null | grep -q '\] Shutdown[[:space:]]*$'; then
+    gone=0
+    continue
+  fi
+  if pgrep -x steamwebhelper >/dev/null; then
+    gone=0
+    continue
+  fi
+  gone=$((gone + 2))
+  [ $gone -lt $grace ] && continue
+
+  logger -t steam-exit-watchdog "Steam hängt beim Beenden (pid $pid) – wird beendet" 2>/dev/null
+  kill "$pid" 2>/dev/null
+  sleep 5
+  kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null # reagiert meist nicht auf TERM
+  exit 0
+done

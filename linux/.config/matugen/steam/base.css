@@ -1,0 +1,87 @@
+/* Steam wie Discord (vencord.theme.css): Monocraft, eckig, flach, 1px-Kanten.
+   Die Farben kommen aus colors.css (matugen) und recolor.css. */
+
+/* Monocraft überall */
+html,
+body,
+*:not(svg):not(path) {
+    font-family: 'Monocraft', monospace !important;
+    letter-spacing: 0 !important;
+}
+
+/* Eckig: keine Rundungen; Avatare und Status-Punkte behalten ihre Form */
+*:not(img):not(svg):not([class*="avatar"]):not([class*="Avatar"]):not([class*="Status"]):not([class*="status"]):not([class*="Toggle"]):not([class*="Dot"]):not([class*="dot"]) {
+    border-radius: 0 !important;
+}
+
+/* Flach: keine Schatten, Schriftschatten und Milchglas-Unschärfe */
+* {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+}
+
+html,
+body {
+    background: var(--m-surface) !important;
+    color: var(--m-on-surface) !important;
+}
+
+/* Kontextmenüs und Dialoge: 1px-Linie in der Akzentfarbe statt Schatten */
+[class*="ContextMenu"][class*="Popup"],
+.contextMenuContents,
+.ModalDialogPopup,
+.DialogContent {
+    border: 1px solid var(--m-primary) !important;
+}
+
+/* Knöpfe: Fläche statt Verlauf, Akzent beim Überfahren */
+.DialogButton {
+    background: var(--m-surface-high) !important;
+    color: var(--m-on-surface) !important;
+    border: 1px solid var(--m-outline-variant) !important;
+}
+.DialogButton:hover:not(:disabled),
+.DialogButton.gpfocus {
+    background: var(--m-primary-container) !important;
+    color: var(--m-on-primary-container) !important;
+    border-color: var(--m-primary) !important;
+}
+.DialogButton.Primary,
+button.DialogButton[type="submit"] {
+    background: var(--m-primary-container) !important;
+    color: var(--m-on-primary-container) !important;
+}
+
+/* Eingabefelder in Dialogen (andere, z. B. die Suche der Bibliothek,
+   behalten ihre Fläche – darunter liegt oft ein Symbol) */
+.DialogInput,
+.DialogTextInputBase {
+    background-color: var(--m-surface-low) !important; /* nur die Farbe: Suchfelder haben ein Lupen-Bild */
+    color: var(--m-on-surface) !important;
+    border: 1px solid var(--m-outline-variant) !important;
+}
+.DialogInput:focus,
+.DialogTextInputBase:focus {
+    border-color: var(--m-primary) !important;
+}
+/* Platzhalter immer zeigen (Steam blendet ihn in der Bibliothek erst beim
+   Überfahren ein); vierfache Klasse, damit es Steams Regel schlägt */
+::placeholder,
+.DialogInputPlaceholder.DialogInputPlaceholder.DialogInputPlaceholder.DialogInputPlaceholder::placeholder {
+    color: var(--m-outline) !important;
+}
+
+/* Auswahl und Scrollleisten */
+::selection {
+    background: var(--m-primary-container);
+    color: var(--m-on-primary-container);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--m-outline-variant) !important;
+    border-radius: 0 !important;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background: transparent !important;
+}

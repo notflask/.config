@@ -33,7 +33,7 @@ Singleton {
     readonly property color textDim: get("on_surface_variant", "#c8c6c7")
     readonly property color primary: get("primary", "#c3c6d6")
     readonly property color error: get("error", "#ffb4ab")
-    readonly property color onError: get("on_error", "#690005")
+    readonly property color errorFg: get("on_error", "#690005")
     readonly property color ok: get("ok", "#8fd19e")
     readonly property color warn: get("warn", "#f0c674")
 

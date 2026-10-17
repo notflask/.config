@@ -27,7 +27,7 @@ Row {
                 id: label
                 anchors.centerIn: parent
                 text: root.roman[tag.modelData.index] || String(tag.modelData.index)
-                color: tag.modelData.is_active ? Theme.onAccent : tag.modelData.is_urgent ? Theme.error : Theme.fg
+                color: tag.modelData.is_active ? Theme.accentFg : tag.modelData.is_urgent ? Theme.error : Theme.fg
                 font.bold: tag.modelData.is_active
             }
 

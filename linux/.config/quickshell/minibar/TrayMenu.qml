@@ -71,7 +71,7 @@ PopupWindow {
             anchors.leftMargin: 12
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width - 24 - arrow.implicitWidth
-            color: !row.active ? Theme.faint : area.containsMouse ? Theme.onAccent : Theme.fg
+            color: !row.active ? Theme.faint : area.containsMouse ? Theme.accentFg : Theme.fg
             text: row.prefix + row.label
         }
 
