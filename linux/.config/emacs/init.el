@@ -1,5 +1,8 @@
 ;;; init.el --- Emacs für C/C++, Farben von matugen  -*- lexical-binding: t; -*-
 
+;; Läuft als Daemon (systemd: emacs.service, mit der grafischen Sitzung);
+;; Fenster öffnen mit `emacsclient -c` bzw. Super+N.
+
 ;; Pakete kommen beim ersten Start von MELPA/GNU ELPA (dauert einmal etwas).
 ;; Sprachserver: clangd (llvm-core/clang). Farben: themes/matugen-theme.el,
 ;; erzeugt von matugen (templates/emacs-theme.el), lädt sich selbst neu.
@@ -36,8 +39,8 @@
 
 ;; ========= editor =========
 
-;; maximize frame on startup
-(add-hook 'window-setup-hook 'toggle-frame-maximized t)
+;; jedes neue Fenster maximiert (auch die von emacsclient beim Daemon)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; disable backup files creation
 (setq make-backup-files nil

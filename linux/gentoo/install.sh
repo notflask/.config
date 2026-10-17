@@ -391,10 +391,17 @@ export QT_QPA_PLATFORMTHEME=kde
 export XCURSOR_THEME=macOS
 export XCURSOR_SIZE=24
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+export EDITOR="emacsclient -c"
+export VISUAL="emacsclient -c"
 EOF
   cat >"$home/.config/uwsm/env-hyprland" <<'EOF'
 export AQ_DRM_DEVICES=/dev/dri/nvidia-dgpu:/dev/dri/intel-igpu
 EOF
+
+  step "Emacs-Daemon"
+  # mit der grafischen Sitzung, damit er PATH (clangd) und das Display kennt
+  systemctl --user add-wants graphical-session.target emacs.service >/dev/null 2>&1 &&
+    info "an: emacs (Daemon)" || warn "emacs.service nicht eingerichtet"
 
   step "Starter: Discord"
   local d
