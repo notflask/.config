@@ -65,22 +65,25 @@
 
 <* if {{ is_dark_mode }} *><* else *>
 /* ── Nur im Hellmodus ──
-   Spotify färbt Playlist-/Albumkopf, die Knopfleiste darunter, den Kopf
-   der Startseite und die obere Leiste beim Scrollen mit der Farbe des
-   Covers bzw. dunklen Verläufen und schreibt die Infozeile fest weiß (für
-   dunkle Hintergründe gedacht). Hier stattdessen die ruhige Fläche des Themes und
-   normale Schriftfarben. Köpfe mit Bild (Künstlerseiten) bleiben, wie sie
-   sind – dort steht weiße Schrift auf dem Foto. */
-.main-actionBarBackground-background,
-.playlist-playlist-actionBarBackground-background,
-.main-home-homeHeader,
-.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-backgroundColor,
-.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-overlay,
-.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-gradient,
-.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) .main-entityHeader-mermaidGradientOverlay {
+   Spotify färbt Playlist-/Album-/Künstlerkopf, den Streifen unter der
+   Knopfleiste und den Kopf der Startseite mit der Farbe des Covers (Inline-
+   Style) und legt dunkle Verläufe darüber – für weiße Schrift gedacht. Hier
+   stattdessen ein ruhiger Verlauf aus den Flächen des Themes. Die Klassen
+   dieser Elemente sind zufällig und wechseln mit Updates, daher Selektoren
+   über feste Nachbarn (entityHeader, main) und den Inline-Style.
+   Köpfe mit Bild (Künstler mit Banner) bleiben: weiße Schrift auf Foto. */
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) > div:not(.main-entityHeader-contentWrapper) {
+  background: linear-gradient(var(--spice-main-elevated), var(--spice-main)) !important;
+}
+/* zweite Ebene (dunkler Verlauf) über der ersten weglassen */
+.main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) > div:not(.main-entityHeader-contentWrapper) ~ div:not(.main-entityHeader-contentWrapper) {
   background: none !important;
-  background-color: transparent !important;
-  background-image: none !important;
+}
+/* Streifen unter dem Kopf (Playlist, Album, Künstler) und Kopf der Startseite */
+.main-entityHeader-container + div[style*="background-color"],
+.main-entityHeader-container ~ div > div[style*="background-color"]:first-child,
+.main-view-container__scroll-node-child main > :is(div, section) > div[style*="background-color"]:not([class*="main-"]) {
+  background: var(--spice-main) !important;
 }
 .main-entityHeader-container:not(.main-entityHeader-withBackgroundImage) :is(
   .main-entityHeader-pretitle,
@@ -100,9 +103,24 @@
 ) {
   color: var(--spice-subtext) !important;
 }
-/* obere Leiste: beim Scrollen die Fläche des Themes statt der Cover-Farbe */
+/* obere Leiste beim Scrollen: Fläche des Themes, ohne dunkle Abdeckung */
 .main-topBar-background {
   background-color: var(--spice-main) !important;
+}
+.main-topBar-overlay {
+  background: none !important;
+}
+/* Menü „…“ oben links: zeichnet Spotifys Fenster selbst über die Seite,
+   immer weiß und per CSS nicht erreichbar. Dahinter eine dunkle Pille in
+   der Schriftfarbe, damit es wie ein Knopf aussieht statt zu verschwinden. */
+.main-globalNav-historyButtonsSpacer {
+  background-color: rgba(var(--spice-rgb-text), 0.8);
+  border-radius: 999px;
+  transform: translateX(5px) scaleX(1.12);
+}
+/* Werbekarte auf der Startseite: helle Fläche statt Schwarz-transparent */
+[data-testid="home-ad-card"] > div {
+  background-color: var(--spice-main-elevated) !important;
 }
 
 /* ── Festes Weiß und Grau in Spotifys eigenem CSS ──
@@ -116,6 +134,10 @@
 .encore-dark-theme,
 .encore-dark-theme .encore-base-set {
   --essential-subdued: var(--spice-misc);
+  /* Kacheln (Startseite oben, Suche): Flächen des Themes statt Grau */
+  --background-tinted-base: var(--spice-highlight);
+  --background-tinted-highlight: var(--spice-highlight-elevated);
+  --background-tinted-press: var(--spice-highlight-elevated);
   --decorative-subdued: rgba(var(--spice-rgb-text), 0.12);
   --background-elevated-press: var(--spice-highlight);
   --text-negative: {{colors.error.default.hex}};
