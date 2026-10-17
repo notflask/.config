@@ -24,3 +24,7 @@ dev-python/imageio ~amd64
 dev-python/imageio-ffmpeg ~amd64
 # stable fish hängt upstream hinterher (4.6.0); 4.9.3 nur als ~amd64
 app-shells/fish ~amd64
+# zoxide gibt es nur als ~amd64
+app-shells/zoxide ~amd64
+# duf gibt es nur als ~amd64
+sys-fs/duf ~amd64

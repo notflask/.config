@@ -15,7 +15,7 @@ sudo ./dotfiles/linux/gentoo/configure.sh /dev/nvme0n1   # Platte LÖSCHEN
 - Abbruch (Netz, Build-Fehler): `configure.sh --resume` macht beim letzten Schritt weiter.
 - Variablen: `USERNAME`, `HOSTNAME_G5`, `TZ_G5`, `LOCALE_G5`, `KERNEL_PKG` (Standard `sys-kernel/gentoo-kernel`; `gentoo-kernel-bin` = vorgebaut, 300 Hz).
 
-Es legt 1 GiB EFI + btrfs (`@ @home @snapshots @var_log @var_tmp`, zstd) an, lädt und prüft Stage3 *desktop/systemd*, richtet Binhost (x86-64-v3), Overlays (hyproverlay, GURU, steam-overlay), systemd-boot, dracut, Plymouth (bgrt), Kernel mit (gentoo-kernel, 1000 Hz über `/etc/kernel/config.d/g5.config`), NVIDIA 595 (open), Snapper, Tuning (`files/etc`) und den Benutzer ein.
+Es legt 1 GiB EFI + btrfs (`@ @home @snapshots @var_log @var_tmp`, zstd) an, lädt und prüft Stage3 *desktop/systemd*, richtet Binhost (x86-64-v3), Overlays (hyproverlay, GURU, steam-overlay), systemd-boot, dracut, Plymouth (bgrt + Gentoo-Logo, Theme `g5`), Kernel mit (gentoo-kernel, 1000 Hz über `/etc/kernel/config.d/g5.config`), NVIDIA 595 (open), Snapper, Tuning (`files/etc`) und den Benutzer ein.
 
 ## 2. Desktop und Programme
 

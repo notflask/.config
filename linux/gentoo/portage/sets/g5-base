@@ -3,6 +3,9 @@ app-eselect/eselect-repository
 app-portage/gentoolkit
 app-portage/eix
 app-shells/fish
+app-shells/zoxide
+sys-fs/duf
+sys-block/dust
 app-shells/bash-completion
 app-misc/jq
 app-arch/unzip

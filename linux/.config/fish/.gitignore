@@ -1,0 +1,12 @@
+# Lokaler Zustand
+fish_variables*
+# Von fisher installiert (Liste in fish_plugins, Tide-Einstellungen in tide.fish)
+/functions/fisher.fish
+/functions/fish_prompt.fish
+/functions/fish_mode_prompt.fish
+/functions/tide.fish
+/functions/_tide_*
+/functions/tide/
+/conf.d/_tide_init.fish
+/completions/fisher.fish
+/completions/tide.fish
