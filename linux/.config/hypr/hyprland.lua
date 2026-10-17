@@ -344,13 +344,13 @@ hl.window_rule({
 -- Firefox: Erweiterungs-Popups (Bitwarden) und Meldungen wie „Firefox läuft bereits"
 hl.window_rule({
     name = "firefox-extension-popup",
-    match = { class = ".*firefox", title = "Extension:.*|.*Bitwarden.*" },
+    match = { class = ".*firefox", title = "(Extension|Erweiterung):.*|.*Bitwarden.*" },
     float = true,
 })
 
 -- Nur Hyprland: Firefox öffnet Erweiterungs-Popups als „Mozilla Firefox“ und
--- setzt „Extension: (…)“ erst danach – die Regel oben prüft float nur beim
--- Öffnen. Daher beim Titelwechsel, aber nur bei gerade geöffneten Fenstern
+-- setzt „Extension: (…)“ (deutsch „Erweiterung: (…)“) erst danach – die
+-- Regel oben prüft float nur beim Öffnen. Daher beim Titelwechsel, aber nur bei gerade geöffneten Fenstern
 -- (≤ 5 s), damit ein normales Fenster nicht plötzlich schwebt.
 local firefox_opened = {}
 
@@ -366,7 +366,7 @@ end)
 
 hl.on("window.title", function(w)
     local opened = firefox_opened[w.address]
-    if not opened or w.floating or os.time() - opened > 5 or not w.title:match("^Extension: ") then
+    if not opened or w.floating or os.time() - opened > 5 or not (w.title:match("^Extension: ") or w.title:match("^Erweiterung: ")) then
         return
     end
     firefox_opened[w.address] = nil
