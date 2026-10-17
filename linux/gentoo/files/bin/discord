@@ -4,5 +4,14 @@
 # bliebe schwarz); der Bildschirm-Stream kommt als DMA-BUF der NVIDIA. Discord
 # zeichnet daher auf der NVIDIA und kodiert per NVENC. VA-API auf der Iris Xe.
 export LIBVA_DRIVER_NAME=iHD
+# Kein NVENC: Discords Video-Encoder (nvidia: cuda für die Kamera, nvidia:
+# vulkan für den Stream, H.265) stürzt alle paar Stunden ab (SIGSEGV in
+# VideoEncoderQueue, Discord lädt neu). Seit 2026 hat Discord keinen Schalter
+# mehr dafür (getHardwareEncoding() ist fest true). Ohne CUDA und ohne
+# NVIDIA-Vulkan kodiert Discord H.264 per VA-API auf der Iris Xe (Kamera und
+# Stream); gezeichnet wird weiter auf der NVIDIA (EGL, nicht betroffen).
+# Stürzt auch das ab: LIBVA_DRIVER_NAME=none, dann OpenH264 auf der CPU.
+export CUDA_VISIBLE_DEVICES=
+export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json
 exec /opt/discord/Discord --render-node-override=/dev/dri/nvidia-render \
   --enable-gpu-rasterization "$@"
