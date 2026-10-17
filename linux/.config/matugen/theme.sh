@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
 #  und Niri, Hyprland, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
-#  Firefox (Pywalfox), Thunderbird, Spotify und Discord anpassen.
+#  Firefox (Pywalfox), Thunderbird, Spotify, Discord und Steam anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD
@@ -193,6 +193,10 @@ with zipfile.ZipFile(sys.argv[1] + ".tmp", "w") as z:
     setsid -f Telegram -- "$tg_theme" >/dev/null 2>&1 </dev/null || true
   fi
 fi
+# Steam (Millennium): Theme „matugen“ neu bauen; Steam übernimmt die Farben
+# beim nächsten Start
+[ -d "$HOME/.local/share/Steam" ] &&
+  { "$config/matugen/steam-theme.py" || echo "theme: steam-theme.py fehlgeschlagen" >&2; }
 # Firefox (Pywalfox) übernimmt Farben und Hell/Dunkel sofort, wenn es läuft
 # (Profil liegt unter ~/.config/mozilla, nicht im Standardpfad ~/.mozilla)
 ff_profile=$(ls -d "$HOME"/.config/mozilla/firefox/*.default* 2>/dev/null | head -n1)

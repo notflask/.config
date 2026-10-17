@@ -134,3 +134,9 @@ output_path = "~/.config/Vencord/themes/matugen.theme.css"
 [templates.telegram]
 input_path  = "~/.config/matugen/templates/telegram.tdesktop-theme"
 output_path = "~/.cache/matugen/telegram/colors.tdesktop-theme"
+
+# Steam (Millennium): Farben für das Theme „matugen“; steam-theme.py baut
+# daraus das Theme (theme.sh und der steam-Wrapper rufen es auf)
+[templates.steam]
+input_path  = "~/.config/matugen/templates/steam-colors.css"
+output_path = "~/.cache/matugen/steam-colors.css"

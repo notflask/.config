@@ -1,0 +1,13 @@
+{
+  "name": "matugen",
+  "description": "Steam in den Farben des Hintergrundbilds, eckig, Monocraft (wie Discord). Erzeugt von steam-theme.py.",
+  "author": "matugen (theme.sh)",
+  "version": "1.0.0",
+  "UseDefaultPatches": false,
+  "Patches": [
+    {
+      "MatchRegexString": "^(?!https?:).*",
+      "TargetCss": ["colors.css", "recolor.css", "base.css"]
+    }
+  ]
+}
