@@ -1,0 +1,24 @@
+# macOS-Programme: brew bundle --file ~/dotfiles/macos/Brewfile (macos/install.sh)
+tap "nikitabobko/tap"
+tap "FelixKratz/formulae"
+tap "cormacrelf/tap"
+
+# Fenster, Rahmen, Hell/Dunkel-Wechsel
+cask "aerospace"
+brew "borders"
+brew "dark-notify"
+# Starter, Zwischenablage-Verlauf
+cask "raycast"
+
+# matugen (über cargo, kein Homebrew-Paket) und was theme.sh braucht
+brew "rust"
+brew "jq"
+
+# Terminal, Shell, Editoren – Configs aus linux/.config
+cask "ghostty"
+cask "font-jetbrains-mono"
+brew "fish"
+brew "tmux"
+brew "neovim"
+brew "btop"
+cask "emacs"

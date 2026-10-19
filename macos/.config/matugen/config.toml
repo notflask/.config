@@ -1,0 +1,45 @@
+# macOS: Farben neu erzeugen + alles neu laden: ~/.config/matugen/theme.sh
+# Die Vorlagen teilt sich macOS mit Linux (templates → linux/.config/matugen/templates).
+# Nicht übernommen: Fenster, Leisten, GTK/Qt, Firefox, Thunderbird, Steam,
+# Spotify, Telegram Desktop (macOS-Telegram liest keine .tdesktop-theme).
+[config]
+
+# Ghostty: Farbschema `matugen`
+[templates.ghostty]
+input_path  = "~/.config/matugen/templates/ghostty-theme"
+output_path = "~/.config/ghostty/themes/matugen"
+
+# Neovim: Farbschema `matugen` (plugins/ui.lua)
+[templates.nvim]
+input_path  = "~/.config/matugen/templates/nvim-colors.lua"
+output_path = "~/.config/nvim/colors/matugen.lua"
+
+# Emacs: Theme `matugen` (init.el lädt es bei Änderungen selbst neu)
+[templates.emacs]
+input_path  = "~/.config/matugen/templates/emacs-theme.el"
+output_path = "~/.config/emacs/themes/matugen-theme.el"
+
+# fish-Prompt (Tide): theme.sh führt die Datei aus (Universal-Variablen)
+[templates.tide]
+input_path  = "~/.config/matugen/templates/tide-colors.fish"
+output_path = "~/.cache/matugen/tide-colors.fish"
+
+# btop: Theme „matugen“
+[templates.btop]
+input_path  = "~/.config/matugen/templates/btop.theme"
+output_path = "~/.config/btop/themes/matugen.theme"
+
+# Claude Code: in /theme „matugen“ ("theme": "custom:matugen")
+[templates.claude-code]
+input_path  = "~/.config/matugen/templates/claude-code-theme.json"
+output_path = "~/.claude/themes/matugen.json"
+
+# Vesktop: theme.sh trägt die Datei unter „aktive Themes“ ein
+[templates.vesktop]
+input_path  = "~/.config/matugen/templates/vencord.theme.css"
+output_path = "~/Library/Application Support/vesktop/themes/matugen.theme.css"
+
+# Fensterrahmen (JankyBorders, aerospace.toml startet es)
+[templates.borders]
+input_path  = "~/.config/matugen/templates-macos/bordersrc"
+output_path = "~/.config/borders/bordersrc"
