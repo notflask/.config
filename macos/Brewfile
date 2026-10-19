@@ -2,6 +2,7 @@
 tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
 tap "cormacrelf/tap"
+tap "d12frosted/emacs-plus"
 
 # Fenster, Rahmen, Hell/Dunkel-Wechsel
 cask "aerospace"
@@ -21,4 +22,7 @@ brew "fish"
 brew "tmux"
 brew "neovim"
 brew "btop"
-cask "emacs"
+brew "zoxide"
+# emacs-plus statt emacs-app (emacsformacosx): dessen Startprogramm versteckt
+# Emacs vor AeroSpace, die Fenster werden nicht gekachelt
+cask "d12frosted/emacs-plus/emacs-plus-app"

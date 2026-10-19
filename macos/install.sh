@@ -18,6 +18,12 @@ warn() { printf '\033[1;33m  ! %s\033[0m\n' "$*"; }
 step "Homebrew und Programme"
 command -v brew >/dev/null ||
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Fremd-Taps: nur die einzelnen Pakete vertrauen, nicht ganze Taps
+brew trust --cask nikitabobko/tap/aerospace
+brew trust --formula felixkratz/formulae/borders cormacrelf/tap/dark-notify
+brew trust --cask d12frosted/emacs-plus/emacs-plus-app
+# Altes Emacs.app (emacsformacosx) belegt denselben Platz in /Applications
+brew list --cask emacs-app >/dev/null 2>&1 && brew uninstall --cask emacs-app
 brew bundle --file "$here/Brewfile"
 
 step "matugen $matugen_version"
@@ -37,7 +43,27 @@ link() {
 for name in aerospace matugen; do link "$repo/macos/.config/$name" "$name"; done
 for name in fish nvim emacs tmux ghostty; do link "$repo/linux/.config/$name" "$name"; done
 ln -sfn "$repo/macos/.config/matugen/theme.sh" "$HOME/.local/bin/theme"
+# Ghostty: macOS-eigene Werte (Schriftgröße) über der geteilten Config
+ghostty_mac="$HOME/Library/Application Support/com.mitchellh.ghostty"
+mkdir -p "$ghostty_mac"
+ln -sfn "$here/ghostty/config.ghostty" "$ghostty_mac/config.ghostty"
 mkdir -p "$HOME/Library/Application Support/vesktop/themes" "$HOME/.config/borders"
+
+step "macOS: Fenster ohne Animationen, kein eigenes Kacheln"
+# Fenster öffnen/skalieren ohne Animation (AeroSpace wirkt sonst träge)
+defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
+defaults write -g NSWindowResizeTime -float 0.001
+# Eigenes Kacheln von macOS aus: an den Rand ziehen bzw. ⌥ beim Ziehen
+# kämpft mit AeroSpace (und ⌥ ist hier die Mod-Taste)
+defaults write com.apple.WindowManager EnableTilingByEdgeDrag -bool false
+defaults write com.apple.WindowManager EnableTopTilingByEdgeDrag -bool false
+defaults write com.apple.WindowManager EnableTilingOptionAccelerator -bool false
+defaults write com.apple.WindowManager EnableTiledWindowMargins -bool false
+# Mission Control: Fenster nach App gruppieren (AeroSpace versteckt Fenster
+# in der Ecke, sonst sind sie dort winzig), Spaces nicht umsortieren
+defaults write com.apple.dock expose-group-apps -bool true
+defaults write com.apple.dock mru-spaces -bool false
+killall Dock 2>/dev/null || true
 
 step "Fish: fisher-Plugins, Tide-Einstellungen"
 fish -c 'type -q fisher || curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
@@ -78,6 +104,6 @@ step "Fertig"
 cat <<TXT
   Einmal von Hand:
   - AeroSpace starten, Bedienungshilfen erlauben (startet danach selbst)
-  - Raycast starten: Hotkey ⌥Space, Clipboard History einen Hotkey geben
+  - Raycast starten: Hotkey ⌘Space (vorher Spotlight in Systemeinstellungen → Tastatur → Kurzbefehle abschalten), Clipboard History einen Hotkey geben
   - Systemeinstellungen → Erscheinungsbild → Automatisch
 TXT

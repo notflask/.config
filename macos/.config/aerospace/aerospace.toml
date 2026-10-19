@@ -1,13 +1,13 @@
 # ============================================================
 #  AeroSpace – Tasten wie in Hyprland (linux/.config/hypr/hyprland.lua)
-#  Mod = Option (alt) statt Super. AeroSpace kennt kein „nur linkes
-#  Option“ – beide Option-Tasten gelten.
+#  Mod = ⌘ statt Super. ⌥ bleibt frei zum Schreiben (~ @ [ ] { } | €).
 #
 #  Was macOS oder Raycast selbst übernimmt (keine Bindung hier):
-#    Starter, Zwischenablage-Verlauf   Raycast (⌥Space, in Raycast einstellen)
+#    Starter, Zwischenablage-Verlauf   Raycast (⌘Space statt Spotlight; ⌥Space tippt ein geschütztes Leerzeichen)
 #    Hell/Dunkel                       Systemeinstellungen → Erscheinungsbild „Automatisch“
 #    Sperren                           ⌃⌘Q
 #    Fensterwechsel                    ⌘Tab
+#    Bildschirmfoto                    ⌘⇧4 bzw. ⌘⌃⇧4 (in die Zwischenablage)
 #    Lautstärke, Helligkeit, Medien    Funktionstasten
 # ============================================================
 
@@ -33,8 +33,8 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 automatically-unhide-macos-hidden-apps = false
 
-# Arbeitsflächen bleiben auch leer bestehen (Mod+1 … Mod+7)
-persistent-workspaces = ["BROWSER", "DEV", "MSG", "NOTES", "TRADING", "RECORDING", "MISC"]
+# Arbeitsflächen I–IX (Mod+1 … Mod+9) wie in Hyprland; I–V bleiben auch leer bestehen
+persistent-workspaces = ["I", "II", "III", "IV", "V"]
 
 # Programme aus exec-and-forget finden Homebrew und cargo (emacsclient, matugen …)
 [exec]
@@ -57,119 +57,101 @@ persistent-workspaces = ["BROWSER", "DEV", "MSG", "NOTES", "TRADING", "RECORDING
     outer.right      = 8
 
 # ─── Haupttasten ──────────────────────────────────────────────────────────────
+# Mod = ⌘ (wie Super). ⌘ mit Tasten, die beim Schreiben gebraucht werden,
+# bleibt bei macOS: ⌘C/V/X/Z/A/S/F/W/T/N, ⌘U/I/B, ⌘←/→, ⌘−/=, ⌘[ ], ⌘/.
+# Seltenes liegt auf ⌘⌃.
 [mode.main.binding]
 
     # Programme
-    alt-t = 'exec-and-forget open -na Ghostty'
-    alt-n = "exec-and-forget emacsclient -c -a ''"
+    cmd-enter = 'exec-and-forget open -na Ghostty'
 
-    alt-q = 'close'
+    cmd-q = 'close'
 
     # Fokus
-    alt-h     = 'focus left'
-    alt-j     = 'focus down'
-    alt-k     = 'focus up'
-    alt-l     = 'focus right'
-    alt-left  = 'focus left'
-    alt-down  = 'focus down'
-    alt-up    = 'focus up'
-    alt-right = 'focus right'
+    cmd-h = 'focus left'
+    cmd-j = 'focus down'
+    cmd-k = 'focus up'
+    cmd-l = 'focus right'
 
     # Fenster verschieben
-    alt-ctrl-h     = 'move left'
-    alt-ctrl-j     = 'move down'
-    alt-ctrl-k     = 'move up'
-    alt-ctrl-l     = 'move right'
-    alt-ctrl-left  = 'move left'
-    alt-ctrl-down  = 'move down'
-    alt-ctrl-up    = 'move up'
-    alt-ctrl-right = 'move right'
+    cmd-ctrl-h     = 'move left'
+    cmd-ctrl-j     = 'move down'
+    cmd-ctrl-k     = 'move up'
+    cmd-ctrl-l     = 'move right'
+    cmd-ctrl-left  = 'move left'
+    cmd-ctrl-down  = 'move down'
+    cmd-ctrl-up    = 'move up'
+    cmd-ctrl-right = 'move right'
 
     # Fokus auf anderen Monitor
-    alt-shift-h     = 'focus-monitor left'
-    alt-shift-j     = 'focus-monitor down'
-    alt-shift-k     = 'focus-monitor up'
-    alt-shift-l     = 'focus-monitor right'
-    alt-shift-left  = 'focus-monitor left'
-    alt-shift-down  = 'focus-monitor down'
-    alt-shift-up    = 'focus-monitor up'
-    alt-shift-right = 'focus-monitor right'
+    cmd-shift-h = 'focus-monitor left'
+    cmd-shift-j = 'focus-monitor down'
+    cmd-shift-k = 'focus-monitor up'
+    cmd-shift-l = 'focus-monitor right'
 
     # Fenster auf anderen Monitor
-    alt-ctrl-shift-h     = 'move-node-to-monitor --focus-follows-window left'
-    alt-ctrl-shift-j     = 'move-node-to-monitor --focus-follows-window down'
-    alt-ctrl-shift-k     = 'move-node-to-monitor --focus-follows-window up'
-    alt-ctrl-shift-l     = 'move-node-to-monitor --focus-follows-window right'
-    alt-ctrl-shift-left  = 'move-node-to-monitor --focus-follows-window left'
-    alt-ctrl-shift-down  = 'move-node-to-monitor --focus-follows-window down'
-    alt-ctrl-shift-up    = 'move-node-to-monitor --focus-follows-window up'
-    alt-ctrl-shift-right = 'move-node-to-monitor --focus-follows-window right'
+    cmd-ctrl-shift-h = 'move-node-to-monitor --focus-follows-window left'
+    cmd-ctrl-shift-j = 'move-node-to-monitor --focus-follows-window down'
+    cmd-ctrl-shift-k = 'move-node-to-monitor --focus-follows-window up'
+    cmd-ctrl-shift-l = 'move-node-to-monitor --focus-follows-window right'
 
-    # Arbeitsfläche runter/hoch (U/I, Bild ab/auf)
-    alt-u        = 'workspace next'
-    alt-i        = 'workspace prev'
-    alt-pageDown = 'workspace next'
-    alt-pageUp   = 'workspace prev'
-    alt-ctrl-u        = 'move-node-to-workspace --focus-follows-window next'
-    alt-ctrl-i        = 'move-node-to-workspace --focus-follows-window prev'
-    alt-ctrl-pageDown = 'move-node-to-workspace --focus-follows-window next'
-    alt-ctrl-pageUp   = 'move-node-to-workspace --focus-follows-window prev'
+    # Arbeitsfläche runter/hoch (Bild ab/auf)
+    cmd-pageDown = 'workspace next'
+    cmd-pageUp   = 'workspace prev'
+    cmd-ctrl-u        = 'move-node-to-workspace --focus-follows-window next'
+    cmd-ctrl-i        = 'move-node-to-workspace --focus-follows-window prev'
+    cmd-ctrl-pageDown = 'move-node-to-workspace --focus-follows-window next'
+    cmd-ctrl-pageUp   = 'move-node-to-workspace --focus-follows-window prev'
 
     # Arbeitsfläche wählen
-    alt-1 = 'workspace BROWSER'
-    alt-2 = 'workspace DEV'
-    alt-3 = 'workspace MSG'
-    alt-4 = 'workspace NOTES'
-    alt-5 = 'workspace TRADING'
-    alt-6 = 'workspace RECORDING'
-    alt-7 = 'workspace MISC'
-    alt-8 = 'workspace 8'
-    alt-9 = 'workspace 9'
+    cmd-1 = 'workspace I'
+    cmd-2 = 'workspace II'
+    cmd-3 = 'workspace III'
+    cmd-4 = 'workspace IV'
+    cmd-5 = 'workspace V'
+    cmd-6 = 'workspace VI'
+    cmd-7 = 'workspace VII'
+    cmd-8 = 'workspace VIII'
+    cmd-9 = 'workspace IX'
 
     # Fenster auf Arbeitsfläche
-    alt-ctrl-1 = 'move-node-to-workspace BROWSER'
-    alt-ctrl-2 = 'move-node-to-workspace DEV'
-    alt-ctrl-3 = 'move-node-to-workspace MSG'
-    alt-ctrl-4 = 'move-node-to-workspace NOTES'
-    alt-ctrl-5 = 'move-node-to-workspace TRADING'
-    alt-ctrl-6 = 'move-node-to-workspace RECORDING'
-    alt-ctrl-7 = 'move-node-to-workspace MISC'
-    alt-ctrl-8 = 'move-node-to-workspace 8'
-    alt-ctrl-9 = 'move-node-to-workspace 9'
+    cmd-ctrl-1 = 'move-node-to-workspace I'
+    cmd-ctrl-2 = 'move-node-to-workspace II'
+    cmd-ctrl-3 = 'move-node-to-workspace III'
+    cmd-ctrl-4 = 'move-node-to-workspace IV'
+    cmd-ctrl-5 = 'move-node-to-workspace V'
+    cmd-ctrl-6 = 'move-node-to-workspace VI'
+    cmd-ctrl-7 = 'move-node-to-workspace VII'
+    cmd-ctrl-8 = 'move-node-to-workspace VIII'
+    cmd-ctrl-9 = 'move-node-to-workspace IX'
 
     # Fenster mit dem Nachbarn zusammenfassen (consume-or-expel)
-    alt-leftSquareBracket  = 'join-with left'
-    alt-rightSquareBracket = 'join-with right'
+    cmd-ctrl-leftSquareBracket  = 'join-with left'
+    cmd-ctrl-rightSquareBracket = 'join-with right'
 
     # Tabs (toggle-column-tabbed-display) → Akkordeon
-    alt-w = 'layout accordion tiles'
+    cmd-ctrl-w = 'layout accordion tiles'
     # Teilungsrichtung umschalten
-    alt-slash = 'layout horizontal vertical'
+    cmd-ctrl-slash = 'layout horizontal vertical'
 
-    # Maximieren bzw. echtes macOS-Vollbild
-    alt-f      = 'fullscreen'
-    alt-m      = 'fullscreen'
-    alt-ctrl-f = 'fullscreen'
-    alt-shift-f = 'macos-native-fullscreen'
+    # Maximieren
+    cmd-m      = 'fullscreen'
+    cmd-ctrl-f = 'fullscreen'
 
     # Alle Fenster gleichmäßig aufteilen
-    alt-e      = 'balance-sizes'
-    alt-ctrl-r = 'balance-sizes'
+    cmd-ctrl-r = 'balance-sizes'
 
     # Größe: Breite (−/=), Höhe (Shift)
-    alt-minus       = 'resize width -100'
-    alt-equal       = 'resize width +100'
-    alt-shift-minus = 'resize height -100'
-    alt-shift-equal = 'resize height +100'
+    cmd-ctrl-minus       = 'resize width -100'
+    cmd-ctrl-equal       = 'resize width +100'
+    cmd-ctrl-shift-minus = 'resize height -100'
+    cmd-ctrl-shift-equal = 'resize height +100'
 
     # Schwebend ↔ gekachelt
-    alt-v = 'layout floating tiling'
-
-    # Bildschirmfoto: Bereich wählen → Zwischenablage
-    alt-shift-s = 'exec-and-forget screencapture -ic'
+    cmd-ctrl-v = 'layout floating tiling'
 
     # Service-Modus
-    alt-shift-semicolon = 'mode service'
+    cmd-shift-semicolon = 'mode service'
 
 # ─── Service-Modus ────────────────────────────────────────────────────────────
 [mode.service.binding]
@@ -178,18 +160,14 @@ persistent-workspaces = ["BROWSER", "DEV", "MSG", "NOTES", "TRADING", "RECORDING
     f         = ['layout floating tiling', 'mode main']   # schwebend/gekachelt
     backspace = ['close-all-windows-but-current', 'mode main']
 
-    alt-ctrl-h = ['join-with left',  'mode main']
-    alt-ctrl-j = ['join-with down',  'mode main']
-    alt-ctrl-k = ['join-with up',    'mode main']
-    alt-ctrl-l = ['join-with right', 'mode main']
+    h = ['join-with left',  'mode main']
+    j = ['join-with down',  'mode main']
+    k = ['join-with up',    'mode main']
+    l = ['join-with right', 'mode main']
 
 # ─── Regeln für neue Fenster ──────────────────────────────────────────────────
-# Der erste Block ohne Bedingung gilt für alle Fenster;
-# check-further-callbacks = true lässt danach die Regeln mit app-id greifen.
-
-[[on-window-detected]]
-check-further-callbacks = true
-run = 'layout tiling'
+# Keine Zuordnung zu Arbeitsflächen: neue Fenster öffnen dort, wo man gerade
+# ist (wie Hyprland). Dialoge schweben von selbst (AeroSpace-Standard).
 
 # Maclock – schwebend
 [[on-window-detected]]
@@ -200,49 +178,3 @@ run = 'layout floating'
 [[on-window-detected]]
 if.app-id = 'com.raycast.macos'
 run = 'layout floating'
-
-# BROWSER
-[[on-window-detected]]
-if.app-id = 'net.imput.helium'
-run = ['move-node-to-workspace BROWSER', 'workspace BROWSER']
-
-# DEV
-[[on-window-detected]]
-if.app-id = 'com.jetbrains.clion'
-run = ['move-node-to-workspace DEV', 'workspace DEV']
-
-[[on-window-detected]]
-if.app-id = 'com.mitchellh.ghostty'
-run = ['move-node-to-workspace DEV', 'workspace DEV']
-
-# MSG
-[[on-window-detected]]
-if.app-id = 'ru.keepcoder.Telegram'
-run = ['move-node-to-workspace MSG', 'workspace MSG']
-
-[[on-window-detected]]
-if.app-id = 'net.whatsapp.WhatsApp'
-run = ['move-node-to-workspace MSG', 'workspace MSG']
-
-[[on-window-detected]]
-if.app-id = 'dev.vencord.vesktop'
-run = ['move-node-to-workspace MSG', 'workspace MSG']
-
-# NOTES
-[[on-window-detected]]
-if.app-name-regex-substring = 'Notion'
-run = ['move-node-to-workspace NOTES', 'workspace NOTES']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Obsidian'
-run = ['move-node-to-workspace NOTES', 'workspace NOTES']
-
-# TRADING
-[[on-window-detected]]
-if.app-id = 'com.tradingview.tradingviewapp.desktop'
-run = ['move-node-to-workspace TRADING', 'workspace TRADING']
-
-# RECORDING
-[[on-window-detected]]
-if.app-name-regex-substring = 'OBS'
-run = ['move-node-to-workspace RECORDING', 'workspace RECORDING']
