@@ -140,6 +140,11 @@ sober_mango="$HOME/.var/app/org.vinegarhq.Sober/config/MangoHud"
 # (Niri oder Hyprland, `wm`)
 wm reload >/dev/null 2>&1 || true
 makoctl reload >/dev/null 2>&1 || true
+# btop: Theme „matugen“ einstellen (btop.conf schreibt btop selbst, darum
+# nicht in den Dotfiles); SIGUSR2 lässt laufende btop Config und Theme neu lesen
+btop_conf="$config/btop/btop.conf"
+[ -f "$btop_conf" ] && sed -i 's/^color_theme = .*/color_theme = "matugen"/' "$btop_conf"
+pkill -SIGUSR2 -x btop || true
 # Ghostty: ab 1.2 lädt SIGUSR2 Konfiguration und Themes neu. Ghostty 1.1
 # kennt das Signal nicht – dort BEENDET es alle Terminals. Für 1.1
 # stattdessen die neuen Farben per OSC 4/10/11/12 in jedes offene Terminal

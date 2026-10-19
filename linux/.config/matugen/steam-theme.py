@@ -310,6 +310,8 @@ def split_decls(body):
 # Monocraft ist eine Pixelschrift: ein Pixel = 1/9 em. Nur bei 9, 18, 27 …
 # px liegen die Pixel auf ganzen Bildschirmpixeln, sonst werden Striche
 # ungleich dick (13px: mal 1, mal 2 Pixel). Darum Steams Größen einrasten.
+# Normaler Text (Steam: 10–17px) auf 13.5px: 9px war zu klein, dafür
+# sind die Striche dort ungleich dick. Überschriften ab 18px auf 18px.
 PX_RE = re.compile(r"([\d.]+)px")
 
 
@@ -318,8 +320,8 @@ def snap_size(value):
     if not m:
         return None
     px = float(m.group(1))
-    if px <= 10.5:
-        return 9
+    if px < 18:
+        return 13.5
     if px <= 22.5:
         return 18
     return round(px / 9) * 9
