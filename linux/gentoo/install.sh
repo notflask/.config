@@ -248,7 +248,7 @@ EOF
   fi
 
   step "GE-Proton"
-  local ct=$home/.steam/root/compatibilitytools.d
+  local ct=$home/.local/share/Steam/compatibilitytools.d
   # Nur x86_64: seit GE-Proton 11 gibt es auch -aarch64.tar.gz, das die
   # alte Regex ([0-9]\.tar\.gz) wegen der 4 in "aarch64" mitnahm
   rm -rf "$ct"/GE-Proton*-aarch64
@@ -348,6 +348,10 @@ do_services() {
   # (Units in files/etc/systemd/user/, Socket in $XDG_RUNTIME_DIR)
   sdo systemctl --global enable ssh-agent.service ssh-add-hetzner.service >/dev/null 2>&1 &&
     info "an: ssh-agent" || info "übersprungen: ssh-agent"
+  # OpenTabletDriver-Daemon (Grafiktablett, z. B. Gaomon S620) ohne Fenster;
+  # Einstellungen mit otd-gui oder otd, landen in ~/.config/OpenTabletDriver
+  sdo systemctl --global enable opentabletdriver.service >/dev/null 2>&1 &&
+    info "an: opentabletdriver" || info "übersprungen: opentabletdriver"
   sdo systemctl disable systemd-networkd.service systemd-networkd.socket >/dev/null 2>&1 || true
   sdo systemctl enable systemd-resolved.service >/dev/null 2>&1 || true
 }

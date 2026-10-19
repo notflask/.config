@@ -140,3 +140,9 @@ output_path = "~/.cache/matugen/telegram/colors.tdesktop-theme"
 [templates.steam]
 input_path  = "~/.config/matugen/templates/steam-colors.css"
 output_path = "~/.cache/matugen/steam-colors.css"
+
+# btop: Theme „matugen“; theme.sh setzt es in btop.conf und lädt laufende
+# btop per SIGUSR2 neu
+[templates.btop]
+input_path  = "~/.config/matugen/templates/btop.theme"
+output_path = "~/.config/btop/themes/matugen.theme"

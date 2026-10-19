@@ -36,6 +36,7 @@ media-video/gpu-screen-recorder
 dev-util/claude-code
 dev-util/google-antigravity-cli
 games-util/steam-launcher
+x11-drivers/OpenTabletDriver
 games-util/gamemode
 games-util/mangohud
 gui-wm/gamescope

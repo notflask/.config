@@ -387,9 +387,9 @@ doctor() {
   command -v gamemoderun >/dev/null && ok "GameMode installiert" || bad "GameMode fehlt"
   [ -e /usr/lib/libgamemodeauto.so.0 ] && ok "GameMode 32-Bit" || note "GameMode ohne 32-Bit (abi_x86_32)"
   id -nG | grep -qw gamemode && ok "in Gruppe gamemode" || bad "nicht in Gruppe gamemode"
-  u=$(ls -d "$HOME"/.steam/root/compatibilitytools.d/GE-Proton* 2>/dev/null | grep -v aarch64 | sort -V | tail -1 || true)
+  u=$(ls -d "$HOME"/.local/share/Steam/compatibilitytools.d/GE-Proton* 2>/dev/null | grep -v aarch64 | sort -V | tail -1 || true)
   [ -n "$u" ] && ok "GE-Proton: ${u##*/}" || note "kein GE-Proton (x86_64)"
-  ls -d "$HOME"/.steam/root/compatibilitytools.d/*aarch64* >/dev/null 2>&1 && bad "ARM-Build von GE-Proton liegt herum (läuft hier nicht)"
+  ls -d "$HOME"/.local/share/Steam/compatibilitytools.d/*aarch64* >/dev/null 2>&1 && bad "ARM-Build von GE-Proton liegt herum (läuft hier nicht)"
 
   echo "── Netz"
   systemctl is-active --quiet g5-firewall && ok "Firewall an" || bad "Firewall aus"
