@@ -138,15 +138,15 @@ tell application "Ghostty" to activate' '''
     ctrl-alt-9 = 'workspace IX'
 
     # Fenster auf Arbeitsfläche
-    ctrl-alt-cmd-1 = 'move-node-to-workspace I'
-    ctrl-alt-cmd-2 = 'move-node-to-workspace II'
-    ctrl-alt-cmd-3 = 'move-node-to-workspace III'
-    ctrl-alt-cmd-4 = 'move-node-to-workspace IV'
-    ctrl-alt-cmd-5 = 'move-node-to-workspace V'
-    ctrl-alt-cmd-6 = 'move-node-to-workspace VI'
-    ctrl-alt-cmd-7 = 'move-node-to-workspace VII'
-    ctrl-alt-cmd-8 = 'move-node-to-workspace VIII'
-    ctrl-alt-cmd-9 = 'move-node-to-workspace IX'
+    ctrl-alt-cmd-1 = 'move-node-to-workspace --focus-follows-window I'
+    ctrl-alt-cmd-2 = 'move-node-to-workspace --focus-follows-window II'
+    ctrl-alt-cmd-3 = 'move-node-to-workspace --focus-follows-window III'
+    ctrl-alt-cmd-4 = 'move-node-to-workspace --focus-follows-window IV'
+    ctrl-alt-cmd-5 = 'move-node-to-workspace --focus-follows-window V'
+    ctrl-alt-cmd-6 = 'move-node-to-workspace --focus-follows-window VI'
+    ctrl-alt-cmd-7 = 'move-node-to-workspace --focus-follows-window VII'
+    ctrl-alt-cmd-8 = 'move-node-to-workspace --focus-follows-window VIII'
+    ctrl-alt-cmd-9 = 'move-node-to-workspace --focus-follows-window IX'
 
     # Fenster mit dem Nachbarn zusammenfassen (consume-or-expel)
     ctrl-alt-leftSquareBracket  = 'join-with left'
@@ -206,4 +206,9 @@ run = 'layout floating'
 # Raycast-Fenster (Einstellungen usw.) nicht kacheln
 [[on-window-detected]]
 if.app-id = 'com.raycast.macos'
+run = 'layout floating'
+
+# Shottr (Screenshot-Vorschau, Overlay) nicht kacheln
+[[on-window-detected]]
+if.app-id = 'cc.ffitch.shottr'
 run = 'layout floating'
