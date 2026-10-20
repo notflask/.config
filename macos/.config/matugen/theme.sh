@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh (macOS) – Hintergrundbild setzen, Farben daraus
 #  erzeugen (matugen) und Ghostty, Neovim, Emacs, fish, btop,
-#  Claude Code, Vesktop und die Fensterrahmen anpassen.
+#  Claude Code, Vesktop, Raycast und die Fensterrahmen anpassen.
 #
 #    theme BILD                    Bild als Hintergrund setzen + Farben
 #    theme                         Farben aus dem zuletzt gesetzten Bild
@@ -120,6 +120,16 @@ if [ -f "$vc_settings" ] && command -v jq >/dev/null &&
   tmp=$(mktemp) &&
     jq '.enabledThemes = ((.enabledThemes // []) + ["matugen.theme.css"])' "$vc_settings" >"$tmp" &&
     mv "$tmp" "$vc_settings" || rm -f "$tmp"
+fi
+
+# Raycast: kein Theme-Ordner, nur Import per Deeplink. Nur öffnen, wenn sich
+# die Farben geändert haben – Raycast fragt dann einmal „Add Theme“.
+# „Matugen Dunkel“/„Matugen Hell“ in Raycast unter Appearance wählen
+# (mit „Follow System Appearance“ beide).
+raycast_url=$(tr -d '\n' <"$cache/matugen/raycast-theme.url" 2>/dev/null || true)
+if [ -n "$raycast_url" ] && [ -d /Applications/Raycast.app ] &&
+  [ "$raycast_url" != "$(cat "$state/raycast-theme.url" 2>/dev/null)" ]; then
+  mkdir -p "$state" && open "$raycast_url" && printf '%s' "$raycast_url" >"$state/raycast-theme.url"
 fi
 
 # fish/Tide: Prompt-Farben als Universal-Variablen; offene Shells

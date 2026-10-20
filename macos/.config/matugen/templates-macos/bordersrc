@@ -1,14 +1,14 @@
 #!/bin/bash
 # Erzeugt von matugen (templates-macos/bordersrc) – hier nichts ändern.
-# JankyBorders: kräftiger als in Hyprland, damit man das aktive Fenster
-# auf einen Blick sieht (aktiv primary deckend, sonst eine deutliche Kante).
+# JankyBorders: dünne, deckende Linie (keine Transparenz) – aktiv primary,
+# sonst outline_variant.
 # borders liest die Datei beim Start; läuft es schon, übernimmt es die
 # Werte, wenn die Datei erneut ausgeführt wird (theme.sh).
 options=(
 	style=round
-	width=4.0
+	width=1.5
 	hidpi=on
 	active_color=0xff{{colors.primary.default.hex_stripped}}
-	inactive_color=<* if {{ is_dark_mode }} *>0x50ffffff<* else *>0x40000000<* endif *>
+	inactive_color=0xff{{colors.outline_variant.default.hex_stripped}}
 )
 borders "${options[@]}"
