@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh (macOS) – Hintergrundbild setzen, Farben daraus
 #  erzeugen (matugen) und Ghostty, Neovim, Emacs, fish, btop,
-#  Claude Code, Vesktop, Raycast und die Fensterrahmen anpassen.
+#  Claude Code, Vesktop und die Fensterrahmen anpassen.
 #
 #    theme BILD                    Bild als Hintergrund setzen + Farben
 #    theme                         Farben aus dem zuletzt gesetzten Bild
@@ -55,7 +55,9 @@ shift $((OPTIND - 1))
 # dark-notify übergibt den neuen Modus; sonst das System fragen
 case ${1:-} in
   light | dark) mode=$1; shift ;;
-  *) if [ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" = Dark ]; then mode=dark; else mode=light; fi ;;
+  # Nicht AppleInterfaceStyle: bei „Automatisch“ fehlt der Schlüssel auch nachts
+  *) if [ "$(osascript -e 'tell application "System Events" to tell appearance preferences to get dark mode' 2>/dev/null)" = true ]
+     then mode=dark; else mode=light; fi ;;
 esac
 
 image=${1:-}
@@ -67,6 +69,8 @@ else
   # Noch nichts über theme gesetzt: das aktuelle Bild des Systems
   [ -n "$image" ] || image=$(osascript -e \
     'tell application "System Events" to get picture of current desktop' 2>/dev/null || true)
+  # Dynamische/Systembilder haben keinen Pfad
+  [ "$image" = "missing value" ] && image=
 fi
 [ -n "$image" ] || fail "Kein Bild angegeben und keins gesetzt."
 image=${image/#\~/$HOME}
@@ -89,7 +93,8 @@ OSA
   mkdir -p "$state" && printf '%s\n' "$image" >"$wall_file"
 fi
 
-matugen image "$image" \
+# -c: matugen sucht seine Config auf macOS sonst in ~/Library/Application Support
+matugen image "$image" -c "$config/matugen/config.toml" \
   --type "scheme-$type" \
   --mode "$mode" \
   --contrast "$contrast" \
@@ -122,18 +127,8 @@ if [ -f "$vc_settings" ] && command -v jq >/dev/null &&
     mv "$tmp" "$vc_settings" || rm -f "$tmp"
 fi
 
-# Raycast: kein Theme-Ordner, nur Import per Deeplink, und Raycast fragt
-# jedes Mal „Add Theme“. Deshalb je Modus merken, was schon importiert ist:
-# Hell/Dunkel-Wechsel mit demselben Bild fragt nicht erneut.
-# „Matugen Dunkel“/„Matugen Hell“ in Raycast unter Appearance wählen
-# (mit „Follow System Appearance“ beide).
-raycast_url=$(tr -d '\n' <"$cache/matugen/raycast-theme.url" 2>/dev/null || true)
-if [ -n "$raycast_url" ] && [ -d /Applications/Raycast.app ] &&
-  [ "$raycast_url" != "$(cat "$state/raycast-theme-$mode.url" 2>/dev/null)" ]; then
-  mkdir -p "$state" && open "$raycast_url" && printf '%s' "$raycast_url" >"$state/raycast-theme-$mode.url"
-fi
-
 # fish/Tide: Prompt-Farben als Universal-Variablen; offene Shells
 # übernehmen sie sofort (fish/conf.d/matugen-tide.fish)
 [ -f "$cache/matugen/tide-colors.fish" ] && command -v fish >/dev/null &&
   { fish "$cache/matugen/tide-colors.fish" || true; }
+exit 0

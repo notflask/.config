@@ -1,0 +1,4 @@
+# Nur macOS: Ghostty liest diese Datei nach ~/.config/ghostty/config.ghostty
+# (von Linux geteilt), Werte hier gelten also vor den gemeinsamen.
+# Retina-Bildschirm: größere Schrift als unter Linux
+font-size = 18

@@ -35,6 +35,12 @@ repo=$(cd "$here/.." && pwd)
 step "Homebrew und Programme"
 command -v brew >/dev/null ||
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Fremd-Taps: nur die einzelnen Pakete vertrauen, nicht ganze Taps
+brew trust --cask nikitabobko/tap/aerospace
+brew trust --formula felixkratz/formulae/borders cormacrelf/tap/dark-notify
+brew trust --cask d12frosted/emacs-plus/emacs-plus-app
+# Altes Emacs.app (emacsformacosx) belegt denselben Platz in /Applications
+brew list --cask emacs-app >/dev/null 2>&1 && brew uninstall --cask emacs-app
 brew bundle --file "$here/Brewfile"
 
 step "matugen $matugen_version"
@@ -51,9 +57,13 @@ link() {
   fi
   ln -sfn "$src" "$dst"
 }
-for name in aerospace matugen; do link "$repo/macos/.config/$name" "$name"; done
+for name in aerospace matugen karabiner; do link "$repo/macos/.config/$name" "$name"; done
 for name in fish nvim emacs tmux ghostty; do link "$repo/linux/.config/$name" "$name"; done
 ln -sfn "$repo/macos/.config/matugen/theme.sh" "$HOME/.local/bin/theme"
+# Ghostty: macOS-eigene Werte (Schriftgröße) über der geteilten Config
+ghostty_mac="$HOME/Library/Application Support/com.mitchellh.ghostty"
+mkdir -p "$ghostty_mac"
+ln -sfn "$here/ghostty/config.ghostty" "$ghostty_mac/config.ghostty"
 mkdir -p "$HOME/Library/Application Support/vesktop/themes" "$HOME/.config/borders"
 
 step "Fish: Standard-Shell, PATH, fisher-Plugins, Tide-Einstellungen"
@@ -102,6 +112,13 @@ defaults write com.apple.dock show-recents -bool false
 # (sonst winzige Fenster), ein Space über alle Monitore (ab Abmelden)
 defaults write com.apple.dock expose-group-apps -bool true
 defaults write com.apple.spaces spans-displays -bool true
+defaults write com.apple.dock mru-spaces -bool false
+# Eigenes Kacheln von macOS aus: an den Rand ziehen bzw. ⌥ beim Ziehen
+# kämpft mit AeroSpace
+defaults write com.apple.WindowManager EnableTilingByEdgeDrag -bool false
+defaults write com.apple.WindowManager EnableTopTilingByEdgeDrag -bool false
+defaults write com.apple.WindowManager EnableTilingOptionAccelerator -bool false
+defaults write com.apple.WindowManager EnableTiledWindowMargins -bool false
 # Flott: Dock ohne Verzögerung, kurze Mission-Control-Animation, keine
 # Öffnen-Animation für Fenster, schnelle Tastenwiederholung (ab Abmelden)
 defaults write com.apple.dock autohide-delay -float 0
@@ -121,6 +138,7 @@ step "Fertig"
 cat <<TXT
   Einmal von Hand:
   - AeroSpace starten, Bedienungshilfen erlauben (startet danach selbst)
+  - Karabiner-Elements starten, Treiber/Systemerweiterung und Eingabeüberwachung erlauben
   - Raycast starten: Hotkey ⌥Space, Clipboard History einen Hotkey geben
   - Systemeinstellungen → Erscheinungsbild → Automatisch
   - einmal ab- und wieder anmelden (Spaces über alle Monitore, fish als Shell)

@@ -1,13 +1,15 @@
 #!/bin/bash
 # Erzeugt von matugen (templates-macos/bordersrc) – hier nichts ändern.
 # JankyBorders: dünne, deckende Linie (keine Transparenz) – aktiv primary,
-# sonst outline_variant.
+# sonst outline_variant. order=above: auf macOS 27 verschwindet der Rahmen
+# sonst unten hinter dem Fenster.
 # borders liest die Datei beim Start; läuft es schon, übernimmt es die
 # Werte, wenn die Datei erneut ausgeführt wird (theme.sh).
 options=(
 	style=round
-	width=1.5
+	width=2.0
 	hidpi=on
+	order=above
 	active_color=0xff{{colors.primary.default.hex_stripped}}
 	inactive_color=0xff{{colors.outline_variant.default.hex_stripped}}
 )

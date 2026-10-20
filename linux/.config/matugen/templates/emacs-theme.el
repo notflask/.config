@@ -1,9 +1,9 @@
 ;;; matugen-theme.el --- Farben aus dem Hintergrundbild  -*- lexical-binding: t; -*-
 
 ;; Erzeugt von matugen (templates/emacs-theme.el) – hier nichts ändern.
-;; Ruhig wie die Leiste: nur Farben von matugen. Die Syntax unterscheidet
-;; sich über Akzent- und Tertiärfarbe, Helligkeit und Schriftstärke.
-;; Grundfarben (rot, grün …) nur, wo sie etwas bedeuten (Fehler, Diffs).
+;; Flächen, Auswahl und Rahmen aus dem Wallpaper, die Syntax in den
+;; Terminalfarben wie Neovim (mini.base16 in templates/nvim-colors.lua):
+;; Schlüsselwörter magenta, Typen gelb, Funktionen blau, Strings grün.
 ;; init.el lädt die Datei neu, sobald matugen sie schreibt.
 
 (deftheme matugen "Farben aus dem Hintergrundbild (matugen).")
@@ -51,7 +51,7 @@
    `(window-divider ((,class (:foreground ,bg-mid))))
    `(border ((,class (:background ,bg-mid))))
    `(line-number ((,class (:foreground ,line :background ,bg))))
-   `(line-number-current-line ((,class (:foreground ,fg-dim :background ,bg))))
+   `(line-number-current-line ((,class (:foreground ,primary :background ,bg-low :weight bold))))
    `(show-paren-match ((,class (:background ,bg-high :weight bold))))
    `(show-paren-mismatch ((,class (:background ,err :foreground ,bg))))
    `(isearch ((,class (:background ,primary :foreground ,on-primary))))
@@ -63,26 +63,26 @@
    `(success ((,class (:foreground ,green))))
 
    ;; Modeline flach, ohne Rahmen
-   `(mode-line ((,class (:background ,bg :foreground ,fg :box (:line-width 6 :color ,bg)))))
-   `(mode-line-inactive ((,class (:background ,bg :foreground ,outline :box (:line-width 6 :color ,bg)))))
+   `(mode-line ((,class (:background ,bg-mid :foreground ,fg :box (:line-width 6 :color ,bg-mid)))))
+   `(mode-line-inactive ((,class (:background ,bg-low :foreground ,outline :box (:line-width 6 :color ,bg-low)))))
    `(mode-line-emphasis ((,class (:foreground ,primary))))
    `(mode-line-buffer-id ((,class (:weight bold))))
    `(header-line ((,class (:background ,bg-low :foreground ,fg-dim))))
 
-   ;; Syntax: nur Töne von matugen, Struktur über Schriftstärke
+   ;; Syntax: Terminalfarben, Kommentare gedämpft
    `(font-lock-comment-face ((,class (:foreground ,outline :slant italic))))
    `(font-lock-comment-delimiter-face ((,class (:foreground ,outline :slant italic))))
    `(font-lock-doc-face ((,class (:foreground ,outline :slant italic))))
-   `(font-lock-keyword-face ((,class (:foreground ,primary :weight bold))))
-   `(font-lock-function-name-face ((,class (:foreground ,primary))))
-   `(font-lock-function-call-face ((,class (:foreground ,fg))))
-   `(font-lock-type-face ((,class (:foreground ,tertiary :weight bold))))
-   `(font-lock-string-face ((,class (:foreground ,tertiary))))
-   `(font-lock-constant-face ((,class (:foreground ,tertiary))))
-   `(font-lock-number-face ((,class (:foreground ,tertiary))))
-   `(font-lock-builtin-face ((,class (:foreground ,primary))))
+   `(font-lock-keyword-face ((,class (:foreground ,magenta))))
+   `(font-lock-function-name-face ((,class (:foreground ,blue :weight bold))))
+   `(font-lock-function-call-face ((,class (:foreground ,blue))))
+   `(font-lock-type-face ((,class (:foreground ,yellow))))
+   `(font-lock-string-face ((,class (:foreground ,green))))
+   `(font-lock-constant-face ((,class (:foreground ,red))))
+   `(font-lock-number-face ((,class (:foreground ,red))))
+   `(font-lock-builtin-face ((,class (:foreground ,cyan))))
    `(font-lock-variable-name-face ((,class (:foreground ,fg))))
-   `(font-lock-preprocessor-face ((,class (:foreground ,fg-dim :weight bold))))
+   `(font-lock-preprocessor-face ((,class (:foreground ,cyan))))
    `(font-lock-warning-face ((,class (:foreground ,err))))
    `(font-lock-negation-char-face ((,class (:foreground ,fg))))
    `(c-annotation-face ((,class (:foreground ,outline))))
@@ -108,6 +108,8 @@
    `(corfu-bar ((,class (:background ,outline))))
    `(eldoc-box-body ((,class (:background ,bg-mid :foreground ,fg))))
    `(eldoc-box-border ((,class (:background ,line))))
+   `(vertico-posframe ((,class (:background ,bg :foreground ,fg))))
+   `(vertico-posframe-border ((,class (:background ,primary))))
 
    ;; Evil-Cursor in der Akzentfarbe, Suche
    `(evil-ex-substitute-matches ((,class (:background ,err :foreground ,bg :strike-through t))))
