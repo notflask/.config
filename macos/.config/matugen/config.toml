@@ -43,3 +43,9 @@ output_path = "~/Library/Application Support/vesktop/themes/matugen.theme.css"
 [templates.borders]
 input_path  = "~/.config/matugen/templates-macos/bordersrc"
 output_path = "~/.config/borders/bordersrc"
+
+# Raycast: Deeplink zum Theme-Import (theme.sh öffnet ihn, wenn sich die
+# Farben ändern; Raycast fragt einmal nach „Add Theme“)
+[templates.raycast]
+input_path  = "~/.config/matugen/templates-macos/raycast-theme.url"
+output_path = "~/.cache/matugen/raycast-theme.url"

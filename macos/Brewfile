@@ -21,4 +21,7 @@ brew "fish"
 brew "tmux"
 brew "neovim"
 brew "btop"
+# fish: fastfetch (Begrüßung), zoxide (z/zi)
+brew "fastfetch"
+brew "zoxide"
 cask "emacs"
