@@ -57,7 +57,7 @@ link() {
   fi
   ln -sfn "$src" "$dst"
 }
-for name in aerospace matugen; do link "$repo/macos/.config/$name" "$name"; done
+for name in aerospace matugen karabiner; do link "$repo/macos/.config/$name" "$name"; done
 for name in fish nvim emacs tmux ghostty; do link "$repo/linux/.config/$name" "$name"; done
 ln -sfn "$repo/macos/.config/matugen/theme.sh" "$HOME/.local/bin/theme"
 # Ghostty: macOS-eigene Werte (Schriftgröße) über der geteilten Config
@@ -138,6 +138,7 @@ step "Fertig"
 cat <<TXT
   Einmal von Hand:
   - AeroSpace starten, Bedienungshilfen erlauben (startet danach selbst)
+  - Karabiner-Elements starten, Treiber/Systemerweiterung und Eingabeüberwachung erlauben
   - Raycast starten: Hotkey ⌥Space, Clipboard History einen Hotkey geben
   - Systemeinstellungen → Erscheinungsbild → Automatisch
   - einmal ab- und wieder anmelden (Spaces über alle Monitore, fish als Shell)

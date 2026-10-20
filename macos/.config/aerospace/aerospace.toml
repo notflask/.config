@@ -5,6 +5,7 @@
 #  (Fenster verschieben) wird hier ⌘:
 #    Super+X → ⌃⌥X    Super+Ctrl+X → ⌃⌥⌘X
 #    Super+Shift+X → ⌃⌥⇧X    Super+Ctrl+Shift+X → ⌃⌥⌘⇧X
+#  ⌃⌥ liegt auf Caps Lock (Karabiner, ~/.config/karabiner): Caps+1, Caps+⌘1 …
 #
 #  Was macOS oder Raycast selbst übernimmt (keine Bindung hier):
 #    Starter, Zwischenablage-Verlauf   Raycast (⌥Space, in Raycast einstellen)

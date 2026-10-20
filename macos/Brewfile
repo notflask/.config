@@ -10,6 +10,8 @@ brew "borders"
 brew "dark-notify"
 # Starter, Zwischenablage-Verlauf
 cask "raycast"
+# Caps Lock als AeroSpace-Mod (⌃⌥), allein getippt Escape
+cask "karabiner-elements"
 
 # matugen (über cargo, kein Homebrew-Paket) und was theme.sh braucht
 brew "rust"
