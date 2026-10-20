@@ -1,19 +1,36 @@
 #!/usr/bin/env bash
-# install.sh (macOS) – Programme (Brewfile), matugen und Dotfiles.
-# Jeder Schritt darf beliebig oft laufen.
+# install.sh (macOS) – Programme (Brewfile), matugen, Dotfiles, Shell und
+# Systemeinstellungen. Jeder Schritt darf beliebig oft laufen.
 #
-#   ~/dotfiles/macos/install.sh
+#   Neuer Mac (holt das Repo nach ~/dotfiles):
+#     curl -fsSL https://raw.githubusercontent.com/notflask/.config/master/macos/install.sh | bash
+#   Danach / zum Aktualisieren:
+#     ~/dotfiles/macos/install.sh
 set -euo pipefail
 
-here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-repo=$(cd "$here/.." && pwd)
-export PATH="/opt/homebrew/bin:$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
 matugen_version=4.2.0 # wie unter Linux
 
 step() { printf '\n\033[1;34m── %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33m  ! %s\033[0m\n' "$*"; }
 
 [ "$(uname)" = Darwin ] || { echo "das ist kein macOS" >&2; exit 1; }
+
+here=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)
+# Über curl | bash gestartet: Homebrew (bringt git über die Command Line
+# Tools mit), Repo klonen und das Skript von dort neu starten. Eingaben
+# (Passwort, Rückfragen) kommen vom Terminal, nicht aus der Pipe.
+if [ ! -f "$here/Brewfile" ]; then
+  dotfiles=${DOTFILES:-$HOME/dotfiles}
+  step "Homebrew"
+  command -v brew >/dev/null || /bin/bash -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/tty
+  step "Dotfiles nach $dotfiles"
+  if [ -d "$dotfiles/.git" ]; then git -C "$dotfiles" pull --ff-only || warn "git pull fehlgeschlagen"
+  else git clone https://github.com/notflask/.config "$dotfiles"; fi
+  exec bash "$dotfiles/macos/install.sh" </dev/tty
+fi
+repo=$(cd "$here/.." && pwd)
 
 step "Homebrew und Programme"
 command -v brew >/dev/null ||
@@ -39,7 +56,13 @@ for name in fish nvim emacs tmux ghostty; do link "$repo/linux/.config/$name" "$
 ln -sfn "$repo/macos/.config/matugen/theme.sh" "$HOME/.local/bin/theme"
 mkdir -p "$HOME/Library/Application Support/vesktop/themes" "$HOME/.config/borders"
 
-step "Fish: fisher-Plugins, Tide-Einstellungen"
+step "Fish: Standard-Shell, PATH, fisher-Plugins, Tide-Einstellungen"
+fish_bin=/opt/homebrew/bin/fish
+grep -qx "$fish_bin" /etc/shells || echo "$fish_bin" | sudo tee -a /etc/shells >/dev/null
+[ "$(dscl . -read "/Users/$USER" UserShell | awk '{print $2}')" = "$fish_bin" ] ||
+  chsh -s "$fish_bin" || warn "chsh fehlgeschlagen – von Hand: chsh -s $fish_bin"
+# fish liest /etc/paths, kennt Homebrew unter /opt/homebrew aber nicht
+fish -c 'fish_add_path -U /opt/homebrew/bin /opt/homebrew/sbin ~/.cargo/bin ~/.local/bin'
 fish -c 'type -q fisher || curl -fsSL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source
   fisher update >/dev/null && source ~/.config/fish/tide.fish' || warn "fisher/Tide nicht eingerichtet"
 
@@ -71,6 +94,16 @@ PLIST
 launchctl bootout "gui/$(id -u)/local.theme-appearance" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$agent"
 
+step "Systemeinstellungen (Dock, Mission Control)"
+# Dock nur bei Bedarf – AeroSpace kachelt den ganzen Bildschirm
+defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock show-recents -bool false
+# Von AeroSpace empfohlen: Mission Control gruppiert Fenster nach App
+# (sonst winzige Fenster), ein Space über alle Monitore (ab Abmelden)
+defaults write com.apple.dock expose-group-apps -bool true
+defaults write com.apple.spaces spans-displays -bool true
+killall Dock 2>/dev/null || true
+
 step "Farben aus dem aktuellen Hintergrund"
 "$HOME/.config/matugen/theme.sh" || warn "theme.sh fehlgeschlagen – später: theme BILD"
 
@@ -80,4 +113,5 @@ cat <<TXT
   - AeroSpace starten, Bedienungshilfen erlauben (startet danach selbst)
   - Raycast starten: Hotkey ⌥Space, Clipboard History einen Hotkey geben
   - Systemeinstellungen → Erscheinungsbild → Automatisch
+  - einmal ab- und wieder anmelden (Spaces über alle Monitore, fish als Shell)
 TXT
