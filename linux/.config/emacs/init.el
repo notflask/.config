@@ -57,6 +57,7 @@
 (scroll-bar-mode 0)
 (column-number-mode 1)
 (show-paren-mode 1)
+(global-hl-line-mode 1)
 (electric-pair-mode 1)
 (global-auto-revert-mode 1)
 (savehist-mode 1)
@@ -116,6 +117,27 @@
 (use-package vertico
   :init
   (vertico-mode))
+
+;; Auswahl als Fenster mitten im Bild wie Telescope (Rahmen in der Akzentfarbe)
+(use-package vertico-posframe
+  :after vertico
+  :custom
+  (vertico-posframe-poshandler #'posframe-poshandler-frame-center)
+  (vertico-posframe-width 110)
+  (vertico-posframe-min-height 16)
+  (vertico-posframe-border-width 2)
+  (vertico-posframe-parameters '((left-fringe . 16) (right-fringe . 16)))
+  (vertico-count 15)
+  :init
+  (vertico-posframe-mode 1))
+
+;; Datei-Icons in der Auswahl (Schrift: Symbols Nerd Font, Brewfile)
+(use-package nerd-icons)
+(use-package nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 ;; Suchen mit Leerzeichen-getrennten Teilen in beliebiger Reihenfolge
 (use-package orderless
@@ -233,6 +255,10 @@
     (kbd "[d") #'flymake-goto-prev-error))
 
 (recentf-mode 1)
+
+;; Wie ⌘P/⌘⇧F in anderen Editoren (⌘ ist in Emacs auf dem Mac „s-“)
+(global-set-key (kbd "s-p") #'project-find-file)
+(global-set-key (kbd "s-F") #'consult-ripgrep)
 
 ;; Doku im kleinen Fenster am Cursor statt unten im Echo-Bereich
 (use-package eldoc-box)

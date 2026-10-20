@@ -27,7 +27,7 @@
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
 ;; macOS: JetBrains Mono wie in Ghostty (Brewfile), Iosevka gibt es dort nicht
-(push `(font . ,(if (eq system-type 'darwin) "JetBrains Mono-14" "Iosevka-14"))
+(push `(font . ,(if (eq system-type 'darwin) "JetBrains Mono-18" "Iosevka-14"))
       default-frame-alist)
 (setq inhibit-startup-message t
       initial-scratch-message nil)
