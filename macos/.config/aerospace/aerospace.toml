@@ -1,7 +1,10 @@
 # ============================================================
 #  AeroSpace – Tasten wie in Hyprland (linux/.config/hypr/hyprland.lua)
-#  Mod = Option (alt) statt Super. AeroSpace kennt kein „nur linkes
-#  Option“ – beide Option-Tasten gelten.
+#  Mod = Control+Option (⌃⌥) statt Super. Option allein geht nicht: mit
+#  deutscher Belegung tippt man damit @ [ ] { } | ~ €. Ctrl aus Hyprland
+#  (Fenster verschieben) wird hier ⌘:
+#    Super+X → ⌃⌥X    Super+Ctrl+X → ⌃⌥⌘X
+#    Super+Shift+X → ⌃⌥⇧X    Super+Ctrl+Shift+X → ⌃⌥⌘⇧X
 #
 #  Was macOS oder Raycast selbst übernimmt (keine Bindung hier):
 #    Starter, Zwischenablage-Verlauf   Raycast (⌥Space, in Raycast einstellen)
@@ -43,7 +46,9 @@ persistent-workspaces = ["BROWSER", "DEV", "MSG", "NOTES", "TRADING", "RECORDING
     PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:${HOME}/.cargo/bin:${HOME}/.local/bin:${PATH}'
 
 # Tasten nach Lage (QWERTY), nicht nach Sprache: Mod+H bleibt Mod+H auch
-# mit russischer oder deutscher Belegung
+# mit russischer oder deutscher Belegung. Auf deutscher Tastatur deshalb:
+# minus = ß, equal = ´, slash = -, leftSquareBracket = Ü, rightSquareBracket = +,
+# semicolon = Ö
 [key-mapping]
     preset = 'qwerty'
 
@@ -62,119 +67,119 @@ persistent-workspaces = ["BROWSER", "DEV", "MSG", "NOTES", "TRADING", "RECORDING
     # Programme
     # Ghostty läuft schon: nur ein neues Fenster (AppleScript, ab 1.3) statt
     # mit `open -na` jedes Mal eine ganze neue Ghostty-Instanz zu starten
-    alt-t = '''exec-and-forget osascript -e 'if application "Ghostty" is running then
+    ctrl-alt-t = '''exec-and-forget osascript -e 'if application "Ghostty" is running then
 tell application "Ghostty" to new window
 end if
 tell application "Ghostty" to activate' '''
-    alt-n = "exec-and-forget emacsclient -c -a ''"
+    ctrl-alt-n = "exec-and-forget emacsclient -c -a ''"
 
-    alt-q = 'close'
+    ctrl-alt-q = 'close'
 
     # Fokus
-    alt-h     = 'focus left'
-    alt-j     = 'focus down'
-    alt-k     = 'focus up'
-    alt-l     = 'focus right'
-    alt-left  = 'focus left'
-    alt-down  = 'focus down'
-    alt-up    = 'focus up'
-    alt-right = 'focus right'
+    ctrl-alt-h     = 'focus left'
+    ctrl-alt-j     = 'focus down'
+    ctrl-alt-k     = 'focus up'
+    ctrl-alt-l     = 'focus right'
+    ctrl-alt-left  = 'focus left'
+    ctrl-alt-down  = 'focus down'
+    ctrl-alt-up    = 'focus up'
+    ctrl-alt-right = 'focus right'
 
     # Fenster verschieben
-    alt-ctrl-h     = 'move left'
-    alt-ctrl-j     = 'move down'
-    alt-ctrl-k     = 'move up'
-    alt-ctrl-l     = 'move right'
-    alt-ctrl-left  = 'move left'
-    alt-ctrl-down  = 'move down'
-    alt-ctrl-up    = 'move up'
-    alt-ctrl-right = 'move right'
+    ctrl-alt-cmd-h     = 'move left'
+    ctrl-alt-cmd-j     = 'move down'
+    ctrl-alt-cmd-k     = 'move up'
+    ctrl-alt-cmd-l     = 'move right'
+    ctrl-alt-cmd-left  = 'move left'
+    ctrl-alt-cmd-down  = 'move down'
+    ctrl-alt-cmd-up    = 'move up'
+    ctrl-alt-cmd-right = 'move right'
 
     # Fokus auf anderen Monitor
-    alt-shift-h     = 'focus-monitor left'
-    alt-shift-j     = 'focus-monitor down'
-    alt-shift-k     = 'focus-monitor up'
-    alt-shift-l     = 'focus-monitor right'
-    alt-shift-left  = 'focus-monitor left'
-    alt-shift-down  = 'focus-monitor down'
-    alt-shift-up    = 'focus-monitor up'
-    alt-shift-right = 'focus-monitor right'
+    ctrl-alt-shift-h     = 'focus-monitor left'
+    ctrl-alt-shift-j     = 'focus-monitor down'
+    ctrl-alt-shift-k     = 'focus-monitor up'
+    ctrl-alt-shift-l     = 'focus-monitor right'
+    ctrl-alt-shift-left  = 'focus-monitor left'
+    ctrl-alt-shift-down  = 'focus-monitor down'
+    ctrl-alt-shift-up    = 'focus-monitor up'
+    ctrl-alt-shift-right = 'focus-monitor right'
 
     # Fenster auf anderen Monitor
-    alt-ctrl-shift-h     = 'move-node-to-monitor --focus-follows-window left'
-    alt-ctrl-shift-j     = 'move-node-to-monitor --focus-follows-window down'
-    alt-ctrl-shift-k     = 'move-node-to-monitor --focus-follows-window up'
-    alt-ctrl-shift-l     = 'move-node-to-monitor --focus-follows-window right'
-    alt-ctrl-shift-left  = 'move-node-to-monitor --focus-follows-window left'
-    alt-ctrl-shift-down  = 'move-node-to-monitor --focus-follows-window down'
-    alt-ctrl-shift-up    = 'move-node-to-monitor --focus-follows-window up'
-    alt-ctrl-shift-right = 'move-node-to-monitor --focus-follows-window right'
+    ctrl-alt-cmd-shift-h     = 'move-node-to-monitor --focus-follows-window left'
+    ctrl-alt-cmd-shift-j     = 'move-node-to-monitor --focus-follows-window down'
+    ctrl-alt-cmd-shift-k     = 'move-node-to-monitor --focus-follows-window up'
+    ctrl-alt-cmd-shift-l     = 'move-node-to-monitor --focus-follows-window right'
+    ctrl-alt-cmd-shift-left  = 'move-node-to-monitor --focus-follows-window left'
+    ctrl-alt-cmd-shift-down  = 'move-node-to-monitor --focus-follows-window down'
+    ctrl-alt-cmd-shift-up    = 'move-node-to-monitor --focus-follows-window up'
+    ctrl-alt-cmd-shift-right = 'move-node-to-monitor --focus-follows-window right'
 
     # Arbeitsfläche runter/hoch (U/I, Bild ab/auf)
-    alt-u        = 'workspace next'
-    alt-i        = 'workspace prev'
-    alt-pageDown = 'workspace next'
-    alt-pageUp   = 'workspace prev'
-    alt-ctrl-u        = 'move-node-to-workspace --focus-follows-window next'
-    alt-ctrl-i        = 'move-node-to-workspace --focus-follows-window prev'
-    alt-ctrl-pageDown = 'move-node-to-workspace --focus-follows-window next'
-    alt-ctrl-pageUp   = 'move-node-to-workspace --focus-follows-window prev'
+    ctrl-alt-u        = 'workspace next'
+    ctrl-alt-i        = 'workspace prev'
+    ctrl-alt-pageDown = 'workspace next'
+    ctrl-alt-pageUp   = 'workspace prev'
+    ctrl-alt-cmd-u        = 'move-node-to-workspace --focus-follows-window next'
+    ctrl-alt-cmd-i        = 'move-node-to-workspace --focus-follows-window prev'
+    ctrl-alt-cmd-pageDown = 'move-node-to-workspace --focus-follows-window next'
+    ctrl-alt-cmd-pageUp   = 'move-node-to-workspace --focus-follows-window prev'
 
     # Arbeitsfläche wählen
-    alt-1 = 'workspace BROWSER'
-    alt-2 = 'workspace DEV'
-    alt-3 = 'workspace MSG'
-    alt-4 = 'workspace NOTES'
-    alt-5 = 'workspace TRADING'
-    alt-6 = 'workspace RECORDING'
-    alt-7 = 'workspace MISC'
-    alt-8 = 'workspace 8'
-    alt-9 = 'workspace 9'
+    ctrl-alt-1 = 'workspace BROWSER'
+    ctrl-alt-2 = 'workspace DEV'
+    ctrl-alt-3 = 'workspace MSG'
+    ctrl-alt-4 = 'workspace NOTES'
+    ctrl-alt-5 = 'workspace TRADING'
+    ctrl-alt-6 = 'workspace RECORDING'
+    ctrl-alt-7 = 'workspace MISC'
+    ctrl-alt-8 = 'workspace 8'
+    ctrl-alt-9 = 'workspace 9'
 
     # Fenster auf Arbeitsfläche
-    alt-ctrl-1 = 'move-node-to-workspace BROWSER'
-    alt-ctrl-2 = 'move-node-to-workspace DEV'
-    alt-ctrl-3 = 'move-node-to-workspace MSG'
-    alt-ctrl-4 = 'move-node-to-workspace NOTES'
-    alt-ctrl-5 = 'move-node-to-workspace TRADING'
-    alt-ctrl-6 = 'move-node-to-workspace RECORDING'
-    alt-ctrl-7 = 'move-node-to-workspace MISC'
-    alt-ctrl-8 = 'move-node-to-workspace 8'
-    alt-ctrl-9 = 'move-node-to-workspace 9'
+    ctrl-alt-cmd-1 = 'move-node-to-workspace BROWSER'
+    ctrl-alt-cmd-2 = 'move-node-to-workspace DEV'
+    ctrl-alt-cmd-3 = 'move-node-to-workspace MSG'
+    ctrl-alt-cmd-4 = 'move-node-to-workspace NOTES'
+    ctrl-alt-cmd-5 = 'move-node-to-workspace TRADING'
+    ctrl-alt-cmd-6 = 'move-node-to-workspace RECORDING'
+    ctrl-alt-cmd-7 = 'move-node-to-workspace MISC'
+    ctrl-alt-cmd-8 = 'move-node-to-workspace 8'
+    ctrl-alt-cmd-9 = 'move-node-to-workspace 9'
 
     # Fenster mit dem Nachbarn zusammenfassen (consume-or-expel)
-    alt-leftSquareBracket  = 'join-with left'
-    alt-rightSquareBracket = 'join-with right'
+    ctrl-alt-leftSquareBracket  = 'join-with left'
+    ctrl-alt-rightSquareBracket = 'join-with right'
 
     # Tabs (toggle-column-tabbed-display) → Akkordeon
-    alt-w = 'layout accordion tiles'
+    ctrl-alt-w = 'layout accordion tiles'
     # Teilungsrichtung umschalten
-    alt-slash = 'layout horizontal vertical'
+    ctrl-alt-slash = 'layout horizontal vertical'
 
     # Maximieren bzw. echtes macOS-Vollbild
-    alt-f      = 'fullscreen'
-    alt-m      = 'fullscreen'
-    alt-ctrl-f = 'fullscreen'
-    alt-shift-f = 'macos-native-fullscreen'
+    ctrl-alt-f      = 'fullscreen'
+    ctrl-alt-m      = 'fullscreen'
+    ctrl-alt-cmd-f = 'fullscreen'
+    ctrl-alt-shift-f = 'macos-native-fullscreen'
 
     # Alle Fenster gleichmäßig aufteilen
-    alt-e      = 'balance-sizes'
-    alt-ctrl-r = 'balance-sizes'
+    ctrl-alt-e      = 'balance-sizes'
+    ctrl-alt-cmd-r = 'balance-sizes'
 
     # Größe: Breite (−/=), Höhe (Shift)
-    alt-minus       = 'resize width -100'
-    alt-equal       = 'resize width +100'
-    alt-shift-minus = 'resize height -100'
-    alt-shift-equal = 'resize height +100'
+    ctrl-alt-minus       = 'resize width -100'
+    ctrl-alt-equal       = 'resize width +100'
+    ctrl-alt-shift-minus = 'resize height -100'
+    ctrl-alt-shift-equal = 'resize height +100'
 
     # Schwebend ↔ gekachelt
-    alt-v = 'layout floating tiling'
+    ctrl-alt-v = 'layout floating tiling'
 
     # Bildschirmfoto: Bereich wählen → Zwischenablage
-    alt-shift-s = 'exec-and-forget screencapture -ic'
+    ctrl-alt-shift-s = 'exec-and-forget screencapture -ic'
 
     # Service-Modus
-    alt-shift-semicolon = 'mode service'
+    ctrl-alt-shift-semicolon = 'mode service'
 
 # ─── Service-Modus ────────────────────────────────────────────────────────────
 [mode.service.binding]
@@ -183,10 +188,10 @@ tell application "Ghostty" to activate' '''
     f         = ['layout floating tiling', 'mode main']   # schwebend/gekachelt
     backspace = ['close-all-windows-but-current', 'mode main']
 
-    alt-ctrl-h = ['join-with left',  'mode main']
-    alt-ctrl-j = ['join-with down',  'mode main']
-    alt-ctrl-k = ['join-with up',    'mode main']
-    alt-ctrl-l = ['join-with right', 'mode main']
+    ctrl-alt-cmd-h = ['join-with left',  'mode main']
+    ctrl-alt-cmd-j = ['join-with down',  'mode main']
+    ctrl-alt-cmd-k = ['join-with up',    'mode main']
+    ctrl-alt-cmd-l = ['join-with right', 'mode main']
 
 # ─── Regeln für neue Fenster ──────────────────────────────────────────────────
 # Der erste Block ohne Bedingung gilt für alle Fenster;
