@@ -122,14 +122,15 @@ if [ -f "$vc_settings" ] && command -v jq >/dev/null &&
     mv "$tmp" "$vc_settings" || rm -f "$tmp"
 fi
 
-# Raycast: kein Theme-Ordner, nur Import per Deeplink. Nur öffnen, wenn sich
-# die Farben geändert haben – Raycast fragt dann einmal „Add Theme“.
+# Raycast: kein Theme-Ordner, nur Import per Deeplink, und Raycast fragt
+# jedes Mal „Add Theme“. Deshalb je Modus merken, was schon importiert ist:
+# Hell/Dunkel-Wechsel mit demselben Bild fragt nicht erneut.
 # „Matugen Dunkel“/„Matugen Hell“ in Raycast unter Appearance wählen
 # (mit „Follow System Appearance“ beide).
 raycast_url=$(tr -d '\n' <"$cache/matugen/raycast-theme.url" 2>/dev/null || true)
 if [ -n "$raycast_url" ] && [ -d /Applications/Raycast.app ] &&
-  [ "$raycast_url" != "$(cat "$state/raycast-theme.url" 2>/dev/null)" ]; then
-  mkdir -p "$state" && open "$raycast_url" && printf '%s' "$raycast_url" >"$state/raycast-theme.url"
+  [ "$raycast_url" != "$(cat "$state/raycast-theme-$mode.url" 2>/dev/null)" ]; then
+  mkdir -p "$state" && open "$raycast_url" && printf '%s' "$raycast_url" >"$state/raycast-theme-$mode.url"
 fi
 
 # fish/Tide: Prompt-Farben als Universal-Variablen; offene Shells
