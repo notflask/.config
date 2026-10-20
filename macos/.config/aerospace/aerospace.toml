@@ -36,8 +36,8 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 automatically-unhide-macos-hidden-apps = false
 
-# Arbeitsflächen bleiben auch leer bestehen (Mod+1 … Mod+7)
-persistent-workspaces = ["BROWSER", "DEV", "MSG", "NOTES", "TRADING", "RECORDING", "MISC"]
+# Arbeitsflächen I–IX (Mod+1 … Mod+9) wie in Hyprland; I–V bleiben auch leer bestehen
+persistent-workspaces = ["I", "II", "III", "IV", "V"]
 
 # Programme aus exec-and-forget finden Homebrew und cargo (emacsclient, matugen …)
 [exec]
@@ -126,26 +126,26 @@ tell application "Ghostty" to activate' '''
     ctrl-alt-cmd-pageUp   = 'move-node-to-workspace --focus-follows-window prev'
 
     # Arbeitsfläche wählen
-    ctrl-alt-1 = 'workspace BROWSER'
-    ctrl-alt-2 = 'workspace DEV'
-    ctrl-alt-3 = 'workspace MSG'
-    ctrl-alt-4 = 'workspace NOTES'
-    ctrl-alt-5 = 'workspace TRADING'
-    ctrl-alt-6 = 'workspace RECORDING'
-    ctrl-alt-7 = 'workspace MISC'
-    ctrl-alt-8 = 'workspace 8'
-    ctrl-alt-9 = 'workspace 9'
+    ctrl-alt-1 = 'workspace I'
+    ctrl-alt-2 = 'workspace II'
+    ctrl-alt-3 = 'workspace III'
+    ctrl-alt-4 = 'workspace IV'
+    ctrl-alt-5 = 'workspace V'
+    ctrl-alt-6 = 'workspace VI'
+    ctrl-alt-7 = 'workspace VII'
+    ctrl-alt-8 = 'workspace VIII'
+    ctrl-alt-9 = 'workspace IX'
 
     # Fenster auf Arbeitsfläche
-    ctrl-alt-cmd-1 = 'move-node-to-workspace BROWSER'
-    ctrl-alt-cmd-2 = 'move-node-to-workspace DEV'
-    ctrl-alt-cmd-3 = 'move-node-to-workspace MSG'
-    ctrl-alt-cmd-4 = 'move-node-to-workspace NOTES'
-    ctrl-alt-cmd-5 = 'move-node-to-workspace TRADING'
-    ctrl-alt-cmd-6 = 'move-node-to-workspace RECORDING'
-    ctrl-alt-cmd-7 = 'move-node-to-workspace MISC'
-    ctrl-alt-cmd-8 = 'move-node-to-workspace 8'
-    ctrl-alt-cmd-9 = 'move-node-to-workspace 9'
+    ctrl-alt-cmd-1 = 'move-node-to-workspace I'
+    ctrl-alt-cmd-2 = 'move-node-to-workspace II'
+    ctrl-alt-cmd-3 = 'move-node-to-workspace III'
+    ctrl-alt-cmd-4 = 'move-node-to-workspace IV'
+    ctrl-alt-cmd-5 = 'move-node-to-workspace V'
+    ctrl-alt-cmd-6 = 'move-node-to-workspace VI'
+    ctrl-alt-cmd-7 = 'move-node-to-workspace VII'
+    ctrl-alt-cmd-8 = 'move-node-to-workspace VIII'
+    ctrl-alt-cmd-9 = 'move-node-to-workspace IX'
 
     # Fenster mit dem Nachbarn zusammenfassen (consume-or-expel)
     ctrl-alt-leftSquareBracket  = 'join-with left'
@@ -194,12 +194,8 @@ tell application "Ghostty" to activate' '''
     ctrl-alt-cmd-l = ['join-with right', 'mode main']
 
 # ─── Regeln für neue Fenster ──────────────────────────────────────────────────
-# Der erste Block ohne Bedingung gilt für alle Fenster;
-# check-further-callbacks = true lässt danach die Regeln mit app-id greifen.
-
-[[on-window-detected]]
-check-further-callbacks = true
-run = 'layout tiling'
+# Keine Zuordnung zu Arbeitsflächen: neue Fenster öffnen dort, wo man gerade
+# ist (wie Hyprland). Dialoge schweben von selbst (AeroSpace-Standard).
 
 # Maclock – schwebend
 [[on-window-detected]]
@@ -210,49 +206,3 @@ run = 'layout floating'
 [[on-window-detected]]
 if.app-id = 'com.raycast.macos'
 run = 'layout floating'
-
-# BROWSER
-[[on-window-detected]]
-if.app-id = 'net.imput.helium'
-run = ['move-node-to-workspace BROWSER', 'workspace BROWSER']
-
-# DEV
-[[on-window-detected]]
-if.app-id = 'com.jetbrains.clion'
-run = ['move-node-to-workspace DEV', 'workspace DEV']
-
-[[on-window-detected]]
-if.app-id = 'com.mitchellh.ghostty'
-run = ['move-node-to-workspace DEV', 'workspace DEV']
-
-# MSG
-[[on-window-detected]]
-if.app-id = 'ru.keepcoder.Telegram'
-run = ['move-node-to-workspace MSG', 'workspace MSG']
-
-[[on-window-detected]]
-if.app-id = 'net.whatsapp.WhatsApp'
-run = ['move-node-to-workspace MSG', 'workspace MSG']
-
-[[on-window-detected]]
-if.app-id = 'dev.vencord.vesktop'
-run = ['move-node-to-workspace MSG', 'workspace MSG']
-
-# NOTES
-[[on-window-detected]]
-if.app-name-regex-substring = 'Notion'
-run = ['move-node-to-workspace NOTES', 'workspace NOTES']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Obsidian'
-run = ['move-node-to-workspace NOTES', 'workspace NOTES']
-
-# TRADING
-[[on-window-detected]]
-if.app-id = 'com.tradingview.tradingviewapp.desktop'
-run = ['move-node-to-workspace TRADING', 'workspace TRADING']
-
-# RECORDING
-[[on-window-detected]]
-if.app-name-regex-substring = 'OBS'
-run = ['move-node-to-workspace RECORDING', 'workspace RECORDING']

@@ -10,3 +10,7 @@ fish_variables*
 /conf.d/_tide_init.fish
 /completions/fisher.fish
 /completions/tide.fish
+/functions/nvm.fish
+/functions/_nvm_*.fish
+/conf.d/nvm.fish
+/completions/nvm.fish
