@@ -60,7 +60,12 @@ persistent-workspaces = ["BROWSER", "DEV", "MSG", "NOTES", "TRADING", "RECORDING
 [mode.main.binding]
 
     # Programme
-    alt-t = 'exec-and-forget open -na Ghostty'
+    # Ghostty läuft schon: nur ein neues Fenster (AppleScript, ab 1.3) statt
+    # mit `open -na` jedes Mal eine ganze neue Ghostty-Instanz zu starten
+    alt-t = '''exec-and-forget osascript -e 'if application "Ghostty" is running then
+tell application "Ghostty" to new window
+end if
+tell application "Ghostty" to activate' '''
     alt-n = "exec-and-forget emacsclient -c -a ''"
 
     alt-q = 'close'

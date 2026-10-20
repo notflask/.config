@@ -94,7 +94,7 @@ PLIST
 launchctl bootout "gui/$(id -u)/local.theme-appearance" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$agent"
 
-step "Systemeinstellungen (Dock, Mission Control)"
+step "Systemeinstellungen (Dock, Mission Control, Tempo)"
 # Dock nur bei Bedarf – AeroSpace kachelt den ganzen Bildschirm
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock show-recents -bool false
@@ -102,6 +102,16 @@ defaults write com.apple.dock show-recents -bool false
 # (sonst winzige Fenster), ein Space über alle Monitore (ab Abmelden)
 defaults write com.apple.dock expose-group-apps -bool true
 defaults write com.apple.spaces spans-displays -bool true
+# Flott: Dock ohne Verzögerung, kurze Mission-Control-Animation, keine
+# Öffnen-Animation für Fenster, schnelle Tastenwiederholung (ab Abmelden)
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -float 0.15
+defaults write com.apple.dock expose-animation-duration -float 0.1
+defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
+defaults write -g NSWindowResizeTime -float 0.001
+defaults write -g KeyRepeat -int 2
+defaults write -g InitialKeyRepeat -int 15
+defaults write -g ApplePressAndHoldEnabled -bool false
 killall Dock 2>/dev/null || true
 
 step "Farben aus dem aktuellen Hintergrund"
