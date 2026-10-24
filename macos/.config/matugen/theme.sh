@@ -55,7 +55,9 @@ shift $((OPTIND - 1))
 # dark-notify übergibt den neuen Modus; sonst das System fragen
 case ${1:-} in
   light | dark) mode=$1; shift ;;
-  *) if [ "$(defaults read -g AppleInterfaceStyle 2>/dev/null)" = Dark ]; then mode=dark; else mode=light; fi ;;
+  # Nicht AppleInterfaceStyle: bei „Automatisch“ fehlt der Schlüssel auch nachts
+  *) if [ "$(osascript -e 'tell application "System Events" to tell appearance preferences to get dark mode' 2>/dev/null)" = true ]
+     then mode=dark; else mode=light; fi ;;
 esac
 
 image=${1:-}
@@ -67,6 +69,8 @@ else
   # Noch nichts über theme gesetzt: das aktuelle Bild des Systems
   [ -n "$image" ] || image=$(osascript -e \
     'tell application "System Events" to get picture of current desktop' 2>/dev/null || true)
+  # Dynamische/Systembilder haben keinen Pfad
+  [ "$image" = "missing value" ] && image=
 fi
 [ -n "$image" ] || fail "Kein Bild angegeben und keins gesetzt."
 image=${image/#\~/$HOME}
@@ -89,7 +93,8 @@ OSA
   mkdir -p "$state" && printf '%s\n' "$image" >"$wall_file"
 fi
 
-matugen image "$image" \
+# -c: matugen sucht seine Config auf macOS sonst in ~/Library/Application Support
+matugen image "$image" -c "$config/matugen/config.toml" \
   --type "scheme-$type" \
   --mode "$mode" \
   --contrast "$contrast" \
@@ -126,3 +131,4 @@ fi
 # übernehmen sie sofort (fish/conf.d/matugen-tide.fish)
 [ -f "$cache/matugen/tide-colors.fish" ] && command -v fish >/dev/null &&
   { fish "$cache/matugen/tide-colors.fish" || true; }
+exit 0

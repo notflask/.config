@@ -2,6 +2,7 @@
 tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
 tap "cormacrelf/tap"
+tap "d12frosted/emacs-plus"
 
 # Fenster, Rahmen, Hell/Dunkel-Wechsel
 cask "aerospace"
@@ -9,6 +10,10 @@ brew "borders"
 brew "dark-notify"
 # Starter, Zwischenablage-Verlauf
 cask "raycast"
+# Caps Lock als AeroSpace-Mod (⌃⌥), allein getippt Escape
+cask "karabiner-elements"
+# Screenshots mit Vorschau, Markieren, OCR
+cask "shottr"
 
 # matugen (über cargo, kein Homebrew-Paket) und was theme.sh braucht
 brew "rust"
@@ -17,8 +22,14 @@ brew "jq"
 # Terminal, Shell, Editoren – Configs aus linux/.config
 cask "ghostty"
 cask "font-jetbrains-mono"
+cask "font-symbols-only-nerd-font"   # Icons in Emacs (nerd-icons)
 brew "fish"
 brew "tmux"
 brew "neovim"
 brew "btop"
-cask "emacs"
+# fish: fastfetch (Begrüßung), zoxide (z/zi)
+brew "fastfetch"
+brew "zoxide"
+# emacs-plus statt emacs-app (emacsformacosx): dessen Startprogramm versteckt
+# Emacs vor AeroSpace, die Fenster werden nicht gekachelt
+cask "d12frosted/emacs-plus/emacs-plus-app"
