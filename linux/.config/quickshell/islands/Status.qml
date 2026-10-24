@@ -22,7 +22,7 @@ Grid {
     flow: vertical ? Grid.TopToBottom : Grid.LeftToRight
     rows: vertical ? 99 : 1
     columns: vertical ? 1 : 99
-    spacing: vertical ? 2 : 2
+    spacing: 2
     horizontalItemAlignment: Grid.AlignHCenter
     verticalItemAlignment: Grid.AlignVCenter
 
