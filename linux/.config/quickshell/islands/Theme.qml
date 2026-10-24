@@ -43,7 +43,6 @@ Singleton {
     readonly property color dim: get("on_surface_variant", "#c8c6c7")
     readonly property color faint: get("outline", "#95908c")
     readonly property color accent: get("primary", "#c3c6d6")
-    readonly property color accentFg: get("on_primary", "#2c2f3a")
     readonly property color selection: get("secondary_container", "#4a4458")
     readonly property color selectionFg: get("on_secondary_container", "#e8def8")
     readonly property color hover: Qt.alpha(fg, 0.08)

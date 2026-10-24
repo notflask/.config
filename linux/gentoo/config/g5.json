@@ -8,7 +8,7 @@
     "kernel": "sys-kernel/gentoo-kernel"
   },
   "desktop": {
-    "style": "minimal",
+    "style": "frame",
     "terminal": "ghostty",
     "shell": "fish",
     "launcher": "rofi",

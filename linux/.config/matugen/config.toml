@@ -81,13 +81,12 @@ output_path = "~/.cache/wal/colors.json"
 input_path  = "~/.config/matugen/templates/firefox-userchrome.css"
 output_path = "~/.cache/matugen/firefox-userChrome.css"
 
-# Helium (Chromium): Richtlinie BrowserThemeColor, Chromium baut daraus
-# seine Material-Farben; hell/dunkel folgt dem Portal. theme.sh kopiert die
-# Datei nach /etc/chromium/policies/managed (install.sh legt sie dem
-# Benutzer gehörend an), Helium liest sie neu, sobald sie sich ändert
+# Helium (Chromium): Theme als entpackte Erweiterung, einmal unter
+# chrome://extensions → „Entpackte Erweiterung laden“ diesen Ordner wählen.
+# Neue Farben gelten beim nächsten Start von Helium
 [templates.helium]
-input_path  = "~/.config/matugen/templates/helium-policy.json"
-output_path = "~/.cache/matugen/helium-policy.json"
+input_path  = "~/.config/matugen/templates/helium-theme.json"
+output_path = "~/.local/share/helium-theme/manifest.json"
 
 # Thunderbird: userChrome.css (theme.sh kopiert sie ins Profil, wirkt nach
 # dem nächsten Start von Thunderbird)
