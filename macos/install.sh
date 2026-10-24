@@ -138,7 +138,7 @@ cat <<TXT
   - Raycast starten: Hotkey ⌥Space, Clipboard History einen Hotkey geben
   - Helium: Systemeinstellungen → Desktop & Dock → Standard-Webbrowser;
     chrome://extensions → Entwicklermodus → „Entpackte Erweiterung laden“ →
-    ~/.local/share/helium-theme (⌘⇧. zeigt versteckte Ordner)
+    ⌘⇧G, ~/.local/share/helium-theme (nach neuem Hintergrund wiederholen)
   - Systemeinstellungen → Erscheinungsbild → Automatisch
   - einmal ab- und wieder anmelden (Spaces über alle Monitore, fish als Shell)
 TXT

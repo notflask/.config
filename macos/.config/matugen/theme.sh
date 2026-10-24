@@ -102,6 +102,9 @@ matugen image "$image" -c "$config/matugen/config.toml" \
   --quiet ||
   fail "matugen ist fehlgeschlagen ($image)."
 
+# Helium: Chromium nimmt sonst weiter die alten Farben aus dem Cache des Themes
+rm -f "$HOME/.local/share/helium-theme/Cached Theme.pak"
+
 # Fensterrahmen: bordersrc erneut ausführen, das laufende borders übernimmt
 # die Farben (läuft es nicht, startet AeroSpace es beim nächsten Start)
 if [ -f "$config/borders/bordersrc" ]; then

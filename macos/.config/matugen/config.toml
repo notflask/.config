@@ -41,7 +41,9 @@ output_path = "~/Library/Application Support/vesktop/themes/matugen.theme.css"
 
 # Helium: Theme als entpackte Erweiterung (wie unter Linux), einmal unter
 # chrome://extensions → Entwicklermodus → „Entpackte Erweiterung laden“ diesen
-# Ordner wählen. Neue Farben gelten beim nächsten Start von Helium
+# Ordner wählen.
+# Neue Farben (theme.sh) erst nach erneutem „Entpackte Erweiterung laden“
+# desselben Ordners: Chromium liest sonst weiter den alten Cache des Themes
 [templates.helium]
 input_path  = "~/.config/matugen/templates/helium-theme.json"
 output_path = "~/.local/share/helium-theme/manifest.json"
