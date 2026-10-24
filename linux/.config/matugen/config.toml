@@ -36,6 +36,11 @@ output_path = "~/.config/nvim/colors/matugen.lua"
 input_path  = "~/.config/matugen/templates/fastfetch-minimal.jsonc"
 output_path = "~/.config/fastfetch/minimal.jsonc"
 
+# mako in den Stilen islands und frame
+[templates.mako-soft]
+input_path  = "~/.config/matugen/templates/mako-soft.ini"
+output_path = "~/.config/mako/config-soft"
+
 # mako im minimalen Stil 
 [templates.mako-flat]
 input_path  = "~/.config/matugen/templates/mako-flat.ini"
@@ -75,6 +80,14 @@ output_path = "~/.cache/wal/colors.json"
 [templates.firefox-userchrome]
 input_path  = "~/.config/matugen/templates/firefox-userchrome.css"
 output_path = "~/.cache/matugen/firefox-userChrome.css"
+
+# Helium (Chromium): Richtlinie BrowserThemeColor, Chromium baut daraus
+# seine Material-Farben; hell/dunkel folgt dem Portal. theme.sh kopiert die
+# Datei nach /etc/chromium/policies/managed (install.sh legt sie dem
+# Benutzer gehörend an), Helium liest sie neu, sobald sie sich ändert
+[templates.helium]
+input_path  = "~/.config/matugen/templates/helium-policy.json"
+output_path = "~/.cache/matugen/helium-policy.json"
 
 # Thunderbird: userChrome.css (theme.sh kopiert sie ins Profil, wirkt nach
 # dem nächsten Start von Thunderbird)

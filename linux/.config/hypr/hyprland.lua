@@ -17,10 +17,12 @@ if not ok or type(colors) ~= "table" then
 end
 local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#111318", rim = "#ffffff26" } })
 
--- Zwei Stile (Befehl `style minimal|glass`, Vorgabe minimal):
+-- Vier Stile (Befehl `style minimal|islands|frame|glass`, Vorgabe minimal):
 --   minimal  eckig und flach, schmale Textleiste (quickshell/minibar), Aussehen in minimal.lua
+--   islands  deckend und rund, Leiste aus drei Inseln (quickshell/islands), Aussehen in soft.lua
+--   frame    wie islands, die Leiste ist ein Rahmen um den Bildschirm
 --   glass    Liquid Glass: abgerundet, Blur, Taskleiste (quickshell/taskbar), hyprtasking
-local minimal = true
+local style = "minimal"
 
 -- Werte aus config/g5.json im Repo (`g5 apply` erzeugt ~/.config/g5/hypr.lua):
 -- Monitore, Tastatur-Layouts, Cursor, Terminal, Screenshot-Werkzeug
@@ -34,10 +36,12 @@ end
 do
     local f = io.open((os.getenv("HOME") or "") .. "/.config/g5/style")
     if f then
-        minimal = f:read("*l") ~= "glass"
+        style = f:read("*l") or style
         f:close()
     end
 end
+local minimal = style ~= "glass" and style ~= "islands" and style ~= "frame"
+local soft = style == "islands" or style == "frame"
 
 
 -- ── input ───────────────────────────────────────────────────
@@ -748,8 +752,11 @@ bind(key("T"), hl.dsp.exec_cmd((minimal and terminal == "ghostty") and "term" or
 bind(key("N"), hl.dsp.exec_cmd("emacsclient -c -a ''"), title("Open Emacs"))
 -- Wegwerf-Terminal: auf/zu, beim Schließen wird alles darin beendet
 bind(key("grave"), hl.dsp.exec_cmd("scratch-term"), title("Scratchpad Terminal", { repeating = false }))
--- minimal: flacher Rofi-Stil (rofi/flat.rasi), sonst Spotlight-Glas
-local launcher = minimal and "rofi -show drun -theme ~/.config/rofi/flat.rasi" or "rofi -show drun"
+-- minimal: flacher Rofi-Stil (rofi/flat.rasi), islands/frame: rofi/soft.rasi,
+-- sonst Spotlight-Glas
+local launcher = minimal and "rofi -show drun -theme ~/.config/rofi/flat.rasi"
+    or soft and "rofi -show drun -theme ~/.config/rofi/soft.rasi"
+    or "rofi -show drun"
 bind(key("D"), hl.dsp.exec_cmd(launcher), title("Run an Application: rofi"))
 bind(key("space"), hl.dsp.exec_cmd(launcher))
 bind(key("SHIFT + L"), hl.dsp.exec_cmd("wm lock"), title("Lock the Screen"))
@@ -757,7 +764,7 @@ bind(key("SHIFT + L"), hl.dsp.exec_cmd("wm lock"), title("Lock the Screen"))
 bind(key("SHIFT + T"), hl.dsp.exec_cmd("~/.config/matugen/theme.sh -T"), title("Toggle Light/Dark Theme", { repeating = false }))
 -- Zwischenablage-Verlauf (wie Win+V) und Ausschalt-Menü (wie der Knopf in der Taskleiste)
 bind(key("CTRL + V"), hl.dsp.exec_cmd("clipboard-history"), title("Clipboard History", { repeating = false }))
-bind(key("SHIFT + E"), hl.dsp.exec_cmd(minimal and "power-menu" or "qs -c taskbar ipc call power toggle"), title("Power Menu", { repeating = false }))
+bind(key("SHIFT + E"), hl.dsp.exec_cmd((minimal or soft) and "power-menu" or "qs -c taskbar ipc call power toggle"), title("Power Menu", { repeating = false }))
 
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01+ -l 1.0"), { locked = true })
 bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.01-"), { locked = true })
@@ -1038,7 +1045,9 @@ hl.config({
 })
 
 
--- ── Minimaler Stil ──────────────────────────────────────────────
+-- ── Minimaler Stil bzw. islands/frame ──────────────────────────
 if minimal then
     require("minimal")
+elseif soft then
+    require("soft")(style, c)
 end

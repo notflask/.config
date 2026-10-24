@@ -5,17 +5,17 @@
 window {
   background-size: cover;
   background-position: center;
-  background-color: #151311;
+  background-color: #fff8f4;
 }
 
 /* Verlauf: oben und unten dichter, damit Uhr und Feld lesbar bleiben */
 #window-box {
   background-image: linear-gradient(to bottom,
-      alpha(#151311, 0.55) 0%,
-      alpha(#151311, 0.12) 38%,
-      alpha(#151311, 0.12) 62%,
-      alpha(#151311, 0.60) 100%);
-  color: #e8e1dd;
+      alpha(#fff8f4, 0.55) 0%,
+      alpha(#fff8f4, 0.12) 38%,
+      alpha(#fff8f4, 0.12) 62%,
+      alpha(#fff8f4, 0.60) 100%);
+  color: #1d1b19;
 }
 
 #date-label {
@@ -23,7 +23,7 @@ window {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  color: alpha(#e8e1dd, 0.82);
+  color: alpha(#1d1b19, 0.82);
   text-shadow: 0 1px 12px alpha(#000000, 0.35);
 }
 
@@ -32,7 +32,7 @@ window {
   font-size: 150px;
   font-weight: 700;
   letter-spacing: -4px;
-  color: alpha(#e8e1dd, 0.92);
+  color: alpha(#1d1b19, 0.92);
   text-shadow: 0 2px 28px alpha(#000000, 0.30);
   margin-top: -8px;
 }
@@ -43,30 +43,30 @@ entry {
   min-width: 280px;
   padding: 0 24px;
   border-radius: 999px;
-  border: 1px solid alpha(#e8e1dd, 0.22);
-  border-top-color: alpha(#e8e1dd, 0.40);
-  background-color: alpha(#373432, 0.38);
-  color: #e8e1dd;
-  caret-color: #e8e1dd;
+  border: 1px solid alpha(#1d1b19, 0.22);
+  border-top-color: alpha(#1d1b19, 0.40);
+  background-color: alpha(#e8e1dd, 0.38);
+  color: #1d1b19;
+  caret-color: #1d1b19;
   font-family: "Inter", "Cantarell", sans-serif;
   font-size: 16px;
   letter-spacing: 3px;
-  box-shadow: 0 8px 32px alpha(#000000, 0.25), inset 0 1px 0 alpha(#e8e1dd, 0.12);
+  box-shadow: 0 8px 32px alpha(#000000, 0.25), inset 0 1px 0 alpha(#1d1b19, 0.12);
   transition: border-color 200ms, background-color 200ms;
 }
 
 entry:focus {
-  border-color: alpha(#e8e1dd, 0.45);
-  background-color: alpha(#373432, 0.55);
+  border-color: alpha(#1d1b19, 0.45);
+  background-color: alpha(#e8e1dd, 0.55);
 }
 
 entry image {
-  color: #cbc5c1;
+  color: #494643;
 }
 
 entry placeholder,
 entry text placeholder {
-  color: alpha(#e8e1dd, 0.6);
+  color: alpha(#1d1b19, 0.6);
   letter-spacing: 1px;
 }
 
@@ -76,11 +76,11 @@ entry text placeholder {
   min-height: 52px;
   padding: 0;
   border-radius: 999px;
-  border: 1px solid alpha(#e8e1dd, 0.22);
-  border-top-color: alpha(#e8e1dd, 0.40);
+  border: 1px solid alpha(#1d1b19, 0.22);
+  border-top-color: alpha(#1d1b19, 0.40);
   background-image: none;
-  background-color: alpha(#373432, 0.38);
-  color: #e8e1dd;
+  background-color: alpha(#e8e1dd, 0.38);
+  color: #1d1b19;
   font-size: 20px;
   box-shadow: 0 8px 32px alpha(#000000, 0.25);
   text-shadow: none;
@@ -88,12 +88,12 @@ entry text placeholder {
 }
 
 #unlock-button:hover {
-  background-color: alpha(#373432, 0.60);
+  background-color: alpha(#e8e1dd, 0.60);
 }
 
 #unlock-button:active {
-  background-color: alpha(#d8c3ab, 0.70);
-  color: #3b2e1d;
+  background-color: alpha(#6c5c48, 0.70);
+  color: #ffffff;
 }
 
 #error-label,
@@ -104,9 +104,9 @@ entry text placeholder {
 }
 
 #error-label {
-  color: #ffb4ab;
+  color: #ba1a1a;
 }
 
 #warning-label {
-  color: #f0c674;
+  color: #9a6700;
 }

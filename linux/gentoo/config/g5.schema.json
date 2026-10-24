@@ -22,7 +22,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "style": { "enum": ["minimal", "glass"], "description": "minimal = flat, top text bar, no blur/animations (fastest). glass = Liquid Glass taskbar, blur, rounded corners." },
+        "style": { "enum": ["minimal", "islands", "frame", "glass"], "description": "minimal = flat, top text bar, no blur/animations (fastest). islands = opaque rounded, three floating bar islands on top. frame = like islands, the bar is a rounded frame around the screen. glass = Liquid Glass taskbar, blur, rounded corners." },
         "terminal": { "enum": ["ghostty"], "description": "Terminal for Super+T." },
         "shell": { "enum": ["fish", "bash", "zsh"], "description": "Login shell (chsh on apply)." },
         "launcher": { "enum": ["rofi"], "description": "App launcher for Super+D / Super+Space." },

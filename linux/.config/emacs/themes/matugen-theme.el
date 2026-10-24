@@ -9,25 +9,25 @@
 (deftheme matugen "Farben aus dem Hintergrundbild (matugen).")
 
 (let ((class '((class color) (min-colors 89)))
-      (bg        "#151311")
-      (bg-low    "#1d1b19")
-      (bg-mid    "#221f1d")
-      (bg-high   "#2c2927")
-      (bg-top    "#373432")
-      (fg        "#e8e1dd")
-      (fg-dim    "#cbc5c1")
-      (outline   "#95908c")
-      (line      "#494643")
-      (primary   "#d8c3ab")
-      (on-primary "#3b2e1d")
-      (pc        "#534432")
-      (on-pc     "#f5dfc6")
-      (sc        "#4f4539")
-      (on-sc     "#f0e0d0")
-      (tertiary  "#dec2a1")
-      (err       "#ffb4ab")
-(red "#d8647e") (green "#7fa563") (yellow "#f3be7c")
-      (blue "#6e94b2") (magenta "#bb9dbd") (cyan "#aeaed1"))
+      (bg        "#fff8f4")
+      (bg-low    "#f9f2ee")
+      (bg-mid    "#f3ede8")
+      (bg-high   "#eee7e3")
+      (bg-top    "#e8e1dd")
+      (fg        "#1d1b19")
+      (fg-dim    "#494643")
+      (outline   "#7b7673")
+      (line      "#cbc5c1")
+      (primary   "#6c5c48")
+      (on-primary "#ffffff")
+      (pc        "#f5dfc6")
+      (on-pc     "#251a0a")
+      (sc        "#f0e0d0")
+      (on-sc     "#221a10")
+      (tertiary  "#705b40")
+      (err       "#ba1a1a")
+(red "#db302d") (green "#849900") (yellow "#b28500")
+      (blue "#268bd2") (magenta "#d23681") (cyan "#29a298"))
 
   (custom-theme-set-faces
    'matugen
@@ -133,7 +133,7 @@
 
 (custom-theme-set-variables
  'matugen
- '(frame-background-mode 'dark))
+ '(frame-background-mode 'light))
 
 (provide-theme 'matugen)
 ;;; matugen-theme.el ends here

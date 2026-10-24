@@ -13,5 +13,13 @@
     // flat.rasi: deckende Fläche und Rahmen
     bg:        #{{colors.surface.default.hex_stripped}};
     border-c:  #{{colors.primary.default.hex_stripped}};
+    // soft.rasi (Stile islands/frame): Inselfläche, Auswahl als Kapsel
+    soft-bg:   #{{colors.surface_container.default.hex_stripped}};
+    soft-pill: #{{colors.surface_container_highest.default.hex_stripped}};
+    soft-rim:  #{{colors.outline_variant.default.hex_stripped}};
+    soft-sel:  #{{colors.secondary_container.default.hex_stripped}};
+    soft-sel-fg: #{{colors.on_secondary_container.default.hex_stripped}};
+    soft-acc-fg: #{{colors.on_primary.default.hex_stripped}};
+    soft-key:  #{{colors.surface_container_high.default.hex_stripped}};
     divider:   <* if {{ is_dark_mode }} *>#ffffff1f<* else *>#00000014<* endif *>;
 }
