@@ -8,6 +8,8 @@ tap "d12frosted/emacs-plus"
 cask "aerospace"
 brew "borders"
 brew "dark-notify"
+# Browser (Theme aus matugen: ~/.local/share/helium-theme, einmal laden)
+cask "helium-browser"
 # Starter, Zwischenablage-Verlauf
 cask "raycast"
 # Caps Lock als AeroSpace-Mod (⌃⌥), allein getippt Escape
