@@ -1,8 +1,9 @@
 # macOS-Programme: brew bundle --file ~/dotfiles/macos/Brewfile (macos/install.sh)
-tap "nikitabobko/tap"
-tap "FelixKratz/formulae"
-tap "cormacrelf/tap"
-tap "d12frosted/emacs-plus"
+# Fremd-Taps: nur die einzelnen Pakete vertrauen, nicht ganze Taps
+tap "nikitabobko/tap", trusted: { cask: "aerospace" }
+tap "FelixKratz/formulae", trusted: { formula: "borders" }
+tap "cormacrelf/tap", trusted: { formula: "dark-notify" }
+tap "d12frosted/emacs-plus", trusted: { cask: "emacs-plus-app" }
 
 # Fenster, Rahmen, Hell/Dunkel-Wechsel
 cask "aerospace"

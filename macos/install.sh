@@ -35,10 +35,6 @@ repo=$(cd "$here/.." && pwd)
 step "Homebrew und Programme"
 command -v brew >/dev/null ||
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-# Fremd-Taps: nur die einzelnen Pakete vertrauen, nicht ganze Taps
-brew trust --cask nikitabobko/tap/aerospace
-brew trust --formula felixkratz/formulae/borders cormacrelf/tap/dark-notify
-brew trust --cask d12frosted/emacs-plus/emacs-plus-app
 # Altes Emacs.app (emacsformacosx) belegt denselben Platz in /Applications
 brew list --cask emacs-app >/dev/null 2>&1 && brew uninstall --cask emacs-app
 brew bundle --file "$here/Brewfile"
