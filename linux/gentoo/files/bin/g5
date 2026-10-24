@@ -7,6 +7,7 @@
 #   g5 apply [all|desktop|performance|gaming|vpn|apps]
 #   g5 setup sober|spicetify|vencord|nvidia-flatpak|all
 #   g5 doctor              prüft das ganze System
+#   g5 audit [--sync]      sagt, ob jetzt ein guter Zeitpunkt für `update` ist
 #
 # Zur Laufzeit kostet das nichts: `g5 apply` schreibt die fertigen Werte
 # einmal nach ~/.cache/g5/config.json und /etc/g5/g5.json; Dienste und
@@ -405,6 +406,111 @@ doctor() {
   return "$((problems > 0))"
 }
 
+# Soll ich jetzt updaten? Liest nur (mit --sync vorher `emaint sync -a`) und
+# endet mit einer Empfehlung: erst beheben, jetzt updaten, lieber später oder
+# nichts zu tun. Rückgabe 0 = updaten bzw. nichts zu tun, 1 = noch nicht.
+audit() {
+  local sync=false a
+  problems=0
+  for a in "$@"; do
+    case $a in --sync) sync=true ;; *) die "audit [--sync]" ;; esac
+  done
+  # Pakete, nach denen man neu startet oder genauer hinsieht
+  local core='^(sys-kernel/.*|x11-drivers/nvidia-drivers|sys-libs/glibc|sys-devel/gcc|llvm-core/llvm|media-libs/mesa|dev-qt/qtbase|gui-wm/hyprland|gui-libs/aquamarine|gui-apps/quickshell|sys-apps/systemd|dev-lang/python)$'
+  local stop=() hold=() after=() security=false
+  local days log line flags atom repo old pn ver age kind n=0 testing=0 v
+
+  if $sync; then
+    echo "Sync …"
+    sudo emaint sync -a >/dev/null || die "Sync fehlgeschlagen"
+  fi
+
+  echo "── Stand"
+  days=$((($(date +%s) - $(date -d "$(cat /var/db/repos/gentoo/metadata/timestamp.chk)" +%s)) / 86400))
+  if [ "$days" -le 3 ]; then
+    ok "Paketbaum vor $days Tag(en) gesynct"
+  else
+    note "Paketbaum $days Tage alt – genauer: g5 audit --sync"
+  fi
+  v=$(ls /lib/modules | sort -V | tail -1)
+  [ "$v" = "$(uname -r)" ] && ok "neuester Kernel läuft" || stop+=("neu starten: Kernel $v ist installiert, läuft aber nicht")
+  v=$(qlist -Iv x11-drivers/nvidia-drivers 2>/dev/null | sed 's/.*nvidia-drivers-//; s/-r[0-9]*$//')
+  [ -z "$v" ] || [ "$(cat /sys/module/nvidia/version 2>/dev/null)" = "$v" ] && ok "NVIDIA-Treiber geladen = installiert" ||
+    stop+=("neu starten: NVIDIA $v installiert, geladen ist $(cat /sys/module/nvidia/version 2>/dev/null)")
+  find /etc -name '._cfg*' -print -quit 2>/dev/null | grep -q . && stop+=("offene Config-Updates: sudo dispatch-conf") || ok "keine offenen Config-Updates"
+  [ "$(cat /var/lib/portage/preserved_libs_registry 2>/dev/null | tr -d ' \n')" = "{}" ] ||
+    [ ! -s /var/lib/portage/preserved_libs_registry ] && ok "keine aufbewahrten alten Bibliotheken" || stop+=("sudo emerge @preserved-rebuild")
+  v=$(df -BG --output=avail /var/tmp | tail -1 | tr -dc 0-9)
+  [ "$v" -ge 15 ] && ok "$v GB frei" || stop+=("nur $v GB frei auf /var/tmp (mindestens 15)")
+
+  echo "── Updates (rechne Abhängigkeiten, ~40 s)"
+  if log=$(emerge -puDNv --color=n --nospinner @world 2>&1); then
+    while IFS= read -r line; do
+      [[ $line =~ ^\[(ebuild|binary)\ +([^]]*)\]\ +([^ ]+)::([^ ]+)(\ +\[([^]:]+))? ]] || continue
+      flags=${BASH_REMATCH[2]} atom=${BASH_REMATCH[3]} repo=${BASH_REMATCH[4]} old=${BASH_REMATCH[6]}
+      n=$((n + 1))
+      pn=$(qatom -F '%{CATEGORY}/%{PN}' "$atom") ver=$(qatom -F '%{PVR}' "$atom")
+      case $flags in *'~'*) testing=$((testing + 1)) ;; esac
+      case $flags in *D*) note "Downgrade: $pn $old → $ver" ;; esac
+      [[ $pn =~ $core ]] || continue
+      kind=$repo
+      case $flags in *'~'*) kind="$repo, Testing" ;; esac
+      note "$pn ${old:-neu} → $ver ($kind)"
+      case $pn in
+        sys-kernel/* | x11-drivers/nvidia-drivers | sys-libs/glibc | sys-apps/systemd) after+=("neu starten") ;;
+        gui-wm/hyprland | gui-libs/aquamarine) after+=("hyprctl configerrors prüfen (Lua-Config)") ;;
+      esac
+      # Overlays sind Git: wie lange liegt die neue Version schon dort?
+      [ -d "/var/db/repos/$repo/.git" ] || continue
+      age=$(git -C "/var/db/repos/$repo" log -1 --format=%ct -- "$pn/$(qatom -F '%{PF}' "$atom").ebuild" 2>/dev/null || true)
+      [ -n "$age" ] && [ $(($(date +%s) - age)) -lt $((3 * 86400)) ] &&
+        hold+=("$pn $ver erst seit $((($(date +%s) - age) / 3600)) h in ::$repo")
+    done <<<"$log"
+    [ "$n" -eq 0 ] && ok "keine Updates" || ok "$n Pakete, davon $testing Testing (~)"
+  else
+    bad "Abhängigkeiten lassen sich nicht auflösen:"
+    grep -E -m 6 '^!!!|blocks|conflict' <<<"$log" | sed 's/^/    /' || true
+    stop+=("Konflikt lösen (emerge -puDNv @world)")
+  fi
+
+  echo "── Sicherheit und News"
+  v=$(glsa-check -t all 2>/dev/null | paste -sd' ' || true)
+  if [ -z "$v" ]; then
+    ok "keine offenen Sicherheitsmeldungen (GLSA)"
+  else
+    note "Sicherheitsmeldungen betreffen dieses System: $v"
+    security=true
+  fi
+  # ungelesene News der letzten 60 Tage: vor dem Update lesen
+  v=$(eselect news list 2>/dev/null | awk -v d="$(date -d '-60 days' +%F)" '$2 == "N" && $3 >= d { $1 = $2 = ""; print }' || true)
+  if [ -z "$v" ]; then
+    ok "keine neuen News"
+  else
+    while IFS= read -r line; do note "News ${line#"${line%%[! ]*}"}"; done <<<"$v"
+    hold+=("News lesen: eselect news read new")
+  fi
+
+  echo
+  if [ "${#stop[@]}" -gt 0 ]; then
+    echo "Erst beheben, dann updaten:"
+    printf '  - %s\n' "${stop[@]}"
+    return 1
+  fi
+  if [ "$n" -eq 0 ]; then
+    [ "$days" -le 3 ] && echo "Alles aktuell – nichts zu tun." || echo "Lokal nichts zu tun – der Baum ist alt: g5 audit --sync"
+    return 0
+  fi
+  if ! $security && [ "${#hold[@]}" -gt 0 ]; then
+    echo "Lieber später (oder bewusst jetzt):"
+    printf '  - %s\n' "${hold[@]}"
+    return 1
+  fi
+  $security && echo "Jetzt updaten – Sicherheitsupdates offen: update" || echo "Jetzt updaten: update"
+  [ "${#hold[@]}" -eq 0 ] || printf '  Hinweis: %s\n' "${hold[@]}"
+  [ "${#after[@]}" -eq 0 ] || printf '  Danach: %s\n' "${after[@]}" | sort -u
+  return 0
+}
+
 # ── Befehle ────────────────────────────────────────────────────────────
 cmd=${1:-help}
 [ $# -gt 0 ] && shift
@@ -459,7 +565,8 @@ case $cmd in
   apply) apply "$@" ;;
   setup) setup "$@" ;;
   doctor) doctor ;;
+  audit) audit "$@" ;;
   get) get "${1:?KEY}" ;; # kurz für Skripte
-  -h | --help | help) sed -n '2,13s/^# \{0,1\}//p' "$self" ;;
+  -h | --help | help) sed -n '2,14s/^# \{0,1\}//p' "$self" ;;
   *) die "unbekannt: $cmd (g5 help)" ;;
 esac
