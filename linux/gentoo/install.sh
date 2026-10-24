@@ -95,6 +95,11 @@ do_system() {
   sdo install -m 755 "$here"/files/libexec/* /usr/local/libexec/
   sdo install -m 755 "$here/files/sleep/g5-tuning" /usr/lib/systemd/system-sleep/g5-tuning
   sdo touch /var/lib/vpn-bypass/domains
+  # Helium: Themenfarbe als Richtlinie, matugen/theme.sh schreibt sie (gehört
+  # dem Benutzer, damit kein sudo beim Wallpaper-Wechsel nötig ist)
+  sdo install -d -m 755 /etc/chromium/policies/managed
+  [ -e /etc/chromium/policies/managed/matugen.json ] ||
+    echo '{}' | sdo install -m 644 -o "$(id -un)" -g "$(id -gn)" /dev/stdin /etc/chromium/policies/managed/matugen.json
 
   local c
   # Links ins Repo, deren Ziel es nicht mehr gibt (umbenannte Skripte), weg
@@ -416,6 +421,22 @@ EOF
   step "Stil"
   [ -e "$home/.config/g5/style" ] || /usr/local/bin/style minimal
   /usr/local/bin/style | sed 's/^/    Stil: /'
+
+  step "Symbole: MacTahoe"
+  # macOS-Symbole für den Starter (rofi/soft.rasi), dazu eigene Ergänzungen
+  # (files/icons/MacTahoe-g5, z. B. Steam)
+  if [ ! -d "$home/.local/share/icons/MacTahoe-grey" ]; then
+    local mt
+    mt=$(mktemp -d)
+    if git clone -q --depth 1 https://github.com/vinceliuice/MacTahoe-icon-theme.git "$mt/mt"; then
+      (cd "$mt/mt" && ./install.sh -t grey >/dev/null) || warn "MacTahoe nicht installiert"
+    else
+      warn "MacTahoe nicht geladen"
+    fi
+    rm -rf "$mt"
+  fi
+  mkdir -p "$home/.local/share/icons"
+  ln -sfn "$here/files/icons/MacTahoe-g5" "$home/.local/share/icons/MacTahoe-g5"
 
   step "Pywalfox, mizu, opal"
   [ -x "$home/.local/bin/pywalfox" ] || uv tool install pywalfox || warn "pywalfox nicht installiert"

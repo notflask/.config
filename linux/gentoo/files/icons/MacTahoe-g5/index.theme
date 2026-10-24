@@ -1,0 +1,15 @@
+# Eigene Symbole über MacTahoe (Rofi soft.rasi): nur was MacTahoe fehlt,
+# im selben Stil (abgerundetes Quadrat, Verlauf, weicher Schatten).
+# install.sh verlinkt den Ordner nach ~/.local/share/icons.
+[Icon Theme]
+Name=MacTahoe-g5
+Comment=MacTahoe-grey mit Ergänzungen
+Inherits=MacTahoe-grey,hicolor
+Directories=apps/scalable
+
+[apps/scalable]
+Size=64
+MinSize=16
+MaxSize=512
+Type=Scalable
+Context=Applications

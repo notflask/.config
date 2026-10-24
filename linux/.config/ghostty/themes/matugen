@@ -10,27 +10,27 @@
 # 8 und 10–14 färben den Code in Claude Code (Theme dark-ansi/light-ansi)
 # wie Emacs: Kommentare outline; Strings, Zahlen tertiary; Schlüsselwörter,
 # Funktionen, Typen primary. Grün/Rot der Diffs setzt das Claude-Theme selbst.
-background = #131315
-foreground = #e5e1e3
-cursor-color = #c6c5d6
-cursor-text = #2e2f3d
-selection-background = #454654
-selection-foreground = #e2e1f3
+background = #fff8f4
+foreground = #1d1b19
+cursor-color = #6c5c48
+cursor-text = #ffffff
+selection-background = #f5dfc6
+selection-foreground = #251a0a
 background-opacity = 1
-palette = 0=#131315
-palette = 1=#d8647e
-palette = 2=#7fa563
-palette = 3=#f3be7c
-palette = 4=#6e94b2
-palette = 5=#bb9dbd
-palette = 6=#aeaed1
-palette = 7=#cdcdcd
-palette = 8=#929092
-palette = 9=#e08398
-palette = 10=#c4c4dd
-palette = 11=#c6c5d6
-palette = 12=#c4c4dd
-palette = 13=#c6c5d6
-palette = 14=#c6c5d6
-palette = 15=#d7d7d7
+palette = 0=#1d1b19
+palette = 1=#db302d
+palette = 2=#849900
+palette = 3=#b28500
+palette = 4=#268bd3
+palette = 5=#d23681
+palette = 6=#29a298
+palette = 7=#002c38
+palette = 8=#7b7673
+palette = 9=#b7211f
+palette = 10=#705b40
+palette = 11=#6c5c48
+palette = 12=#705b40
+palette = 13=#6c5c48
+palette = 14=#6c5c48
+palette = 15=#001419
 

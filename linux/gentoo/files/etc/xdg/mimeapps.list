@@ -22,3 +22,7 @@ application/x-compressed-tar=org.kde.ark.desktop
 application/x-xz-compressed-tar=org.kde.ark.desktop
 application/x-zstd-compressed-tar=org.kde.ark.desktop
 application/gzip=org.kde.ark.desktop
+text/html=helium.desktop
+application/xhtml+xml=helium.desktop
+x-scheme-handler/http=helium.desktop
+x-scheme-handler/https=helium.desktop

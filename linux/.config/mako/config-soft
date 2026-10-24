@@ -1,0 +1,38 @@
+# Erzeugt von matugen (templates/mako-soft.ini) – hier nichts ändern
+# Stil islands/frame (`wm autostart` startet mako damit): deckend, rund,
+# weicher Rand – wie die Inseln der Leiste (quickshell/islands)
+font=Inter 11
+width=380
+height=160
+outer-margin=12
+margin=0,0,10,0
+padding=14,16
+border-size=1
+border-radius=18
+icons=1
+max-icon-size=48
+icon-location=left
+# Zuerst die von theme.sh umgefärbten Symbole, dann die normalen
+icon-path=/home/flask/.cache/matugen/icons:/usr/share/icons/Papirus:/usr/share/icons/hicolor
+default-timeout=5000
+ignore-timeout=1
+max-visible=5
+layer=overlay
+anchor=top-right
+
+background-color=#f3ede8
+text-color=#1d1b19
+border-color=#cbc5c1
+progress-color=over #f5dfc6
+
+format=<b>%s</b>\n<span color="#494643">%b</span>
+
+[urgency=low]
+text-color=#494643
+
+[urgency=critical]
+border-color=#ba1a1a
+default-timeout=0
+
+[mode=do-not-disturb]
+invisible=1

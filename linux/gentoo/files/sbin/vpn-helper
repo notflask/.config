@@ -91,6 +91,7 @@ bypass() {
   for ipt in iptables ip6tables; do
     while "$ipt" -t mangle -D OUTPUT -j novpn 2>/dev/null; do :; done
     while "$ipt" -t nat -D POSTROUTING ! -o $iface -m connmark --mark $connmark -j MASQUERADE 2>/dev/null; do :; done
+    while "$ipt" -t nat -D POSTROUTING ! -o $iface -m mark --mark $mark -j MASQUERADE 2>/dev/null; do :; done
     for chain in novpn novpn-app novpn-dst novpn-mark; do "$ipt" -t mangle -F $chain 2>/dev/null || true; done
     for chain in novpn novpn-app novpn-dst novpn-mark; do "$ipt" -t mangle -X $chain 2>/dev/null || true; done
   done
@@ -109,7 +110,11 @@ bypass() {
     "$ipt" -t mangle -A novpn -j novpn-dst
     "$ipt" -t mangle -A OUTPUT -j novpn
     "$ipt" -t mangle -A novpn-app -m cgroup --path novpn -j novpn-mark
-    "$ipt" -t nat -A POSTROUTING ! -o $iface -m connmark --mark $connmark -j MASQUERADE
+    # nach Markierung, nicht connmark: wg-quick (nft postmangle) überschreibt
+    # bei UDP die ganze ct mark mit $mark, vor NAT → ohne MASQUERADE ginge
+    # UDP mit Tunnel-Absender raus (Dota-Pings: FAILED). WireGuards eigene
+    # Pakete haben schon die richtige Adresse, MASQUERADE ändert sie nicht.
+    "$ipt" -t nat -A POSTROUTING ! -o $iface -m mark --mark $mark -j MASQUERADE
   done
 }
 

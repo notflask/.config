@@ -126,17 +126,23 @@ autostart() {
     exec waypaper --restore
   ) </dev/null &
 
-  # Stil aus ~/.config/g5/style (Befehl `style minimal|glass`, Vorgabe minimal).
-  # mako vor der ersten Nachricht starten, sonst holt D-Bus es mit der falschen Config
-  if [ "$(cat "$config/g5/style" 2>/dev/null)" = glass ]; then
-    # Liquid Glass: Taskleiste (Quickshell, ~/.config/quickshell/taskbar), mako mit Glas
-    spawn mako
-    spawn quickshell -p "$config/quickshell/taskbar"
-  else
-    # minimal: schmale Textleiste oben und mako flach
-    spawn mako --config "$config/mako/config-flat"
-    spawn quickshell -p "$config/quickshell/minibar"
-  fi
+  # Stil aus ~/.config/g5/style (Befehl `style minimal|islands|frame|glass`,
+  # Vorgabe minimal). mako vor der ersten Nachricht starten, sonst holt D-Bus
+  # es mit der falschen Config
+  case $(cat "$config/g5/style" 2>/dev/null) in
+    glass)
+      # Liquid Glass: Taskleiste (Quickshell, ~/.config/quickshell/taskbar), mako mit Glas
+      spawn mako
+      spawn quickshell -p "$config/quickshell/taskbar" ;;
+    islands | frame)
+      # deckend und rund: Inseln bzw. Rahmen (~/.config/quickshell/islands)
+      spawn mako --config "$config/mako/config-soft"
+      spawn quickshell -p "$config/quickshell/islands" ;;
+    *)
+      # minimal: schmale Textleiste oben und mako flach
+      spawn mako --config "$config/mako/config-flat"
+      spawn quickshell -p "$config/quickshell/minibar" ;;
+  esac
 }
 
 cmd=${1:-}

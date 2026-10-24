@@ -1,0 +1,127 @@
+// Starter in den Stilen islands und frame (Super+Space): deckende Insel wie
+// die Leiste (quickshell/islands). Oben große Suche, darunter Apps mit Symbol
+// und blasser Kurzbeschreibung, die Auswahl in der Akzentfarbe, unten Tastenhinweise.
+// Feste Höhe, damit das Fenster beim Tippen nicht springt.
+// Farben: colors.rasi (matugen).
+@import "colors.rasi"
+
+configuration {
+    show-icons: true;
+    icon-theme: "MacTahoe-g5";
+    drun-display-format: "{name}  <span size='small' alpha='58%'>{generic}</span>";
+    markup-rows: true;
+}
+
+* {
+    font: "Inter 12";
+    background-color: transparent;
+    text-color: @fg;
+}
+
+window {
+    width: 580px;
+    location: center;
+    anchor: center;
+    background-color: @soft-bg;
+    border: 1px;
+    border-color: @soft-rim;
+    border-radius: 22px;
+    padding: 0;
+}
+
+mainbox {
+    children: [ inputbar, listview, hints ];
+    spacing: 0;
+}
+
+inputbar {
+    children: [ textbox-search, entry ];
+    padding: 14px 20px 12px;
+    spacing: 12px;
+    border: 0 0 1px 0;
+    border-color: @divider;
+}
+
+// Lupe als Schriftzeichen: folgt den matugen-Farben (search.svg ist hell)
+textbox-search {
+    expand: false;
+    str: "󰍉";
+    font: "Symbols Nerd Font 15";
+    text-color: @accent;
+    vertical-align: 0.5;
+}
+
+entry {
+    font: "Inter 14";
+    vertical-align: 0.5;
+    placeholder: "Apps durchsuchen";
+    placeholder-color: @fg-faint;
+    cursor-color: @accent;
+}
+
+listview {
+    lines: 8;
+    fixed-height: true;
+    expand: true;
+    scrollbar: false;
+    padding: 6px;
+    spacing: 0;
+}
+
+element {
+    padding: 6px 12px;
+    spacing: 11px;
+    border-radius: 14px;
+    text-color: @fg;
+}
+
+element selected {
+    background-color: @accent;
+    text-color: @soft-acc-fg;
+}
+
+element-icon {
+    size: 26px;
+    vertical-align: 0.5;
+}
+
+element-text {
+    text-color: inherit;
+    vertical-align: 0.5;
+    highlight: bold;
+}
+
+// Fußzeile mit Tasten
+hints {
+    expand: false;
+    orientation: horizontal;
+    children: [ textbox-open, textbox-close ];
+    padding: 7px 20px 9px;
+    spacing: 18px;
+    border: 1px 0 0 0;
+    border-color: @divider;
+}
+
+textbox-open {
+    expand: false;
+    markup: true;
+    str: "<b>↵</b>  öffnen";
+    font: "Inter 10";
+    text-color: @fg-faint;
+}
+
+textbox-close {
+    expand: false;
+    markup: true;
+    str: "<b>esc</b>  schließen";
+    font: "Inter 10";
+    text-color: @fg-faint;
+}
+
+message {
+    padding: 6px 20px;
+}
+
+textbox {
+    text-color: @fg-faint;
+}

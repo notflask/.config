@@ -209,6 +209,11 @@ if [ -n "$ff_profile" ] && [ -f "$cache/matugen/firefox-userChrome.css" ]; then
   mkdir -p "$ff_profile/chrome"
   cp -f "$cache/matugen/firefox-userChrome.css" "$ff_profile/chrome/userChrome.css"
 fi
+# Helium: Themenfarbe als Richtlinie. Inhalt kopieren statt verlinken, sonst
+# merkt Chromium die Änderung nicht (es beobachtet nur den Ordner)
+helium_policy=/etc/chromium/policies/managed/matugen.json
+[ -w "$helium_policy" ] && [ -f "$cache/matugen/helium-policy.json" ] &&
+  cat "$cache/matugen/helium-policy.json" >"$helium_policy"
 # Benachrichtigungen: Ghostty schickt sein Symbol nur als Namen; mako sucht
 # zuerst in ~/.cache/matugen/icons (icon-path in mako-flat.ini). Dort liegt
 # eine Kopie in zwei Tönen aus matugen (Graustufen → ink … paper).
