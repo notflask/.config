@@ -95,11 +95,6 @@ do_system() {
   sdo install -m 755 "$here"/files/libexec/* /usr/local/libexec/
   sdo install -m 755 "$here/files/sleep/g5-tuning" /usr/lib/systemd/system-sleep/g5-tuning
   sdo touch /var/lib/vpn-bypass/domains
-  # Helium: Themenfarbe als Richtlinie, matugen/theme.sh schreibt sie (gehört
-  # dem Benutzer, damit kein sudo beim Wallpaper-Wechsel nötig ist)
-  sdo install -d -m 755 /etc/chromium/policies/managed
-  [ -e /etc/chromium/policies/managed/matugen.json ] ||
-    echo '{}' | sdo install -m 644 -o "$(id -un)" -g "$(id -gn)" /dev/stdin /etc/chromium/policies/managed/matugen.json
 
   local c
   # Links ins Repo, deren Ziel es nicht mehr gibt (umbenannte Skripte), weg
@@ -419,7 +414,7 @@ EOF
   done
 
   step "Stil"
-  [ -e "$home/.config/g5/style" ] || /usr/local/bin/style minimal
+  [ -e "$home/.config/g5/style" ] || /usr/local/bin/style frame
   /usr/local/bin/style | sed 's/^/    Stil: /'
 
   step "Symbole: MacTahoe"
