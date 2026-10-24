@@ -26,7 +26,6 @@ dev-python/pyside
 app-text/typst
 app-text/tinymist
 app-text/typstyle
-www-client/firefox-bin
 www-client/helium-bin
 net-im/discord
 net-im/telegram-desktop

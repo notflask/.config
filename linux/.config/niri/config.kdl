@@ -108,7 +108,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id=r#"^helium$"# title="^(Picture in picture|Bild im Bild)$"
     open-floating true
 }
 
