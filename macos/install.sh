@@ -140,6 +140,9 @@ cat <<TXT
   - AeroSpace starten, Bedienungshilfen erlauben (startet danach selbst)
   - Karabiner-Elements starten, Treiber/Systemerweiterung und Eingabeüberwachung erlauben
   - Raycast starten: Hotkey ⌥Space, Clipboard History einen Hotkey geben
+  - Helium: Systemeinstellungen → Desktop & Dock → Standard-Webbrowser;
+    chrome://extensions → Entwicklermodus → „Entpackte Erweiterung laden“ →
+    ~/.local/share/helium-theme (⌘⇧. zeigt versteckte Ordner)
   - Systemeinstellungen → Erscheinungsbild → Automatisch
   - einmal ab- und wieder anmelden (Spaces über alle Monitore, fish als Shell)
 TXT

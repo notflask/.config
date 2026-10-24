@@ -1,6 +1,6 @@
 # macOS: Farben neu erzeugen + alles neu laden: ~/.config/matugen/theme.sh
 # Die Vorlagen teilt sich macOS mit Linux (templates → linux/.config/matugen/templates).
-# Nicht übernommen: Fenster, Leisten, GTK/Qt, Firefox, Thunderbird, Steam,
+# Nicht übernommen: Fenster, Leisten, GTK/Qt, Thunderbird, Steam,
 # Spotify, Telegram Desktop (macOS-Telegram liest keine .tdesktop-theme).
 [config]
 
@@ -38,6 +38,13 @@ output_path = "~/.claude/themes/matugen.json"
 [templates.vesktop]
 input_path  = "~/.config/matugen/templates/vencord.theme.css"
 output_path = "~/Library/Application Support/vesktop/themes/matugen.theme.css"
+
+# Helium: Theme als entpackte Erweiterung (wie unter Linux), einmal unter
+# chrome://extensions → Entwicklermodus → „Entpackte Erweiterung laden“ diesen
+# Ordner wählen. Neue Farben gelten beim nächsten Start von Helium
+[templates.helium]
+input_path  = "~/.config/matugen/templates/helium-theme.json"
+output_path = "~/.local/share/helium-theme/manifest.json"
 
 # Fensterrahmen (JankyBorders, aerospace.toml startet es)
 [templates.borders]

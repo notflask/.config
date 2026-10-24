@@ -229,13 +229,13 @@ hl.animation({ leaf = "monitorAdded", enabled = false })
 
 -- ── window-rule ─────────────────────────────────────────────
 -- Hyprland prüft den ganzen Namen: "steam_app_.*" statt "^steam_app_",
--- ".*firefox" statt "firefox$". Mehrere match-Zeilen → a|b|c.
+-- ".*helium" statt "helium$". Mehrere match-Zeilen → a|b|c.
 
 -- org.wezfurlong.wezterm default-column-width {}: in dwindle ohne Bedeutung
 
 hl.window_rule({
-    name = "firefox-pip",
-    match = { class = ".*firefox", title = "Picture-in-Picture" },
+    name = "helium-pip",
+    match = { class = "helium", title = "Picture in picture|Bild im Bild" },
     float = true,
 })
 
@@ -345,41 +345,8 @@ hl.window_rule({
 })
 
 -- Pop-ups und Dialoge schweben statt zu kacheln.
--- Firefox: Erweiterungs-Popups (Bitwarden) und Meldungen wie „Firefox läuft bereits"
-hl.window_rule({
-    name = "firefox-extension-popup",
-    match = { class = ".*firefox", title = "(Extension|Erweiterung):.*|.*Bitwarden.*" },
-    float = true,
-})
-
--- Nur Hyprland: Firefox öffnet Erweiterungs-Popups als „Mozilla Firefox“ und
--- setzt „Extension: (…)“ (deutsch „Erweiterung: (…)“) erst danach – die
--- Regel oben prüft float nur beim Öffnen. Daher beim Titelwechsel, aber nur bei gerade geöffneten Fenstern
--- (≤ 5 s), damit ein normales Fenster nicht plötzlich schwebt.
-local firefox_opened = {}
-
-hl.on("window.open", function(w)
-    if w.class:match("firefox") then
-        firefox_opened[w.address] = os.time()
-    end
-end)
-
-hl.on("window.close", function(w)
-    firefox_opened[w.address] = nil
-end)
-
-hl.on("window.title", function(w)
-    local opened = firefox_opened[w.address]
-    if not opened or w.floating or os.time() - opened > 5 or not (w.title:match("^Extension: ") or w.title:match("^Erweiterung: ")) then
-        return
-    end
-    firefox_opened[w.address] = nil
-    hl.dispatch(hl.dsp.window.float({ action = "enable", window = w }))
-    hl.dispatch(hl.dsp.window.center({ window = w }))
-end)
-
 -- Dialoge ohne Eltern-Fenster (die mit Eltern schweben ohnehin): Datei-
--- auswahl, Eigenschaften, Firefox-Bibliothek (Downloads/Verlauf)
+-- auswahl, Eigenschaften, Bibliothek (Downloads/Verlauf)
 hl.window_rule({
     name = "dialog-titles",
     match = { title = "Open File|Open Files|Save File|Save As|Select Folder|Datei öffnen|Dateien öffnen|Datei speichern|Speichern unter|Ordner auswählen|Properties|Eigenschaften|Library|Bibliothek" },

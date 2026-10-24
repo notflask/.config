@@ -83,7 +83,6 @@ do_system() {
   rm -f "$etc_tmp/kernel/cmdline.tpl"
   overlay "$etc_tmp" /etc
   rm -rf "$etc_tmp"
-  overlay "$here/files/opt" /opt
   sdo chmod 440 /etc/sudoers.d/g5
   sdo visudo -cq -f /etc/sudoers.d/g5 || { sdo rm -f /etc/sudoers.d/g5; warn "sudoers.d/g5 fehlerhaft – entfernt"; }
   sdo install -d /usr/local/sbin /usr/local/libexec /usr/local/bin /var/lib/vpn-bypass /etc/wireguard /etc/g5 /usr/lib/systemd/system-sleep
@@ -433,16 +432,7 @@ EOF
   mkdir -p "$home/.local/share/icons"
   ln -sfn "$here/files/icons/MacTahoe-g5" "$home/.local/share/icons/MacTahoe-g5"
 
-  step "Pywalfox, mizu, opal"
-  [ -x "$home/.local/bin/pywalfox" ] || uv tool install pywalfox || warn "pywalfox nicht installiert"
-  printf '#!/bin/sh\nexec %s/.local/bin/pywalfox start\n' "$home" | sdo tee /usr/local/libexec/pywalfox-host >/dev/null
-  sdo chmod 755 /usr/local/libexec/pywalfox-host
-  local nm
-  for nm in /usr/lib/mozilla/native-messaging-hosts /usr/lib64/mozilla/native-messaging-hosts; do
-    sdo install -d "$nm"
-    printf '{"name":"pywalfox","description":"pywalfox","path":"/usr/local/libexec/pywalfox-host","type":"stdio","allowed_extensions":["pywalfox@frewacom.org"]}\n' |
-      sdo tee "$nm/pywalfox.json" >/dev/null
-  done
+  step "mizu, opal"
   if [ "$(cat "$home/.cache/mizu.rev" 2>/dev/null)" != "$mizu_rev" ]; then
     if cargo install --locked --root "$home/.local" --git https://github.com/notflask/mizu --rev "$mizu_rev" mizu; then
       echo "$mizu_rev" >"$home/.cache/mizu.rev"

@@ -81,8 +81,8 @@ def main():
     subprocess.run(
         ["systemd-run", "--user", "--quiet", f"--unit=theme-sun-{int(events[0])}",
          f"--on-calendar={at}", "--timer-property=AccuracySec=1min",
-         # theme.sh schickt Pywalfox im Hintergrund los; ohne das beendet
-         # systemd es mit dem Dienst, und Firefox bleibt im alten Modus
+         # theme.sh schickt das Sperrbild im Hintergrund los; ohne das
+         # beendet systemd es mit dem Dienst
          "--property=KillMode=process",
          "--description=Theme: Hell/Dunkel nach der Sonne", str(Path(__file__).resolve())],
         check=False)

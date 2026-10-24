@@ -5,7 +5,6 @@ sys-kernel/installkernel systemd systemd-boot dracut
 x11-drivers/nvidia-drivers wayland persistenced powerd
 media-video/pipewire sound-server pipewire-alsa
 media-video/ffmpeg vulkan nvenc vaapi opus vpx
-www-client/firefox-bin l10n_de
 
 gui-wm/hyprland systemd uwsm X -hyprpm -dbus-session
 gui-libs/xdg-desktop-portal-hyprland systemd

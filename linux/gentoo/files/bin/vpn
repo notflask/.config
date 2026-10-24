@@ -10,7 +10,7 @@
 #
 #   vpn bypass BEFEHL [ARG…]     BEFEHL samt Kindern am VPN vorbei starten
 #                                (Steam: vpn bypass gaming-mode %command%)
-#   vpn app add|remove ID        App (Desktop-ID, z. B. firefox) immer am VPN vorbei
+#   vpn app add|remove ID        App (Desktop-ID, z. B. helium) immer am VPN vorbei
 #   vpn apps                     diese Apps zeigen
 #   vpn running                  Programme, die gerade am VPN vorbei laufen
 #   vpn domain add|remove ZIEL   Domain/IPv4-Netz für alle Programme am VPN vorbei

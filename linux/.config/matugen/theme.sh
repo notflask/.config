@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
 #  und Niri, Hyprland, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
-#  Firefox (Pywalfox), Thunderbird, Spotify, Discord und Steam anpassen.
+#  Helium, Thunderbird, Spotify, Discord und Steam anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD
@@ -99,7 +99,7 @@ mkdir -p "${lock_wall%/*}"
 ) >/dev/null 2>&1 &
 
 # GTK: Hell/Dunkel, Thema und Icons passend zum Modus. Über das
-# Einstellungs-Portal folgen auch Firefox, Electron-Apps, libadwaita und
+# Einstellungs-Portal folgen auch Helium, Electron-Apps, libadwaita und
 # Ghostty sofort. Schrift, Cursor (macOS) usw. bleiben bei den Vorgaben aus
 # (alte Einträge, die KDE geschrieben hat, fliegen raus).
 if [ "$mode" = light ]; then
@@ -201,14 +201,6 @@ fi
 # beim nächsten Start
 [ -d "$HOME/.local/share/Steam" ] &&
   { "$config/matugen/steam-theme.py" || echo "theme: steam-theme.py fehlgeschlagen" >&2; }
-# Firefox (Pywalfox) übernimmt Farben und Hell/Dunkel sofort, wenn es läuft
-# (Profil liegt unter ~/.config/mozilla, nicht im Standardpfad ~/.mozilla)
-ff_profile=$(ls -d "$HOME"/.config/mozilla/firefox/*.default* 2>/dev/null | head -n1)
-# userChrome.css für die Adressleisten-Vorschläge ins Profil kopieren
-if [ -n "$ff_profile" ] && [ -f "$cache/matugen/firefox-userChrome.css" ]; then
-  mkdir -p "$ff_profile/chrome"
-  cp -f "$cache/matugen/firefox-userChrome.css" "$ff_profile/chrome/userChrome.css"
-fi
 # Benachrichtigungen: Ghostty schickt sein Symbol nur als Namen; mako sucht
 # zuerst in ~/.cache/matugen/icons (icon-path in mako-flat.ini). Dort liegt
 # eine Kopie in zwei Tönen aus matugen (Graustufen → ink … paper).
@@ -246,25 +238,6 @@ if [ -f "$tb_css" ]; then
     grep -qsF "$tb_pref" "$tb_profile/user.js" || echo "$tb_pref" >>"$tb_profile/user.js"
   done
 fi
-# Der Socket liegt in $TMPDIR (Standard /tmp); unter Waypaper/Niri kann TMPDIR
-# abweichen, dann findet pywalfox den Daemon nicht. Fehler landen im Log.
-pwf() {
-  TMPDIR=/tmp pywalfox ${ff_profile:+--profile-path "$ff_profile"} "$@" \
-    >>"$state/pywalfox.log" 2>&1 || echo "pywalfox $* fehlgeschlagen" >>"$state/pywalfox.log"
-}
-# Erst den Modus, dann die Farben: sonst überholt ein noch laufendes
-# `update` den Moduswechsel und Firefox bleibt im alten Modus.
-# Im Hintergrund, damit der Wechsel nicht wartet. Firefox setzt sein Thema beim
-# Wechsel des System-Schemas ggf. zurück, daher ein zweiter Durchgang.
-# Der Modus wird jedes Mal neu gelesen, damit ein schnelles Zurückschalten nicht
-# von einem noch laufenden älteren Durchgang überholt wird.
-(
-  for wait in 0 4; do
-    sleep "$wait"
-    pwf "$(cat "$mode_file")"; sleep 1; pwf update
-  done
-) >/dev/null 2>&1 &
-
 # Qt-/KDE-Apps lesen ~/.config/kdeglobals sofort neu (Signal wie beim
 # Farbschema-Wechsel in Plasma: PaletteChanged)
 dbus-send --session --type=signal /KGlobalSettings \

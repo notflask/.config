@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh (macOS) – Hintergrundbild setzen, Farben daraus
 #  erzeugen (matugen) und Ghostty, Neovim, Emacs, fish, btop,
-#  Claude Code, Vesktop und die Fensterrahmen anpassen.
+#  Claude Code, Vesktop, Helium und die Fensterrahmen anpassen.
 #
 #    theme BILD                    Bild als Hintergrund setzen + Farben
 #    theme                         Farben aus dem zuletzt gesetzten Bild

@@ -17,6 +17,14 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 (setq use-package-always-ensure t)
+;; Vor der ersten Installation einmal die Paketlisten holen: sonst kennt die
+;; alte Liste neu hinzugefügte Pakete nicht („Cannot load …“)
+(defvar g5-package-refreshed nil)
+(advice-add 'package-install :before
+            (lambda (&rest _)
+              (unless g5-package-refreshed
+                (setq g5-package-refreshed t)
+                (package-refresh-contents))))
 
 ;; ========= theme ==========
 ;; matugen schreibt die Datei bei jedem Wechsel von Wallpaper oder hell/dunkel
@@ -334,7 +342,7 @@
 (defun my/opencode-toggle ()
   "opencode im aktuellen Projekt rechts zeigen oder ausblenden."
   (interactive)
-  (let* ((dir (if-let ((p (project-current))) (project-root p) default-directory))
+  (let* ((dir (if-let* ((p (project-current))) (project-root p) default-directory))
          (name (format "*opencode: %s*" (file-name-nondirectory (directory-file-name dir))))
          (program (or (executable-find "opencode") (expand-file-name "~/.opencode/bin/opencode")))
          (buf (get-buffer name))

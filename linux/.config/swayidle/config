@@ -1,6 +1,6 @@
 # swayidle – Auto-Sperre (Hyprland), dieselben Zeiten wie
 # hypr/hypridle.conf. Start: `wm autostart` (swayidle -w).
-# Pausiert, solange eine App das Sperren verhindert: Videos (Firefox, VLC),
+# Pausiert, solange eine App das Sperren verhindert: Videos (Helium, VLC),
 # Spiele, Anrufe. Zeiten in Sekunden. Nach Änderungen: pkill swayidle, dann
 # `swayidle -w &` (oder neu anmelden).
 
