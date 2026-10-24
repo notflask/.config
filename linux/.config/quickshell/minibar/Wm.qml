@@ -37,7 +37,7 @@ Singleton {
             const current = m.activeWorkspace;
             const tags = Hyprland.workspaces.values.filter(w => w.id > 0 && w.monitor === m).sort((a, b) => a.id - b.id).map(w => ({
                         index: w.id,
-                        is_active: w === current,
+                        is_active: w.active,
                         client_count: w.toplevels.values.length,
                         is_urgent: w.urgent
                     }));
@@ -88,6 +88,7 @@ Singleton {
                 root.hyprLayout = event.data.slice(comma + 1);
             } else if (["workspace", "workspacev2", "createworkspace", "focusedmon", "openwindow", "closewindow", "movewindow"].includes(event.name)) {
                 Hyprland.refreshWorkspaces();
+                Hyprland.refreshMonitors();
             }
         }
     }
