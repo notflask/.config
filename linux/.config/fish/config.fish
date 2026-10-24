@@ -13,4 +13,4 @@ end
 alias fetch "fetch --rotate-y"
 
 # opencode
-fish_add_path /home/flask/.opencode/bin
+fish_add_path -g ~/.opencode/bin

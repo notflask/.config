@@ -208,6 +208,12 @@ run = 'layout floating'
 if.app-id = 'com.raycast.macos'
 run = 'layout floating'
 
+# Helium: Bild-im-Bild schwebt
+[[on-window-detected]]
+if.app-id = 'net.imput.helium'
+if.window-title-regex-substring = '^(Picture in picture|Bild im Bild)$'
+run = 'layout floating'
+
 # Shottr (Screenshot-Vorschau, Overlay) nicht kacheln
 [[on-window-detected]]
 if.app-id = 'cc.ffitch.shottr'
