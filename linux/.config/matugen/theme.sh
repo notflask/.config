@@ -88,6 +88,9 @@ matugen image "$image" \
   --quiet ||
   fail "matugen ist fehlgeschlagen ($image)."
 
+# Helium: Chromium nimmt sonst weiter die alten Farben aus dem Cache des Themes
+rm -f "$HOME/.local/share/helium-theme/Cached Theme.pak"
+
 # Hyprlock bzw. gtklock: verkleinerte Kopie des Bildes (1440p, JPEG). Ein 8K-PNG zu
 # dekodieren dauert spürbar, mit der Kopie erscheint die Sperre sofort.
 # Im Hintergrund, erst fertig schreiben, dann umbenennen.
