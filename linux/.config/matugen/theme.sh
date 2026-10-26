@@ -10,6 +10,8 @@
 #    theme.sh -T                   zwischen hell und dunkel umschalten
 #    theme.sh -t vibrant -i 1 BILD andere Variante / Quellfarbe
 #    theme.sh -s BILD              mögliche Quellfarben anzeigen
+#    theme.sh -g off               Stil mono: Wallpaper in Farbe lassen
+#                                  (bleibt gespeichert), -g on grau
 #
 #  Waypaper ruft es nach jedem Wechsel auf (post_command).
 # ============================================================
@@ -20,6 +22,10 @@ set -euo pipefail
 type=neutral # tonal-spot content expressive fidelity fruit-salad monochrome neutral rainbow vibrant
 index=0         # 0 = dominante Farbe, 1–4 = weitere
 contrast=0      # -1 … 1
+# Stil mono: Filter fürs Wallpaper (ImageMagick). -brightness-contrast
+# HELLxKONTRAST: erste Zahl kleiner = dunkler, zweite größer = härter.
+# Nach einer Änderung einmal: rm -r ~/.cache/mono-wall && theme.sh
+mono_filter=(-colorspace Gray -brightness-contrast -20x10)
 
 config="${XDG_CONFIG_HOME:-$HOME/.config}"
 state="${XDG_STATE_HOME:-$HOME/.local/state}"
@@ -27,10 +33,12 @@ cache="${XDG_CACHE_HOME:-$HOME/.cache}"
 waypaper_config="$config/waypaper/config.ini"
 # Hell oder dunkel: gilt, bis es mit -m oder -T geändert wird
 mode_file="$state/theme-mode"
+# Gibt es die Datei, bleibt das Wallpaper im Stil mono farbig (-g off)
+gray_off_file="$state/mono-wall-off"
 
 usage() {
-  sed -n '3,13s/^#  \{0,1\}//p' "$0"
-  echo "Optionen: -t TYP  -m dark|light  -T  -i 0-4  -c KONTRAST  -s (Quellfarben zeigen)"
+  sed -n '3,15s/^#  \{0,1\}//p' "$0"
+  echo "Optionen: -t TYP  -m dark|light  -T  -i 0-4  -c KONTRAST  -s (Quellfarben zeigen)  -g on|off"
 }
 
 # Fehler auch sichtbar machen, wenn Waypaper das Skript startet
@@ -43,9 +51,13 @@ fail() {
 mode=$(cat "$mode_file" 2>/dev/null || true)
 [ "$mode" = light ] || mode=dark
 
+# Stil mono (`style mono`): grau statt Wallpaper-Farben, immer dunkel
+style=$(cat "$config/g5/style" 2>/dev/null || true)
+[ "$style" = mono ] && type=monochrome
+
 show_sources=false
 new_mode=
-while getopts "t:m:i:c:sTh" opt; do
+while getopts "t:m:i:c:g:sTh" opt; do
   case $opt in
     t) type=${OPTARG#scheme-} ;;
     m) new_mode=$OPTARG ;;
@@ -53,6 +65,11 @@ while getopts "t:m:i:c:sTh" opt; do
     i) index=$OPTARG ;;
     c) contrast=$OPTARG ;;
     s) show_sources=true ;;
+    g) case $OPTARG in
+         on) rm -f "$gray_off_file" ;;
+         off) mkdir -p "$state" && touch "$gray_off_file" ;;
+         *) fail "-g braucht on oder off, nicht: $OPTARG" ;;
+       esac ;;
     h) usage; exit 0 ;;
     *) usage >&2; exit 2 ;;
   esac
@@ -66,6 +83,7 @@ if [ -n "$new_mode" ]; then
   esac
   mkdir -p "$state" && echo "$mode" >"$mode_file"
 fi
+[ "$style" = mono ] && mode=dark
 
 # Ohne Argument: das zuletzt in Waypaper gesetzte Bild
 image=${1:-}
@@ -80,6 +98,36 @@ if $show_sources; then
   exec matugen image "$image" --show-source-colors
 fi
 
+# Stil mono (außer mit -g off): Wallpaper durch mono_filter (oben) anzeigen. Waypaper setzt
+# erst das Original, danach blendet awww hier die graue Kopie ein (aus dem
+# Cache, je Bild und Änderungszeit einmal gerechnet). Alles Weitere (matugen,
+# Sperrbild) nimmt die graue Kopie. Zurück zum Original beim nächsten Lauf
+# außerhalb von mono.
+mono_dir="$cache/mono-wall"
+# Füllart wie Waypaper sie an awww gibt (waypaper/changer.py: auch
+# „stretch“ wird dort zu crop)
+case $(sed -n 's/^fill *= *//p' "$waypaper_config" 2>/dev/null) in
+  fit) resize=fit ;; center | tile) resize=no ;; *) resize=crop ;;
+esac
+if [ "$style" = mono ] && [ ! -f "$gray_off_file" ]; then
+  # Name aus Bild, Änderungszeit und Filter: neuer Filter, neue Kopie
+  gray="$mono_dir/$(printf '%s %s %s' "$image" "$(stat -c %Y "$image")" "${mono_filter[*]}" | md5sum | cut -c1-16).jpg"
+  if [ ! -f "$gray" ]; then
+    mkdir -p "$mono_dir"
+    magick "$image[0]" -resize '3840x2160>' "${mono_filter[@]}" \
+      -quality 92 "$gray.tmp.jpg" &&
+      mv -f "$gray.tmp.jpg" "$gray" || fail "Graue Kopie fehlgeschlagen ($image)."
+  fi
+  awww img --resize "$resize" --transition-type fade --transition-duration 0.6 \
+    "$gray" >/dev/null 2>&1 || true
+  touch "$mono_dir/active"
+  image=$gray
+elif [ -f "$mono_dir/active" ]; then
+  awww img --resize "$resize" --transition-type fade --transition-duration 0.6 \
+    "$image" >/dev/null 2>&1 || true
+  rm -f "$mono_dir/active"
+fi
+
 matugen image "$image" \
   --type "scheme-$type" \
   --mode "$mode" \
@@ -88,17 +136,21 @@ matugen image "$image" \
   --quiet ||
   fail "matugen ist fehlgeschlagen ($image)."
 
-# Helium: Chromium nimmt sonst weiter die alten Farben aus dem Cache des Themes
-rm -f "$HOME/.local/share/helium-theme/Cached Theme.pak"
+# Helium (Chromium) baut das Theme beim Laden einmal zu „Cached Theme.pak“
+# und liest beim Start nur noch diese Datei, nie die neue manifest.json.
+# Ohne Cache baut es beim nächsten Start neu.
+rm -f "${XDG_DATA_HOME:-$HOME/.local/share}/helium-theme/Cached Theme.pak"
 
 # Hyprlock bzw. gtklock: verkleinerte Kopie des Bildes (1440p, JPEG). Ein 8K-PNG zu
 # dekodieren dauert spürbar, mit der Kopie erscheint die Sperre sofort.
-# Im Hintergrund, erst fertig schreiben, dann umbenennen.
+# Im Hintergrund, erst fertig schreiben, dann umbenennen. Danach die Bilder
+# für hyprlock (Verlauf, Knöpfe – hypr/hyprlock-art.py)
 lock_wall="$cache/hyprlock/wallpaper.jpg"
 mkdir -p "${lock_wall%/*}"
 (
   magick "$image[0]" -resize '2560x1440^' -quality 92 "$lock_wall.tmp.jpg" &&
     mv -f "$lock_wall.tmp.jpg" "$lock_wall"
+  "$config/hypr/hyprlock-art.py" prepare
 ) >/dev/null 2>&1 &
 
 # GTK: Hell/Dunkel, Thema und Icons passend zum Modus. Über das

@@ -1,8 +1,13 @@
 #!/bin/sh
-# Ausschalt-Menü im minimalen Stil (Super+Shift+E unter Hyprland): Rofi mit
-# den Einträgen der Taskleiste (quickshell/taskbar/Power.qml)
+# Ausschalt-Menü für minimal und islands/frame (Super+Shift+E unter Hyprland):
+# Rofi mit den Einträgen der Taskleiste (quickshell/taskbar/Power.qml), im
+# Rofi-Stil des Launchers (flat.rasi bzw. soft.rasi)
+case $(cat ~/.config/g5/style 2>/dev/null) in
+  islands | frame) theme=soft ;;
+  *) theme=flat ;;
+esac
 choice=$(printf '%s\n' Sperren Abmelden Standby "Neu starten" Ausschalten |
-  rofi -dmenu -i -no-custom -p "aus" -theme ~/.config/rofi/flat.rasi -theme-str 'listview { lines: 5; }') || exit 0
+  rofi -dmenu -i -no-custom -p "aus" -theme ~/.config/rofi/$theme.rasi -theme-str 'listview { lines: 5; }') || exit 0
 case $choice in
   Sperren) exec wm lock ;;
   Abmelden) exec wm logout ;;

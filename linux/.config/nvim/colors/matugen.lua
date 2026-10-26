@@ -4,24 +4,24 @@
 -- Syntaxfarben wie die Terminalfarben in Ghostty (templates/ghostty-theme).
 -- theme.sh lädt es in laufenden Neovims neu.
 local c = {
-  surface = "#fff8f4",
-  container = "#f3ede8",
-  container_high = "#e8e1dd",
-  outline = "#7b7673",
-  outline_variant = "#cbc5c1",
-  on_surface = "#1d1b19",
-  on_surface_variant = "#494643",
-  primary = "#6c5c48",
-  primary_container = "#f5dfc6",
-  on_primary_container = "#251a0a",
-  tertiary = "#705b40",
-  error = "#ba1a1a",
-red = "#db302d", green = "#849900", yellow = "#b28500",
-  magenta = "#d23681", cyan = "#29a298",
+  surface = "#131313",
+  container = "#1f1f1f",
+  container_high = "#353535",
+  outline = "#919191",
+  outline_variant = "#474747",
+  on_surface = "#e2e2e2",
+  on_surface_variant = "#c6c6c6",
+  primary = "#ffffff",
+  primary_container = "#d4d4d4",
+  on_primary_container = "#000000",
+  tertiary = "#e2e2e2",
+  error = "#ffb4ab",
+red = "#d8647e", green = "#7fa563", yellow = "#f3be7c",
+  magenta = "#bb9dbd", cyan = "#aeaed1",
 
 }
 
-vim.o.background = "light"
+vim.o.background = "dark"
 require("mini.base16").setup({
   palette = {
     base00 = c.surface,

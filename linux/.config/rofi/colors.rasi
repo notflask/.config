@@ -1,25 +1,25 @@
 // Erzeugt von matugen (templates/rofi-colors.rasi) – hier nichts ändern
 * {
-    glass:     #eee7e380;
-    fg:        #1d1b19e6;
-    fg-dim:    #494643cc;
-    fg-faint:  #49464380;
-    selection: #1d1b1929;
+    glass:     #2a2a2a80;
+    fg:        #e2e2e2e6;
+    fg-dim:    #c6c6c6cc;
+    fg-faint:  #c6c6c680;
+    selection: #e2e2e229;
     // Suchkapsel: leicht abgesetzte Fläche auf dem Glas
-    pill:      #0000000d;
+    pill:      #ffffff17;
     // Akzent aus dem Hintergrundbild (Textcursor)
-    accent:    #6c5c48;
-    rim:       #00000024;
+    accent:    #ffffff;
+    rim:       #ffffff40;
     // flat.rasi: deckende Fläche und Rahmen
-    bg:        #fff8f4;
-    border-c:  #6c5c48;
+    bg:        #131313;
+    border-c:  #ffffff;
     // soft.rasi (Stile islands/frame): Inselfläche, Auswahl als Kapsel
-    soft-bg:   #f3ede8;
-    soft-pill: #e8e1dd;
-    soft-rim:  #cbc5c1;
-    soft-sel:  #f0e0d0;
-    soft-sel-fg: #221a10;
-    soft-acc-fg: #ffffff;
-    soft-key:  #eee7e3;
-    divider:   #00000014;
+    soft-bg:   #1f1f1f;
+    soft-pill: #353535;
+    soft-rim:  #474747;
+    soft-sel:  #474747;
+    soft-sel-fg: #e2e2e2;
+    soft-acc-fg: #1b1b1b;
+    soft-key:  #2a2a2a;
+    divider:   #ffffff1f;
 }

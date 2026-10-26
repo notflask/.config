@@ -12,6 +12,9 @@
 #    theme-sun.py --no-apply nur den Modus merken und Timer stellen
 #                            (beim Login: waypaper --restore färbt danach
 #                            ohnehin ein und liest den Modus)
+#    theme-sun.py off        nicht mehr nach der Sonne schalten (bleibt
+#                            gespeichert); Modus fest mit theme.sh -m dark|light
+#    theme-sun.py on         wieder einschalten (schaltet gleich passend)
 #
 #  Wird nach dem Ruhezustand ein verpasster Wechsel fällig, startet
 #  systemd den Timer beim Aufwachen.
@@ -30,7 +33,10 @@ LAT, LON = 52.52, 13.405
 
 home = Path.home()
 theme_sh = home / ".config/matugen/theme.sh"
-mode_file = Path(os.environ.get("XDG_STATE_HOME", home / ".local/state")) / "theme-mode"
+state = Path(os.environ.get("XDG_STATE_HOME", home / ".local/state"))
+mode_file = state / "theme-mode"
+# Gibt es die Datei, schaltet das Skript nichts (theme-sun.py off)
+off_file = state / "theme-sun-off"
 
 
 def sun(day):
@@ -53,7 +59,30 @@ def sun(day):
     return unix(transit - w / 360), unix(transit + w / 360)
 
 
+def stop_timers():
+    """Alte Timer weg (der laufende Dienst bleibt)"""
+    old = subprocess.run(
+        ["systemctl", "--user", "list-units", "--plain", "--no-legend", "--all",
+         "theme-sun-*.timer"], capture_output=True, text=True).stdout.split()
+    timers = [u for u in old if u.startswith("theme-sun-") and u.endswith(".timer")]
+    if timers:
+        subprocess.run(["systemctl", "--user", "stop", *timers], check=False)
+
+
 def main():
+    if "off" in sys.argv[1:]:
+        state.mkdir(parents=True, exist_ok=True)
+        off_file.touch()
+        stop_timers()
+        print("Hell/Dunkel nach der Sonne: aus (fest: theme.sh -m dark|light)")
+        return 0
+    if "on" in sys.argv[1:]:
+        off_file.unlink(missing_ok=True)
+        print("Hell/Dunkel nach der Sonne: an")
+    elif off_file.exists():
+        stop_timers()
+        return 0
+
     now = time.time()
     today = date.today()
     rise, set_ = sun(today)
@@ -71,13 +100,8 @@ def main():
     events = [t for t in (rise, set_, sun(today + timedelta(days=1))[0]) if t > now + 30]
     at = datetime.fromtimestamp(events[0]).strftime("%Y-%m-%d %H:%M:%S")
 
-    # Alten Timer weg (der laufende Dienst bleibt), neuen mit eigenem Namen
-    old = subprocess.run(
-        ["systemctl", "--user", "list-units", "--plain", "--no-legend", "--all",
-         "theme-sun-*.timer"], capture_output=True, text=True).stdout.split()
-    timers = [u for u in old if u.startswith("theme-sun-") and u.endswith(".timer")]
-    if timers:
-        subprocess.run(["systemctl", "--user", "stop", *timers], check=False)
+    # Alten Timer weg, neuen mit eigenem Namen
+    stop_timers()
     subprocess.run(
         ["systemd-run", "--user", "--quiet", f"--unit=theme-sun-{int(events[0])}",
          f"--on-calendar={at}", "--timer-property=AccuracySec=1min",

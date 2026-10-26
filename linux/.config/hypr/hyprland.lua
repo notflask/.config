@@ -17,8 +17,9 @@ if not ok or type(colors) ~= "table" then
 end
 local c = setmetatable(colors, { __index = { primary = "#a5c8ff", surface = "#111318", rim = "#ffffff26" } })
 
--- Vier Stile (Befehl `style minimal|islands|frame|glass`, Vorgabe minimal):
+-- Fünf Stile (Befehl `style minimal|mono|islands|frame|glass`, Vorgabe minimal):
 --   minimal  eckig und flach, schmale Textleiste (quickshell/minibar), Aussehen in minimal.lua
+--   mono     wie minimal, schwarz/grau mit rosa Akzent (quickshell/mono), graue Rahmen
 --   islands  deckend und rund, Leiste aus drei Inseln (quickshell/islands), Aussehen in soft.lua
 --   frame    wie islands, die Leiste ist ein Rahmen um den Bildschirm
 --   glass    Liquid Glass: abgerundet, Blur, Taskleiste (quickshell/taskbar), hyprtasking
@@ -519,15 +520,37 @@ local function has_neighbor(w, dir)
     return false
 end
 
+-- Gibt es auf dem Monitor von ws eine Fläche darunter (step > 0) bzw.
+-- darüber (step < 0)?
+local function has_workspace_beyond(ws, step)
+    for _, o in ipairs(hl.get_workspaces()) do
+        if not o.special and o.monitor and ws.monitor and o.monitor.name == ws.monitor.name
+            and (step > 0 and o.id > ws.id or step < 0 and o.id < ws.id) then
+            return true
+        end
+    end
+    return false
+end
+
 -- focus-workspace-down/up: auf diesem Monitor, unter der leeren
--- Arbeitsfläche ist Schluss (wie in Niri)
+-- Arbeitsfläche ist Schluss (wie in Niri). Hyprland nummeriert nicht neu wie
+-- Niri: Flächen 3 und 6 lassen eine Lücke, "r+1" landet auf der leeren 4 und
+-- 6 bleibt unerreichbar. Darum "m±1" (nächste offene Fläche), solange es
+-- eine gibt, und "r+1" nur für die leere Fläche am Ende.
 local function focus_workspace(step)
     return function()
         local ws = hl.get_active_workspace()
-        if not ws or (step > 0 and ws.is_empty) or (step < 0 and ws.id <= 1) then
+        if not ws then
             return
         end
-        hl.dispatch(hl.dsp.focus({ workspace = step > 0 and "r+1" or "r-1" }))
+        -- Über der obersten Fläche gibt es nichts (wie in Niri). Vorher legte
+        -- "r-1" dort eine leere Fläche an, und von der kam man nicht zurück,
+        -- weil Scrollen nach unten auf leeren Flächen abbrach.
+        if has_workspace_beyond(ws, step) then
+            hl.dispatch(hl.dsp.focus({ workspace = step > 0 and "m+1" or "m-1" }))
+        elseif step > 0 and not ws.is_empty then
+            hl.dispatch(hl.dsp.focus({ workspace = "r+1" }))
+        end
     end
 end
 
@@ -1015,6 +1038,17 @@ hl.config({
 -- ── Minimaler Stil bzw. islands/frame ──────────────────────────
 if minimal then
     require("minimal")
+    -- mono: graue Rahmen statt Akzentfarbe (wie die Leiste)
+    if style == "mono" then
+        hl.config({
+            general = {
+                col = {
+                    active_border = "#5c5c5c",
+                    inactive_border = "#262626",
+                },
+            },
+        })
+    end
 elseif soft then
     require("soft")(style, c)
 end

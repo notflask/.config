@@ -1,29 +1,32 @@
 #!/bin/sh
-# style [minimal|islands|frame|glass] – Stil der Sitzung wechseln (ohne Argument: aktuellen zeigen)
+# style [minimal|mono|islands|frame|glass] – Stil der Sitzung wechseln (ohne Argument: aktuellen zeigen)
 #   minimal  eckig und flach: schmale Textleiste (minibar), flaches mako, Rofi flat, `term`
+#   mono     wie minimal, aber schwarz/grau mit rosa Akzent (Leiste quickshell/mono,
+#            Farben monochrom statt aus dem Wallpaper, immer dunkel)
 #   islands  deckend und rund: drei Inseln oben (quickshell/islands), mako/Rofi soft
 #   frame    wie islands, die Leiste ist ein Rahmen um den Bildschirm
 #   glass    Liquid Glass: Taskleiste, Glas-mako, Blur, abgerundete Fenster
 cfg=${XDG_CONFIG_HOME:-$HOME/.config}
 case ${1:-} in
-  minimal | islands | frame | glass) style=$1 ;;
+  minimal | mono | islands | frame | glass) style=$1 ;;
   "") cat "$cfg/g5/style" 2>/dev/null || echo minimal; exit 0 ;;
-  *) echo "style minimal|islands|frame|glass" >&2; exit 2 ;;
+  *) echo "style minimal|mono|islands|frame|glass" >&2; exit 2 ;;
 esac
+old=$(cat "$cfg/g5/style" 2>/dev/null)
 mkdir -p "$cfg/g5" "$HOME/.local/share/applications" "$cfg/fastfetch"
 echo "$style" >"$cfg/g5/style"
 dots=$(dirname "$(readlink -f "$cfg/hypr")") # linux/.config im Repo
 
 # Ghostty im Startmenü: minimal über `term`
 desktop=com.mitchellh.ghostty.desktop
-if [ "$style" = minimal ] && [ -f "/usr/share/applications/$desktop" ]; then
+if { [ "$style" = minimal ] || [ "$style" = mono ]; } && [ -f "/usr/share/applications/$desktop" ]; then
   sed 's|^Exec=ghostty|Exec=/usr/local/bin/term|' "/usr/share/applications/$desktop" >"$HOME/.local/share/applications/$desktop"
 else
   rm -f "$HOME/.local/share/applications/$desktop"
 fi
 # fastfetch: minimal mit großem Logo (erzeugt matugen), sonst kleines Logo
 [ -L "$cfg/fastfetch" ] && rm "$cfg/fastfetch" && mkdir -p "$cfg/fastfetch"
-if [ "$style" = minimal ]; then
+if [ "$style" = minimal ] || [ "$style" = mono ]; then
   ln -sfn "$dots/fastfetch/minimal.jsonc" "$cfg/fastfetch/config.jsonc"
 else
   ln -sfn "$dots/fastfetch/config.jsonc" "$cfg/fastfetch/config.jsonc"
@@ -38,6 +41,9 @@ if pgrep -x Hyprland >/dev/null; then
     minimal)
       setsid -f mako --config "$cfg/mako/config-flat" </dev/null >/dev/null 2>&1
       setsid -f quickshell -p "$cfg/quickshell/minibar" </dev/null >/dev/null 2>&1 ;;
+    mono)
+      setsid -f mako --config "$cfg/mako/config-flat" </dev/null >/dev/null 2>&1
+      setsid -f quickshell -p "$cfg/quickshell/mono" </dev/null >/dev/null 2>&1 ;;
     islands | frame)
       setsid -f mako --config "$cfg/mako/config-soft" </dev/null >/dev/null 2>&1
       setsid -f quickshell -p "$cfg/quickshell/islands" </dev/null >/dev/null 2>&1 ;;
@@ -45,5 +51,10 @@ if pgrep -x Hyprland >/dev/null; then
       setsid -f mako </dev/null >/dev/null 2>&1
       setsid -f quickshell -p "$cfg/quickshell/taskbar" </dev/null >/dev/null 2>&1 ;;
   esac
+fi
+# mono färbt anders (monochrom, dunkel): Farben neu erzeugen beim Wechsel
+# von oder zu mono
+if [ "$style" != "$old" ] && { [ "$style" = mono ] || [ "$old" = mono ]; }; then
+  "$cfg/matugen/theme.sh" || true
 fi
 echo "Stil: $style"

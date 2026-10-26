@@ -20,18 +20,18 @@ max-visible=5
 layer=overlay
 anchor=top-right
 
-background-color=#fff8f4
-text-color=#1d1b19
-border-color=#6c5c48
-progress-color=over #f5dfc6
+background-color=#131313
+text-color=#e2e2e2
+border-color=#ffffff
+progress-color=over #d4d4d4
 
-format=<b>%s</b>\n<span color="#494643">%b</span>
+format=<b>%s</b>\n<span color="#c6c6c6">%b</span>
 
 [urgency=low]
-border-color=#7b7673
+border-color=#919191
 
 [urgency=critical]
-border-color=#ba1a1a
+border-color=#ffb4ab
 default-timeout=0
 
 [mode=do-not-disturb]
