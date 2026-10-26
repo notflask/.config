@@ -126,7 +126,7 @@ autostart() {
     exec waypaper --restore
   ) </dev/null &
 
-  # Stil aus ~/.config/g5/style (Befehl `style minimal|islands|frame|glass`,
+  # Stil aus ~/.config/g5/style (Befehl `style minimal|mono|islands|frame|glass`,
   # Vorgabe minimal). mako vor der ersten Nachricht starten, sonst holt D-Bus
   # es mit der falschen Config
   case $(cat "$config/g5/style" 2>/dev/null) in
@@ -138,6 +138,10 @@ autostart() {
       # deckend und rund: Inseln bzw. Rahmen (~/.config/quickshell/islands)
       spawn mako --config "$config/mako/config-soft"
       spawn quickshell -p "$config/quickshell/islands" ;;
+    mono)
+      # wie minimal, Leiste schwarz/grau (~/.config/quickshell/mono)
+      spawn mako --config "$config/mako/config-flat"
+      spawn quickshell -p "$config/quickshell/mono" ;;
     *)
       # minimal: schmale Textleiste oben und mako flach
       spawn mako --config "$config/mako/config-flat"

@@ -59,7 +59,7 @@ Environment variables (`USERNAME`, `HOSTNAME_G5`, `TZ_G5`, `LOCALE_G5`, `KERNEL_
 
 | Key | Default | Meaning |
 |---|---|---|
-| `style` | `minimal` | `minimal`: flat, thin text bar, no blur or animations (lightest on the GPU). `islands`: opaque and rounded, three floating bar islands on top. `frame`: like `islands`, the bar is a rounded frame around the screen. `glass`: Liquid Glass taskbar, blur, rounded corners. |
+| `style` | `minimal` | `minimal`: flat, thin text bar, no blur or animations (lightest on the GPU). `mono`: like `minimal`, but black/grey with a pink accent, Chinese workspace numerals, centered title; colors monochrome and always dark. `islands`: opaque and rounded, three floating bar islands on top. `frame`: like `islands`, the bar is a rounded frame around the screen. `glass`: Liquid Glass taskbar, blur, rounded corners. |
 | `terminal` | `ghostty` | Super+T |
 | `shell` | `fish` | login shell, changed with `chsh` on apply |
 | `launcher` | `rofi` | Super+D / Super+Space |
