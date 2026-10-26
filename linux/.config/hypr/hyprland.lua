@@ -450,8 +450,8 @@ hl.layer_rule({ name = "power_menu", match = { namespace = "power-menu" }, blur 
 -- slurp (Bereich für screenshot/screenshot-edit) sofort weg, sonst fotografiert
 -- grim den ausblendenden Rahmen und Schleier mit
 hl.layer_rule({ name = "slurp", match = { namespace = "selection" }, no_anim = true })
--- opal ebenso
-hl.layer_rule({ name = "opal", match = { namespace = "^opal$" }, no_anim = true })
+-- opal ebenso (auch opal-zoom)
+hl.layer_rule({ name = "opal", match = { namespace = "^opal" }, no_anim = true })
 
 -- Alt+Tab (quickshell/taskbar/AltTab.qml): Glas wie Rofi, sofort da
 hl.layer_rule({ name = "alttab", match = { namespace = "alttab" }, blur = true, ignore_alpha = 0.1, no_anim = true })
@@ -944,6 +944,10 @@ local opal = (g5.screenshot or "opal") == "opal"
 bind(key("SHIFT + S"), hl.dsp.exec_cmd(opal and "opal region" or "screenshot-edit"))
 -- Ohne Zeichnen: Bereich → Clipboard + Datei beim Loslassen
 bind("Print", hl.dsp.exec_cmd(opal and "opal region --no-edit" or "screenshot"), title("Take a Screenshot"))
+-- opal zoom: Bildschirm vergrößern, zweites Drücken schließt wieder
+if opal then
+    bind(key("Z"), hl.dsp.exec_cmd("opal zoom"), title("Zoom", { repeating = false }))
+end
 
 -- GPU Screen Recorder: dieselben Tasten wie seine eigenen. gsr-global-hotkeys
 -- bräuchte Lesezugriff auf /dev/input (ohne setcap) – stattdessen
