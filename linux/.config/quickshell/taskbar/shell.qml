@@ -16,6 +16,15 @@ import QtQuick
 import Quickshell
 
 ShellRoot {
+    Osd {
+        background: Theme.glass
+        foreground: Theme.text
+        accent: Theme.primary
+        rim: Theme.rim
+        fontFamily: Theme.font
+        cornerRadius: 18
+    }
+
     Variants {
         model: Quickshell.screens
 

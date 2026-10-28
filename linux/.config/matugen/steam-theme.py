@@ -419,6 +419,21 @@ def library_list():
             f"{{color:var(--m-on-surface-variant)!important}}\n")
 
 
+def library_button_contrast():
+    """Resolve Steam's hashed library action container, then pair foreground/background."""
+    for js in sorted((steam / "steamui").glob("*.js")):
+        match = re.search(r'PlayButtonContainer:"([\w-]+)"', js.read_text(errors="replace"))
+        if match:
+            selector = "." + match.group(1)
+            return (f"{selector} button{{background:var(--m-primary-container)!important;"
+                    "color:var(--m-on-primary-container)!important}\n"
+                    f"{selector} button *{{color:var(--m-on-primary-container)!important;"
+                    "-webkit-text-fill-color:var(--m-on-primary-container)!important}\n"
+                    f"{selector} button svg,{selector} button svg *"
+                    "{fill:currentColor!important}\n")
+    return ""
+
+
 # ── Theme schreiben ──────────────────────────────────────────
 
 def install_fonts():
@@ -473,7 +488,7 @@ def main():
         # danach, damit sie gewinnen
         for name, css in texts:
             out.append(f"/* {name}: flach */\n{flatten(css)}\n")
-        out.append(f"/* Bibliothek */\n{library_list()}")
+        out.append(f"/* Bibliothek */\n{library_list()}{library_button_contrast()}")
         tmp = theme / "recolor.css.tmp"
         tmp.write_text("".join(out))
         tmp.replace(theme / "recolor.css")

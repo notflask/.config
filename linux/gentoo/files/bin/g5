@@ -76,6 +76,11 @@ def check(v, s, path):
         if len(v) < s.get("minItems", 0): errors.append(f"{path}: at least {s['minItems']} entries")
         for i, x in enumerate(v): check(x, s.get("items", {}), f"{path}[{i}]")
 check(data, schema, "g5")
+p = data.get("performance", {}) if isinstance(data, dict) else {}
+p = p if isinstance(p, dict) else {}
+lo, hi = p.get("gpu_min_clock_mhz"), p.get("gpu_max_clock_mhz")
+if type(lo) is int and type(hi) is int and lo > hi:
+    errors.append("g5.performance: gpu_min_clock_mhz must not exceed gpu_max_clock_mhz")
 for e in errors: print("  " + e, file=sys.stderr)
 sys.exit(1 if errors else 0)
 PY
@@ -158,8 +163,8 @@ apply_gaming() {
     echo "desiredgov=$gov"
     echo "inhibit_screensaver=1"
     echo
-    echo "[gpu]"
-    echo "apply_gpu_optimisations=0"
+    echo "; GPU-Tuning bleibt beim NVIDIA-Treiber bzw. g5-tuning."
+    echo "; apply_gpu_optimisations nicht setzen: selbst 0 erzeugt eine GameMode-Fehlermeldung."
     if [ -n "$curve" ]; then
       echo
       echo "[custom]"
@@ -184,6 +189,8 @@ apply_apps() {
     flatpak info --user "$app" >/dev/null 2>&1 ||
       flatpak install --user -y --noninteractive flathub "$app" || note "Flatpak $app nicht installiert"
   done
+  # Flatpaks haben eigenes ~/.config → Matugen-Farben (GTK3/4) für alle freigeben
+  flatpak override --user --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro
   echo "apps: Flatpaks $(get apps.flatpaks)"
 }
 
@@ -364,6 +371,10 @@ doctor() {
   v=$(($(cat /sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw 2>/dev/null || echo 0) / 1000000))
   want=$(get performance.cpu_pl1_watts 2>/dev/null || echo 65)
   [ "$v" = "$want" ] && ok "CPU PL1 $v W" || bad "CPU PL1 $v W statt $want W"
+  want=$(get performance.cpu_dynamic_boost)
+  [ "$want" = true ] && want=1 || want=0
+  v=$(cat /sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost 2>/dev/null || true)
+  [ "$v" = "$want" ] && ok "CPU Dynamic Boost $v" || bad "CPU Dynamic Boost $v statt $want (g5 apply performance)"
   systemctl is-active --quiet ananicy-cpp && ok "ananicy-cpp läuft" || bad "ananicy-cpp läuft nicht"
   [ "$(cat /sys/block/nvme0n1/queue/scheduler 2>/dev/null | grep -o '\[[a-z-]*\]')" = "[bfq]" ] && ok "NVMe mit BFQ (ionice wirkt)" || note "NVMe-Scheduler nicht BFQ"
   swapon --show=NAME --noheadings | grep -q zram && ok "zram-Swap aktiv" || bad "kein zram-Swap"
@@ -417,7 +428,7 @@ case $cmd in
       get) get "${2:?KEY, z. B. gaming.stretch}" ;;
       set)
         key=${2:?KEY} val=${3?WERT}
-        jq -e . >/dev/null 2>&1 <<<"$val" || val=$(jq -Rn --arg v "$val" '$v')
+        jq empty >/dev/null 2>&1 <<<"$val" || val=$(jq -Rn --arg v "$val" '$v')
         tmp=$(mktemp)
         jq --indent 2 --argjson p "$(path_of "$key")" --argjson v "$val" 'setpath($p; $v)' "$base" >"$tmp"
         validate "$tmp" || { rm -f "$tmp"; die "ungültig – nichts geändert"; }

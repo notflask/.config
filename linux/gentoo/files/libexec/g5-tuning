@@ -2,13 +2,30 @@
 # Leistungs-Einstellungen als einmaliger systemd-Dienst (g5-tuning.service).
 # Werte aus /etc/g5/g5.json (performance, `g5 apply` schreibt sie aus
 # config/g5.json im Repo). Nach dem Standby startet sleep/g5-tuning ihn neu.
+set -eu
+fail() { echo "g5-tuning: $*" >&2; exit 1; }
 cfg=/etc/g5/g5.json
-val() { jq -r "(.performance.$1) // empty" "$cfg" 2>/dev/null; }
-profile=$(val power_profile); profile=${profile:-performance}
-pl1=$(val cpu_pl1_watts); pl1=${pl1:-65}
-boost=$(val cpu_dynamic_boost); boost=${boost:-true}
-gmin=$(val gpu_min_clock_mhz); gmin=${gmin:-1500}
-gmax=$(val gpu_max_clock_mhz); gmax=${gmax:-3105}
+# Eine validierte Momentaufnahme; false ist ein Wert, kein fehlender Eintrag.
+settings=$(jq -er '
+  {power_profile:"performance", cpu_pl1_watts:65, cpu_dynamic_boost:true,
+   gpu_min_clock_mhz:1500, gpu_max_clock_mhz:3105} + (.performance // {})
+  | select(.power_profile | IN("performance", "balanced", "power-saver"))
+  | select(.cpu_dynamic_boost | type == "boolean")
+  | select(.cpu_pl1_watts | type == "number" and floor == . and . >= 15 and . <= 115)
+  | select(.gpu_min_clock_mhz | type == "number" and floor == . and . >= 0 and . <= 3105)
+  | select(.gpu_max_clock_mhz | type == "number" and floor == . and . >= 300 and . <= 3105)
+  | select(.gpu_min_clock_mhz <= .gpu_max_clock_mhz)
+  | [.power_profile, .cpu_pl1_watts, .cpu_dynamic_boost,
+     .gpu_min_clock_mhz, .gpu_max_clock_mhz] | @tsv
+' "$cfg") || fail "ungültige oder unlesbare Konfiguration: $cfg"
+IFS="$(printf '\t')" read -r profile pl1 boost gmin gmax <<EOF
+$settings
+EOF
+
+write_checked() {
+  printf '%s\n' "$2" >"$1" || fail "kann $1 nicht schreiben"
+  [ "$(cat "$1")" = "$2" ] || fail "$1 hat den angeforderten Wert $2 nicht übernommen"
+}
 
 # Energieprofil (power-profiles-daemon braucht beim Booten einen Moment)
 for _ in $(seq 30); do
@@ -16,25 +33,26 @@ for _ in $(seq 30); do
     [ "$(powerprofilesctl get)" = "$profile" ] && break
   sleep 0.5
 done
+[ "$(powerprofilesctl get)" = "$profile" ] || fail "Energieprofil $profile nicht übernommen"
 
 # CPU taktet nach Warten auf Daten sofort hoch
 [ "$boost" = true ] && b=1 || b=0
-echo $b >/sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost 2>/dev/null
+write_checked /sys/devices/system/cpu/intel_pstate/hwp_dynamic_boost "$b"
 
 # Dauerleistung (PL1): der Firmware-Modus „Leistung“ erlaubt 90 W, damit lief
 # der i5-12500H mit Spiel + Stream ständig ins Thermal-Throttling. Erst nach
 # dem Control Center setzen, das PL1 neu schreibt.
 systemctl is-active --quiet gigabyte-control-center && sleep 2
-echo $((pl1 * 1000000)) >/sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw
+write_checked /sys/class/powercap/intel-rapl:0/constraint_0_power_limit_uw "$((pl1 * 1000000))"
 
 # Mindesttakt der RTX 4060: Animationen sofort flüssig (~10–15 W im Leerlauf).
 # 0 = Treiber entscheidet
 if command -v nvidia-smi >/dev/null; then
-  nvidia-smi -pm 1 >/dev/null
+  nvidia-smi -pm 1 >/dev/null || fail "NVIDIA Persistence Mode fehlgeschlagen"
   if [ "$gmin" -gt 0 ]; then
-    nvidia-smi --lock-gpu-clocks="$gmin,$gmax" >/dev/null
+    nvidia-smi --lock-gpu-clocks="$gmin,$gmax" >/dev/null || fail "NVIDIA-Taktlimit fehlgeschlagen"
   else
-    nvidia-smi --reset-gpu-clocks >/dev/null
+    nvidia-smi --reset-gpu-clocks >/dev/null || fail "NVIDIA-Taktlimit konnte nicht zurückgesetzt werden"
   fi
 fi
 exit 0

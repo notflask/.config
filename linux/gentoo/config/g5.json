@@ -67,7 +67,8 @@
   },
   "apps": {
     "flatpaks": [
-      "org.vinegarhq.Sober"
+      "org.vinegarhq.Sober",
+      "com.github.flxzt.rnote"
     ],
     "spicetify": true,
     "vencord": true,

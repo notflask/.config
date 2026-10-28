@@ -136,6 +136,20 @@ matugen image "$image" \
   --quiet ||
   fail "matugen ist fehlgeschlagen ($image)."
 
+# Match the fixed mono shell palette; other styles use matugen colors.
+if [ "$style" = mono ]; then
+  sed -i \
+    -e 's/^background_color=.*/background_color=000000/' \
+    -e 's/^text_color=.*/text_color=d0d0d0/' \
+    -e 's/^engine_color=.*/engine_color=e0607e/' \
+    -e 's/^gpu_color=.*/gpu_color=e0607e/' \
+    -e 's/^vram_color=.*/vram_color=d0d0d0/' \
+    -e 's/^cpu_color=.*/cpu_color=d0d0d0/' \
+    -e 's/^ram_color=.*/ram_color=d0d0d0/' \
+    -e 's/^frametime_color=.*/frametime_color=e0607e/' \
+    "$config/MangoHud/MangoHud.conf"
+fi
+
 # Helium (Chromium) baut das Theme beim Laden einmal zu „Cached Theme.pak“
 # und liest beim Start nur noch diese Datei, nie die neue manifest.json.
 # Ohne Cache baut es beim nächsten Start neu.

@@ -60,9 +60,9 @@
       "additionalProperties": false,
       "properties": {
         "power_profile": { "enum": ["performance", "balanced", "power-saver"] },
-        "cpu_pl1_watts": { "type": "integer", "minimum": 15, "maximum": 115, "description": "Sustained CPU power limit (RAPL PL1). 65 avoids thermal throttling under game + stream." },
+        "cpu_pl1_watts": { "type": "integer", "minimum": 15, "maximum": 115, "description": "Sustained CPU power limit (RAPL PL1). Validate sustained clocks and temperatures under game + stream; higher is not always faster." },
         "cpu_dynamic_boost": { "type": "boolean", "description": "intel_pstate hwp_dynamic_boost: clock up instantly after I/O waits." },
-        "gpu_min_clock_mhz": { "type": "integer", "minimum": 0, "maximum": 3105, "description": "Lowest RTX 4060 core clock. 1500 = always smooth desktop (+10-15 W idle), 0 = driver default." },
+        "gpu_min_clock_mhz": { "type": "integer", "minimum": 0, "maximum": 3105, "description": "Lowest RTX 4060 core clock. A clock floor may reduce ramp-up delays but costs power; measure before choosing. 0 = driver default." },
         "gpu_max_clock_mhz": { "type": "integer", "minimum": 300, "maximum": 3105 }
       }
     },
