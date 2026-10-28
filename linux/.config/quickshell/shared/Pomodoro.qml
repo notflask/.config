@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 
 // Pomodoro-Zähler ohne eigene Oberfläche (die Leiste zeigt ihn, mono:
@@ -11,7 +12,9 @@ import Quickshell.Io
 // Quickshell (z. B. `style`) lässt die laufende Runde weiterlaufen.
 //
 // Von außen: qs -p ~/.config/quickshell/mono ipc call pomodoro toggle
-//   (auch skip, reset, add <min>, status)
+//   (auch skip, reset, add <min>, status), Super+P startet/hält an,
+//   Super+Shift+P öffnet das Fenster (die Leiste zeigt nichts, solange
+//   keine Runde begonnen hat)
 Singleton {
     id: root
 
@@ -19,6 +22,8 @@ Singleton {
     readonly property string phase: st.phase
     readonly property bool running: st.running
     readonly property bool isBreak: phase === "short" || phase === "long"
+    // Noch nicht gestartet: bereit, oder neue Phase wartet auf den Klick
+    readonly property bool fresh: phase === "idle" || (!running && st.waiting)
     // Runden seit der letzten langen Pause und heute geschafft
     readonly property int round: st.round
     readonly property int doneToday: st.day === today() ? st.doneToday : 0
@@ -27,6 +32,9 @@ Singleton {
     readonly property int total: minutes(phase) * 60
     readonly property real progress: total > 0 ? 1 - left / total : 0
     readonly property var settings: cfg
+
+    // Super+Shift+P: Status.qml öffnet das Fenster
+    signal panelRequested
 
     function minutes(p) {
         return p === "short" ? cfg.shortBreak : p === "long" ? cfg.longBreak : cfg.focus;
@@ -49,7 +57,7 @@ Singleton {
             if (left === 0)
                 finish();
         } else {
-            left = st.phase === "idle" ? cfg.focus * 60 : st.left;
+            left = st.phase === "idle" ? cfg.focus * 60 : st.waiting ? total : st.left;
         }
     }
 
@@ -60,6 +68,7 @@ Singleton {
         st.left = secs;
         st.endsAt = Date.now() + secs * 1000;
         st.running = run;
+        st.waiting = !run;
         quiet(p === "focus" && run);
         if (run)
             hook(p);
@@ -75,8 +84,10 @@ Singleton {
             st.running = false;
             quiet(false);
         } else {
+            st.left = left;
             st.endsAt = Date.now() + st.left * 1000;
             st.running = true;
+            st.waiting = false;
             quiet(st.phase === "focus");
             hook(st.phase);
         }
@@ -93,6 +104,7 @@ Singleton {
     function reset() {
         st.phase = "idle";
         st.running = false;
+        st.waiting = false;
         st.round = 0;
         quiet(false);
         update();
@@ -105,7 +117,8 @@ Singleton {
         } else if (st.running) {
             st.endsAt = Math.max(Date.now() + 60000, st.endsAt + n * 60000);
         } else {
-            st.left = Math.max(60, st.left + n * 60);
+            st.left = Math.max(60, left + n * 60);
+            st.waiting = false;
         }
         update();
     }
@@ -217,8 +230,6 @@ Singleton {
             property string soundBreakEnd: "/usr/share/sounds/freedesktop/stereo/bell.oga"
             // mako im Fokus auf „do-not-disturb“
             property bool dnd: false
-            // ohne laufende Runde nur das Symbol zeigen (sonst ganz weg)
-            property bool showIdle: true
             // Befehle beim Start einer Phase, z. B. "playerctl play"
             property string cmdFocus: ""
             property string cmdBreak: ""
@@ -238,6 +249,8 @@ Singleton {
             // Ende in ms (läuft) bzw. Rest in s (angehalten)
             property real endsAt: 0
             property int left: 0
+            // Phase begonnen, aber noch nie gestartet (Leiste zeigt nichts)
+            property bool waiting: false
             property int round: 0
             property int doneToday: 0
             property string day: ""
@@ -250,6 +263,24 @@ Singleton {
         function onFocusChanged() {
             root.update();
         }
+        function onShortBreakChanged() {
+            root.update();
+        }
+        function onLongBreakChanged() {
+            root.update();
+        }
+    }
+
+    GlobalShortcut {
+        name: "pomodoro"
+        description: "Pomodoro starten/anhalten (Super+P)"
+        onPressed: root.toggle()
+    }
+
+    GlobalShortcut {
+        name: "pomodoro-panel"
+        description: "Pomodoro-Fenster (Super+Shift+P)"
+        onPressed: root.panelRequested()
     }
 
     Component.onCompleted: update()

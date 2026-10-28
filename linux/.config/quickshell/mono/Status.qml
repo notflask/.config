@@ -407,33 +407,96 @@ Row {
 
     Sep {}
 
-    // ── Pomodoro (Pomodoro.qml): Tomate aus Symbols Nerd Font, Fokus rosa,
-    //    Pause grün, angehalten grau; Zeit nur, solange er läuft. Klick startet/hält an, Mitte überspringt, Rechtsklick öffnet das
-    //    Fenster mit den Einstellungen, Mausrad ±1 min ───────────────────
+    // ── Pomodoro (Pomodoro.qml): Ring mit der Restzeit und die Zeit, Fokus
+    //    rosa, Pause grün; angehalten Pausezeichen, alles grau. Noch nicht
+    //    gestartet (bereit oder neue Phase wartet): ganz weg, dann startet
+    //    Super+P, Super+Shift+P öffnet das Fenster. Klick startet/hält an,
+    //    Mitte überspringt, Rechtsklick öffnet das Fenster, Mausrad ±1 min ──
     Item {
         id: pomo
 
-        readonly property bool shown: Pomodoro.phase !== "idle" || Pomodoro.settings.showIdle
-        readonly property color tint: Pomodoro.phase === "idle" || !Pomodoro.running ? Theme.dim : Pomodoro.isBreak ? Theme.ok : Theme.accent
+        readonly property bool shown: !Pomodoro.fresh
+        readonly property color tint: pomoMouse.containsMouse ? Theme.fg : !Pomodoro.running ? Theme.dim : Pomodoro.isBreak ? Theme.ok : Theme.accent
 
-        width: pomoRow.implicitWidth
+        // unsichtbar nur der Inhalt: das Fenster hängt an diesem Item
+        width: shown ? pomoRow.implicitWidth : 0
         height: parent.height
-        visible: shown
 
         Row {
             id: pomoRow
 
             height: parent.height
             spacing: 6
+            visible: pomo.shown
 
-            Icon {
-                color: pomoMouse.containsMouse ? Theme.fg : pomo.tint
-                // pom-pomodoro_done in der Pause, _ticking im Fokus, sonst _estimated
-                text: Pomodoro.isBreak ? "\ue001" : Pomodoro.running ? "\ue003" : "\ue002"
+            // Ring: schrumpft mit der Restzeit
+            Item {
+                width: 12
+                height: parent.height
+                visible: Pomodoro.running
+
+                Shape {
+                    anchors.centerIn: parent
+                    width: 12
+                    height: 12
+                    preferredRendererType: Shape.CurveRenderer
+
+                    ShapePath {
+                        strokeColor: Theme.faint
+                        strokeWidth: 2
+                        fillColor: "transparent"
+
+                        PathAngleArc {
+                            centerX: 6
+                            centerY: 6
+                            radiusX: 5
+                            radiusY: 5
+                            startAngle: 0
+                            sweepAngle: 360
+                        }
+                    }
+
+                    ShapePath {
+                        strokeColor: pomo.tint
+                        strokeWidth: 2
+                        fillColor: "transparent"
+                        capStyle: ShapePath.FlatCap
+
+                        PathAngleArc {
+                            centerX: 6
+                            centerY: 6
+                            radiusX: 5
+                            radiusY: 5
+                            startAngle: -90
+                            sweepAngle: 360 * (1 - Pomodoro.progress)
+                        }
+                    }
+                }
+            }
+
+            // Pausezeichen: zwei dünne Striche, so groß wie der Ring
+            Item {
+                width: 12
+                height: parent.height
+                visible: !Pomodoro.running
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 3
+
+                    Repeater {
+                        model: 2
+
+                        Rectangle {
+                            width: 2
+                            height: 8
+                            color: pomo.tint
+                        }
+                    }
+                }
             }
 
             Label {
-                visible: Pomodoro.running
                 height: parent.height
                 color: pomo.tint
                 text: Pomodoro.clock(Pomodoro.left)
@@ -455,6 +518,13 @@ Row {
                     Pomodoro.toggle();
             }
             onWheel: w => Pomodoro.add(w.angleDelta.y > 0 ? 1 : -1)
+        }
+
+        Connections {
+            target: Pomodoro
+            function onPanelRequested() {
+                pomoPanel.visible = !pomoPanel.visible;
+            }
         }
 
         PomodoroPanel {
