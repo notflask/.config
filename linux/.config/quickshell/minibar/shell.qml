@@ -13,6 +13,14 @@ import QtQuick
 import Quickshell
 
 ShellRoot {
+    Osd {
+        background: Theme.bg
+        foreground: Theme.fg
+        accent: Theme.accent
+        rim: Qt.alpha(Theme.fg, 0.25)
+        fontFamily: Theme.font
+    }
+
     Variants {
         model: Quickshell.screens
 

@@ -35,7 +35,7 @@ changes. It is merged over `g5.json`: objects are merged, lists are replaced.
 
 Included profiles:
 
-- **max**: PL1 80 W and a more aggressive fan curve. Louder and hotter, with the highest sustained clocks.
+- **max**: PL1 80 W and a more aggressive fan curve. An experimental higher-power profile, not a guaranteed performance improvement: thermal throttling can reduce sustained clocks.
 - **quiet**: balanced power, PL1 45 W, GPU clock not locked, fans left on auto. Good for studying.
 - **battery**: power-saver, PL1 25 W, no dynamic boost, GPU idles freely.
 
@@ -84,10 +84,15 @@ A list with one entry per output. `hyprctl monitors` shows the names.
 | Key | Default | Meaning |
 |---|---|---|
 | `power_profile` | `performance` | power-profiles-daemon profile |
-| `cpu_pl1_watts` | `65` | sustained CPU power limit. The firmware allows 90 W, at which the i5-12500H throttles thermally under game + stream. 65 keeps clocks stable. |
+| `cpu_pl1_watts` | `65` | sustained CPU power limit. A starting point for this laptop, not a guarantee against thermal throttling. Choose from sustained game + stream measurements rather than the highest permitted wattage. |
 | `cpu_dynamic_boost` | `true` | clock up instantly after I/O waits |
-| `gpu_min_clock_mhz` | `1500` | lowest RTX 4060 clock. Animations are always instant, at the cost of +10–15 W at idle. `0` = driver default. |
+| `gpu_min_clock_mhz` | `1500` | lowest RTX 4060 clock. May reduce clock ramp-up delays, with a workload-dependent power cost. No measured frame-time advantage is established here. `0` = driver default. |
 | `gpu_max_clock_mhz` | `3105` | upper clock limit |
+
+The minimum GPU clock must not exceed the maximum. `g5-tuning` validates its
+configuration before changing hardware settings, verifies the CPU settings,
+and reports a failed power-profile or GPU command as a service failure.
+`false` for `cpu_dynamic_boost` is preserved, including in the battery profile.
 
 ### `gaming` (defaults for `gaming-mode`)
 

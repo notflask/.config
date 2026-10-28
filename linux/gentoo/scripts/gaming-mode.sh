@@ -54,7 +54,7 @@ cfg=${XDG_CACHE_HOME:-$HOME/.cache}/g5/config.json
 [ -r "$cfg" ] || cfg=/etc/g5/g5.json
 monitor=DP-2 stretch="" refresh=0 hud=true cursor=grab grab_keys=false watchdog=false
 if [ -r "$cfg" ] && command -v jq >/dev/null; then
-  eval "$(jq -r '.gaming // {} | @sh "monitor=\(.monitor // "DP-2") stretch=\(.stretch // "") refresh=\(.refresh // 0) hud=\(.hud // true) cursor=\(.cursor // "grab") grab_keys=\(.grab_keyboard // false) watchdog=\(.watchdog // false)"' "$cfg")"
+  eval "$(jq -r '.gaming // {} | @sh "monitor=\(.monitor // "DP-2") stretch=\(.stretch // "") refresh=\(.refresh // 0) hud=\(if .hud == null then true else .hud end) cursor=\(.cursor // "grab") grab_keys=\(.grab_keyboard // false) watchdog=\(.watchdog // false)"' "$cfg")"
 fi
 sdl=0 filter=linear dry=0 wayland=0
 
@@ -126,8 +126,15 @@ if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] && command -v hyprctl >/dev/null; t
 fi
 out_w=2560 out_h=1440 out_hz=180
 if [ "$hypr" = 1 ]; then
-  read -r out_w out_h out_hz < <(hyprctl monitors -j | jq -r --arg m "$monitor" \
-    'first(.[] | select(.name == $m)) // first(.[] | select(.focused)) | "\(.width) \(.height) \(.refreshRate | round)"') || true
+  monitor_info=$(hyprctl monitors -j | jq -er --arg m "$monitor" '
+    first(.[] | select(.name == $m)) // first(.[] | select(.focused))
+    | if (.width > 0 and .width == (.width | floor)
+          and .height > 0 and .height == (.height | floor)
+          and .refreshRate >= 1 and .refreshRate <= 1000) then
+        "\(.width) \(.height) \(.refreshRate | round)"
+      else error("invalid monitor dimensions or refresh rate") end') ||
+    die "Monitor nicht lesbar – Hyprland-Verbindung und hyprctl monitors -j prüfen"
+  read -r out_w out_h out_hz <<<"$monitor_info"
 fi
 [ "$refresh" -gt 0 ] || refresh=$((out_hz > 63 ? out_hz - 3 : out_hz))
 
@@ -185,6 +192,24 @@ fi
 if [ "$hypr" = 1 ] && [ -n "$stretch" ]; then
   pid=$$
   (
+    # IPC failures must not leave the compositor's global cursor setting changed.
+    cursor_original=false cursor_restore_pending=0
+    restore_cursor() {
+      [ "$cursor_restore_pending" = 1 ] || return 0
+      hyprctl eval "hl.config({ cursor = { no_warps = $cursor_original } })" >/dev/null 2>&1 || return 1
+      cursor_restore_pending=0
+    }
+    allow_cursor_warps() {
+      local option
+      option=$(hyprctl getoption cursor.no_warps -j) || return 1
+      cursor_original=$(jq -er 'if .bool == true then "true" elif .bool == false then "false" else error("missing cursor.no_warps boolean") end' <<<"$option") || return 1
+      [ "$cursor_original" = true ] || return 0
+      cursor_restore_pending=1
+      hyprctl eval 'hl.config({ cursor = { no_warps = false } })' >/dev/null 2>&1
+    }
+    trap restore_cursor EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
     # bis zu 60 s: erst wenn das Fenster wirklich den Fokus hat UND der Zeiger
     # darin liegt, ist es geschafft (gamescope baut das Vollbild-Fenster in
     # den ersten Sekunden noch um – ein einzelner Versuch ging ins Leere)
@@ -211,11 +236,11 @@ if [ "$hypr" = 1 ] && [ -n "$stretch" ]; then
         break
       fi
       # no_warps kurz aus, damit Hyprland den Zeiger tatsächlich versetzt
-      hyprctl eval 'hl.config({ cursor = { no_warps = false } })' >/dev/null 2>&1
+      allow_cursor_warps
       hyprctl dispatch "hl.dsp.focus({ window = \"address:$addr\" })" >>"$log" 2>&1
       hyprctl dispatch "hl.dsp.cursor.move({ x = $((x + w / 2 + 1)), y = $((y + h / 2)) })" >/dev/null 2>&1
       hyprctl dispatch "hl.dsp.cursor.move({ x = $((x + w / 2)), y = $((y + h / 2)) })" >>"$log" 2>&1
-      hyprctl eval 'hl.config({ cursor = { no_warps = true } })' >/dev/null 2>&1
+      restore_cursor
       moved=$((${moved:-0} + 1))
       sleep 1 # gamescope Zeit geben, die Sperre zu setzen
     done
@@ -232,7 +257,7 @@ if [ "$hypr" = 1 ] && [ -n "$stretch" ]; then
     [ -n "${addr:-}" ] || exit 0 # Fenster nie erschienen
     disp=""
     for _ in $(seq 30); do
-      r=$(pgrep -P "$pid" -x gamescopereaper | head -1)
+      r=$(pgrep -P "$pid" -x gamescopereaper | head -1) || true
       [ -n "$r" ] && disp=$(tr '\0' '\n' <"/proc/$r/environ" 2>/dev/null | sed -n 's/^DISPLAY=//p')
       [ -n "$disp" ] && break
       sleep 1
@@ -244,7 +269,7 @@ if [ "$hypr" = 1 ] && [ -n "$stretch" ]; then
       mon=$(hyprctl clients -j | jq -r --arg a "$addr" 'first(.[] | select(.address == $a)) | .monitor')
       other=$(hyprctl clients -j | jq -r --arg a "$addr" --argjson m "${mon:-0}" \
         'first(.[] | select(.address != $a and .mapped and .monitor != $m and .workspace.id > 0)) | .address // empty')
-      hyprctl eval 'hl.config({ cursor = { no_warps = false } })' >/dev/null 2>&1
+      allow_cursor_warps
       if [ -n "$other" ]; then
         hyprctl dispatch "hl.dsp.focus({ window = \"address:$other\" })" >/dev/null 2>&1
       else
@@ -253,7 +278,7 @@ if [ "$hypr" = 1 ] && [ -n "$stretch" ]; then
       sleep 0.25
       hyprctl dispatch "hl.dsp.focus({ window = \"address:$addr\" })" >/dev/null 2>&1
       hyprctl dispatch "hl.dsp.cursor.move({ x = $((x + w / 2)), y = $((y + h / 2)) })" >/dev/null 2>&1
-      hyprctl eval 'hl.config({ cursor = { no_warps = true } })' >/dev/null 2>&1
+      restore_cursor
     }
 
     last="" since=0 done_for="" count=0

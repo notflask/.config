@@ -270,11 +270,23 @@ hl.window_rule({
 local game_classes = { cs2 = true, dota2 = true, gamescope = true, ["org.vinegarhq.Sober"] = true }
 
 hl.on("window.open", function(w)
-    -- .exe: Proton mit Wayland-Treiber (gaming-mode --wayland) heißt nach dem Programm
-    if not (game_classes[w.class] or w.class:match("^steam_app_") or w.class:match("%.exe$")) then
-        return
+    local function is_game(win)
+        local class = win.class or ""
+        return game_classes[class] or class:match("^steam_app_") or class:match("%.exe$")
     end
     local own = w.workspace
+    -- Also protect games already running: a browser/terminal opened on their
+    -- workspace must not join the tiling tree and resize the game on Alt+Tab.
+    local occupied_by_game = false
+    if own then
+        for _, other in ipairs(hl.get_workspace_windows(own.id)) do
+            if other.pid ~= w.pid and is_game(other) then
+                occupied_by_game = true
+                break
+            end
+        end
+    end
+    if not is_game(w) and not occupied_by_game then return end
     if not own or not w.monitor or (own.windows <= 1 and not own.special) then
         return
     end
@@ -456,6 +468,8 @@ hl.layer_rule({ name = "opal", match = { namespace = "^opal" }, no_anim = true }
 -- Alt+Tab (quickshell/taskbar/AltTab.qml): Glas wie Rofi, sofort da
 hl.layer_rule({ name = "alttab", match = { namespace = "alttab" }, blur = true, ignore_alpha = 0.1, no_anim = true })
 -- Emoji-Auswahl (Super+., quickshell/shared/EmojiPicker.qml): Glas, sofort da
+hl.layer_rule({ name = "osd", match = { namespace = "^g5-osd$" }, blur = true, ignore_alpha = 0.1, no_anim = true })
+
 hl.layer_rule({ name = "emoji", match = { namespace = "^emoji$" }, blur = true, ignore_alpha = 0.1, no_anim = true })
 
 -- Rofi (Spotlight-Starter): Radius = border-radius in rofi/spotlight.rasi
@@ -1027,6 +1041,8 @@ hl.config({
     },
     misc = {
         -- keine Hyprland-Logos/Standardbilder, Hintergrund macht awww
+        -- Transfer fullscreen on same-workspace focus; games are isolated above.
+        on_focus_under_fullscreen = 1,
         disable_hyprland_logo = true,
         disable_splash_rendering = true,
         force_default_wallpaper = 0,
