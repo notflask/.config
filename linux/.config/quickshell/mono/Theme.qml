@@ -20,4 +20,9 @@ Singleton {
     readonly property color ok: "#8fd19e"
     readonly property color warn: "#f0c674"
     readonly property color orange: "#f5a35c"
+
+    // VPN (Status.qml, VpnPanel.qml): grün verbunden, orange verbindet, sonst rot
+    function vpnColor(state) {
+        return state === "on" ? ok : state === "pending" ? orange : error;
+    }
 }

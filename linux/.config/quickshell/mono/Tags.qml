@@ -1,29 +1,16 @@
 import QtQuick
 import Quickshell
 
-// Arbeitsflächen 1–7 in chinesischen Ziffern, immer alle sichtbar: die
-// gerade angezeigte in der Akzentfarbe, belegte hell, leere dunkel,
-// dringende rot. Höhere Nummern nur, solange es sie gibt. Klick wechselt
-// dorthin, Mausrad blättert.
+// Arbeitsflächen in chinesischen Ziffern, nur die vorhandenen (belegte und
+// die gerade angezeigte): die angezeigte in der Akzentfarbe, belegte hell,
+// leere dunkel, dringende rot. Klick wechselt dorthin, Mausrad blättert.
 Row {
     id: root
 
     required property string output
     readonly property var mon: Wm.monitor(output)
     readonly property var digits: ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
-    readonly property var tags: {
-        const known = root.mon ? root.mon.tags : [];
-        const last = Math.max(7, ...known.map(t => t.index));
-        const out = [];
-        for (let i = 1; i <= last; i++)
-            out.push(known.find(t => t.index === i) || {
-                index: i,
-                is_active: false,
-                client_count: 0,
-                is_urgent: false
-            });
-        return out;
-    }
+    readonly property var tags: root.mon ? root.mon.tags : []
 
     leftPadding: 6
 
