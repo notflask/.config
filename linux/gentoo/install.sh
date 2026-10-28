@@ -3,7 +3,7 @@
 # Als normaler Benutzer starten (nicht root). Jeder Schritt darf beliebig oft laufen.
 #
 #   ~/dotfiles/linux/gentoo/install.sh             alles
-#   ~/dotfiles/linux/gentoo/install.sh SCHRITT ... repos packages system extras plugins services user network spotify
+#   ~/dotfiles/linux/gentoo/install.sh SCHRITT ... repos packages system extras plugins services user network spotify codex
 set -Eeuo pipefail
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -191,10 +191,20 @@ do_system() {
   [ -d /opt/spotify/spotify-client ] && { sdo chmod a+wr /opt/spotify/spotify-client; sdo chmod -R a+wr /opt/spotify/spotify-client/Apps; } || true
 }
 
+# ── codex: verifizierter Desktop-Build mit minimalem Fenster ──
+do_codex() {
+  step "ChatGPT / Codex Desktop (ohne Menüleiste und Fensterknöpfe)"
+  if ! python3 "$here/scripts/codex-app.py"; then
+    warn "Codex Desktop nicht installiert"; FAILED+=(codex-app)
+  fi
+}
+
 # ── extras: Programme ohne Gentoo-Paket ──
 do_extras() {
   local tmp u v
   tmp=$(mktemp -d)
+
+  do_codex
 
   step "Claude Desktop (.deb von Anthropic)"
   local apt=https://downloads.claude.ai/claude-desktop/apt/stable line=""
@@ -481,7 +491,7 @@ check
 [ $# -gt 0 ] || set -- "${all[@]}"
 for s in "$@"; do
   case $s in
-    repos | packages | system | extras | plugins | services | user | network | spotify) "do_$s" ;;
+    repos | packages | system | extras | plugins | services | user | network | spotify | codex) "do_$s" ;;
     *) die "unbekannter Schritt: $s (${all[*]})" ;;
   esac
 done

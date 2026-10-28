@@ -108,6 +108,12 @@ output_path = "~/.cache/matugen/icon-colors.sh"
 input_path  = "~/.config/matugen/templates/claude-code-theme.json"
 output_path = "~/.claude/themes/matugen.json"
 
+# ChatGPT / Codex Desktop: der Gentoo-Installer bindet den nativen
+# Theme-Loader ein; laufende Fenster übernehmen die Farben automatisch.
+[templates.chatgpt]
+input_path  = "~/.config/matugen/templates/chatgpt-theme.json"
+output_path = "~/.cache/matugen/chatgpt-theme.json"
+
 # Spotify (Spicetify): Spotify liest die Datei über einen Symlink im
 # Paket und lädt sie bei Änderungen selbst neu
 [templates.spicetify]
