@@ -223,12 +223,10 @@ setup_sober() {
     --env=__GL_SHADER_DISK_CACHE_SIZE=4294967296 \
     --env=__GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1 \
     --filesystem=xdg-run/app/com.discordapp.Discord:create \
-    --filesystem=xdg-run/discord-ipc-0
-  # Die Sandbox sieht ~/.config nicht → Kopie der MangoHud-Config
-  if [ -f "$HOME/.config/MangoHud/MangoHud.conf" ]; then
-    mkdir -p "$HOME/.var/app/$app/config/MangoHud"
-    cp -f "$HOME/.config/MangoHud/MangoHud.conf" "$HOME/.var/app/$app/config/MangoHud/"
-  fi
+    --filesystem=xdg-run/discord-ipc-0 \
+    --filesystem=xdg-config/MangoHud:ro
+  # Die Sandbox sieht ~/.config nicht → MangoHud-Ordner live freigeben statt
+  # kopieren: Matugen-Farben und font_file bleiben wie bei Steam-Spielen
   echo "sober: MangoHud (Shift_R+F12), Shader-Cache, Discord-RPC"
 }
 
