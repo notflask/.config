@@ -900,6 +900,9 @@ bind(key("comma"), hl.dsp.window.move({ into_or_create_group = "right" }))
 -- deshalb mit Super+Shift+,
 bind(key("SHIFT + comma"), hl.dsp.window.move({ out_of_group = "right" }))
 bind(key("period"), hl.dsp.global("quickshell:emoji"), title("Emoji Picker", { repeating = false }))
+-- Pomodoro (quickshell/shared/Pomodoro.qml): Leiste zeigt ihn erst nach dem Start
+bind(key("P"), hl.dsp.global("quickshell:pomodoro"), title("Pomodoro Start/Pause", { repeating = false }))
+bind(key("SHIFT + P"), hl.dsp.global("quickshell:pomodoro-panel"), { repeating = false })
 
 bind(key("R"), switch_preset(1), title("Switch Preset Column Widths"))
 bind(key("SHIFT + R"), switch_preset(-1))
