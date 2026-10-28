@@ -25,11 +25,17 @@ Neu starten, als `flask` anmelden (Konsole), WLAN mit `nmtui`, dann:
 ~/dotfiles/linux/gentoo/install.sh
 ```
 
-Schritte einzeln: `repos packages system extras plugins services user network`, dazu `spotify`.
+Schritte einzeln: `repos packages system extras plugins services user network`, dazu `spotify` und `codex`.
 
 Spotify (`media-sound/spotify`) kommt direkt von Spotifys Mirror und ist im ebuild auf einen festen Build festgelegt. Nimmt Spotify den vom Server, scheitert `emerge` schon beim Download (nur „Failed to emerge“, kein Build-Log – Spotify fehlt dann still). `install.sh` legt deshalb ein kleines lokales Overlay (`/var/db/repos/local`, aktiv über `/etc/portage/repos.conf/local.conf`) mit dem aktuellen Build an; tut sonst nichts, wenn das offizielle ebuild noch lädt. `update` frischt es auf, `install.sh spotify` macht nur das. Nach dem ersten Spotify-Start: `g5 setup spicetify`.
 
 Ohne Gentoo-Paket, von `extras` direkt vom Hersteller: Claude Desktop (.deb), TradingView (Snap), GE-Proton, Spicetify, GPU Screen Recorder UI, CachyOS-Ananicy-Regeln. Gigabyte Control Center, mizu, opal, hyprtasking aus dem Quelltext.
+
+ChatGPT / Codex Desktop wird ebenfalls durch `extras` installiert, einzeln mit `install.sh codex`. Der geprüfte x86_64-Build **26.1023.51421** kommt von OpenAI über eine feste Versions-URL mit SHA256-Prüfung. [scripts/codex-app.py](scripts/codex-app.py) installiert ihn unter `~/.local/share/chatgpt/`, legt die Starter `chatgpt` und `codex-app` sowie **ChatGPT (Codex)** im App-Menü an und entfernt Menüleiste und Fensterknöpfe. Die bestehende Codex-CLI und ihre Konfiguration werden nicht ersetzt. Offline: `python3 ~/dotfiles/linux/gentoo/scripts/codex-app.py /pfad/chatgpt_26.1023.51421_amd64.deb`.
+
+Gentoo ist von OpenAI nicht offiziell unterstützt. Version und Fenster-Patch sind bewusst gemeinsam festgelegt: Aktualisierungen erst nach Anpassung und Prüfung dieses Installers; unbekannte Archive werden vor der Installation abgelehnt. Rückgängig: App beenden, `resources/app.asar.before-minimal` über `resources/app.asar` im Versionsverzeichnis kopieren, App erneut öffnen.
+
+Matugen erzeugt `~/.cache/matugen/chatgpt-theme.json`; der Desktop übernimmt Hintergrund, Text-, Akzent- und semantische Farben sowie Hell/Dunkel über seine nativen Appearance-Einstellungen. Neue Wallpaper-Farben werden in laufenden Fenstern automatisch geladen. Eigene Schriftarten, Kontrast und Transparenz-Einstellungen bleiben erhalten. Beim ersten Einrichten einmal `~/.config/matugen/theme.sh` ausführen. Zum Nachrüsten einer älteren Installation die Desktop-App vorher beenden und `install.sh codex` erneut ausführen.
 
 ## Alltag
 

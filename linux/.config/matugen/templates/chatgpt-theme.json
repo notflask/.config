@@ -1,0 +1,11 @@
+{
+  "mode": "<* if {{ is_dark_mode }} *>dark<* else *>light<* endif *>",
+  "accent": "{{colors.primary.default.hex}}",
+  "surface": "{{colors.surface.default.hex}}",
+  "ink": "{{colors.on_surface.default.hex}}",
+  "semanticColors": {
+    "diffAdded": "{{colors.tertiary.default.hex}}",
+    "diffRemoved": "{{colors.error.default.hex}}",
+    "skill": "{{colors.secondary.default.hex}}"
+  }
+}

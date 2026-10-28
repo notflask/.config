@@ -2,7 +2,7 @@
 # ============================================================
 #  theme.sh – Farben aus dem Hintergrundbild erzeugen (matugen)
 #  und Niri, Hyprland, Taskleiste, Rofi, Mako, GTK- und Qt-Apps,
-#  Helium, Thunderbird, Spotify, Discord und Steam anpassen.
+#  Helium, Thunderbird, Spotify, Discord, ChatGPT und Steam anpassen.
 #
 #    theme.sh                      aktuelles Waypaper-Bild nehmen
 #    theme.sh BILD                 Farben aus BILD

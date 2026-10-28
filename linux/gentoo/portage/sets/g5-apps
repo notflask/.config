@@ -47,4 +47,9 @@ app-arch/cabextract
 sys-apps/bubblewrap
 dev-util/desktop-file-utils
 dev-util/gtk-update-icon-cache
+# ChatGPT / Codex Desktop: Herstellerpaket wird im Schritt extras installiert.
+app-crypt/libsecret
+app-crypt/tpm2-tss
+dev-libs/nss
+x11-libs/gtk+:3
 app-text/calibre
