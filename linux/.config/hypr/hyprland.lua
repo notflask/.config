@@ -329,6 +329,9 @@ hl.window_rule({
     confine_pointer = true,
 })
 
+-- Tablet-Modus bewusst per `tablet-mode draw|game` wechseln.
+-- Kein Wechsel beim Fensterfokus: ein gedrückter Stift kann sonst hängen bleiben.
+
 -- is-window-cast-target (roter Rahmen beim Teilen): gibt es in Hyprland nicht
 
 hl.window_rule({

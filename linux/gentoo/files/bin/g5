@@ -189,6 +189,8 @@ apply_apps() {
     flatpak info --user "$app" >/dev/null 2>&1 ||
       flatpak install --user -y --noninteractive flathub "$app" || note "Flatpak $app nicht installiert"
   done
+  # Flatpaks haben eigenes ~/.config → Matugen-Farben (GTK3/4) für alle freigeben
+  flatpak override --user --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro
   echo "apps: Flatpaks $(get apps.flatpaks)"
 }
 

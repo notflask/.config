@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# tablet-mode – Grafiktablett (OpenTabletDriver) zwischen Spielen und Zeichnen umschalten.
+#
+#   tablet-mode game     Preset osu-lg: Absolute Mode, Zeiger für Spiele (osu!)
+#   tablet-mode draw     Preset notes: Linux Artist Mode mit Druck (Rnote)
+#   tablet-mode [status] aktueller Modus
+#
+# Manuell wechseln, wenn der Stift angehoben ist; niemals beim Fensterfokus.
+# tablet-mode recover setzt die virtuellen Eingabegeräte zurück.
+#
+# notes entsteht beim ersten Mal aus osu-lg: ganze Tablettfläche (16:9),
+# Artist Mode, gleicher Monitor (LG) – beim Fokuswechsel springt der Stift
+# nicht auf den anderen Bildschirm. Danach gehört es dir (otd-gui, savepreset).
+# Stifttasten wie in osu-lg, Rnote belegt sie selbst.
+set -euo pipefail
+
+presets=${XDG_CONFIG_HOME:-$HOME/.config}/OpenTabletDriver/Presets
+game=osu-lg
+draw=notes
+state=${XDG_RUNTIME_DIR:-/tmp}/tablet-mode
+
+make_draw() {
+  [ -e "$presets/$draw.json" ] && return
+  [ -e "$presets/$game.json" ] || { echo "tablet-mode: $presets/$game.json fehlt" >&2; exit 1; }
+  jq '.Profiles[].OutputMode.Path = "OpenTabletDriver.Desktop.Output.LinuxArtistMode"
+    | .Profiles[].AbsoluteModeSettings |= (
+        .Tablet = { Width: 165.1, Height: 92.87, X: 82.55, Y: 50.8, Rotation: 0.0 }
+        | .LockAspectRatio = true | .EnableAreaLimiting = false)
+    | .Profiles[].Bindings.TipButton = null' \
+    "$presets/$game.json" >"$presets/$draw.json"
+}
+
+apply() {
+  # Serialize requests so profiles and the saved default cannot race.
+  exec 9>"$state.lock"
+  flock 9
+  [ "$1" != draw ] || make_draw
+  local preset=$game
+  [ "$1" != draw ] || preset=$draw
+  otd applypreset "$preset" >/dev/null
+  otd savedefaultsettings >/dev/null
+  # Destroy old virtual devices to release any held pen/mouse buttons.
+  systemctl --user restart opentabletdriver.service
+  echo "$1" >"$state"
+}
+
+case ${1:-status} in
+  game | draw) apply "$1" ;;
+  recover) systemctl --user restart opentabletdriver.service ;;
+  status) otd getoutputmode "Gaomon S620" ;;
+  *) echo "tablet-mode game|draw|recover|status" >&2; exit 1 ;;
+esac
