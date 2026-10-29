@@ -291,14 +291,29 @@ setup_vencord() {
   local version=v1.4.2 sha256=52642c8521a866ad241c10337144a4f513672c54b9c86a8169954785054c815d
   local cli=/var/cache/VencordInstallerCli-$version
   [ -d /opt/discord ] || { echo "vencord: Discord nicht installiert"; return 0; }
-  [ -e /opt/discord/resources/_app.asar ] && { echo "vencord: schon eingebaut"; return 0; }
+  # Updates ersetzen app.asar, lassen aber gelegentlich die alte Sicherung
+  # _app.asar zurück. Nur der tatsächlich geladene Vencord-Starter zählt.
+  if grep -aFq '/Vencord/dist/patcher.js' /opt/discord/resources/app.asar; then
+    echo "vencord: schon eingebaut"; return 0
+  fi
   if [ "$(id -u)" -ne 0 ]; then exec sudo "$self" setup vencord; fi
   if [ ! -x "$cli" ]; then
     curl -fsSL -o "$cli.part" "https://github.com/Vendicated/VencordInstaller/releases/download/$version/VencordInstallerCli-Linux"
     echo "$sha256  $cli.part" | sha256sum -c --quiet || { rm -f "$cli.part"; die "Vencord: Prüfsumme falsch"; }
     install -m 755 "$cli.part" "$cli" && rm -f "$cli.part"
   fi
-  (cd /tmp && "$cli" -install -location /opt/discord) && echo "vencord: eingebaut"
+  # Sonst könnte der Installer beim Entpatchen die alte Discord-Version
+  # wiederherstellen. Die verwaiste Sicherung vorher separat aufbewahren.
+  if [ -e /opt/discord/resources/_app.asar ]; then
+    local stale
+    stale=$(mktemp /opt/discord/resources/app.asar.before-vencord-repair.XXXXXX) || return 1
+    mv /opt/discord/resources/_app.asar "$stale" || return 1
+  fi
+  (cd /tmp && "$cli" -install -location /opt/discord) || return 1
+  grep -aFq '/Vencord/dist/patcher.js' /opt/discord/resources/app.asar || {
+    echo "vencord: Installation hat keinen Vencord-Starter erzeugt" >&2; return 1;
+  }
+  echo "vencord: eingebaut"
 }
 
 # Flatpak-Apps (Sober) brauchen org.freedesktop.Platform.GL.nvidia-<Version>
