@@ -39,6 +39,7 @@ Matugen erzeugt `~/.cache/matugen/chatgpt-theme.json`; der Desktop übernimmt Hi
 
 ## Alltag
 
+- Discords Starter repariert den OpenH264-Versionskonflikt: Der Desktop-Core lädt 2.7, während der native H.264-Decoder noch 2.5.1 verlangt. `discord-codec-fix` lädt die passende Cisco-Bibliothek mit fester SHA256-Prüfung und lässt die Cache-Bereinigung beide Versionen behalten. Die Reparatur läuft vor jedem Start, auch nach Updates; unbekannter Code wird nicht verändert. Beim allerersten Start muss Discord seine Module zunächst installieren, danach einmal neu starten. Rückgängig: Discord beenden und `core.asar.before-openh264-cleanup-fix` im aktuellen `~/.config/discord/<Version>/modules/discord_desktop_core/` über `core.asar` kopieren; den Reparaturaufruf im Starter vorher entfernen. Kameraempfang nach dem Neustart prüfen.
 - Logs: `~/.local/state/g5-install.log`, `/var/log/g5-configure.log`; Fehler und Warnungen stehen gesammelt am Ende jedes Laufs.
 - `update` – Overlays syncen, `@world` mit Snapshot davor/danach (`emerge-snap`), Plugins, Extras, Spicetify, Flatpak.
 - `g5` – zentrale Einstellungen in `config/g5.json` (Stil, Monitore, Leistung, Spiele, VPN, Apps), Profile (`g5 profile use quiet|max|battery`), `g5 setup …` und `g5 doctor` (prüft das ganze System). Doku: [config/CONFIG.md](config/CONFIG.md).
