@@ -60,6 +60,15 @@ do_packages() {
   step "System auf Stand"
   sdo emerge --ask=n -uDN --keep-going=y @world || warn "@world nicht vollständig"
   sdo emerge --ask=n @preserved-rebuild || true
+  install_vencord
+}
+
+install_vencord() {
+  [ "$(cfg apps.vencord)" = false ] && return 0
+  if ! sdo "$here/files/bin/g5" setup vencord; then
+    warn "Vencord nicht installiert – g5 setup vencord erneut ausführen"
+    FAILED+=(vencord)
+  fi
 }
 
 # ── spotify ──
@@ -187,7 +196,7 @@ do_system() {
   step "Kernel-Einstellungen sofort anwenden"
   sdo sysctl --quiet --system || true
   sdo udevadm control --reload && sdo udevadm trigger --subsystem-match=drm || true
-  [ "$(cfg apps.vencord)" = false ] || sdo "$here/files/bin/g5" setup vencord || true
+  install_vencord
   [ -d /opt/spotify/spotify-client ] && { sdo chmod a+wr /opt/spotify/spotify-client; sdo chmod -R a+wr /opt/spotify/spotify-client/Apps; } || true
 }
 
