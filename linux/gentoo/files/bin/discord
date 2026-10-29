@@ -21,5 +21,9 @@ export LIBVA_DRIVER_NAME=iHD
 # Stürzt auch das ab: LIBVA_DRIVER_NAME=none, dann OpenH264 auf der CPU.
 export CUDA_VISIBLE_DEVICES=
 export VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json
+# Discords Desktop-Core lädt OpenH264 2.7, der native Decoder braucht noch
+# 2.5.1. Dessen Bibliothek darf die Cache-Bereinigung nicht löschen.
+python3 "$(dirname "$(readlink -f "$0")")/discord-codec-fix" || \
+  echo "Discord: Webcam-Codec konnte nicht repariert werden" >&2
 exec /opt/discord/Discord --render-node-override=/dev/dri/nvidia-render \
   --enable-gpu-rasterization "$@"
